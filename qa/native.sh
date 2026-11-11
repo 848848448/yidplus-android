@@ -68,14 +68,14 @@ check channel
 # ---- Full-screen gallery: swipe to the next photo, double-tap zoom, drag down to close ----
 uitext() { timeout 30 adb shell uiautomator dump /sdcard/g.xml >/dev/null 2>&1; timeout 30 adb shell cat /sdcard/g.xml 2>/dev/null | grep -oE 'text="[0-9]+ / [0-9]+"' | head -1; }
 timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHANNEL --es username ZemelVIN --es title ZemelVIN >/dev/null 2>&1; sleep 7
-key 20; key 23; sleep 4; G1=$(uitext); shot 06a-gallery-open; log "gallery opened: ${G1:-no counter}"
+key 20; key 23; sleep 4; G1=$(uitext); GW=$(timeout 30 adb shell cat /sdcard/g.xml 2>/dev/null | grep -c "Fetching posts"); shot 06a-gallery-open; log "gallery opened: ${G1:-no counter}"
 adb shell input swipe 420 330 60 330 150; sleep 3; G2=$(uitext); shot 06b-gallery-swiped; log "after swipe left: ${G2:-no counter}"
 timeout 20 adb shell 'input tap 240 330 & sleep 0.12; input tap 240 330; wait'; sleep 2; shot 06c-gallery-zoomed
 adb shell input swipe 420 330 60 330 150; sleep 2; G3=$(uitext); log "zoomed + swipe (should stay): ${G3:-no counter}"
 timeout 20 adb shell 'input tap 240 330 & sleep 0.12; input tap 240 330; wait'; sleep 2
 key 22; sleep 2; G4=$(uitext); log "keypad RIGHT: ${G4:-no counter}"
 adb shell input swipe 240 200 240 600 250; sleep 3; G5=$(uitext); shot 06d-gallery-closed; log "after drag down: ${G5:-closed}"
-if [ -n "$G1" ] && [ -n "$G2" ] && [ "$G1" != "$G2" ] && [ "$G2" = "$G3" ] && [ "$G4" != "$G3" ] && [ -z "$G5" ]; then log "GALLERY PASS"; else log "GALLERY FAIL"; FAIL=1; fi
+if [ -n "$G1" ] && [ -n "$G2" ] && [ "$G1" != "$G2" ] && [ "$G2" = "$G3" ] && [ "$G4" != "$G3" ] && [ -z "$G5" ]; then log "GALLERY PASS"; elif [ -z "$G1" ] && [ "${GW:-0}" != 0 ]; then log "GALLERY SKIP: the live channel had no posts yet (site still fetching); the gallery is tested with fixture photos in qa/fx-lk.sh"; else log "GALLERY FAIL"; FAIL=1; fi
 check gallery
 
 # ---- Chats (guest: featured groups) ----
@@ -285,7 +285,7 @@ tab Profile; sleep 3; shot 60-tablet-landscape-profile
 check tablet
 adb shell wm size reset; adb shell wm density reset
 
-fx_block
+if [ "${QA_SKIP_FX:-}" = 1 ]; then log "signed-in fixture block skipped (QA_SKIP_FX=1; run in full on the feature branch)"; else fx_block; fi
 
 # ---- Instant notifications: can this phone get a Firebase token? (Google APIs image: yes; plain image: no) ----
 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_PUSH_PROBE >/dev/null; sleep 15

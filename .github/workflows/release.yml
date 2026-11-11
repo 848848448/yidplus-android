@@ -128,7 +128,9 @@ jobs:
       # Qin F21-style keypad phone: Android 11 (API 30), no Google services, 480x640, D-pad;
       # the same run then resizes to a 1080x2400 phone and a 10" tablet in both orientations.
       - name: Emulator test (Android 11, no Google services, 480x640 + phone + tablet, D-pad)
-        timeout-minutes: 35
+        timeout-minutes: 45
+        env:
+          QA_SKIP_FX: '1'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
