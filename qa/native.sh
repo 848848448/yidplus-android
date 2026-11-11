@@ -96,6 +96,14 @@ adb shell input tap 200 78; sleep 5; shot A5-chat-info; check chat-info
 key 4; sleep 3; shot A5b-back-in-chat
 adb shell input swipe 240 420 240 420 900; sleep 2; shot A6-message-actions
 key 4; sleep 1; key 4; sleep 2; shot A7-back-to-list; check chats-extras
+# Chat notification like WhatsApp (sample posted by the QA receiver; a real one needs a signed-in account with new messages):
+adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n com.yidplus.app/.ChatQaReceiver >/dev/null 2>&1; sleep 3
+adb shell cmd statusbar expand-notifications; sleep 3; shot A8-notification-chat
+timeout 30 adb shell uiautomator dump /sdcard/n.xml >/dev/null 2>&1
+RB=$(timeout 20 adb shell cat /sdcard/n.xml 2>/dev/null | grep -oiE 'text="reply"[^>]*bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | head -1 | grep -oE '[0-9]+' | tail -4 | tr '\n' ' ')
+log "notification Reply button: ${RB:-not found}"
+if [ -n "$RB" ]; then read X1 Y1 X2 Y2 <<< "$RB"; adb shell input tap $(( (X1 + X2) / 2 )) $(( (Y1 + Y2) / 2 )); sleep 2; adb shell input text "Gut"; sleep 1; shot A9-notification-reply-box; fi
+adb shell cmd statusbar collapse; sleep 1; check chat-notification
 # ==== Helper A (Chats 2.0.1) QA block: end ====
 
 # ---- Shorts ----

@@ -102,6 +102,11 @@
             tools:node="remove" />
 
         <receiver android:name=".InstallResultReceiver" android:exported="false" />
+        <!-- Chats (Helper A): inline Reply / Mark as read on chat notifications, and the QA sample (adb only: DUMP). -->
+        <receiver android:name=".ChatReplyReceiver" android:exported="false" />
+        <receiver android:name=".ChatQaReceiver" android:exported="true" android:permission="android.permission.DUMP">
+            <intent-filter><action android:name="com.yidplus.app.QA_CHAT_NOTIFY" /></intent-filter>
+        </receiver>
         <receiver android:name=".PackageReplacedReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />

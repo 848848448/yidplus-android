@@ -164,6 +164,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         val cached = withContext(Dispatchers.IO) { chObjs(Disk.read(Store.key(cacheKey))?.optJSONArray("messages")).map(ChatMsg::from).filter { it.type != "call" } }
         if (cached.isNotEmpty() && msgs.isEmpty()) { msgs.addAll(cached); Perf.shown("Chat", fromCache = true) }
         if (info == null) launch { roomsRes.load() }
+        runCatching { com.yidplus.app.NotifyWorker.cancelChat(c, room.id); com.yidplus.app.ChatNotify.clear(c, room.id) }
         var n = 0
         while (isActive) { pull(); if (n++ % 2 == 0) pullReacts(); delay(if (Net.online) 5_000 else 15_000) }
     }
