@@ -64,7 +64,7 @@ class AdminPage : PageScreen() {
         var q by remember { mutableStateOf("") }
         var users by remember { mutableStateOf<List<JSONObject>?>(null) }
         LaunchedEffect(Unit) {
-            if (MyProfile.demo) {
+            if (SettingsProfile.demo) {
                 stats = JSONObject().put("users", 1834).put("new_today", 12).put("online", 47).put("shorts", 3120).put("messages", 98210).put("channels", 64).put("open_reports", 2)
                 flags = mapOf("feat_music" to "off"); users = emptyList(); return@LaunchedEffect
             }
@@ -73,7 +73,7 @@ class AdminPage : PageScreen() {
         }
         // Search people as you type (the site's Admin → Users search).
         LaunchedEffect(q) {
-            if (MyProfile.demo || q.trim().length < 2) { if (q.isBlank()) users = null; return@LaunchedEffect }
+            if (SettingsProfile.demo || q.trim().length < 2) { if (q.isBlank()) users = null; return@LaunchedEffect }
             delay(350)
             runCatching { Api.get("/api/admin/users?search=" + Uri.encode(q.trim())).optJSONArray("users").objects() }.onSuccess { users = it.distinctBy { u -> u.str("id") } }
         }
@@ -94,13 +94,13 @@ class AdminPage : PageScreen() {
                 featureFlags.forEachIndexed { i, (key, label, desc) ->
                     if (i > 0) RowDivider(64.dp)
                     val on = flags[key] != "off"
-                    SettingRow(featureIcons[key] ?: Icons.Filled.Star, label, desc + if (!meIsSuperAdmin) " · owner only" else "", switch = on,
+                    SettingRow(featureIcons[key] ?: Icons.Filled.Star, label, desc + if (!settingsIsSuperAdmin) " · owner only" else "", switch = on,
                         modifier = if (i == 0) Modifier.firstFocus() else Modifier) {
-                        if (!meIsSuperAdmin) { toast(c, "Only the owner or a super admin can change this"); return@SettingRow }
+                        if (!settingsIsSuperAdmin) { toast(c, "Only the owner or a super admin can change this"); return@SettingRow }
                         val v = if (on) "off" else "on"
                         flags = flags + (key to v)
                         scope.launch {
-                            runCatching { if (!MyProfile.demo) Api.put("/api/settings", JSONObject().put("key", key).put("value", v)) }
+                            runCatching { if (!SettingsProfile.demo) Api.put("/api/settings", JSONObject().put("key", key).put("value", v)) }
                                 .onSuccess { toast(c, if (v == "on") "$label is on" else "$label is off for everyone"); SiteConfig.refresh() }
                                 .onFailure { flags = flags + (key to if (on) "on" else "off"); toast(c, Api.friendly(it)) }
                         }
@@ -108,16 +108,16 @@ class AdminPage : PageScreen() {
                 }
             }
             SettingsHint("Off = the tab disappears from the bottom bar for everyone, on the site and in the app. People on a feature's allow-list (set in the full panel) still see it.")
+            SettingsCard("Everything else") {
+                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open the full admin panel", "Reports, ads, channels, Telegram, bots, broadcasts, logs and more (your admin PIN is asked)") {
+                    Nav.open(Screen.Web(Api.BASE + "/admin"))
+                }
+            }
             SettingsCard("Find a member") {
                 OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), singleLine = true, label = { Text("Name or email") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search))
                 users?.take(20)?.forEach { u -> AdminUserRow(u) { changed -> users = users?.map { if (it.str("id") == changed.str("id")) changed else it } } }
                 if (users?.isEmpty() == true && q.length >= 2) Text("Nobody found", Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            SettingsCard("Everything else") {
-                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open the full admin panel", "Reports, ads, channels, Telegram, bots, broadcasts, logs and more (your admin PIN is asked)") {
-                    Nav.open(Screen.Web(Api.BASE + "/admin"))
-                }
             }
         }
     }

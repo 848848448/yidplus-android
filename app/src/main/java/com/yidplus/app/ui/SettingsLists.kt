@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Favorite
@@ -120,6 +121,15 @@ private fun SmallAction(text: String, primary: Boolean = false, onClick: () -> U
         color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
 }
 
+@Composable
+private fun RoundAction(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, primary: Boolean = false, onClick: () -> Unit) {
+    Box(Modifier.padding(start = 8.dp).size(40.dp).clip(CircleShape)
+        .then(if (primary) Modifier.background(MaterialTheme.colorScheme.primary) else Modifier.border(1.dp, MaterialTheme.colorScheme.outline, CircleShape))
+        .tap(CircleShape, onClick = onClick), contentAlignment = Alignment.Center) {
+        Icon(icon, label, tint = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
+    }
+}
+
 /** A list page that loads `path` and shows the rows, with the skeleton, error and empty states done right. */
 @Composable
 private fun <T> ListPage(title: String, path: String, parse: (JSONObject) -> List<T>, demo: List<T>, emptyIcon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -129,12 +139,12 @@ private fun <T> ListPage(title: String, path: String, parse: (JSONObject) -> Lis
     var err by remember { mutableStateOf<String?>(null) }
     var offline by remember { mutableStateOf(false) }
     suspend fun load() {
-        if (MyProfile.demo) { list = demo; return }
+        if (SettingsProfile.demo) { list = demo; return }
         runCatching { withContext(Dispatchers.IO) { parse(Api.get(path)) } }.onSuccess { list = it.distinctBy(key); err = null }.onFailure { err = Api.friendly(it); offline = Api.isOffline(it) }
     }
     LaunchedEffect(path) { load() }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        TopBar(title, onBack = { Nav.back() }, sub = list?.let { if (it.isEmpty()) null else "${it.size}" })
+        TopBar(title, onBack = { Nav.back() }, sub = list?.let { if (it.isEmpty()) null else if (it.size == 1) "1 person" else "${it.size} people" })
         val l = list
         when {
             l == null && err != null -> Problem(err!!, offline, { scope.launch { load() } })
@@ -150,7 +160,7 @@ private fun <T> ListPage(title: String, path: String, parse: (JSONObject) -> Lis
     }
 }
 
-class BlockedPage : PageScreen() {
+class SettingsBlocked : PageScreen() {
     override val perfName = "Blocked"
     @Composable override fun Content() {
         val c = ctx()
@@ -161,7 +171,7 @@ class BlockedPage : PageScreen() {
             PersonRow(null, u.str("nickname").ifBlank { "User" }, first = first) {
                 SmallAction("Unblock") {
                     scope.launch {
-                        runCatching { if (!MyProfile.demo) Api.delete("/api/blocks?id=" + Uri.encode(u.str("blocked_id"))) }
+                        runCatching { if (!SettingsProfile.demo) Api.delete("/api/blocks?id=" + Uri.encode(u.str("blocked_id"))) }
                             .onSuccess { toast(c, "Unblocked"); gone() }.onFailure { toast(c, Api.friendly(it)) }
                     }
                 }
@@ -179,15 +189,15 @@ class FollowRequestsPage : PageScreen() {
             listOf(JSONObject().put("id", "d2").put("nickname", "Moshe Klein").put("created_at", "2026-11-10T20:00:00")), Icons.Filled.PersonAdd,
             "No requests", "When your account is private, people who want to follow you show up here.", { it.str("id") }) { r, first, gone ->
             PersonRow(Api.abs(r.str("photo_url").ifBlank { null }), r.str("nickname").ifBlank { "User" }, ago(r.str("created_at")).let { if (it.isBlank()) null else "$it ago" }, first) {
-                SmallAction("Accept", primary = true) {
+                RoundAction(Icons.Filled.Check, "Accept", primary = true) {
                     scope.launch {
-                        runCatching { if (!MyProfile.demo) Api.post("/api/follows", JSONObject().put("action", "accept").put("requester_id", r.str("id"))) }
+                        runCatching { if (!SettingsProfile.demo) Api.post("/api/follows", JSONObject().put("action", "accept").put("requester_id", r.str("id"))) }
                             .onSuccess { toast(c, "Accepted"); gone() }.onFailure { toast(c, Api.friendly(it)) }
                     }
                 }
-                SmallAction("Decline") {
+                RoundAction(Icons.Filled.Close, "Decline") {
                     scope.launch {
-                        runCatching { if (!MyProfile.demo) Api.delete("/api/follows?user_id=" + Uri.encode(r.str("id")) + "&request=1") }
+                        runCatching { if (!SettingsProfile.demo) Api.delete("/api/follows?user_id=" + Uri.encode(r.str("id")) + "&request=1") }
                             .onSuccess { gone() }.onFailure { toast(c, Api.friendly(it)) }
                     }
                 }
@@ -196,7 +206,7 @@ class FollowRequestsPage : PageScreen() {
     }
 }
 
-class MutedChatsPage : PageScreen() {
+class SettingsMutedChats : PageScreen() {
     override val perfName = "MutedChats"
     @Composable override fun Content() {
         val c = ctx()
@@ -208,7 +218,7 @@ class MutedChatsPage : PageScreen() {
             PersonRow(Api.abs(r.str("photo_url").ifBlank { null }), name, first = first) {
                 SmallAction("Unmute") {
                     scope.launch {
-                        runCatching { if (!MyProfile.demo) Api.put("/api/chat/rooms", JSONObject().put("room_id", r.str("id")).put("muted", false)) }
+                        runCatching { if (!SettingsProfile.demo) Api.put("/api/chat/rooms", JSONObject().put("room_id", r.str("id")).put("muted", false)) }
                             .onSuccess { toast(c, "Unmuted"); gone() }.onFailure { toast(c, Api.friendly(it)) }
                     }
                 }
@@ -219,7 +229,7 @@ class MutedChatsPage : PageScreen() {
 
 // ── Feedback, data export, delete ─────────────────────────────────────────────
 
-class FeedbackPage : PageScreen() {
+class SettingsFeedback : PageScreen() {
     override val perfName = "Feedback"
     @Composable override fun Content() {
         val c = ctx()
@@ -246,7 +256,7 @@ class FeedbackPage : PageScreen() {
                     if (text.isBlank()) { toast(c, "Please write something first"); return@PrimaryButton }
                     busy = true
                     scope.launch {
-                        runCatching { if (!MyProfile.demo) Api.post("/api/feedback", JSONObject().put("type", type).put("text", text.trim()).put("device", Api.UA.take(100))) }
+                        runCatching { if (!SettingsProfile.demo) Api.post("/api/feedback", JSONObject().put("type", type).put("text", text.trim()).put("device", Api.UA.take(100))) }
                             .onSuccess { toast(c, "Thank you! We got it."); Nav.back() }.onFailure { toast(c, Api.friendly(it)) }
                         busy = false
                     }
@@ -257,9 +267,9 @@ class FeedbackPage : PageScreen() {
 }
 
 /** The site's "Download my data": the whole /api/profile answer saved as a JSON file in Downloads. */
-suspend fun exportMyData(c: Context): String = withContext(Dispatchers.IO) {
+suspend fun settingsExportData(c: Context): String = withContext(Dispatchers.IO) {
     try {
-        val text = (if (MyProfile.demo) MyProfile.sample() else Api.get("/api/profile")).toString(2)
+        val text = (if (SettingsProfile.demo) SettingsProfile.sample() else Api.get("/api/profile")).toString(2)
         val name = "yidplus-my-data-${System.currentTimeMillis() / 1000}.json"
         if (Build.VERSION.SDK_INT >= 29) {
             val v = ContentValues().apply { put(MediaStore.MediaColumns.DISPLAY_NAME, name); put(MediaStore.MediaColumns.MIME_TYPE, "application/json"); put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS) }
@@ -275,5 +285,5 @@ suspend fun exportMyData(c: Context): String = withContext(Dispatchers.IO) {
 }
 
 /** Read a QA-only extra on the launch intent (emulator tests drive the screens with adb). */
-fun qaExtra(c: Context, key: String): String? = (c as? Activity)?.intent?.getStringExtra(key)
-fun qaClear(c: Context, key: String) { (c as? Activity)?.intent?.removeExtra(key) }
+fun settingsQaExtra(c: Context, key: String): String? = (c as? Activity)?.intent?.getStringExtra(key)
+fun settingsQaClear(c: Context, key: String) { (c as? Activity)?.intent?.removeExtra(key) }

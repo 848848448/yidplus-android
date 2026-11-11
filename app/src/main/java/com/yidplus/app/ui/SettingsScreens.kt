@@ -102,7 +102,7 @@ import java.io.ByteArrayOutputStream
 // The signed-in person's own profile and account (the website's Settings page, /api/profile and friends).
 // ═════════════════════════════════════════════════════════════════════════════
 
-object MyProfile {
+object SettingsProfile {
     /** Emulator QA only: the screens show a sample profile (QA runs signed out). Never set by people. */
     var demo by mutableStateOf(false)
     val res: Res<JSONObject> get() = Store.res("/api/profile") { it }
@@ -176,8 +176,8 @@ object MyProfile {
         .put("sessions", JSONArray().put(JSONObject().put("id", "sh_1").put("created_at", "2026-11-11T06:00:00")).put(JSONObject().put("id", "sh_2").put("created_at", "2026-11-02T18:30:00")))
 }
 
-val meIsAdmin: Boolean get() = Session.me?.let { it.isOwner || it.role == "admin_super" || it.role == "admin_limited" } == true || MyProfile.demo
-val meIsSuperAdmin: Boolean get() = Session.me?.let { it.isOwner || it.role == "admin_super" } == true || MyProfile.demo
+val settingsIsAdmin: Boolean get() = Session.me?.let { it.isOwner || it.role == "admin_super" || it.role == "admin_limited" } == true || SettingsProfile.demo
+val settingsIsSuperAdmin: Boolean get() = Session.me?.let { it.isOwner || it.role == "admin_super" } == true || SettingsProfile.demo
 
 // ── Small shared pieces for these screens ─────────────────────────────────────
 
@@ -234,21 +234,21 @@ fun SettingsConfirmDialog(title: String, text: String, action: String, danger: B
  * password confirmed (POST /api/auth/verify-password). Accounts made with Google have no password: a plain "Are you sure".
  */
 @Composable
-fun PasswordConfirmDialog(title: String, message: String, action: String, danger: Boolean = false, onOk: () -> Unit, onDismiss: () -> Unit) {
+fun SettingsPasswordDialog(title: String, message: String, action: String, danger: Boolean = false, onOk: () -> Unit, onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
     var noPassword by remember { mutableStateOf<Boolean?>(null) }
     var pw by remember { mutableStateOf("") }
     var err by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        noPassword = if (MyProfile.demo) false else runCatching { Api.post("/api/auth/verify-password", JSONObject().put("password", "")).optBoolean("no_password") }.getOrDefault(false)
+        noPassword = if (SettingsProfile.demo) false else runCatching { Api.post("/api/auth/verify-password", JSONObject().put("password", "")).optBoolean("no_password") }.getOrDefault(false)
     }
     fun go() {
         if (noPassword == true) { onDismiss(); onOk(); return }
         if (pw.isBlank()) { err = "Enter your current password"; return }
         busy = true; err = null
         scope.launch {
-            val ok = if (MyProfile.demo) true else runCatching { Api.post("/api/auth/verify-password", JSONObject().put("password", pw)).optBoolean("valid") }
+            val ok = if (SettingsProfile.demo) true else runCatching { Api.post("/api/auth/verify-password", JSONObject().put("password", pw)).optBoolean("valid") }
                 .getOrElse { err = Api.friendly(it); busy = false; return@launch }
             busy = false
             if (ok) { onDismiss(); onOk() } else err = "That password isn't right"
@@ -269,12 +269,12 @@ fun PasswordConfirmDialog(title: String, message: String, action: String, danger
 
 /** The person's own header: photo (tap to change), name, email, and the site's stats under it. */
 @Composable
-fun MyProfileHeader(onEdit: () -> Unit) {
+fun SettingsProfileHeader(onEdit: () -> Unit) {
     val me = Session.me
-    val p = MyProfile.p
+    val p = SettingsProfile.p
     val name = p?.str("nickname")?.ifBlank { null } ?: me?.nickname ?: ""
     val photo = Api.abs(p?.str("photo_url")?.ifBlank { null }) ?: me?.photo
-    val stats = MyProfile.res.data?.optJSONObject("stats")
+    val stats = SettingsProfile.res.data?.optJSONObject("stats")
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxWidth()) {
             Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp), onClick = onEdit).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -318,42 +318,42 @@ private fun Stat(n: Int, label: String) {
 
 private val profileColors = listOf("#1F6F5C", "#2B7A9B", "#4767A8", "#7056A8", "#AD4F7E", "#C0564A", "#C7822A", "#6D7F2B", "#37474F", "#000000")
 
-class EditProfilePage : PageScreen() {
+class SettingsEditProfile : PageScreen() {
     override val perfName = "EditProfile"
     @Composable override fun Content() {
         val c = ctx()
         val scope = rememberCoroutineScope()
-        LaunchedEffect(Unit) { MyProfile.load() }
-        val p = MyProfile.p
-        var nick by remember(p) { mutableStateOf(MyProfile.text("nickname").ifBlank { Session.me?.nickname ?: "" }) }
-        var bio by remember(p) { mutableStateOf(MyProfile.text("bio")) }
-        var location by remember(p) { mutableStateOf(MyProfile.text("location")) }
-        var birthday by remember(p) { mutableStateOf(MyProfile.text("birthday")) }
-        var website by remember(p) { mutableStateOf(MyProfile.text("website")) }
-        var instagram by remember(p) { mutableStateOf(MyProfile.text("instagram")) }
-        var youtube by remember(p) { mutableStateOf(MyProfile.text("youtube")) }
-        var color by remember(p) { mutableStateOf(MyProfile.text("profile_color").ifBlank { "#1F6F5C" }) }
+        LaunchedEffect(Unit) { SettingsProfile.load() }
+        val p = SettingsProfile.p
+        var nick by remember(p) { mutableStateOf(SettingsProfile.text("nickname").ifBlank { Session.me?.nickname ?: "" }) }
+        var bio by remember(p) { mutableStateOf(SettingsProfile.text("bio")) }
+        var location by remember(p) { mutableStateOf(SettingsProfile.text("location")) }
+        var birthday by remember(p) { mutableStateOf(SettingsProfile.text("birthday")) }
+        var website by remember(p) { mutableStateOf(SettingsProfile.text("website")) }
+        var instagram by remember(p) { mutableStateOf(SettingsProfile.text("instagram")) }
+        var youtube by remember(p) { mutableStateOf(SettingsProfile.text("youtube")) }
+        var color by remember(p) { mutableStateOf(SettingsProfile.text("profile_color").ifBlank { "#1F6F5C" }) }
         var busy by remember { mutableStateOf(false) }
         var err by remember { mutableStateOf<String?>(null) }
         var uploading by remember { mutableStateOf<String?>(null) }
         val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null) { uploading = "photo"; scope.launch { val e = MyProfile.upload(c, uri, "photo"); uploading = null; toast(c, e ?: "Photo updated") } }
+            if (uri != null) { uploading = "photo"; scope.launch { val e = SettingsProfile.upload(c, uri, "photo"); uploading = null; toast(c, e ?: "Photo updated") } }
         }
         val pickBanner = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null) { uploading = "banner"; scope.launch { val e = MyProfile.upload(c, uri, "banner"); uploading = null; toast(c, e ?: "Cover updated") } }
+            if (uri != null) { uploading = "banner"; scope.launch { val e = SettingsProfile.upload(c, uri, "banner"); uploading = null; toast(c, e ?: "Cover updated") } }
         }
         fun save() {
             val f = JSONObject()
-            fun put(k: String, v: String) { if (v.trim() != MyProfile.text(k)) f.put(k, v.trim()) }
-            if (nick.trim() != (MyProfile.text("nickname").ifBlank { Session.me?.nickname ?: "" })) {
+            fun put(k: String, v: String) { if (v.trim() != SettingsProfile.text(k)) f.put(k, v.trim()) }
+            if (nick.trim() != (SettingsProfile.text("nickname").ifBlank { Session.me?.nickname ?: "" })) {
                 if (nick.trim().length !in 3..40) { err = "Your name must be 3 to 40 characters"; return }
                 f.put("nickname", nick.trim())
             }
             put("bio", bio); put("location", location); put("birthday", birthday); put("website", website); put("instagram", instagram); put("youtube", youtube)
-            if (color != MyProfile.text("profile_color")) f.put("profile_color", color)
+            if (color != SettingsProfile.text("profile_color")) f.put("profile_color", color)
             if (f.length() == 0) { Nav.back(); return }
             busy = true; err = null
-            scope.launch { val e = MyProfile.save(f); busy = false; if (e == null) { toast(c, "Saved"); Nav.back() } else err = e }
+            scope.launch { val e = SettingsProfile.save(f); busy = false; if (e == null) { toast(c, "Saved"); Nav.back() } else err = e }
         }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             TopBar("Edit profile", onBack = { Nav.back() }) {
@@ -376,7 +376,7 @@ class EditProfilePage : PageScreen() {
                                 }
                             }
                             Box(Modifier.align(Alignment.BottomStart).padding(start = 16.dp).size(84.dp).clip(CircleShape).background(MaterialTheme.colorScheme.background).padding(3.dp)
-                                .tap(CircleShape) { pickPhoto.launch("image/*") }) {
+                                .firstFocus().tap(CircleShape) { pickPhoto.launch("image/*") }) {
                                 Avatar(Api.abs(p?.str("photo_url")?.ifBlank { null }) ?: Session.me?.photo, nick, 78.dp)
                                 Box(Modifier.align(Alignment.BottomEnd).size(26.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
                                     Icon(Icons.Filled.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(15.dp))
@@ -385,7 +385,7 @@ class EditProfilePage : PageScreen() {
                             if (uploading == "photo") Text("Uploading photo…", Modifier.align(Alignment.BottomStart).padding(start = 112.dp, bottom = 8.dp), style = MaterialTheme.typography.bodySmall)
                         }
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Field("Name", nick, { nick = it }, first = true)
+                            Field("Name", nick, { nick = it })
                             Field("Bio", bio, { bio = it.take(1000) }, lines = 3, help = "${bio.length}/1000")
                             Field("Location", location, { location = it.take(120) })
                             Field("Birthday (YYYY-MM-DD)", birthday, { birthday = it.filter { ch -> ch.isDigit() || ch == '-' }.take(10) }, type = KeyboardType.Number)
@@ -430,47 +430,47 @@ private fun Field(label: String, value: String, onChange: (String) -> Unit, line
 private val seeOpts = listOf("public" to "Everyone", "friends" to "Friends only", "private" to "Only me")
 private val msgOpts = listOf("everyone" to "Everyone", "friends" to "Friends only", "nobody" to "Nobody")
 
-class PrivacyPage : PageScreen() {
+class SettingsPrivacy : PageScreen() {
     override val perfName = "Privacy"
     @Composable override fun Content() {
         val c = ctx()
         val scope = rememberCoroutineScope()
-        LaunchedEffect(Unit) { MyProfile.load(force = true) }
+        LaunchedEffect(Unit) { SettingsProfile.load(force = true) }
         var pick by remember { mutableStateOf<String?>(null) }
-        fun set(k: String, v: Any) = scope.launch { MyProfile.save(JSONObject().put(k, v))?.let { toast(c, it) } }
+        fun set(k: String, v: Any) = scope.launch { SettingsProfile.save(JSONObject().put(k, v))?.let { toast(c, it) } }
         SettingsPage("Privacy") {
             SettingsCard("Who can see me") {
-                SettingRow(Icons.Filled.Lock, "Private account", "People must ask to follow you before they see your posts and statuses", switch = MyProfile.on("is_private", false), modifier = Modifier.firstFocus()) {
-                    set("is_private", if (MyProfile.on("is_private", false)) 0 else 1)
+                SettingRow(Icons.Filled.Lock, "Private account", "People must ask to follow you before they see your posts and statuses", switch = SettingsProfile.on("is_private", false), modifier = Modifier.firstFocus()) {
+                    set("is_private", if (SettingsProfile.on("is_private", false)) 0 else 1)
                 }
                 RowDivider(64.dp)
                 SettingRow(Icons.Filled.PersonAdd, "Follow requests", "People who asked to follow you") { Nav.open(FollowRequestsPage()) }
                 RowDivider(64.dp)
-                val see = MyProfile.text("privacy_profile").ifBlank { "public" }
+                val see = SettingsProfile.text("privacy_profile").ifBlank { "public" }
                 SettingRow(Icons.Filled.Visibility, "Who can see my profile", value = seeOpts.firstOrNull { it.first == see }?.second ?: "Everyone") { pick = "privacy_profile" }
                 RowDivider(64.dp)
-                val msg = MyProfile.text("privacy_messages").ifBlank { "everyone" }
+                val msg = SettingsProfile.text("privacy_messages").ifBlank { "everyone" }
                 SettingRow(Icons.Filled.Chat, "Who can message me", value = msgOpts.firstOrNull { it.first == msg }?.second ?: "Everyone") { pick = "privacy_messages" }
             }
             SettingsCard("Activity") {
-                SettingRow(Icons.Filled.RadioButtonChecked, "Active status", "Let others see when you're online", switch = MyProfile.on("show_online")) {
-                    set("show_online", if (MyProfile.on("show_online")) 0 else 1)
+                SettingRow(Icons.Filled.RadioButtonChecked, "Active status", "Let others see when you're online", switch = SettingsProfile.on("show_online")) {
+                    set("show_online", if (SettingsProfile.on("show_online")) 0 else 1)
                 }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.DoneAll, "Read receipts", "Show others when you've read their message", switch = MyProfile.on("read_receipts")) {
-                    set("read_receipts", if (MyProfile.on("read_receipts")) 0 else 1)
+                SettingRow(Icons.Filled.DoneAll, "Read receipts", "Show others when you've read their message", switch = SettingsProfile.on("read_receipts")) {
+                    set("read_receipts", if (SettingsProfile.on("read_receipts")) 0 else 1)
                 }
             }
             SettingsCard("Blocking") {
-                SettingRow(Icons.Filled.Block, "Blocked users", "People you blocked can't message you") { Nav.open(BlockedPage()) }
+                SettingRow(Icons.Filled.Block, "Blocked users", "People you blocked can't message you") { Nav.open(SettingsBlocked()) }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.NotificationsOff, "Muted chats", "Chats that don't notify you") { Nav.open(MutedChatsPage()) }
+                SettingRow(Icons.Filled.NotificationsOff, "Muted chats", "Chats that don't notify you") { Nav.open(SettingsMutedChats()) }
             }
         }
         when (pick) {
-            "privacy_profile" -> SettingsChoiceDialog("Who can see my profile", seeOpts.map { it.second }, seeOpts.indexOfFirst { it.first == MyProfile.text("privacy_profile").ifBlank { "public" } },
+            "privacy_profile" -> SettingsChoiceDialog("Who can see my profile", seeOpts.map { it.second }, seeOpts.indexOfFirst { it.first == SettingsProfile.text("privacy_profile").ifBlank { "public" } },
                 { set("privacy_profile", seeOpts[it].first) }, { pick = null })
-            "privacy_messages" -> SettingsChoiceDialog("Who can message me", msgOpts.map { it.second }, msgOpts.indexOfFirst { it.first == MyProfile.text("privacy_messages").ifBlank { "everyone" } },
+            "privacy_messages" -> SettingsChoiceDialog("Who can message me", msgOpts.map { it.second }, msgOpts.indexOfFirst { it.first == SettingsProfile.text("privacy_messages").ifBlank { "everyone" } },
                 { set("privacy_messages", msgOpts[it].first) }, { pick = null })
         }
     }
@@ -478,22 +478,22 @@ class PrivacyPage : PageScreen() {
 
 // ── The site's notification choices (what yidplus.com notifies you about) ─────
 
-class NotifPrefsPage : PageScreen() {
+class SettingsNotifPrefs : PageScreen() {
     override val perfName = "NotifPrefs"
     @Composable override fun Content() {
         val c = ctx()
         val scope = rememberCoroutineScope()
-        LaunchedEffect(Unit) { MyProfile.load() }
-        fun flip(k: String) = scope.launch { MyProfile.save(JSONObject().put(k, if (MyProfile.on(k)) 0 else 1))?.let { toast(c, it) } }
+        LaunchedEffect(Unit) { SettingsProfile.load() }
+        fun flip(k: String) = scope.launch { SettingsProfile.save(JSONObject().put(k, if (SettingsProfile.on(k)) 0 else 1))?.let { toast(c, it) } }
         SettingsPage("Notifications") {
             SettingsCard("Notify me about") {
-                SettingRow(Icons.Filled.Mail, "New messages", switch = MyProfile.on("notif_messages"), modifier = Modifier.firstFocus()) { flip("notif_messages") }
+                SettingRow(Icons.Filled.Mail, "New messages", switch = SettingsProfile.on("notif_messages"), modifier = Modifier.firstFocus()) { flip("notif_messages") }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.Favorite, "New likes", switch = MyProfile.on("notif_likes")) { flip("notif_likes") }
+                SettingRow(Icons.Filled.Favorite, "New likes", switch = SettingsProfile.on("notif_likes")) { flip("notif_likes") }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.PersonAdd, "New followers", switch = MyProfile.on("notif_followers")) { flip("notif_followers") }
+                SettingRow(Icons.Filled.PersonAdd, "New followers", switch = SettingsProfile.on("notif_followers")) { flip("notif_followers") }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.Campaign, "Channel updates", switch = MyProfile.on("notif_channels")) { flip("notif_channels") }
+                SettingRow(Icons.Filled.Campaign, "Channel updates", switch = SettingsProfile.on("notif_channels")) { flip("notif_channels") }
             }
             SettingsHint("These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page.")
         }
@@ -502,19 +502,19 @@ class NotifPrefsPage : PageScreen() {
 
 // ── Security: password, two-step code, devices ────────────────────────────────
 
-class SecurityPage : PageScreen() {
+class SettingsSecurity : PageScreen() {
     override val perfName = "Security"
     @Composable override fun Content() {
         val c = ctx()
         val scope = rememberCoroutineScope()
-        LaunchedEffect(Unit) { MyProfile.load(force = true) }
+        LaunchedEffect(Unit) { SettingsProfile.load(force = true) }
         var twofa by remember { mutableStateOf<Boolean?>(null) }
-        LaunchedEffect(Unit) { twofa = if (MyProfile.demo) false else runCatching { Api.get("/api/2fa").optBoolean("enabled") }.getOrNull() }
+        LaunchedEffect(Unit) { twofa = if (SettingsProfile.demo) false else runCatching { Api.get("/api/2fa").optBoolean("enabled") }.getOrNull() }
         var askPw by remember { mutableStateOf(false) }
         var newPw by remember { mutableStateOf(false) }
         var show2fa by remember { mutableStateOf(false) }
         var logoutAll by remember { mutableStateOf(false) }
-        val sessions = MyProfile.res.data?.optJSONArray("sessions").objects()
+        val sessions = SettingsProfile.res.data?.optJSONArray("sessions").objects()
         SettingsPage("Security") {
             SettingsCard("Sign-in") {
                 SettingRow(Icons.Filled.Password, "Change password", "You'll confirm your current password first", modifier = Modifier.firstFocus()) { askPw = true }
@@ -534,8 +534,8 @@ class SecurityPage : PageScreen() {
                         if (i == 0) Text("Active", color = BadgeGreen, style = MaterialTheme.typography.labelLarge)
                         else Text("Sign out", Modifier.tap(RoundedCornerShape(8.dp)) {
                             scope.launch {
-                                runCatching { if (!MyProfile.demo) Api.delete("/api/auth/sessions?id=" + Uri.encode(id)) }
-                                    .onSuccess { toast(c, "Signed out that device"); MyProfile.load(force = true) }.onFailure { toast(c, Api.friendly(it)) }
+                                runCatching { if (!SettingsProfile.demo) Api.delete("/api/auth/sessions?id=" + Uri.encode(id)) }
+                                    .onSuccess { toast(c, "Signed out that device"); SettingsProfile.load(force = true) }.onFailure { toast(c, Api.friendly(it)) }
                             }
                         }.padding(horizontal = 10.dp, vertical = 8.dp), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelLarge)
                     }
@@ -546,13 +546,13 @@ class SecurityPage : PageScreen() {
                 }
             }
         }
-        if (askPw) PasswordConfirmDialog("Change password", "Enter your current password to continue.", "Continue", onOk = { newPw = true }, onDismiss = { askPw = false })
+        if (askPw) SettingsPasswordDialog("Change password", "Enter your current password to continue.", "Continue", onOk = { newPw = true }, onDismiss = { askPw = false })
         if (newPw) NewPasswordDialog { newPw = false }
         if (show2fa) TwoFactorDialog(twofa == true, onDone = { twofa = it }) { show2fa = false }
         if (logoutAll) SettingsConfirmDialog("Sign out everywhere?", "Every phone and computer signed in to your account will be signed out, this one too.", "Sign out all", danger = true,
             onOk = {
                 scope.launch {
-                    runCatching { if (!MyProfile.demo) Api.delete("/api/auth/sessions?all=1") }.onFailure { toast(c, Api.friendly(it)) }
+                    runCatching { if (!SettingsProfile.demo) Api.delete("/api/auth/sessions?all=1") }.onFailure { toast(c, Api.friendly(it)) }
                     Session.logout(); Nav.go(Tab.Profile); toast(c, "Signed out everywhere")
                 }
             }, onDismiss = { logoutAll = false })
@@ -583,7 +583,7 @@ private fun NewPasswordDialog(onDismiss: () -> Unit) {
                 when {
                     a.length < 6 -> err = "Use at least 6 characters"
                     a != b -> err = "The two passwords are not the same"
-                    else -> { busy = true; scope.launch { val e = MyProfile.save(JSONObject().put("password", a)); busy = false; if (e == null) { toast(c, "Password changed"); onDismiss() } else err = e } }
+                    else -> { busy = true; scope.launch { val e = SettingsProfile.save(JSONObject().put("password", a)); busy = false; if (e == null) { toast(c, "Password changed"); onDismiss() } else err = e } }
                 }
             }, enabled = !busy) { Text(if (busy) "Saving…" else "Save", fontWeight = FontWeight.Bold) }
         },
@@ -600,7 +600,7 @@ private fun TwoFactorDialog(enabled: Boolean, onDone: (Boolean) -> Unit, onDismi
     var err by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     LaunchedEffect(enabled) {
-        if (!enabled) runCatching { if (MyProfile.demo) "JBSWY3DPEHPK3PXP" else Api.post("/api/2fa", JSONObject().put("action", "setup")).optString("secret") }
+        if (!enabled) runCatching { if (SettingsProfile.demo) "JBSWY3DPEHPK3PXP" else Api.post("/api/2fa", JSONObject().put("action", "setup")).optString("secret") }
             .onSuccess { secret = it }.onFailure { err = Api.friendly(it) }
     }
     fun go() {
@@ -609,7 +609,7 @@ private fun TwoFactorDialog(enabled: Boolean, onDone: (Boolean) -> Unit, onDismi
         scope.launch {
             runCatching {
                 val body = if (enabled) JSONObject().put("action", "disable").put("code", code) else JSONObject().put("action", "enable").put("secret", secret).put("code", code)
-                if (!MyProfile.demo) Api.post("/api/2fa", body)
+                if (!SettingsProfile.demo) Api.post("/api/2fa", body)
             }.onSuccess { toast(c, if (enabled) "Two-step verification is off" else "Two-step verification is on"); onDone(!enabled); onDismiss() }
                 .onFailure { err = Api.friendly(it) }
             busy = false
@@ -622,7 +622,7 @@ private fun TwoFactorDialog(enabled: Boolean, onDone: (Boolean) -> Unit, onDismi
                     Text("1. Open an authenticator app (Google Authenticator, Authy…) and add an account with this key:", style = MaterialTheme.typography.bodyMedium)
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(secret?.chunked(4)?.joinToString(" ") ?: "…", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text("COPY", Modifier.tap(RoundedCornerShape(6.dp)) { secret?.let { copyText(c, it) } }.padding(6.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                        Text("COPY", Modifier.tap(RoundedCornerShape(6.dp)) { secret?.let { settingsCopy(c, it) } }.padding(6.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
                     }
                     Text("2. Type the 6-digit code it shows:", style = MaterialTheme.typography.bodyMedium)
                 } else Text("Enter the current 6-digit code from your authenticator app.", style = MaterialTheme.typography.bodyMedium)
@@ -635,7 +635,7 @@ private fun TwoFactorDialog(enabled: Boolean, onDone: (Boolean) -> Unit, onDismi
         dismissButton = { TextButton(onDismiss) { Text("Cancel") } })
 }
 
-fun copyText(c: Context, text: String) {
+fun settingsCopy(c: Context, text: String) {
     runCatching { (c.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("YID PLUS", text)) }
     toast(c, "Copied")
 }
