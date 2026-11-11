@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.util.LruCache
+import com.yidplus.app.data.Disk
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -44,7 +45,7 @@ data class ChMember(val id: String, val nick: String, val photo: String?, val on
 /** One room from /api/chat/rooms with everything the site sends (mute, members, pin, invite, admin rights). */
 data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean, val joined: Boolean, val isGroupAdmin: Boolean, val createdBy: String?,
                     val inviteCode: String?, val pinnedId: String?, val description: String, val visibility: String,
-                    val members: List<ChMember>, val featured: Boolean) {
+                    val members: List<ChMember>, val featured: Boolean, val rawPreview: String = "", val spectating: Boolean = false, val hasMessages: Boolean = true) {
     val isGroup get() = room.type == "group"
     val isChannel get() = room.type == "channel"
     val isPrivate get() = room.type == "private"
@@ -55,7 +56,7 @@ data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean,
         fun from(j: JSONObject) = ChatRoomInfo(Room.from(j), j.optBoolean("muted"), j.optBoolean("online"), j.optBoolean("joined", true), j.optBoolean("is_group_admin"),
             j.strOrNull("created_by"), j.strOrNull("invite_code"), j.strOrNull("pinned_message_id"), j.str("description"), j.str("visibility"),
             chObjs(j.optJSONArray("member_list")).map { m -> ChMember(m.str("id"), m.str("nickname"), Api.abs(m.strOrNull("photo_url")), m.optInt("online") == 1 || m.optBoolean("online"), m.str("role"), m.optInt("is_group_admin") == 1 || m.optBoolean("is_group_admin"), m.str("title")) },
-            j.optBoolean("featured"))
+            j.optBoolean("featured"), j.str("preview"), j.optBoolean("admin_spectating") || j.optInt("admin_spectating") == 1, j.opt("has_messages") != false)
         fun list(j: JSONObject) = chObjs(j.optJSONArray("rooms")).map(::from)
     }
 }
@@ -66,7 +67,8 @@ fun chIsSiteAdmin(): Boolean { val me = Session.me ?: return false; return me.is
 data class ChatMsg(val id: String, val roomId: String, val senderId: String, val nick: String, val photo: String?, val type: String, val text: String,
                    val media: String?, val mediaKey: String, val createdAt: String?, val replyToId: String? = null, val edited: Boolean = false,
                    val read: Boolean = false, val seen: Int = 0, val viewOnce: Boolean = false, val opened: Boolean = false,
-                   val pending: Boolean = false, val failed: Boolean = false, val local: String? = null) {
+                   val pending: Boolean = false, val failed: Boolean = false, val local: String? = null,
+                   val forwarded: Boolean = false, val deleted: Boolean = false, val title: String = "") {
     private val ext get() = mediaKey.substringAfterLast('.', "").lowercase().substringBefore('?')
     val isSticker get() = type == "sticker"
     val stickerUrl get() = if (!isSticker) null else media ?: text.takeIf { it.startsWith("http") || it.startsWith("/") }?.let { Api.abs(it) }
@@ -77,19 +79,38 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
     val isFile get() = media != null && !isImage && !isVideo && !isAudio && !isSticker
     val isPoll get() = type == "poll"
     val isSystem get() = type == "system"
+    /** Call-log lines ("📞 Missed voice call"): drawn centred like the site, never filtered out. */
+    val isCall get() = type == "call" || type == "voice_call" || type == "video_call"
+    /** A voice note saved without its audio (the site's "voice_text": the text is only its length). */
+    val isVoiceText get() = type == "voice_text"
+    /** A photo / file / voice whose file never arrived: the site shows "Media unavailable", never an empty bubble. */
+    val isUnavailable get() = type in setOf("media", "file", "voice") && media == null && local == null
+    val isMusic get() = isAudio && !isVoice
+    /** Centred lines with no bubble: system notes and call logs. */
+    val isCentred get() = isSystem || isCall
     /** Voice notes carry "M:SS|peaks" in their text (the site's format). */
     val voiceDur get() = if (isVoice) text.substringBefore('|').takeIf { Regex("""\d+:\d\d""").matches(it) } ?: "" else ""
-    val caption get() = when { isVoice || isPoll || isSticker -> ""; isFile && text == fileName -> ""; text == "__once__" -> ""; else -> text }
+    val caption get() = when { isVoice || isPoll || isSticker || isVoiceText || deleted || isCentred -> ""; isFile && text == fileName -> ""; text == "__once__" -> ""; else -> text.removeSuffix(" ↩ Forwarded") }
     val fileName get() = mediaKey.substringAfterLast('/').substringAfter('_', mediaKey.substringAfterLast('/')).ifBlank { "File" }.let { if (type == "file" && text.isNotBlank() && !text.contains('\n') && text.length < 120) text else it }
     val preview: String get() = when {
-        isPoll -> "📊 Poll"; isVoice -> "🎤 Voice message"; isSticker -> "Sticker"; isImage -> "📷 Photo" + (caption.takeIf { it.isNotBlank() }?.let { " $it" } ?: "")
-        isVideo -> "🎬 Video"; isAudio -> "🎵 Audio"; isFile -> "📎 $fileName"; else -> text.take(120)
+        deleted -> "🚫 This message was deleted"
+        isSystem -> text.take(120); isCall -> text.ifBlank { "📞 Call" }.take(120)
+        viewOnce && (isImage || isVideo) -> "👁 View once " + (if (isVideo) "video" else "photo")
+        isPoll -> "📊 Poll"; isVoice -> "🎤 Voice message" + (voiceDur.takeIf { it.isNotBlank() }?.let { " $it" } ?: "")
+        isVoiceText -> "🎤 Voice message" + (text.substringBefore('|').trim().takeIf { Regex("""\d+:\d\d""").matches(it) }?.let { " $it" } ?: "")
+        isSticker -> "💟 Sticker"; isImage -> "📷 " + caption.ifBlank { "Photo" }
+        isVideo -> "🎬 " + caption.ifBlank { "Video" }; isMusic -> "🎵 " + fileName.substringBeforeLast('.'); isFile -> "📎 $fileName"
+        isUnavailable -> "📎 " + caption.ifBlank { "Media" }
+        else -> text.removeSuffix(" ↩ Forwarded").replace('\n', ' ').take(120)
     }
     companion object {
         fun from(j: JSONObject) = ChatMsg(j.str("id"), j.str("room_id"), j.str("sender_id"), j.str("sender_nick"), Api.abs(j.strOrNull("sender_photo")), j.str("type"), j.str("text"),
             Api.abs(j.strOrNull("media_url")) ?: j.strOrNull("media_key")?.let { "${Api.BASE}/api/media/" + chEnc(it).replace("+", "%20") }, j.str("media_key"), j.strOrNull("created_at"),
             j.strOrNull("reply_to_id"), j.strOrNull("edited_at") != null, j.optInt("read") == 1 || j.optBoolean("read"), j.optInt("seen_count"),
-            j.optInt("view_once") == 1 || j.optBoolean("view_once"), j.optInt("opened") == 1 || j.optBoolean("opened"))
+            j.optInt("view_once") == 1 || j.optBoolean("view_once"), j.optInt("opened") == 1 || j.optBoolean("opened"),
+            forwarded = j.optInt("forwarded") == 1 || j.optBoolean("forwarded") || j.str("text").endsWith(" ↩ Forwarded"),
+            deleted = j.str("type") == "deleted" || j.optInt("deleted") == 1 || j.optBoolean("deleted") || j.optBoolean("is_deleted") || j.strOrNull("deleted_at") != null,
+            title = j.str("sender_title"))
     }
 }
 
@@ -127,12 +148,18 @@ object ChatApi {
     suspend fun leave(roomId: String, all: Boolean = false) = Api.delete("/api/chat/rooms?room_id=" + chEnc(roomId) + if (all) "&delete_all=1" else "")
     suspend fun save(msgId: String, roomId: String) = Api.post("/api/chat/bookmarks", JSONObject().put("message_id", msgId).put("room_id", roomId))
     suspend fun unsave(msgId: String) = Api.delete("/api/chat/bookmarks?message_id=" + chEnc(msgId))
-    suspend fun report(m: ChatMsg, reason: String) = Api.post("/api/reports", JSONObject().put("reported_id", m.senderId).put("reported_nick", m.nick)
-        .put("message_id", m.id).put("room_id", m.roomId).put("reason", reason))
+    /** The site's ctxReport: {target_type:'message', target_id, reason}. */
+    suspend fun report(m: ChatMsg, reason: String) = Api.post("/api/reports", JSONObject().put("target_type", "message").put("target_id", m.id).put("reason", reason))
+    /** The site's doForward: {room_id, type, text, forwarded:true}. */
+    suspend fun forwardText(toRoom: String, m: ChatMsg) = Api.post("/api/chat", JSONObject().put("room_id", toRoom).put("type", if (m.isSticker) "sticker" else "text")
+        .put("text", m.text.removeSuffix(" ↩ Forwarded")).put("forwarded", true))
     suspend fun read(roomId: String) = Api.post("/api/chat/read", JSONObject().put("room_id", roomId))
     suspend fun openDm(userId: String): String = Api.post("/api/chat/rooms", JSONObject().put("type", "private").put("other_user_id", userId)).str("room_id")
-    suspend fun create(type: String, name: String, desc: String, public: Boolean): String = Api.post("/api/chat/rooms", JSONObject().put("type", type).put("name", name)
-        .put("description", desc).put("visibility", if (public) "public" else "private").put("read_only", type == "channel")).str("room_id")
+    /** The site's createNewGroup {type,name,emoji,visibility,read_only} and createNewChannel {type,name,description,is_public,read_only:true}. */
+    suspend fun create(type: String, name: String, desc: String, public: Boolean): String = Api.post("/api/chat/rooms",
+        if (type == "channel") JSONObject().put("type", "channel").put("name", name).put("description", desc).put("is_public", public).put("read_only", true)
+        else JSONObject().put("type", "group").put("name", name).put("emoji", "👥").put("visibility", if (public) "public" else "private").put("read_only", false)
+            .also { if (desc.isNotBlank()) it.put("description", desc) }).str("room_id")
     suspend fun addMember(roomId: String, userId: String) = Api.put("/api/chat/rooms", JSONObject().put("room_id", roomId).put("member_id", userId).put("add", true))
     suspend fun removeMember(roomId: String, userId: String) = Api.put("/api/chat/rooms", JSONObject().put("room_id", roomId).put("member_id", userId).put("remove", true))
     suspend fun setAdmin(roomId: String, userId: String, on: Boolean) = Api.put("/api/chat/rooms", JSONObject().put("room_id", roomId).put("member_id", userId).put("make_admin", on))
@@ -147,11 +174,12 @@ object ChatApi {
 
     /** Streams a file straight from the phone to the site's chat (no copy in memory; the same raw upload the website uses). */
     suspend fun upload(ctx: Context, roomId: String, uri: Uri?, file: File?, type: String, name: String, mime: String, text: String = "", replyTo: String? = null): JSONObject = withContext(Dispatchers.IO) {
-        val url = "${Api.BASE}/api/chat?room_id=" + chEnc(roomId) + "&type=" + type + "&filename=" + chEnc(name) + "&ct=" + chEnc(mime) +
-            (if (text.isNotBlank()) "&text=" + chEnc(text) else "") + (if (replyTo != null) "&reply_to_id=" + chEnc(replyTo) else "")
+        // Exactly the site's _sendChatMedia: ?room_id&type&text&filename&ct, the bytes as application/octet-stream (the real type rides in ct).
+        val url = "${Api.BASE}/api/chat?room_id=" + chEnc(roomId) + "&type=" + chEnc(type) + "&text=" + chEnc(text) + "&filename=" + chEnc(name) + "&ct=" + chEnc(mime) +
+            (if (replyTo != null) "&reply_to_id=" + chEnc(replyTo) else "")
         val len = file?.length() ?: uri?.let { u -> runCatching { ctx.contentResolver.openAssetFileDescriptor(u, "r")?.use { it.length } }.getOrNull() } ?: -1L
         val body = object : RequestBody() {
-            override fun contentType() = mime.toMediaTypeOrNull()
+            override fun contentType() = "application/octet-stream".toMediaTypeOrNull()
             override fun contentLength() = if (len > 0) len else -1L
             override fun writeTo(sink: BufferedSink) {
                 val ins = file?.inputStream() ?: ctx.contentResolver.openInputStream(uri!!) ?: error("Can't read the file")
@@ -307,4 +335,108 @@ object ChDrafts {
     private fun p(c: Context) = c.getSharedPreferences("chat_drafts", Context.MODE_PRIVATE)
     fun get(c: Context, room: String): String = runCatching { p(c).getString(room, "") ?: "" }.getOrDefault("")
     fun put(c: Context, room: String, text: String) { runCatching { p(c).edit().apply { if (text.isBlank()) remove(room) else putString(room, text) }.apply() } }
+}
+
+/* ───────────────────────── Message cache: a chat you opened before opens instantly (memory, then the disk copy) ───────────────────────── */
+
+object ChatCache {
+    /** Bumps whenever a room's messages land, so the chat list re-reads its previews. */
+    var version by mutableStateOf(0); private set
+    private val mem = LruCache<String, List<ChatMsg>>(48)
+    private val tried = HashSet<String>()
+    private fun key(roomId: String) = Store.key("chat|$roomId")
+    fun peek(roomId: String): List<ChatMsg>? = mem.get(roomId)
+    /** Memory first, else the disk copy (only the last 60 messages, a few KB: fine on the main thread for the first frame). */
+    fun get(roomId: String): List<ChatMsg>? {
+        mem.get(roomId)?.let { return it }
+        synchronized(tried) { if (!tried.add(roomId)) return null }
+        val l = runCatching { chObjs(Disk.read(key(roomId))?.optJSONArray("messages")).map(ChatMsg::from) }.getOrNull().orEmpty()
+        if (l.isNotEmpty()) mem.put(roomId, l)
+        return l.ifEmpty { null }
+    }
+    fun put(roomId: String, raw: JSONArray?, parsed: List<ChatMsg>) {
+        mem.put(roomId, parsed)
+        if (raw != null) runCatching {
+            val o = JSONArray(); val s = maxOf(0, raw.length() - 60); for (i in s until raw.length()) o.put(raw.get(i))
+            Disk.write(key(roomId), JSONObject().put("messages", o))
+        }
+        version++
+    }
+    /** The newest message a chat list should show (system lines and call logs count: they have their own text). */
+    fun last(roomId: String): ChatMsg? = (mem.get(roomId) ?: get(roomId))?.lastOrNull { !it.pending && !it.failed && (it.text.isNotBlank() || it.media != null || it.deleted) }
+
+    private val gate = Semaphore(2)
+    private val busy = HashSet<String>()
+    /** Quietly fetches a room's messages (for a preview the site only gives as "[system]" / "[call]" / "[voice]"), once per app run. */
+    suspend fun prefetch(roomId: String) {
+        synchronized(busy) { if (!busy.add(roomId)) return }
+        if (peek(roomId) != null) return
+        gate.withPermit { runCatching { withContext(Dispatchers.IO) { val (j, l) = ChatApi.messages(roomId); put(roomId, j.optJSONArray("messages"), l) } } }
+    }
+}
+
+/** True when the site's preview is only a marker ("[system]", "Yanky: [call]", "[voice]", "0:12|…") with no words of its own. */
+fun chBarePreview(p: String): Boolean {
+    val s = p.trim()
+    return s.isEmpty() || Regex("""^(?:[^:\[\]]{1,40}:\s*)?\[\w+\]\s*$""").matches(s) || Regex("""^\d+:\d\d\|""").containsMatchIn(s) || s == "System message"
+}
+
+/** WhatsApp-style preview: "Yanky: text", "You: text", "📷 Photo", "🎤 Voice message 0:12", "Yanky joined"; the newest real message when the site only sends a marker. */
+fun chatPreview(ri: ChatRoomInfo): String {
+    val raw = ri.rawPreview
+    val bare = chBarePreview(raw)
+    val last = ChatCache.peek(ri.room.id)?.lastOrNull { !it.pending && !it.failed } ?: if (bare) ChatCache.last(ri.room.id) else null
+    // Use our own copy when the site sent only a marker, or when our copy is at least as new as the list's last_time.
+    val ours = last != null && (bare || ((parseTime(last.createdAt) ?: 0L) >= (parseTime(ri.room.lastTime) ?: Long.MAX_VALUE) - 1000))
+    if (ours && last != null) {
+        val me = Session.me?.id
+        val body = last.preview
+        return when {
+            last.isCentred -> body
+            last.senderId == me -> "You: $body"
+            ri.isPrivate -> body
+            last.nick.isNotBlank() -> last.nick + ": " + body
+            else -> body
+        }
+    }
+    if (bare) return when {
+        raw.contains("[call]") -> "📞 Call"
+        Regex("""\[(voice|audio)]""").containsMatchIn(raw) || Regex("""^\d+:\d\d\|""").containsMatchIn(raw) -> "🎤 Voice message"
+        raw.contains("[system]") || raw.isBlank() -> if (ri.room.members > 0 && !ri.isPrivate) "${ri.room.members} members" else ""
+        else -> chatRoomPreview(ri.room)
+    }
+    return chatRoomPreview(ri.room)
+}
+
+/* ───────────────────────── Link previews (the site's /api/link-preview and invite lookup) ───────────────────────── */
+
+data class ChLink(val url: String, val title: String, val desc: String, val image: String?, val host: String,
+                  val joinCode: String? = null, val roomName: String = "", val roomPhoto: String? = null, val roomMembers: Int = 0, val roomType: String = "")
+
+object ChLinks {
+    private val cache = HashMap<String, ChLink?>()
+    private val gate = Semaphore(2)
+    fun cached(url: String): ChLink? = synchronized(cache) { cache[url] }
+    fun known(url: String): Boolean = synchronized(cache) { cache.containsKey(url) }
+    /** The site's _detectJoinLink: yidplus.com/…?join=CODE (or yidplus.pages.dev). */
+    fun joinCode(url: String): String? = Regex("""yidplus(?:\.com|\.pages\.dev)[^\s]*[?&]join=([a-zA-Z0-9-]+)""").find(url)?.groupValues?.get(1)
+    fun youtubeId(url: String): String? = Regex("""(?:youtube\.com/(?:watch\?v=|shorts/|embed/)|youtu\.be/)([\w-]{11})""").find(url)?.groupValues?.get(1)
+    suspend fun load(url: String): ChLink? {
+        if (known(url)) return cached(url)
+        val host = runCatching { Uri.parse(url).host?.removePrefix("www.") }.getOrNull() ?: ""
+        val r = gate.withPermit { runCatching { withContext(Dispatchers.IO) {
+            val code = joinCode(url)
+            if (code != null) {
+                val room = Api.get("/api/chat/rooms?invite=" + chEnc(code)).optJSONObject("room")
+                room?.let { ChLink(url, it.str("name"), "", null, host, code, it.str("name").ifBlank { "Group" }, Api.abs(it.strOrNull("photo_url")), it.optInt("members"), it.str("type").ifBlank { "group" }) }
+            } else {
+                val j = Api.get("/api/link-preview?url=" + chEnc(url))
+                val yt = youtubeId(url)
+                val img = Api.abs(j.strOrNull("image")) ?: yt?.let { "https://img.youtube.com/vi/$it/hqdefault.jpg" }
+                if (j.str("title").isBlank() && img == null) null else ChLink(url, j.str("title").ifBlank { host }, j.str("description"), img, host)
+            }
+        } }.getOrNull() }
+        synchronized(cache) { cache[url] = r }
+        return r
+    }
 }
