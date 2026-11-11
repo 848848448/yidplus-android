@@ -63,6 +63,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" />
                 <data android:host="yidplus.com" />
+            </intent-filter>
+            <!-- www redirects to yidplus.com, so it can't be verified; it stays a normal link choice -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
                 <data android:host="www.yidplus.com" />
             </intent-filter>
 
