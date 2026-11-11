@@ -150,7 +150,7 @@ view "https://yidplus.com/music"; sleep 4; shot 57-tablet-portrait-music
 size 2560x1600 320
 restart 6; shot 58-tablet-landscape-home
 restart 6; key 20; key 23; sleep 5; shot 52-tablet-landscape-channel
-view "https://yidplus.com/chat"; sleep 4; key 20; key 23; sleep 5; shot 53-tablet-landscape-chats
+view "https://yidplus.com/chat"; sleep 5; shot 53-tablet-landscape-chats
 view "https://yidplus.com/shorts"; sleep 9; key 7; sleep 3; shot 54-tablet-landscape-shorts
 view "https://yidplus.com/music"; sleep 4; shot 59-tablet-landscape-music
 tab Profile; sleep 3; shot 60-tablet-landscape-profile
