@@ -412,9 +412,16 @@ class SoNewPostPage : PageScreen() {
         var file by remember { mutableStateOf<Uri?>(null) }
         var progress by remember { mutableStateOf<Float?>(null) }
         val pick = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { u -> if (u != null) file = u }
+        LaunchedEffect(SoQaPick.uri) { SoQaPick.uri?.let { file = it; SoQaPick.uri = null } }
         fun send() {
             if (progress != null) return
             if (text.isBlank() && file == null) { toast(c, "Write something or add a photo / video"); return }
+            file?.let { f ->
+                // The same limits the site's post box enforces (home.js checkFileSize): say so before the upload, not after.
+                val vid = (c.contentResolver.getType(f) ?: "").startsWith("video") || (f.lastPathSegment ?: "").lowercase().let { n -> n.endsWith(".mp4") || n.endsWith(".mov") || n.endsWith(".webm") || n.endsWith(".3gp") }
+                val len = runCatching { if (f.scheme == "file") java.io.File(f.path!!).length() else c.contentResolver.openAssetFileDescriptor(f, "r")?.use { it.length } ?: -1L }.getOrDefault(-1L)
+                if (len > (if (vid) 60L else 12L) * 1024 * 1024) { toast(c, if (vid) "That video is over 60 MB" else "That photo is over 12 MB"); return }
+            }
             progress = 0f
             scope.launch {
                 try {
@@ -439,7 +446,7 @@ class SoNewPostPage : PageScreen() {
                 file?.let { f ->
                     Spacer(Modifier.height(12.dp))
                     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)).padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        val isVid = (c.contentResolver.getType(f) ?: "").startsWith("video")
+                        val isVid = (c.contentResolver.getType(f) ?: "").startsWith("video") || (f.lastPathSegment ?: "").lowercase().endsWith(".mp4")
                         if (isVid) Icon(Icons.Filled.Movie, null, Modifier.size(48.dp), tint = Green)
                         else AsyncImage(f, null, contentScale = ContentScale.Crop, modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)))
                         Text(if (isVid) "Video added" else "Photo added", Modifier.weight(1f).padding(horizontal = 10.dp), fontSize = 15.sp)
