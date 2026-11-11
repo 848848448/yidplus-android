@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Signed-in screens, photographed with the QA fixture account (assets/qa/fixtures.json, shaped like the site's API).
+# Signed-in screens (2.0.2), photographed with the QA fixture account (assets/qa/fixtures.json, shaped like the site's API).
 # While it is on, the app never sends anything to yidplus.com for the account: sign-in-only reads come from the file,
 # every write is answered locally. Sourced by qa/native.sh (needs its log/shot/key/view/tab/check/restart/size helpers).
 fx() { timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_FIXTURE --ez on "$1" >/dev/null 2>&1; sleep 4; log "fixture $1"; }

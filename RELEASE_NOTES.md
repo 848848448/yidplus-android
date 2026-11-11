@@ -1,3 +1,13 @@
+## New in 2.0.2
+- Chats open instantly; the list shows the real last message ("Yanky: text"), no more "System message"
+- Every message shows: stickers, polls, voice, files, calls, deleted messages; links show a preview card, group links with Join
+- Swipe a message to reply, like WhatsApp; tap a photo to open it big and zoom
+- Notifications: the group's picture, Reply sends, Mark as read really marks it read
+- Green new-chat button, statuses, YID PLUS AI, Saved items and History
+- Native admin panel (users, reports, channels, broadcasts, switches); notifications page with pictures
+- Text size, 7 colour themes, higher contrast; a cleaner look everywhere
+- Fixed: updating carries on after you allow installs
+
 ## New in 2.0.1
 - Chats like the website: new chat, group or channel, search, group info and members, mute, leave, reply, forward, edit, pin, reactions, voice notes, emoji, stickers, polls, attach photo, video or file
 - Notifications per chat like WhatsApp, with Reply and Mark as read
