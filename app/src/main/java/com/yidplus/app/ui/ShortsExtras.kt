@@ -282,7 +282,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                     it.optLong("t").takeIf { t -> t > 0 }?.let { t -> java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date(t)) }, it.optBoolean("mine")) })
             } else {
                 val j = Api.get("/api/shorts/comments?short_id=" + URLEncoder.encode(s.key, "UTF-8"))
-                list.clear(); list.addAll(j.optJSONArray("comments").objects().reversed().map { Comment(it.str("id"), it.str("user_id"), it.str("nickname"), null, it.str("text"), it.strOrNull("created_at"), it.str("user_id") == Session.me?.id) })
+                list.clear(); list.addAll(j.optJSONArray("comments").objects().reversed().map { Comment(it.str("id"), it.str("user_id"), it.str("nickname"), Api.abs(it.strOrNull("photo_url")), it.str("text"), it.strOrNull("created_at"), it.str("user_id") == Session.me?.id) })
             }
             onCount(list.size)
         } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { loading = false }
@@ -301,17 +301,23 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
     }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.fillMaxWidth().heightIn(min = 200.dp).navigationBarsPadding().imePadding().padding(bottom = 8.dp)) {
-            Text("${list.size} comments", Modifier.align(Alignment.CenterHorizontally).padding(6.dp), fontWeight = FontWeight.Bold)
+            Text(if (list.size == 1) "1 comment" else "${list.size} comments", Modifier.align(Alignment.CenterHorizontally).padding(top = 2.dp, bottom = 8.dp),
+                style = MaterialTheme.typography.titleMedium)
+            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
             Box(Modifier.weight(1f, fill = false).heightIn(max = 380.dp)) {
                 if (loading && list.isEmpty()) Loading(Modifier.fillMaxWidth().height(120.dp))
-                else if (list.isEmpty()) Text("No comments yet", Modifier.padding(20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                else if (list.isEmpty()) SoEmpty(Icons.Filled.ChatBubbleOutline, "No comments yet. Be the first.")
                 else LazyColumn {
                     items(list, key = { it.id }) { cm ->
-                        Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) {}.padding(horizontal = 12.dp, vertical = 6.dp)) {
-                            Avatar(cm.photo, cm.nick, 30.dp)
-                            Column(Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                                Text(cm.nick + "  ·  " + ago(cm.at), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(cm.text, style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content))
+                        Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) {}.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                            Avatar(cm.photo, cm.nick, 36.dp)
+                            Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(cm.nick, Modifier.weight(1f, fill = false), style = MaterialTheme.typography.titleSmall.copy(textDirection = TextDirection.Content),
+                                        color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Text("  " + ago(cm.at), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                                }
+                                Text(cm.text, Modifier.padding(top = 2.dp), style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left))
                             }
                             if (s.fromSrc && (cm.mine || canDelete)) IconBtn(Icons.Filled.Delete, "Delete", {
                                 scope.launch { runCatching { Api.delete("/api/src-comments?vid=" + URLEncoder.encode(s.key, "UTF-8") + "&id=" + URLEncoder.encode(cm.id, "UTF-8")) }; load() } }, size = 32.dp)
