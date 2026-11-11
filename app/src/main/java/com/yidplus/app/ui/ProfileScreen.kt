@@ -70,7 +70,7 @@ import kotlinx.coroutines.launch
 fun ProfileScreen() {
     val me = Session.me
     Column(Modifier.fillMaxSize()) {
-        TopBar(if (me == null) "Sign in" else "Profile")
+        TopBar("Settings")
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                 Column(Modifier.widthIn(max = 560.dp).fillMaxWidth()) {
@@ -148,7 +148,7 @@ private fun Settings() {
     SectionTitle("App")
     SettingRow(Icons.Filled.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
     SettingRow(Icons.Filled.DarkMode, "Theme", listOf("Same as phone", "Light", "Dark")[Prefs.theme]) { Prefs.setThemeMode((Prefs.theme + 1) % 3) }
-    SettingRow(Icons.Filled.Notifications, "Notifications", if (Prefs.notify) "On · new messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off") {
+    SettingRow(Icons.Filled.Notifications, "Notifications", if (Prefs.notify) "New messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off", switch = Prefs.notify) {
         Prefs.enableNotify(!Prefs.notify)
         if (Prefs.notify) {
             NotifyWorker.schedule(c)
@@ -164,13 +164,15 @@ private fun Settings() {
 }
 
 @Composable
-private fun SettingRow(icon: ImageVector, title: String, sub: String?, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun SettingRow(icon: ImageVector, title: String, sub: String?, switch: Boolean? = null, onClick: () -> Unit) {
+    // A standard settings row: icon, left-aligned title + one line under it, a switch where it's on/off.
+    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-        Column(Modifier.padding(start = 14.dp).weight(1f)) {
-            Text(title, fontWeight = FontWeight.SemiBold)
-            if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(Modifier.padding(start = 16.dp).weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
         }
+        if (switch != null) androidx.compose.material3.Switch(switch, null, modifier = Modifier.padding(start = 8.dp))
     }
 }
 

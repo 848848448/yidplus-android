@@ -41,6 +41,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.clip
 import com.yidplus.app.data.Net
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.SiteConfig
@@ -156,7 +158,7 @@ private fun BottomBar(dark: Boolean) {
     Surface(color = bg, tonalElevation = 3.dp) {
         Column {
             if (!dark) HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
-            Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = 60.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
         }
@@ -166,17 +168,19 @@ private fun BottomBar(dark: Boolean) {
 @Composable
 private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
     val sel = Nav.tab == t && Nav.stack.isEmpty()
-    val on = if (dark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-    val active = if (dark) Gold else MaterialTheme.colorScheme.primary
-    Column(modifier.padding(2.dp).tap(RoundedCornerShape(12.dp)) { if (Nav.tab == t) Nav.stack.clear() else Nav.go(t) }.padding(vertical = 4.dp),
+    val on = if (dark) Color.White.copy(alpha = .85f) else MaterialTheme.colorScheme.onSurfaceVariant
+    val active = if (dark) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
+    val pill = if (dark) Color.White.copy(alpha = .16f) else MaterialTheme.colorScheme.primaryContainer
+    // Material 3 navigation bar item: 24 dp icon in a pill when selected, 12 sp label under it.
+    Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) Nav.stack.clear() else Nav.go(t) }.padding(vertical = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Box {
-            Icon(tabIcons[t]!!, t.label, tint = if (sel) active else on, modifier = Modifier.size(26.dp))
+        Box(Modifier.size(width = 56.dp, height = 30.dp).clip(RoundedCornerShape(15.dp)).background(if (sel) pill else Color.Transparent), contentAlignment = Alignment.Center) {
+            Icon(tabIcons[t]!!, t.label, tint = if (sel) active else on, modifier = Modifier.size(24.dp))
             val n = when (t) { Tab.Chats -> Badges.chats; Tab.Home -> Badges.channels; else -> 0 }
-            if (n > 0) Box(Modifier.align(Alignment.TopEnd).padding(start = 14.dp)) { Badge(n) }
+            if (n > 0) Box(Modifier.align(Alignment.TopEnd)) { Badge(n) }
         }
-        Text(t.label, style = MaterialTheme.typography.labelMedium, color = if (sel) active else on, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
-            maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = if (sel) (if (dark) Color.White else MaterialTheme.colorScheme.onSurface) else on,
+            fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.dp))
     }
 }
 

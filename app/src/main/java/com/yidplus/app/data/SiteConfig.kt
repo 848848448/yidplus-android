@@ -19,11 +19,14 @@ object SiteConfig {
     var qaShowAll by mutableStateOf(false)
     private lateinit var ctx: Context
     private val prefs get() = ctx.getSharedPreferences("site-config", Context.MODE_PRIVATE)
+    private const val DEFAULTS = "{\"feat_music\":\"off\",\"feat_shorts\":\"on\",\"feat_channels\":\"on\",\"feat_guest\":\"on\"}"
     private val KEEP = Regex("^(feat_[a-z]+(_allowed_me)?|registration_open|maintenance_mode|maintenance_message|app_title)$")
 
     fun init(c: Context) {
         ctx = c.applicationContext
-        s = runCatching { JSONObject(prefs.getString("s", "{}")!!).let { j -> j.keys().asSequence().associateWith { j.optString(it) } } }.getOrDefault(emptyMap())
+        // Before the site has ever answered: start from its switches as of this release (Music off), so the bar
+        // never shows an item and then drops it.
+        s = runCatching { JSONObject(prefs.getString("s", null) ?: DEFAULTS).let { j -> j.keys().asSequence().associateWith { j.optString(it) } } }.getOrDefault(emptyMap())
     }
 
     suspend fun refresh() {

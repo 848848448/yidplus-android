@@ -55,7 +55,8 @@ object UpdateUi {
                 else -> {
                     status = "${info.versionName} available"
                     val snoozed = prefs.getLong("laterCode", -1L) == info.versionCode && System.currentTimeMillis() - prefs.getLong("laterAt", 0L) < 24L * 3600 * 1000
-                    if (!snoozed || force) { Notifier.cancel(ctx, 7000); offer = info }
+                    // The status-bar notification stays (it is the background check's, once per version); "Later" doesn't hide it.
+                    if (!snoozed || force) offer = info
                 }
             }
         }

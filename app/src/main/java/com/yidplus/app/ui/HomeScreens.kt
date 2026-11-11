@@ -57,6 +57,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.yidplus.app.data.Api
@@ -87,14 +88,14 @@ fun HomeScreen() {
 
     Column(Modifier.fillMaxSize()) {
         Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 2.dp) {
-            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (searching) {
                     OutlinedTextField(q, { q = it }, Modifier.weight(1f).padding(vertical = 4.dp).firstFocus(always = true), singleLine = true,
                         placeholder = { Text("Search channels") }, textStyle = TextStyle(textDirection = TextDirection.Content),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search))
                     IconBtn(Icons.Filled.Close, "Close search", { searching = false; q = "" })
                 } else {
-                    Logo(Modifier.padding(start = 6.dp).weight(1f))
+                    Text("Channels", Modifier.padding(start = 8.dp).weight(1f), style = MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp), fontWeight = FontWeight.Bold)
                     if (Session.me != null) IconBtn(Icons.Filled.Notifications, "Notifications", { Nav.open(Screen.Notifications) })
                     IconBtn(Icons.Filled.Search, "Search", { searching = true })
                 }
