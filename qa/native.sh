@@ -113,30 +113,33 @@ tapui() { # tap the first thing on screen whose text or content-desc is exactly 
 }
 tab Home; sleep 4; shot B01-channels-telegram
 tapui "Members"; sleep 5; shot B02-channels-members
-tapui "New posts"; sleep 3; shot B03-channels-recent
-key 20; key 23; sleep 6; shot B04-member-channel; focus "OK on a member channel"
+tapui "Recent"; sleep 3; shot B03-channels-recent
+tapui "Members"; sleep 3
+timeout 10 adb shell input tap 240 250; sleep 6; shot B04-member-channel; focus "tap a member channel"
 tapui "Shorts \([0-9]+\)"; sleep 1; shot B05-member-channel-shorts
-key 4; sleep 1
+tab Home; sleep 2
 tapui "Telegram"; sleep 3
-key 20; key 23; sleep 6; shot B06-tg-channel-joinbar
+timeout 10 adb shell input tap 240 250; sleep 6; shot B06-tg-channel-joinbar
 tapui "More"; sleep 1; shot B07-tg-channel-menu
 tapui "Channel info"; sleep 4; shot B08-tg-channel-info
-key 4; sleep 1; key 4; sleep 1
+tab Home; sleep 2
 tapui "Search"; sleep 2; shot B09-channels-search
 timeout 10 adb shell input text "news"; sleep 3; shot B10-channels-search-typed
 tapui "Search all of YID PLUS"; sleep 5; shot B11-global-search
 tapui "Telegram"; sleep 2; shot B12-global-search-telegram
-key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
+key 4; sleep 1; key 4; sleep 1
 tab Home; sleep 2
 tapui "Profile"; sleep 1; shot B13-avatar-menu
 key 4; sleep 1
+tab Home; sleep 1
 check social-channels
 view "https://yidplus.com/shorts"; sleep 8
 key 7; sleep 2
 key 15; sleep 4; shot B14-shorts-creator-page; log "key 8 = creator page"
-key 4; sleep 2
+view "https://yidplus.com/shorts"; sleep 4
 key 16; sleep 3; shot B15-shorts-search; log "key 9 = search"
-key 4; sleep 2
+key 4; sleep 1; key 4; sleep 1
+view "https://yidplus.com/shorts"; sleep 4
 key 14; sleep 3; shot B16-shorts-upload; log "key 7 = upload (signed out: sign-in prompt)"
 key 4; sleep 2
 check social-shorts

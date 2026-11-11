@@ -65,11 +65,11 @@ import kotlinx.coroutines.SupervisorJob
 private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
 /** The site's Shorts topics (value, chip label), same order as the website. */
-val SHORT_TOPICS = listOf("All" to "For You", "News" to "News", "Humor & Entertainment" to "Humor", "Simcha & Events" to "Simcha", "Torah & Religion" to "Torah",
+val SO_SHORT_TOPICS = listOf("All" to "For You", "News" to "News", "Humor & Entertainment" to "Humor", "Simcha & Events" to "Simcha", "Torah & Religion" to "Torah",
     "Community" to "Community", "Business & Deals" to "Business", "Food" to "Food", "Travel & Traffic" to "Travel", "Politics" to "Politics",
     "Chesed & Tzedakah" to "Chesed", "Health" to "Health", "Safety & Alerts" to "Alerts", "Real Estate" to "Real Estate", "Weather" to "Weather", "Technology" to "Tech")
 
-object ShortTopics {
+object SoShortTopics {
     /** Topics of each For You video, from the feed's own "tp" field. */
     val byKey = HashMap<String, List<String>>()
     var topic by mutableStateOf("All")
@@ -83,7 +83,7 @@ object ShortTopics {
 }
 
 /** Opens one of the site's own uploads (from search or a channel's Shorts) at the top of the Uploads tab. */
-fun openUploadShort(id: String) {
+fun soOpenUploadShort(id: String) {
     appScope.launch {
         try {
             val s = Api.get("/api/shorts?id=" + soEnc(id)).optJSONArray("shorts").objects().firstOrNull()?.let(Clip::upload)
@@ -95,13 +95,13 @@ fun openUploadShort(id: String) {
 }
 
 /** Opens a For You video found by search. */
-fun openFeedClip(s: Clip) {
+fun soOpenFeedClip(s: Clip) {
     Feeds.forYou.items.removeAll { it.key == s.key }; Feeds.forYou.items.add(0, s)
-    Feeds.who = null; ShortTopics.topic = "All"; Feeds.startKey = s.key; Feeds.tab = ShortsTab.ForYou; Nav.go(Tab.Shorts)
+    Feeds.who = null; SoShortTopics.topic = "All"; Feeds.startKey = s.key; Feeds.tab = ShortsTab.ForYou; Nav.go(Tab.Shorts)
 }
 
 /** A creator's page: picture, name, Follow, and every video of theirs the app has (tap one to watch from there). */
-data class CreatorPage(val creatorId: String, val name: String, val avatar: String?, val verified: Boolean, val fromSrc: Boolean) : PageScreen() {
+data class SoCreatorPage(val creatorId: String, val name: String, val avatar: String?, val verified: Boolean, val fromSrc: Boolean) : PageScreen() {
     override val perfName = "Creator"
     @Composable override fun Content() {
         val c = ctx()
@@ -129,7 +129,7 @@ data class CreatorPage(val creatorId: String, val name: String, val avatar: Stri
                     if (following) Feeds.follows.remove(creatorId) else Feeds.follows.add(creatorId); Feeds.persist(c)
                     toast(c, if (following) "Unfollowed $name" else "Following $name")
                 }, Modifier.firstFocus())
-                else SoPill("Channel", true, { Nav.open(UserChannelPage(creatorId, name)) }, Modifier.firstFocus())
+                else SoPill("Channel", true, { Nav.open(SoUserChannelPage(creatorId, name)) }, Modifier.firstFocus())
             }
             when {
                 loading -> SoSkeleton(rows = 3)
@@ -157,9 +157,9 @@ data class CreatorPage(val creatorId: String, val name: String, val avatar: Stri
 }
 
 /** Upload a Short: pick a video, write a caption, send it (with progress), like the site's Upload button. */
-class UploadShortPage : PageScreen() {
+class SoUploadShortPage : PageScreen() {
     override val perfName = "UploadShort"
-    override fun equals(other: Any?) = other is UploadShortPage
+    override fun equals(other: Any?) = other is SoUploadShortPage
     override fun hashCode() = 17
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
@@ -216,7 +216,7 @@ class UploadShortPage : PageScreen() {
 }
 
 /** Deletes one of your own uploads (or any, as an admin). */
-fun deleteUpload(ctx: Context, s: Clip) {
+fun soDeleteUpload(ctx: Context, s: Clip) {
     appScope.launch {
         runCatching { Api.delete("/api/shorts?id=" + soEnc(s.key)) }
             .onSuccess { Feeds.uploads.items.removeAll { it.key == s.key }; toast(ctx, "Deleted") }
@@ -226,20 +226,20 @@ fun deleteUpload(ctx: Context, s: Clip) {
 
 /** Shorts' one top row: search, the feeds (sideways scroll if they don't fit), topics (small screens), upload; then the creator / topic line. */
 @Composable
-fun ShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: String, smallScreen: Boolean, modifier: Modifier) {
+fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: String, smallScreen: Boolean, modifier: Modifier) {
         // One row on top: search, the feeds (scroll sideways if they don't fit), topics (small screens), upload.
     Column(modifier.fillMaxWidth()
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Black.copy(alpha = .45f), Color.Transparent)))) {
             Row(Modifier.fillMaxWidth().padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.Filled.Search, "Search Shorts", { Nav.open(SiteSearchPage(4)) }, tint = Color.White, size = 40.dp)
+                IconBtn(Icons.Filled.Search, "Search Shorts", { Nav.open(SoSearchPage(4)) }, tint = Color.White, size = if (smallScreen) 36.dp else 40.dp)
                 androidx.compose.foundation.lazy.LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically) {
                     items(tabs.size) { ti ->
                         val t = tabs[ti]
-                        Column(Modifier.tap(RoundedCornerShape(14.dp)) { Feeds.tab = t; Feeds.who = null }.padding(horizontal = 8.dp, vertical = 4.dp),
+                        Column(Modifier.tap(RoundedCornerShape(14.dp)) { Feeds.tab = t; Feeds.who = null }.padding(horizontal = if (smallScreen) 6.dp else 8.dp, vertical = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(t.label, color = if (t == tab) Color.White else Color.White.copy(alpha = .65f), fontWeight = if (t == tab) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 15.sp, maxLines = 1)
+                                fontSize = if (smallScreen) 14.sp else 15.sp, maxLines = 1)
                             Box(Modifier.padding(top = 2.dp).size(width = 18.dp, height = 2.dp).background(if (t == tab) Color.White else Color.Transparent, RoundedCornerShape(1.dp)))
                         }
                     }
@@ -248,24 +248,24 @@ fun ShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: Str
                     var topicsOpen by remember { mutableStateOf(false) }
                     IconBtn(Icons.Filled.Tune, "Topics", { topicsOpen = true }, tint = if (topic == "All") Color.White else Gold, size = 40.dp)
                     DropdownMenu(topicsOpen, { topicsOpen = false }) {
-                        for ((v, label) in SHORT_TOPICS) DropdownMenuItem(text = { Text((if (v == topic) "✓ " else "   ") + label) }, onClick = { ShortTopics.topic = v; topicsOpen = false })
+                        for ((v, label) in SO_SHORT_TOPICS) DropdownMenuItem(text = { Text((if (v == topic) "✓ " else "   ") + label) }, onClick = { SoShortTopics.topic = v; topicsOpen = false })
                     }
                 }
-                IconBtn(Icons.Filled.AddCircle, "Upload a Short", { Nav.open(UploadShortPage()) }, tint = Color.White, size = 40.dp)
+                IconBtn(Icons.Filled.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = 40.dp)
             }
             if (who != null) Row(Modifier.padding(start = 12.dp, bottom = 4.dp).tap(RoundedCornerShape(16.dp)) { Feeds.who = null }
                 .background(Color.White.copy(alpha = .2f), RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("@" + Feeds.whoName.ifBlank { "creator" }, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 Icon(Icons.Filled.Close, "Show everyone", tint = Color.White, modifier = Modifier.padding(start = 6.dp).size(16.dp))
             }
-            else if (tab == ShortsTab.ForYou && !smallScreen) SoChips(SHORT_TOPICS.map { it.second }, SHORT_TOPICS.indexOfFirst { it.first == topic }.coerceAtLeast(0),
-                { ShortTopics.topic = SHORT_TOPICS[it].first }, dark = true)
+            else if (tab == ShortsTab.ForYou && !smallScreen) SoChips(SO_SHORT_TOPICS.map { it.second }, SO_SHORT_TOPICS.indexOfFirst { it.first == topic }.coerceAtLeast(0),
+                { SoShortTopics.topic = SO_SHORT_TOPICS[it].first }, dark = true)
         }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int) -> Unit) {
+internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int) -> Unit) {
     val c = ctx()
     val scope = rememberCoroutineScope()
     val list = remember(s.key) { mutableStateListOf<Comment>() }
