@@ -247,6 +247,20 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }
 }
 
+/** Runs of "X joined" lines become one small line: "Avi, Moshe and 5 others joined". */
+private fun groupJoins(list: List<Msg>): List<Msg> {
+    val out = ArrayList<Msg>(list.size); var run = ArrayList<Msg>()
+    fun flush() {
+        if (run.size <= 2) out.addAll(run) else {
+            val names = run.map { it.text.substringBefore(" joined").trim() }.filter { it.isNotBlank() }
+            out.add(run.first().copy(text = names.take(2).joinToString(", ") + " and ${names.size - 2} others joined"))
+        }
+        run = ArrayList()
+    }
+    for (m in list) { if (m.type == "system" && m.text.contains(" joined")) run.add(m) else { flush(); out.add(m) } }
+    flush(); return out
+}
+
 @Composable
 private fun Bubble(m: Msg, mine: Boolean, group: Boolean, modifier: Modifier) {
     val c = ctx()
