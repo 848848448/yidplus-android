@@ -92,9 +92,5 @@ dependencies {
     implementation("androidx.media3:media3-database:1.4.1")
     implementation("com.google.guava:guava:33.3.1-android")
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-    implementation("com.google.firebase:firebase-messaging") {
-        exclude(group = "com.google.firebase", module = "firebase-analytics")
-        exclude(group = "com.google.android.datatransport")
-        exclude(group = "com.google.firebase", module = "firebase-datatransport")
-    }
+    implementation("com.google.firebase:firebase-messaging")
 }
