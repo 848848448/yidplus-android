@@ -1,0 +1,240 @@
+package com.yidplus.app.ui
+
+import android.content.Context
+import android.net.Uri
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.composed
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.yidplus.app.data.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.URLEncoder
+
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.Request
+import okhttp3.RequestBody
+
+// Shared pieces for the Channels, Shorts and header screens (helper B, feat-social). Names start with "So" so they
+// never clash with the shared Common.kt pieces.
+
+fun soEnc(s: String): String = URLEncoder.encode(s, "UTF-8")
+
+/** 1234 -> "1.2K", like the site. */
+fun soNum(n: Int): String = when {
+    n >= 1_000_000 -> String.format(java.util.Locale.US, "%.1fM", n / 1_000_000f).replace(".0M", "M")
+    n >= 10_000 -> "${n / 1000}K"
+    n >= 1000 -> String.format(java.util.Locale.US, "%.1fK", n / 1000f).replace(".0K", "K")
+    else -> n.toString()
+}
+
+object SoUser {
+    val signedIn: Boolean get() = Session.me != null
+    /** The site's super admins and the owner (what the site checks with isSuperOrOwner). */
+    val isSuper: Boolean get() = Session.me?.let { it.isOwner || it.role == "admin_super" } == true
+    val isAdmin: Boolean get() = Session.me?.let { it.isOwner || it.role == "admin_super" || it.role == "admin_limited" } == true
+}
+
+fun soCopy(ctx: Context, text: String, what: String = "Link copied") {
+    (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("YID PLUS", text))
+    toast(ctx, what)
+}
+
+/** A site post's "content": a stored file key (posts/abc.jpg), a full link, or plain text. */
+fun soPostMedia(content: String): String? {
+    val c = content.trim()
+    if (c.isEmpty()) return null
+    if (c.startsWith("http")) return c
+    if (!c.contains('/')) return null
+    return Api.BASE + "/api/media/" + soEnc(c.trimStart('/')).replace("+", "%20")
+}
+fun soIsVideo(url: String): Boolean = Regex("""\.(mp4|webm|mov|m4v|mkv|3gp)(\?|$)""", RegexOption.IGNORE_CASE).containsMatchIn(url)
+
+/** Streams a picked file to the site as multipart (never the whole video in memory), with progress. */
+suspend fun soUpload(ctx: Context, path: String, uri: Uri, fields: Map<String, String>, onProgress: (Float) -> Unit): JSONObject = withContext(Dispatchers.IO) {
+    val cr = ctx.contentResolver
+    val mime = cr.getType(uri) ?: "video/mp4"
+    var name = "upload." + (android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "mp4")
+    var len = -1L
+    runCatching {
+        cr.query(uri, null, null, null, null)?.use { c ->
+            if (c.moveToFirst()) {
+                val ni = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME); if (ni >= 0) c.getString(ni)?.let { if (it.contains('.')) name = it }
+                val si = c.getColumnIndex(android.provider.OpenableColumns.SIZE); if (si >= 0 && !c.isNull(si)) len = c.getLong(si)
+            }
+        }
+    }
+    val total = len
+    val body = object : RequestBody() {
+        override fun contentType() = mime.toMediaTypeOrNull()
+        override fun contentLength() = total
+        override fun writeTo(sink: okio.BufferedSink) {
+            val inp = cr.openInputStream(uri) ?: throw java.io.IOException("Can't read the file")
+            inp.use {
+                val buf = ByteArray(64 * 1024); var done = 0L; var last = 0L
+                while (true) {
+                    val n = it.read(buf); if (n < 0) break
+                    sink.write(buf, 0, n); done += n
+                    if (total > 0 && done - last > 128 * 1024) { last = done; onProgress((done.toFloat() / total).coerceIn(0f, 1f)) }
+                }
+            }
+        }
+    }
+    val mp = MultipartBody.Builder().setType(MultipartBody.FORM)
+    fields.forEach { (k, v) -> mp.addFormDataPart(k, v) }
+    mp.addFormDataPart("file", name, body)
+    val req = Request.Builder().url(Api.abs(path)!!).post(mp.build()).header("Accept", "application/json").build()
+    Api.http.newCall(req).execute().use { res ->
+        val text = res.body?.string() ?: ""
+        val j = runCatching { JSONObject(text) }.getOrNull()
+        if (!res.isSuccessful || j == null || (j.has("error") && j.optString("error").isNotBlank() && !j.optBoolean("ok", false)))
+            throw Api.ApiError(res.code, j?.optString("error")?.takeIf { it.isNotBlank() } ?: "Upload failed (${res.code})", j)
+        onProgress(1f)
+        j
+    }
+}
+
+/** Clickable by touch, but skipped by the keypad's arrows (the keypad gets number keys instead, so OK on a row still opens it). */
+fun Modifier.soTouchOnly(): Modifier = composed { if (Keys.keypad) this.focusProperties { canFocus = false } else this }
+
+/** The site answers some actions with {ok:true, error:"..."}; treat that as a failure. */
+fun JSONObject.soCheck(): JSONObject { val e = strOrNull("error"); if (e != null) throw Api.ApiError(200, e, this); return this }
+
+/** Grey placeholder rows that pulse while a list loads (instead of a bare spinner). */
+@Composable
+fun SoSkeleton(rows: Int = 7, avatar: Dp = 48.dp, modifier: Modifier = Modifier) {
+    val t = rememberInfiniteTransition(label = "sk")
+    val a by t.animateFloat(0.35f, 0.8f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "ska")
+    val col = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+    Column(modifier.fillMaxWidth().alpha(a)) {
+        repeat(rows) {
+            Row(Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(avatar).clip(CircleShape).background(col))
+                Column(Modifier.weight(1f).padding(start = 14.dp)) {
+                    Box(Modifier.fillMaxWidth(0.55f).height(14.dp).clip(RoundedCornerShape(7.dp)).background(col))
+                    Spacer(Modifier.height(8.dp))
+                    Box(Modifier.fillMaxWidth(0.85f).height(12.dp).clip(RoundedCornerShape(6.dp)).background(col))
+                }
+            }
+        }
+    }
+}
+
+/** An icon and one line, for empty lists. */
+@Composable
+fun SoEmpty(icon: ImageVector, text: String, modifier: Modifier = Modifier, action: String? = null, onAction: () -> Unit = {}) {
+    Column(modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 40.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(72.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(36.dp))
+        }
+        Spacer(Modifier.height(14.dp))
+        Text(text, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        if (action != null) { Spacer(Modifier.height(14.dp)); PrimaryButton(action, onAction) }
+    }
+}
+
+/** A row of pill chips (topics, filters); the chosen one is filled green. Every chip is focusable for the keypad. */
+@Composable
+fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, dark: Boolean = false) {
+    LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        itemsIndexed(options) { i, o ->
+            val on = i == selected
+            val bg = if (on) Green else if (dark) Color.White.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant
+            val fg = if (on) Color.White else if (dark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+            Box(Modifier.heightIn(min = 34.dp).tap(RoundedCornerShape(17.dp)) { onSelect(i) }.background(bg, RoundedCornerShape(17.dp)).padding(horizontal = 14.dp, vertical = 7.dp),
+                contentAlignment = Alignment.Center) {
+                Text(o, color = fg, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
+            }
+        }
+    }
+}
+
+/** Thin divider that starts after the avatar, like WhatsApp. */
+@Composable
+fun SoDivider(start: Dp = 80.dp) { HorizontalDivider(Modifier.padding(start = start), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)) }
+
+/** Small count badge in brand green (the design's unread colour). */
+@Composable
+fun SoBadge(n: Int, modifier: Modifier = Modifier) {
+    if (n <= 0) return
+    Box(modifier.defaultMinSize(minWidth = 20.dp, minHeight = 20.dp).clip(CircleShape).background(Color(0xFF25A36F)).padding(horizontal = 5.dp), contentAlignment = Alignment.Center) {
+        Text(if (n > 99) "99+" else n.toString(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, lineHeight = 12.sp)
+    }
+}
+
+/** A pill button (Join, Follow, ...): filled green when [filled], outlined when not. */
+@Composable
+fun SoPill(text: String, filled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true) {
+    val shape = RoundedCornerShape(18.dp)
+    Row(modifier.heightIn(min = 34.dp).tap(shape, enabled = enabled, onClick = onClick)
+        .then(if (filled) Modifier.background(Green, shape) else Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape))
+        .padding(horizontal = 14.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+        val fg = if (filled) Color.White else MaterialTheme.colorScheme.primary
+        if (icon != null) { Icon(icon, null, tint = fg, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(5.dp)) }
+        Text(text, color = fg, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+    }
+}
+
+/** Square/round picture with a soft frame while it loads, and the name's first letter when there is none. */
+@Composable
+fun SoThumb(url: String?, name: String, size: Dp, round: Boolean = true) {
+    val shape = if (round) CircleShape else RoundedCornerShape(10.dp)
+    Box(Modifier.size(size).clip(shape).background(soColorFor(name)), contentAlignment = Alignment.Center) {
+        Text(soInitials(name), color = Color.White, fontWeight = FontWeight.Bold, fontSize = (size.value * 0.38f).sp)
+        if (!url.isNullOrBlank()) AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+    }
+}
+private val soPalette = listOf(0xFF1F6F5C, 0xFF2E7D9A, 0xFF7B5EA7, 0xFFC0675A, 0xFF4F8A3C, 0xFFB7892B, 0xFF3F5DA8, 0xFF9C4F7E)
+fun soColorFor(name: String): Color = Color(soPalette[(name.hashCode() and 0x7fffffff) % soPalette.size])
+fun soInitials(name: String): String {
+    val w = name.trim().removePrefix("@").split(Regex("\\s+")).filter { it.isNotBlank() }
+    val s = when { w.isEmpty() -> "Y"; w.size == 1 -> w[0].take(1); else -> w[0].take(1) + w[1].take(1) }
+    return s.uppercase()
+}
