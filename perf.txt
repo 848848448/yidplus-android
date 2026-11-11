@@ -1,0 +1,59 @@
+first start: TotalTime: 1154
+first start: WaitTime: 1156
+cold start 1 (before profile compile): TotalTime: 620
+cold start 2 (before profile compile): TotalTime: 575
+cold start 3 (before profile compile): TotalTime: 637
+cold start 1 (baseline profile compiled): TotalTime: 583
+cold start 2 (baseline profile compiled): TotalTime: 615
+cold start 3 (baseline profile compiled): TotalTime: 617
+Total frames rendered: 43
+Janky frames: 2 (4.65%)
+50th percentile: 5ms
+90th percentile: 14ms
+95th percentile: 16ms
+99th percentile: 125ms
+Number Slow UI thread: 0
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 2
+50th gpu percentile: 3ms
+90th gpu percentile: 13ms
+95th gpu percentile: 15ms
+99th gpu percentile: 15ms
+11-11 03:39:00.665  2414  2414 I YidPerf : FirstFrameWindow content 1350 ms after process start
+11-11 03:39:01.787  2414  2414 I YidPerf : Home content 2471 ms after process start
+11-11 03:39:15.743  2414  2414 I YidPerf : Channel content 16427 ms after process start
+11-11 03:39:43.273  2414  2414 I YidPerf : Chats content 501 ms after open
+11-11 03:39:54.704  2414  2414 I YidPerf : Shorts content 2896 ms after open
+11-11 03:40:25.172  2414  2414 I YidPerf : Shorts content 19102 ms after open
+11-11 03:42:11.816  2414  2414 I YidPerf : Home content 26 ms after open
+11-11 03:42:15.948  2414  2414 I YidPerf : Chats content 39 ms after open
+11-11 03:42:31.260  3596  3596 I YidPerf : Home content 908 ms after process start
+11-11 03:42:31.634  3596  3596 I YidPerf : FirstFrameWindow content 1282 ms after process start
+11-11 03:42:37.047  3596  3596 I YidPerf : Music content 54 ms after open
+11-11 03:42:52.197  3596  3596 I YidPerf : Home content 60 ms after open
+11-11 03:43:00.397  3739  3739 I YidPerf : Home content 1040 ms after process start
+11-11 03:43:00.761  3739  3739 I YidPerf : FirstFrameWindow content 1404 ms after process start
+11-11 03:43:09.001  3815  3815 I YidPerf : Home content 972 ms after process start
+11-11 03:43:09.368  3815  3815 I YidPerf : FirstFrameWindow content 1339 ms after process start
+11-11 03:43:17.312  3888  3888 I YidPerf : Home content 620 ms after process start
+11-11 03:43:18.093  3888  3888 I YidPerf : FirstFrameWindow content 1401 ms after process start
+11-11 03:43:28.218  3971  3971 I YidPerf : Home content 586 ms after process start
+11-11 03:43:28.943  3971  3971 I YidPerf : FirstFrameWindow content 1311 ms after process start
+11-11 03:43:37.237  4045  4045 I YidPerf : Home content 908 ms after process start
+11-11 03:43:37.687  4045  4045 I YidPerf : FirstFrameWindow content 1359 ms after process start
+11-11 03:43:45.965  4116  4116 I YidPerf : Home content 988 ms after process start
+11-11 03:43:46.293  4116  4116 I YidPerf : FirstFrameWindow content 1316 ms after process start
+11-11 03:44:27.349  4681  4681 I YidPerf : Home content 774 ms after process start
+11-11 03:44:28.026  4681  4681 I YidPerf : FirstFrameWindow content 1450 ms after process start
+11-11 03:44:36.945  4681  4681 I YidPerf : Channel content 10369 ms after process start
+11-11 03:44:42.728  4681  4681 I YidPerf : Chats content 34 ms after open
+11-11 03:44:46.945  4681  4681 I YidPerf : Shorts content 15 ms after open
+11-11 03:45:08.361  4681  4681 I YidPerf : Music content 208 ms after open
+11-11 03:45:21.074  4914  4914 I YidPerf : Home content 1471 ms after process start
+11-11 03:45:21.381  4914  4914 I YidPerf : FirstFrameWindow content 1779 ms after process start
+11-11 03:45:28.132  4914  4914 I YidPerf : Channel content 8529 ms after process start (cache)
+11-11 03:45:38.796  5042  5042 I YidPerf : Home content 632 ms after process start
+11-11 03:45:39.462  5042  5042 I YidPerf : FirstFrameWindow content 1298 ms after process start
+11-11 03:45:46.142  5042  5042 I YidPerf : Channel content 7978 ms after process start (cache)
+11-11 03:45:52.694  5042  5042 I YidPerf : Chats content 37 ms after open
+11-11 03:45:58.098  5042  5042 I YidPerf : Shorts content 27 ms after open

@@ -1,0 +1,93 @@
+[03:38:56] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[03:38:59] screen 480x640 @ 240 dpi
+Starting: Intent { cmp=com.yidplus.app/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.yidplus.app/.MainActivity
+TotalTime: 1154
+WaitTime: 1156
+Complete
+[03:39:01] shot 00-splash
+[03:39:08] shot 01-home
+[03:39:11] FOCUS after DOWN:  text="" content-desc="" bounds="[0,108][480,202]"
+[03:39:11] shot 02-home-dpad
+[03:39:15] FOCUS after DOWN DOWN:  text="" content-desc="" bounds="[0,202][480,296]"
+[03:39:15] shot 03-home-dpad-3
+[03:39:24] FOCUS after OK (open channel):  text="" content-desc="" bounds="[12,105][468,171]"
+[03:39:24] shot 04-channel
+[03:39:28] FOCUS after DOWN DOWN in channel:  text="" content-desc="" bounds="[12,108][468,488]"
+[03:39:28] shot 05-channel-dpad
+[03:39:35] shot 06-channel-media
+[03:39:39] FOCUS after BACK:  text="" content-desc="" bounds="[12,105][468,171]"
+[03:39:42] FOCUS after BACK to list:  text="" content-desc="" bounds="[0,108][480,202]"
+[03:39:43] shot 07-back-to-home
+[03:39:43] open https://yidplus.com/chat
+[03:39:49] shot 08-chats
+[03:39:52] FOCUS after DOWN in chats:  text="" content-desc="" bounds="[195,493][285,565]"
+[03:40:00] shot 09-chat-room
+[03:40:03] FOCUS after OK (open chat):  text="" content-desc="" bounds="[0,36][480,490]"
+[03:40:06] shot 10-chats-back
+[03:40:06] open https://yidplus.com/shorts
+[03:40:16] shot 11-shorts-hint
+[03:40:24] shot 12-shorts-playing
+[03:40:34] shot 13-shorts-next
+[03:40:34] DOWN = next video
+[03:40:36] shot 14-shorts-paused
+[03:40:41] shot 15-shorts-liked
+[03:40:41] key 1 = like
+[03:40:48] shot 16-shorts-comments
+[03:40:48] key 3 = comments
+[03:41:03] shot 17-shorts-uploads
+[03:41:03] * * = Uploads tab
+[03:41:13] FOCUS after BACK from Shorts:  text="" content-desc="" bounds="[0,108][480,202]"
+[03:41:13] shot 18-after-shorts-back
+[03:41:13] open https://yidplus.com/music
+[03:41:19] shot 19-music
+[03:41:22] FOCUS after DOWN in music:  text="" content-desc="" bounds="[0,201][480,294]"
+[03:41:29] shot 20-music-playing
+[03:41:29] OK = play
+[03:41:32] shot 21-music-player
+[03:41:34] FOCUS after player opened:  text="" content-desc="" bounds="[192,523][288,568]"
+[03:41:37] shot 22-music-notification
+[03:41:40] tab Profile
+[03:41:43] shot 23-profile-signin
+[03:41:45] FOCUS after profile opened:  (no text)  nothing focused
+[03:41:49] FOCUS after DOWN DOWN in sign-in form:  (no text)  nothing focused
+[03:41:49] shot 24-profile-dpad
+[03:42:02] FOCUS after DOWN x8 (settings):  (no text)  nothing focused
+[03:42:02] shot 25-settings
+[03:42:08] shot 26-check-updates
+[03:42:12] tab Home
+[03:42:16] shot 27-home-dark
+[03:42:16] open https://yidplus.com/chat
+[03:42:20] shot 28-chats-dark
+[03:42:20] tab Profile
+[03:42:23] shot 29-profile-dark
+[03:42:37] shot 30-offline-home
+[03:42:37] open https://yidplus.com/music
+[03:42:40] shot 31-offline-music
+[03:42:52] tab Home
+[03:42:57] shot 32-back-online
+Success
+[03:44:25] screen 1080x2400 @ 420 dpi
+[03:44:33] shot 40-phone-home
+[03:44:41] shot 41-phone-channel
+[03:44:42] open https://yidplus.com/chat
+[03:44:47] shot 42-phone-chats
+[03:44:47] open https://yidplus.com/shorts
+[03:45:08] shot 43-phone-shorts
+[03:45:08] open https://yidplus.com/music
+[03:45:12] shot 44-phone-music
+[03:45:12] tab Profile
+[03:45:15] shot 45-phone-profile
+[03:45:18] screen 1600x2560 @ 320 dpi
+[03:45:27] shot 50-tablet-portrait-home
+[03:45:34] shot 51-tablet-portrait-channel
+[03:45:37] screen 2560x1600 @ 320 dpi
+[03:45:52] shot 52-tablet-landscape-channel
+[03:45:52] open https://yidplus.com/chat
+[03:46:07] shot 53-tablet-landscape-chats
+[03:46:07] open https://yidplus.com/shorts
+[03:46:24] shot 54-tablet-landscape-shorts
