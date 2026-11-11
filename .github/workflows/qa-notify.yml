@@ -1,0 +1,69 @@
+name: Test the update notification
+
+# Builds this code numbered as an older version (default 1.0.2), installs it, and checks that the
+# status-bar notification "YID PLUS update vX" with the release notes appears, and that tapping it installs the newest release.
+on:
+  workflow_dispatch:
+    inputs:
+      as_version:
+        description: 'Version number to give the test build (older than the newest release)'
+        required: true
+        default: '1.9.9'
+
+permissions:
+  contents: write
+
+jobs:
+  notify-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Signing key (from repository secrets only)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.p12"
+      - name: Build this code as ${{ github.event.inputs.as_version }}
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          gradle :app:assembleRelease -PversionName=${{ github.event.inputs.as_version }} --no-daemon -q
+          mkdir -p dist && cp app/build/outputs/apk/release/app-release.apk dist/test.apk
+          curl -fsSL -o dist/latest.json "https://github.com/${{ github.repository }}/releases/latest/download/version.json"
+          cat dist/latest.json
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Emulator notification test
+        timeout-minutes: 25
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 3072M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash qa/notify.sh dist/test.apk "$(jq -r .versionName dist/latest.json)"
+      - name: Publish evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          test -d qa/out || exit 0
+          cd qa/out && git init -q && git checkout -q -b qa-notify-evidence && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "notify test ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-notify-evidence
+      - name: Result
+        run: cat qa/out/notify/RESULT && grep -q '^PASS' qa/out/notify/RESULT

@@ -286,6 +286,17 @@ fun ShortsScreen() {
         onDispose { lifecycle.removeObserver(obs); player.release() }
     }
     LaunchedEffect(Prefs.muted) { player.volume = if (Prefs.muted) 0f else 1f }
+    // Speed report: time from a swipe / key settling on a video to its first picture on screen.
+    val swipeAt = remember { longArrayOf(0L) }
+    DisposableEffect(player) {
+        val l = object : Player.Listener {
+            override fun onRenderedFirstFrame() {
+                val t0 = swipeAt[0]
+                if (t0 > 0) { android.util.Log.i("YidPerf", "Shorts video playing ${android.os.SystemClock.elapsedRealtime() - t0} ms after swipe"); swipeAt[0] = 0 }
+            }
+        }
+        player.addListener(l); onDispose { player.removeListener(l) }
+    }
 
     val pager = rememberPagerState(pageCount = { items.size })
     var commentsFor by remember { mutableStateOf<Clip?>(null) }
@@ -299,6 +310,7 @@ fun ShortsScreen() {
         snapshotFlow { pager.settledPage to itemsNow.value.getOrNull(pager.settledPage)?.key }.collect { (page, _) ->
             val items = itemsNow.value
             val s = items.getOrNull(page) ?: return@collect
+            swipeAt[0] = android.os.SystemClock.elapsedRealtime()
             player.setMediaItem(MediaItem.fromUri(s.video)); player.prepare(); player.playWhenReady = !paused
             player.setPlaybackParameters(PlaybackParameters(speed))
             Media.prefetch(c, items.drop(page + 1).take(2).map { it.video })

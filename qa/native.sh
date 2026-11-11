@@ -73,6 +73,7 @@ check chats
 view "https://yidplus.com/shorts"; sleep 10; shot 11-shorts-hint
 key 7; sleep 6; shot 12-shorts-playing
 key 20; sleep 7; shot 13-shorts-next; log "DOWN = next video"
+for i in 1 2 3; do adb shell input swipe 240 430 240 130 120; sleep 4; done; shot 13b-shorts-swiped; log "3 light swipes up = 3 videos on"
 key 23; sleep 1; shot 14-shorts-paused; key 23
 key 8; sleep 1; shot 15-shorts-liked; log "key 1 = like"
 key 10; sleep 5; shot 16-shorts-comments; log "key 3 = comments"

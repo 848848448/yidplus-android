@@ -244,9 +244,9 @@ class PackageReplacedReceiver : BroadcastReceiver() {
 }
 
 object Notifier {
-    const val CHANNEL_UPDATES = "app-updates"
+    const val CHANNEL_UPDATES = "updates_v2"
 
-    fun show(ctx: Context, id: Int, title: String, text: String, open: Intent, big: String? = null) {
+    fun show(ctx: Context, id: Int, title: String, text: String, open: Intent) {
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         val pi = PendingIntent.getActivity(ctx, id, open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val n = NotificationCompat.Builder(ctx, CHANNEL_UPDATES)
@@ -254,13 +254,41 @@ object Notifier {
             .setColor(0xFFD4AF37.toInt())
             .setContentTitle(title)
             .setContentText(text)
-            .apply { if (big != null) setStyle(NotificationCompat.BigTextStyle().bigText(big)) }
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pi)
             .setAutoCancel(true)
             .build()
         runCatching { NotificationManagerCompat.from(ctx).notify(id, n) }
     }
+
+    /** Status-bar notification "YID PLUS update vX.Y.Z" with what's new; tapping it downloads and installs. Once per version. */
+    fun updateAvailable(ctx: Context, info: UpdateInfo) {
+        val p = Updater.prefs(ctx)
+        if (p.getLong("notifiedCode", -1L) == info.versionCode) return
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+        val notes = cleanNotes(info.notes)
+        val open = Intent(ctx, MainActivity::class.java).setAction(MainActivity.ACTION_INSTALL_UPDATE)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val pi = PendingIntent.getActivity(ctx, 7000, open, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val title = ctx.getString(R.string.update_notif_title, info.versionName)
+        val short = (notes.lineSequence().firstOrNull() ?: "").removePrefix("•").trim().ifBlank { ctx.getString(R.string.update_tap, info.versionName) }
+        val big = (if (notes.isBlank()) "" else notes + "\n\n") + ctx.getString(R.string.update_notif_tap)
+        val n = NotificationCompat.Builder(ctx, CHANNEL_UPDATES)
+            .setSmallIcon(R.drawable.ic_stat_logo)
+            .setColor(0xFFD4AF37.toInt())
+            .setContentTitle(title)
+            .setContentText(short)
+            .setStyle(NotificationCompat.BigTextStyle().setBigContentTitle(title).bigText(big))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+            .setContentIntent(pi)
+            .addAction(0, ctx.getString(R.string.update_now), pi)
+            .setAutoCancel(true)
+            .build()
+        if (runCatching { NotificationManagerCompat.from(ctx).notify(7000, n) }.isSuccess) p.edit().putLong("notifiedCode", info.versionCode).apply()
+    }
+
+    fun cleanNotes(raw: String): String = raw.lines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }
+        .joinToString("\n") { if (it.startsWith("- ") || it.startsWith("* ")) "•  " + it.substring(2) else it }
 
     fun cancel(ctx: Context, id: Int) = runCatching { (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(id) }
 }
@@ -270,31 +298,20 @@ class UpdateWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val info = Updater.fetch() ?: return@withContext Result.success()
         Updater.prefs(applicationContext).edit().putLong("lastCheck", System.currentTimeMillis()).apply()
-        if (Updater.isNewer(applicationContext, info) && !BuildConfig.VERSION_NAME.startsWith("0.0.")) {
-            // "YID PLUS update v2.0.1" + what's new (the release notes); tap = download and install.
-            val notes = info.notes.lines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }
-                .map { if (it.startsWith("- ") || it.startsWith("* ")) it.substring(2) else it }
-            Notifier.show(
-                applicationContext, 7000,
-                "YID PLUS update v${info.versionName}",
-                notes.firstOrNull() ?: applicationContext.getString(R.string.update_tap, info.versionName),
-                Intent(applicationContext, MainActivity::class.java).setAction(MainActivity.ACTION_INSTALL_UPDATE),
-                big = (notes.joinToString("\n") { "• $it" } + "\n\nTap to update.").trim(),
-            )
-        }
+        if (Updater.isNewer(applicationContext, info) && !BuildConfig.VERSION_NAME.startsWith("0.0.")) Notifier.updateAvailable(applicationContext, info)
         Result.success()
     }
 
     companion object {
         fun schedule(ctx: Context) {
-            val req = PeriodicWorkRequestBuilder<UpdateWorker>(8, TimeUnit.HOURS)
+            val req = PeriodicWorkRequestBuilder<UpdateWorker>(6, TimeUnit.HOURS)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build()
-            runCatching { WorkManager.getInstance(ctx).enqueueUniquePeriodicWork("update-check-8h", ExistingPeriodicWorkPolicy.KEEP, req) }
             runCatching { WorkManager.getInstance(ctx).cancelUniqueWork("update-check") }
+            runCatching { WorkManager.getInstance(ctx).enqueueUniquePeriodicWork("update-check-6h", ExistingPeriodicWorkPolicy.KEEP, req) }
         }
 
-        /** One check right now (QA, and the in-app "Check for updates" while the app goes to the background). */
+        /** One check right now (emulator QA of the update notification). */
         fun now(ctx: Context) {
             runCatching { WorkManager.getInstance(ctx).enqueueUniqueWork("update-now", androidx.work.ExistingWorkPolicy.REPLACE,
                 androidx.work.OneTimeWorkRequestBuilder<UpdateWorker>().setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()) }
