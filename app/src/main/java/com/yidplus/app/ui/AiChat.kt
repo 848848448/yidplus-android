@@ -349,15 +349,16 @@ private fun AiChatScreen(ask: String?) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AiWelcome(blocked: Boolean, onQuick: (String) -> Unit) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        AiAvatar(68.dp, square = true)
-        Spacer(Modifier.height(12.dp))
+    val short = LocalConfiguration.current.screenHeightDp < 600
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = if (short) 10.dp else 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        AiAvatar(if (short) 44.dp else 68.dp, square = true)
+        Spacer(Modifier.height(if (short) 6.dp else 12.dp))
         Text(AiChat.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(6.dp))
         Text(AiChat.welcome ?: "Ask me anything: questions, writing, translation, ideas, explanations, and even making images 🎨.",
             fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center,
             style = TextStyle(textDirection = TextDirection.Content), modifier = Modifier.widthIn(max = 340.dp))
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(if (short) 10.dp else 16.dp))
         when {
             AiChat.disabled -> AiNote("⏸️ YID PLUS AI is currently turned off.")
             AiChat.notConfigured -> AiNote("⚠️ YID PLUS AI is not set up yet.")

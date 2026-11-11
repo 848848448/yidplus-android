@@ -211,13 +211,13 @@ private fun PostStatus() {
         }
         // Bottom: colours, caption, who sees it, post
         Column(Modifier.fillMaxWidth().then(if (ime) Modifier else Modifier.navigationBarsPadding()).padding(bottom = 10.dp)) {
-            if (media == null && !ime) LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (media == null) { if (!ime) LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 itemsIndexed(Statuses.BGS) { i, b ->
                     Box(Modifier.size(30.dp).clip(CircleShape).background(Statuses.brush(b))
                         .border(if (i == bg) 2.5.dp else 1.dp, if (i == bg) Color.White else Color.White.copy(alpha = .4f), CircleShape)
                         .tap(CircleShape) { bg = i })
                 }
-            } else TextField(caption, { caption = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+            } } else TextField(caption, { caption = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp),
                 placeholder = { Text("Add a caption…", color = Color.White.copy(alpha = .7f)) }, singleLine = true, shape = RoundedCornerShape(24.dp),
                 textStyle = TextStyle(fontSize = 16.sp, color = Color.White, textDirection = TextDirection.Content),
                 colors = TextFieldDefaults.colors(focusedContainerColor = Color(0x80000000), unfocusedContainerColor = Color(0x59000000),
