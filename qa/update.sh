@@ -36,6 +36,7 @@ if [ "${NOTIFY:-0}" = 1 ]; then
   adb shell cmd statusbar expand-notifications; sleep 3
   for i in $(seq 1 10); do xy=$(find_xy "YID PLUS update v$WANT"); [ -n "$xy" ] && break; sleep 3; done
   shot 00-update-notification
+  adb shell dumpsys notification --noredact 2>/dev/null | grep -A40 "pkg=$PKG" | grep -E "android.title=|android.text=|android.bigText=" | head -6 | sed 's/^/notification: /' | tee -a "$OUT/update.log"
   [ -n "$xy" ] && log "notification shown: YID PLUS update v$WANT" || log "notification NOT found"
   adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/notification-ui.xml" >/dev/null 2>&1
   tap "YID PLUS update v$WANT" 5 || true
