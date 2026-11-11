@@ -1,0 +1,170 @@
+name: Build & release APK
+
+# Ship an update: put the changes in RELEASE_NOTES.md, then push a tag like v1.0.1
+#   git tag v1.0.1 && git push origin v1.0.1
+# (or run this workflow by hand with a version). Every phone running the app sees
+# "Update available" the next time it opens (and from the daily background check).
+on:
+  push:
+    tags: ['v*.*.*']
+    branches: [main]
+    paths: ['app/**', '*.gradle.kts', 'gradle.properties', 'qa/**', '.github/workflows/release.yml']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, e.g. 1.0.1'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      code: ${{ steps.ver.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version
+        id: ver
+        run: |
+          V="${{ github.event.inputs.version }}"
+          if [ -z "$V" ] && [ "${GITHUB_REF_TYPE}" = "tag" ]; then V="${GITHUB_REF_NAME#v}"; fi
+          # A plain push to main is a test build only (never released)
+          if [ -z "$V" ]; then V="0.0.${GITHUB_RUN_NUMBER}"; fi
+          echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Bad version '$V'"; exit 1; }
+          IFS=. read -r A B C <<< "$V"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "code=$((A*10000 + B*100 + C))" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Signing key (from repository secrets only)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          test -n "$KEYSTORE_B64" || { echo "KEYSTORE_B64 secret missing"; exit 1; }
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.p12"
+
+      - name: Build signed release
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          set -o pipefail
+          gradle :app:assembleRelease -PversionName=${{ steps.ver.outputs.version }} --no-daemon --stacktrace 2>&1 | tee build.log
+
+      - name: Check signature and package
+        run: |
+          APK=app/build/outputs/apk/release/app-release.apk
+          test -f "$APK"
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs "$APK" | tee signature.txt
+          grep -q "SHA-256" signature.txt
+          "$BT/aapt2" dump badging "$APK" | head -3 | tee badging.txt
+          grep -q "versionCode='${{ steps.ver.outputs.code }}'" badging.txt
+          mkdir -p dist
+          cp "$APK" dist/YIDPLUS.apk
+          {
+            echo "### YID PLUS ${{ steps.ver.outputs.version }} (versionCode ${{ steps.ver.outputs.code }})"
+            echo '```'; cat signature.txt; cat badging.txt; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: version.json (what the in-app updater reads)
+        run: |
+          V=${{ steps.ver.outputs.version }}
+          jq -n --arg v "$V" --argjson code ${{ steps.ver.outputs.code }} \
+            --arg url "https://github.com/${{ github.repository }}/releases/download/v$V/YIDPLUS.apk" \
+            --arg sha "$(sha256sum dist/YIDPLUS.apk | cut -d' ' -f1)" \
+            --argjson size "$(stat -c%s dist/YIDPLUS.apk)" \
+            --rawfile notes RELEASE_NOTES.md \
+            '{versionCode:$code, versionName:$v, apkUrl:$url, sha256:$sha, size:$size, notes:$notes}' > dist/version.json
+          cat dist/version.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish build log on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/log && cp build.log /tmp/log/ 2>/dev/null || echo "no build log" > /tmp/log/build.log
+          cd /tmp/log && git init -q && git checkout -q -b ci-log && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "build log ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log
+
+  qa:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Emulator test (install, open, Shorts, Chats, dark mode, offline)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash qa/qa.sh dist/YIDPLUS.apk
+      - name: Publish QA screenshots
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          test -d qa/out || exit 0
+          cd qa/out && git init -q && git checkout -q -b qa-evidence && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "QA ${{ needs.build.outputs.version }} run ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-evidence
+      - name: Fail on crash
+        run: |
+          test -f qa/out/RESULT && cat qa/out/RESULT
+          grep -q '^PASS' qa/out/RESULT
+
+  release:
+    needs: [build, qa]
+    if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          name: YID PLUS ${{ needs.build.outputs.version }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/YIDPLUS.apk
+            dist/version.json
+          make_latest: true
