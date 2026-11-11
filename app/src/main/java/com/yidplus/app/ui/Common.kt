@@ -166,11 +166,17 @@ fun firstLetterOf(w: String): String? {
     return null
 }
 
-/** "Moshe Klein" -> "MK", "yidplus" -> "Y", "משה קליין" -> "מ", "'ישיבה" -> "י". Never punctuation or an emoji. */
+/** "Moshe Klein" -> "MK", "yidplus" -> "Y", "משה קליין" -> "מ", "'ישיבה" -> "יש" (a lone yod looks like an apostrophe). Never punctuation or an emoji. */
 fun nameInitials(name: String): String {
     val letters = name.trim().split(Regex("\\s+")).mapNotNull { firstLetterOf(it) }
     if (letters.isEmpty()) return "Y"
     val a = letters[0]
+    // A lone yod / vav reads like an apostrophe in a circle ("'" next to ישיבה): show the word's first two letters instead (יש, וו).
+    if (a == "י" || a == "ו" || a == "ן") {
+        val w = name.trim().split(Regex("\\s+")).firstOrNull { firstLetterOf(it) != null }.orEmpty()
+        val two = w.filter { it.isLetter() && it.code in 0x05D0..0x05EA }.take(2)
+        if (two.length == 2) return two
+    }
     // Two letters only for Latin names of two words, like Telegram; a Hebrew/Yiddish name shows its first letter, like the site.
     if (letters.size >= 2 && a[0].code < 0x0590 && letters[1][0].code < 0x0590 && a[0].isLetter() && letters[1][0].isLetter()) return a + letters[1]
     return a

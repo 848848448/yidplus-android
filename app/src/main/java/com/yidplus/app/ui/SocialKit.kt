@@ -257,11 +257,20 @@ fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modif
     }
     // Up to four short filters share the width (they always fit at 480 px, nothing cut at the edge); more scroll
     // sideways with room at both ends, so no chip is ever cut mid-word.
-    val total = options.sumOf { it.length }
-    if (options.size <= 4 && total <= 30) Row(modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        options.forEachIndexed { i, o -> Chip(i, o, Modifier.weight(1f)) }
-    } else LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        itemsIndexed(options) { i, o -> Chip(i, o, Modifier.padding(horizontal = 2.dp)) }
+    // Chips share the row when every word fits whole (each chip gets at least its own text's width, measured at the
+    // current text size); otherwise the row scrolls sideways like WhatsApp's filter row, with room at the end.
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val tm = androidx.compose.ui.text.rememberTextMeasurer()
+        val d = androidx.compose.ui.platform.LocalDensity.current
+        val style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        val need = options.map { o -> with(d) { tm.measure(o, style, maxLines = 1, softWrap = false).size.width.toDp() } + 24.dp }
+        val room = maxWidth - 24.dp - 6.dp * (options.size - 1).coerceAtLeast(0)
+        val fits = options.size <= 5 && need.fold(0.dp) { s, w -> s + w } <= room
+        if (fits) Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            options.forEachIndexed { i, o -> Chip(i, o, Modifier.weight(need[i].value)) }
+        } else LazyRow(Modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            itemsIndexed(options) { i, o -> Chip(i, o, Modifier.padding(horizontal = 2.dp)) }
+        }
     }
 }
 
