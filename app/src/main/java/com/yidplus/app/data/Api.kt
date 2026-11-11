@@ -114,7 +114,14 @@ object Fixture {
     private fun prefs(c: Context) = c.getSharedPreferences("qa", Context.MODE_PRIVATE)
     fun init(c: Context) { if (prefs(c).getBoolean("fixture", false)) load(c) }
     private fun load(c: Context) {
-        data = runCatching { JSONObject(c.assets.open("qa/fixtures.json").bufferedReader().use { it.readText() }) }.getOrNull()
+        // fixtures.json plus any fixtures-*.json next to it (each screen area keeps its own sample answers).
+        val all = JSONObject()
+        val names = runCatching { c.assets.list("qa")?.toList() }.getOrNull().orEmpty().filter { it.startsWith("fixtures") && it.endsWith(".json") }.sorted()
+        for (n in names) runCatching {
+            val j = JSONObject(c.assets.open("qa/$n").bufferedReader().use { it.readText() })
+            for (k in j.keys()) all.put(k, j.get(k))
+        }
+        data = if (all.length() > 0) all else null
     }
     fun set(c: Context, enable: Boolean) {
         prefs(c).edit().putBoolean("fixture", enable).commit()

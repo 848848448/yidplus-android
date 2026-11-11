@@ -23,6 +23,8 @@ fx_block() {
   adb shell cmd uimode night no; sleep 3; check fx-dark
   size 1080x2400 420; restart 6; view "https://yidplus.com/chat"; sleep 4; shot F12-phone-chats; key 23; sleep 5; shot F13-phone-chat; key 4
   size 480x640 240
+  # Each area adds its own signed-in steps in qa/fx-<area>.sh (still signed in with the fixture account here).
+  for f in qa/fx-*.sh; do [ -f "$f" ] || continue; log "---- $f ----"; restart 5; source "$f"; check "$f"; done
   fx false; restart 5; check fx-off
 }
 fx_finish() {
