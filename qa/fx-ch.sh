@@ -3,19 +3,17 @@
 chpos() { # centre of the node whose text is exactly $1 (else whose text/desc contains it); prints "x y"; the matched node goes to the log
   timeout 30 adb shell uiautomator dump /sdcard/ch.xml >/dev/null 2>&1
   local x n b; x=$(timeout 20 adb shell cat /sdcard/ch.xml 2>/dev/null | tr '>' '\n')
-  n=$(echo "$x" | grep -F -- "text=\"$1\"" | head -1); [ -z "$n" ] && n=$(echo "$x" | grep -F -- "$1" | tail -1)
+  # screens underneath (the chat list behind an open chat) are in the dump too: take the tallest match, not the first
+  n=$(echo "$x" | grep -E -- "(text|content-desc)=\"$(printf '%s' "$1" | sed 's/[][\.*^$/]/\\&/g')\"" | awk 'match($0,/bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"/){s=substr($0,RSTART,RLENGTH); gsub(/[^0-9]+/," ",s); split(s,a," "); h=a[4]-a[2]; if(h>best){best=h; line=$0}} END{print line}')
+  [ -z "$n" ] && n=$(echo "$x" | grep -F -- "$1" | awk 'match($0,/bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"/){s=substr($0,RSTART,RLENGTH); gsub(/[^0-9]+/," ",s); split(s,a," "); h=a[4]-a[2]; if(h>best){best=h; line=$0}} END{print line}')
   [ -z "$n" ] && return 0
   echo "  node: $(echo "$n" | grep -oE '(text|content-desc|class|bounds)="[^"]*"' | tr '\n' ' ' | cut -c1-240)" >> "$OUT/qa.log"
   b=$(echo "$n" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
   [ -z "$b" ] && return 0; set -- $b; echo "$(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))"
 }
-chtap() { # tap the first node whose text or content-desc is exactly $1 (falls back to "contains"); chtap of native.sh is defined after this block runs
-  timeout 30 adb shell uiautomator dump /sdcard/ch.xml >/dev/null 2>&1
-  local x; x=$(timeout 20 adb shell cat /sdcard/ch.xml 2>/dev/null | tr '>' '\n')
-  local b; b=$(echo "$x" | grep -F -- "text=\"$1\"" | head -1); [ -z "$b" ] && b=$(echo "$x" | grep -F -- "content-desc=\"$1\"" | head -1); [ -z "$b" ] && b=$(echo "$x" | grep -F -- "$1" | head -1)
-  b=$(echo "$b" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
-  if [ -z "$b" ]; then log "chtap: '$1' not on screen"; return 0; fi
-  set -- $b; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "chtap '$*'"
+chtap() { # tap the tallest node whose text/desc is exactly $1 (else contains it); tapui of native.sh is only defined after fx_block runs
+  local p; p=$(chpos "$1"); if [ -z "$p" ]; then log "chtap: '$1' not on screen"; return 0; fi
+  set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "chtap $1 $2"
 }
 chnot() { local p; p=$(chpos "$1"); if [ -n "$p" ]; then log "CH WRONG: '$1' is on screen"; else log "CH ok: '$1' not shown"; fi; }
 chhas() { local p; p=$(chpos "$1"); if [ -n "$p" ]; then log "CH ok: '$1' on screen"; else log "CH MISSING: '$1' not on screen"; fi; }
@@ -35,9 +33,9 @@ adb shell input swipe 420 125 40 125 400; sleep 1; shot CH-02-chips-scrolled
 adb shell input swipe 240 450 240 150 400; sleep 1; shot CH-02b-list-scrolled; adb shell input swipe 240 150 240 600 300; sleep 1
 chtap "Start new chat"; sleep 2; shot CH-03-fab-menu
 chtap "New group"; sleep 3; chtap "Group name"; sleep 1; adb shell input text "QA%sGroup"; sleep 1; shot CH-03b-new-group; chtap "Create"; sleep 3; chfx "/api/chat/rooms"; key 4; sleep 1; key 4; sleep 1
-view "https://yidplus.com/chat"; sleep 3; chtap "Start new chat"; sleep 2; chtap "New chat"; sleep 4; shot CH-03c-new-chat; chtap "Dovid New"; sleep 3; chfx "other_user_id"; key 4; sleep 1; key 4; sleep 1
+restart 5; view "https://yidplus.com/chat"; sleep 4; chtap "Start new chat"; sleep 2; chtap "New chat"; sleep 4; shot CH-03c-new-chat; chtap "Dovid New"; sleep 3; chfx "other_user_id"; key 4; sleep 1; key 4; sleep 1
 # 10: search closes the keyboard
-view "https://yidplus.com/chat"; sleep 3; chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; chkb "typing in search"; key 4; sleep 2; chkb "Back from search"; shot CH-04-search-closed
+restart 5; view "https://yidplus.com/chat"; sleep 3; chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; chkb "typing in search"; key 4; sleep 2; chkb "Back from search"; shot CH-04-search-closed
 
 # 1: instant open (second open is from the cache), 4/24: every message type, call rows centred, date chips; 22: typing in the header
 chopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 6; shot CH-05-group-bottom; chhas "typing"; chfx "/api/chat/read"

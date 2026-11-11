@@ -159,7 +159,7 @@ object ChatApi {
     suspend fun create(type: String, name: String, desc: String, public: Boolean): String = Api.post("/api/chat/rooms",
         if (type == "channel") JSONObject().put("type", "channel").put("name", name).put("description", desc).put("is_public", public).put("read_only", true)
         else JSONObject().put("type", "group").put("name", name).put("emoji", "👥").put("visibility", if (public) "public" else "private").put("read_only", false)
-            .also { if (desc.isNotBlank()) it.put("description", desc) }).str("room_id")
+            .also { if (desc.isNotBlank()) it.put("description", desc) }).let { r -> r.str("room_id").ifBlank { r.optJSONObject("room")?.str("id").orEmpty() }.ifBlank { r.str("id") } }
     suspend fun addMember(roomId: String, userId: String) = Api.put("/api/chat/rooms", JSONObject().put("room_id", roomId).put("member_id", userId).put("add", true))
     suspend fun removeMember(roomId: String, userId: String) = Api.put("/api/chat/rooms", JSONObject().put("room_id", roomId).put("member_id", userId).put("remove", true))
     suspend fun setAdmin(roomId: String, userId: String, on: Boolean) = Api.put("/api/chat/rooms", JSONObject().put("room_id", roomId).put("member_id", userId).put("make_admin", on))
