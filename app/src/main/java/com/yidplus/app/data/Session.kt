@@ -29,6 +29,7 @@ object Session {
 
     private fun set(m: Me?) {
         val changed = m?.id != me?.id
+        if (m != null && changed) runCatching { com.yidplus.app.Push.start(ctx) }
         me = m
         prefs.edit().apply { if (m == null) remove("me") else putString("me", m.json().toString()) }.apply()
         if (changed) Store.clear()
@@ -49,6 +50,7 @@ object Session {
     }
 
     suspend fun logout() {
+        runCatching { com.yidplus.app.Push.unregister(ctx) }
         runCatching { Api.post("/api/auth/logout") }
         Api.clearSession(); Disk.clear(); set(null)
     }

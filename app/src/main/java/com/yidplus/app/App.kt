@@ -26,7 +26,10 @@ class App : Application(), ImageLoaderFactory {
         }
         NotifyWorker.channels(this)
         UpdateWorker.schedule(this)
-        if (Api.hasSession() && Prefs.notify) NotifyWorker.schedule(this)
+        if (Api.hasSession() && Prefs.notify) {
+            NotifyWorker.schedule(this)
+            android.os.Handler(mainLooper).postDelayed({ Push.start(this) }, 3000)
+        }
     }
 
     /** Images: small memory cache (weak phones), 120 MB on disk so channels open instantly offline too. */

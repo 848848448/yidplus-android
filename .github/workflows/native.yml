@@ -66,6 +66,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [default, google_apis]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -81,7 +85,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          target: default
+          target: ${{ matrix.target }}
           arch: x86_64
           profile: pixel_4
           ram-size: 3072M
@@ -95,6 +99,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           test -d qa/out || exit 0
-          cd qa/out && git init -q && git checkout -q -b qa-native && git add -A
+          cd qa/out && git init -q && git checkout -q -b qa-native-${{ matrix.target }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native QA run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-native
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-native-${{ matrix.target }}

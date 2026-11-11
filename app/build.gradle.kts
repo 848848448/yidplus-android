@@ -20,6 +20,9 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
         buildConfigField("String", "UPDATE_REPO", "\"848848448/yidplus-android\"")
+        // Instant notifications through Firebase (yidplus.com's existing "shorts-e05cc" project) on phones that have
+        // Google Play services. Off with -Pfcm=false. The 15-minute check keeps working with or without it.
+        buildConfigField("boolean", "FCM", (project.findProperty("fcm") as String? ?: "true"))
     }
 
     signingConfigs {
@@ -88,4 +91,10 @@ dependencies {
     implementation("androidx.media3:media3-datasource-okhttp:1.4.1")
     implementation("androidx.media3:media3-database:1.4.1")
     implementation("com.google.guava:guava:33.3.1-android")
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-messaging") {
+        exclude(group = "com.google.firebase", module = "firebase-analytics")
+        exclude(group = "com.google.android.datatransport")
+        exclude(group = "com.google.firebase", module = "firebase-datatransport")
+    }
 }

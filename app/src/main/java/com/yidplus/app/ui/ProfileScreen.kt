@@ -141,10 +141,11 @@ private fun Settings() {
     SectionTitle("App")
     SettingRow(Icons.Filled.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
     SettingRow(Icons.Filled.DarkMode, "Theme", listOf("Same as phone", "Light", "Dark")[Prefs.theme]) { Prefs.setThemeMode((Prefs.theme + 1) % 3) }
-    SettingRow(Icons.Filled.Notifications, "Notifications", if (Prefs.notify) "On · new messages, likes, comments, channel posts" else "Off") {
+    SettingRow(Icons.Filled.Notifications, "Notifications", if (Prefs.notify) "On · new messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off") {
         Prefs.enableNotify(!Prefs.notify)
         if (Prefs.notify) {
             NotifyWorker.schedule(c)
+            com.yidplus.app.Push.start(c)
             if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(c, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) askNotif.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }

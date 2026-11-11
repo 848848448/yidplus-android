@@ -135,18 +135,31 @@ view "https://yidplus.com/chat"; sleep 4; shot 42-phone-chats
 view "https://yidplus.com/shorts"; sleep 9; key 7; sleep 3; shot 43-phone-shorts
 view "https://yidplus.com/music"; sleep 4; shot 44-phone-music
 tab Profile; sleep 3; shot 45-phone-profile
+size 2400x1080 420
+restart 6; shot 46-phone-landscape-home
+view "https://yidplus.com/shorts"; sleep 9; key 7; sleep 3; shot 47-phone-landscape-shorts
 check phone
 
 # ---- 10" tablet, portrait and landscape ----
 size 1600x2560 320
 restart 6; shot 50-tablet-portrait-home
 key 20; key 23; sleep 5; shot 51-tablet-portrait-channel
+view "https://yidplus.com/chat"; sleep 4; shot 55-tablet-portrait-chats
+view "https://yidplus.com/shorts"; sleep 9; key 7; sleep 3; shot 56-tablet-portrait-shorts
+view "https://yidplus.com/music"; sleep 4; shot 57-tablet-portrait-music
 size 2560x1600 320
+restart 6; shot 58-tablet-landscape-home
 restart 6; key 20; key 23; sleep 5; shot 52-tablet-landscape-channel
 view "https://yidplus.com/chat"; sleep 4; key 20; key 23; sleep 5; shot 53-tablet-landscape-chats
 view "https://yidplus.com/shorts"; sleep 9; key 7; sleep 3; shot 54-tablet-landscape-shorts
+view "https://yidplus.com/music"; sleep 4; shot 59-tablet-landscape-music
+tab Profile; sleep 3; shot 60-tablet-landscape-profile
 check tablet
 adb shell wm size reset; adb shell wm density reset
+
+# ---- Instant notifications: can this phone get a Firebase token? (Google APIs image: yes; plain image: no) ----
+adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_PUSH_PROBE >/dev/null; sleep 15
+timeout 30 adb logcat -d -s YidplusPush | grep probe | tail -2 | sed "s/^/push: /" | tee -a "$OUT/qa.log" >> "$OUT/perf.txt"
 
 timeout 60 adb logcat -d -t 30000 > "$OUT/logcat.txt"
 grep "YidPerf" "$OUT/logcat.txt" >> "$OUT/perf.txt" || true

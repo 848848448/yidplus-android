@@ -82,6 +82,7 @@ class MainActivity : ComponentActivity() {
             ACTION_CHECK_UPDATE -> UpdateUi.check(this, force = true, userAsked = true)
             ACTION_OPEN_PLAYER -> Nav.open(Screen.Player)
             ACTION_OPEN_CHATS -> Nav.go(Tab.Chats)
+            "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
             ACTION_OPEN_TAB -> runCatching { Tab.valueOf(i.getStringExtra("tab") ?: "Home") }.getOrNull()?.let { Nav.go(it) }
             ACTION_OPEN_NOTIFS -> { Nav.go(Tab.Home); Nav.open(Screen.Notifications) }
             ACTION_OPEN_CHAT -> i.getStringExtra("room")?.let { runCatching { Room.from(JSONObject(it)) }.getOrNull() }?.let { Nav.go(Tab.Chats); Nav.open(Screen.Chat(it)) }
