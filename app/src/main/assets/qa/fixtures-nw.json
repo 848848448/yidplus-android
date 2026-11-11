@@ -24,7 +24,65 @@
    }
   ]
  },
- "nw:/api/statuses": {
+ "/api/saves": {
+  "ok": true,
+  "items": [
+   {
+    "item_type": "short",
+    "id": "77e14f2a-e196-4ff3-915d-21ffa29f468c",
+    "nick": "Shimel’a",
+    "caption": "אביסל חינוך פאראן דאגי אויך 🐕🤭",
+    "media_url": "/api/media/shorts%2Ff18ccd10-7058-4c5e-8f90-1e86699f30f4%2F1784848637408.mp4",
+    "saved_at": "2026-11-11T16:00:00.000Z"
+   },
+   {
+    "item_type": "short",
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "nick": "DealPoint",
+    "caption": "",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "saved_at": "2026-11-10T11:00:00.000Z"
+   },
+   {
+    "item_type": "song",
+    "id": "song-1",
+    "title": "מזמור לדוד",
+    "artist": "Yid Plus Music",
+    "cover_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "saved_at": "2026-11-08T11:00:00.000Z"
+   }
+  ]
+ },
+ "/api/history": {
+  "ok": true,
+  "items": [
+   {
+    "item_type": "short",
+    "id": "6630b5bb-e297-417b-bc25-fdd9d23836d9",
+    "nick": "DealPoint",
+    "caption": "",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664752750_9f8a7c54-32f9-41fa-807a-a2c2a7d801db.mp4",
+    "viewed_at": "2026-11-11T20:00:00.000Z"
+   },
+   {
+    "item_type": "short",
+    "id": "77e14f2a-e196-4ff3-915d-21ffa29f468c",
+    "nick": "Shimel’a",
+    "caption": "אביסל חינוך פאראן דאגי אויך 🐕🤭",
+    "media_url": "/api/media/shorts%2Ff18ccd10-7058-4c5e-8f90-1e86699f30f4%2F1784848637408.mp4",
+    "viewed_at": "2026-11-11T15:20:00.000Z"
+   },
+   {
+    "item_type": "short",
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "nick": "DealPoint",
+    "caption": "",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "viewed_at": "2026-11-10T09:00:00.000Z"
+   }
+  ]
+ },
+ "/api/statuses": {
   "ok": true,
   "statuses": [
    {
@@ -102,64 +160,6 @@
       "views": 0
      }
     ]
-   }
-  ]
- },
- "/api/saves": {
-  "ok": true,
-  "items": [
-   {
-    "item_type": "short",
-    "id": "77e14f2a-e196-4ff3-915d-21ffa29f468c",
-    "nick": "Shimel’a",
-    "caption": "אביסל חינוך פאראן דאגי אויך 🐕🤭",
-    "media_url": "/api/media/shorts%2Ff18ccd10-7058-4c5e-8f90-1e86699f30f4%2F1784848637408.mp4",
-    "saved_at": "2026-11-11T16:00:00.000Z"
-   },
-   {
-    "item_type": "short",
-    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
-    "nick": "DealPoint",
-    "caption": "",
-    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
-    "saved_at": "2026-11-10T11:00:00.000Z"
-   },
-   {
-    "item_type": "song",
-    "id": "song-1",
-    "title": "מזמור לדוד",
-    "artist": "Yid Plus Music",
-    "cover_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
-    "saved_at": "2026-11-08T11:00:00.000Z"
-   }
-  ]
- },
- "/api/history": {
-  "ok": true,
-  "items": [
-   {
-    "item_type": "short",
-    "id": "6630b5bb-e297-417b-bc25-fdd9d23836d9",
-    "nick": "DealPoint",
-    "caption": "",
-    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664752750_9f8a7c54-32f9-41fa-807a-a2c2a7d801db.mp4",
-    "viewed_at": "2026-11-11T20:00:00.000Z"
-   },
-   {
-    "item_type": "short",
-    "id": "77e14f2a-e196-4ff3-915d-21ffa29f468c",
-    "nick": "Shimel’a",
-    "caption": "אביסל חינוך פאראן דאגי אויך 🐕🤭",
-    "media_url": "/api/media/shorts%2Ff18ccd10-7058-4c5e-8f90-1e86699f30f4%2F1784848637408.mp4",
-    "viewed_at": "2026-11-11T15:20:00.000Z"
-   },
-   {
-    "item_type": "short",
-    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
-    "nick": "DealPoint",
-    "caption": "",
-    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
-    "viewed_at": "2026-11-10T09:00:00.000Z"
    }
   ]
  }

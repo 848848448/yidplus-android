@@ -152,9 +152,7 @@ object Statuses {
     val res get() = Store.res("/api/statuses") { parse(it) }
 
     fun parse(j0: JSONObject): List<StUser> {
-        // QA only: the shared fixtures.json answers /api/statuses with an empty list and loads after the area files,
-        // so the statuses sample lives under its own key in fixtures-nw.json. Never used outside the QA fixture account.
-        val j = (if (Fixture.on) Fixture.data?.optJSONObject("nw:/api/statuses") else null) ?: j0
+        val j = j0
         val me = Session.me?.id
         val vid = Regex("\\.(mp4|webm|mov|avi|3gp|mkv)(\\?|$)", RegexOption.IGNORE_CASE)
         val list = j.optJSONArray("statuses").objects().mapNotNull { s ->

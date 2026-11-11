@@ -239,7 +239,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
     BackHandler(enabled = sheet || menu) { sheet = false; menu = false }
 
     val density = LocalDensity.current
-    Box(Modifier.fillMaxSize().focusRequester(fr).focusable()
+    Box(Modifier.fillMaxSize()
         .onPreviewKeyEvent { e ->
             if (e.type != KeyEventType.KeyDown || typing || sheet) false
             else when (e.key) {
@@ -247,7 +247,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                 Key.DirectionRight -> { next(); true }
                 else -> false
             }
-        }) {
+        }.focusRequester(fr).focusable()) {
         // The slide itself
         Box(Modifier.fillMaxSize()
             .pointerInput(ui, si) {
