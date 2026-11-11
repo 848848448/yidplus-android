@@ -126,7 +126,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
         Avatar(ch.photo, ch.title, 44.dp)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(ch.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                Text(ch.title, Modifier.weight(1f).padding(end = 6.dp), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Content))
                 Text(ago(ch.lastAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

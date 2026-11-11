@@ -127,6 +127,7 @@ for i in 1 2 3; do
   adb shell am force-stop $PKG; sleep 2
   timeout 60 adb shell am start -W -n $PKG/.MainActivity | grep -E "TotalTime" | sed "s/^/cold start $i (baseline profile compiled): /" >> "$OUT/perf.txt"; sleep 6
 done
+tab Home; sleep 4
 adb shell dumpsys gfxinfo $PKG reset >/dev/null
 for i in $(seq 1 25); do adb shell input keyevent 20; sleep 0.3; done
 for i in $(seq 1 10); do adb shell input swipe 240 520 240 200 200; sleep 0.4; done

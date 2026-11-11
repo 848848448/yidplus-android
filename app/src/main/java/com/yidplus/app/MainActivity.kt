@@ -62,6 +62,9 @@ class MainActivity : ComponentActivity() {
         val cfg = resources.configuration
         if (cfg.navigation == Configuration.NAVIGATION_DPAD || cfg.keyboard == Configuration.KEYBOARD_12KEY) Keys.keypad = true
         setContent { AppRoot(onExit = { finish() }) }
+        // On a keypad phone the very first arrow press only leaves "touch mode" (Android eats that press). Catch it
+        // here so the screen's first item gets the focus, instead of whatever Android picks (the top bar's search icon).
+        window.decorView.viewTreeObserver.addOnTouchModeChangeListener { inTouch -> if (!inTouch) Keys.keypad = true }
         if (savedInstanceState == null) handle(intent)
         lifecycleScope.launch {
             delay(1200)

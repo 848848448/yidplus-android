@@ -219,8 +219,9 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 msgs.isEmpty() -> Text("No messages yet. Say hi!", Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else -> {
                     val rev = msgs.asReversed()
+                    val firstReal = rev.firstOrNull { it.type != "system" }
                     LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(vertical = 6.dp)) {
-                        items(rev, key = { it.id }) { m -> Bubble(m, mine = m.senderId == me?.id, group = room.type != "private", modifier = if (m == rev.first()) Modifier.firstFocus() else Modifier) }
+                        items(rev, key = { it.id }) { m -> Bubble(m, mine = m.senderId == me?.id, group = room.type != "private", modifier = if (m == firstReal) Modifier.firstFocus() else Modifier) }
                     }
                 }
             }
