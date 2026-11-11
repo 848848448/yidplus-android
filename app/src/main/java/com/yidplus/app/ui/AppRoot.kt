@@ -59,12 +59,12 @@ fun AppRoot(onExit: () -> Unit) {
         LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
         BackHandler { if (!Nav.back()) onExit() }
         val top = Nav.stack.lastOrNull()
-        val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
+        val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Gallery || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
         val holder = rememberSaveableStateHolder()
 
         Box(Modifier.fillMaxSize().background(if (immersive) Color.Black else MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.safeDrawing)) {
             Row(Modifier.fillMaxSize()) {
-                if (wide && top !is Screen.Video && top !is Screen.Photo) NavRail()
+                if (wide && top !is Screen.Video && top !is Screen.Photo && top !is Screen.Gallery) NavRail()
                 Column(Modifier.weight(1f).fillMaxHeight()) {
                     if (!Net.online) OfflineStrip()
                     if (SiteConfig.maintenance) Notice(SiteConfig.maintenanceMessage)
@@ -86,6 +86,7 @@ fun AppRoot(onExit: () -> Unit) {
                                     is Screen.Chat -> ChatScreen(top.room)
                                     is Screen.Video -> VideoScreen(top.url, top.title)
                                     is Screen.Photo -> PhotoScreen(top.url)
+                                    is Screen.Gallery -> GalleryScreen(top.items, top.start)
                                     is Screen.Web -> WebScreen(top.url)
                                     Screen.Player -> PlayerScreen()
                                     Screen.Notifications -> NotificationsScreen()
@@ -93,7 +94,7 @@ fun AppRoot(onExit: () -> Unit) {
                             }
                         }
                     }
-                    if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo && SiteConfig.visible(Tab.Music)) MiniPlayer()
+                    if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo && top !is Screen.Gallery && SiteConfig.visible(Tab.Music)) MiniPlayer()
                     // Like WhatsApp: inside a chat, a channel, a photo/video or any detail screen the bar hides; Back brings it back.
                     if (!wide && top == null) BottomBar(dark = immersive)
                 }

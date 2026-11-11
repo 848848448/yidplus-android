@@ -223,7 +223,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     val rev = remember(msgs.size, msgs.lastOrNull()?.id) { groupJoins(msgs.asReversed()) }
                     val firstReal = rev.firstOrNull { it.type != "system" }
                     LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(vertical = 6.dp)) {
-                        items(rev, key = { it.id }) { m -> Bubble(m, mine = m.senderId == me?.id, group = room.type != "private", modifier = if (m == firstReal) Modifier.firstFocus() else Modifier) }
+                        items(rev, key = { it.id }) { m -> Bubble(m, mine = m.senderId == me?.id, group = room.type != "private", modifier = if (m == firstReal) Modifier.firstFocus() else Modifier,
+                            onMedia = { url -> openGallery(rev.reversed().filter { (it.isImage && it.type != "sticker") || it.isVideo }.map { q -> GItem(q.media!!, q.isVideo, null, q.nick) }, url) }) }
                     }
                 }
             }
@@ -262,7 +263,7 @@ private fun groupJoins(list: List<Msg>): List<Msg> {
 }
 
 @Composable
-private fun Bubble(m: Msg, mine: Boolean, group: Boolean, modifier: Modifier) {
+private fun Bubble(m: Msg, mine: Boolean, group: Boolean, modifier: Modifier, onMedia: (String) -> Unit = { }) {
     val c = ctx()
     if (m.type == "system") {
         Box(modifier.fillMaxWidth().padding(4.dp), contentAlignment = Alignment.Center) {
@@ -281,8 +282,8 @@ private fun Bubble(m: Msg, mine: Boolean, group: Boolean, modifier: Modifier) {
         Column(Modifier.widthIn(max = maxW).clip(RoundedCornerShape(16.dp)).background(bg)
             .tap(RoundedCornerShape(16.dp)) {
                 when {
-                    m.isVideo || m.isAudio -> Nav.open(Screen.Video(m.media!!, m.nick))
-                    m.isImage -> Nav.open(Screen.Photo(m.media!!))
+                    m.isVideo || m.isImage -> onMedia(m.media!!)
+                    m.isAudio -> Nav.open(Screen.Video(m.media!!, m.nick))
                     m.media != null -> openUrl(c, m.media)
                     link != null -> openUrl(c, link)
                 }

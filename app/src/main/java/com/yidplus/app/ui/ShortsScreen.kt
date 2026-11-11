@@ -176,12 +176,41 @@ class ShortFeed(private val src: Boolean) {
     private val seenSize = HashSet<Long>()
     private val localLikes by lazy { Prefs.localLikes() }
 
+    private val seenKey = HashSet<String>()
     private fun fresh(s: Clip): Boolean {
         if (s.creatorId in Feeds.hidden) return false
+        if (!seenKey.add(s.key)) return false
         val u = s.video.substringBefore('?')
         if (!seenUrl.add(u)) return false
         if (s.size > 0 && !seenSize.add(s.size)) return false
         return true
+    }
+
+    private val vetted = HashSet<String>()
+    private val prints = ArrayList<Pair<Long, Int>>()
+    var removedDupes = 0
+        private set
+
+    /**
+     * The same video is often posted again as a new file (another creator, another size), so its id and address
+     * differ. Before a video is reached, its poster's fingerprint (64-bit difference hash) and length are compared
+     * with every video already in the feed; a match is dropped. Checks [count] videos from [from] on; the one on
+     * screen ([from]) is only remembered, never removed.
+     */
+    suspend fun vet(ctx: android.content.Context, from: Int, count: Int = 4) {
+        var i = from; var n = 0
+        while (n < count && i < items.size) {
+            val s = items[i]
+            if (vetted.add(s.key)) {
+                val h = s.poster?.let { posterPrint(ctx, it) }
+                if (h != null) {
+                    val dup = prints.any { (p, d) -> java.lang.Long.bitCount(p xor h) <= 6 && kotlin.math.abs(d - s.duration) <= 1 }
+                    if (dup && i > from && i < items.size && items[i].key == s.key) { items.removeAt(i); removedDupes++; continue }
+                    prints.add(h to s.duration)
+                }
+            }
+            i++; n++
+        }
     }
 
     suspend fun loadMore() {
@@ -315,7 +344,9 @@ fun ShortsScreen() {
             swipeAt[0] = android.os.SystemClock.elapsedRealtime()
             player.setMediaItem(MediaItem.fromUri(s.video)); player.prepare(); player.playWhenReady = !paused
             player.setPlaybackParameters(PlaybackParameters(speed))
-            Media.prefetch(c, items.drop(page + 1).take(2).map { it.video })
+            if ((tab == ShortsTab.ForYou || tab == ShortsTab.Uploads) && feed.items === items) feed.vet(c, page, 4)
+            val itemsV = itemsNow.value
+            Media.prefetch(c, itemsV.drop(page + 1).take(2).map { it.video })
             if (tab == ShortsTab.ForYou || tab == ShortsTab.Uploads) { if (page >= items.size - 4) feed.loadMore() }
             Perf.shown("Shorts")
             Feeds.markSeen(s.video)
@@ -580,4 +611,31 @@ private fun CommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int) -> Unit
             }
         }
     }
+}
+
+/** 64-bit difference hash of a poster (from the image cache the feed already uses). */
+suspend fun posterPrint(ctx: android.content.Context, url: String): Long? = withContext(Dispatchers.IO) {
+    runCatching {
+        val r = coil.Coil.imageLoader(ctx).execute(coil.request.ImageRequest.Builder(ctx).data(url).size(72, 64).allowHardware(false).build())
+        val bmp = (r.drawable as? android.graphics.drawable.BitmapDrawable)?.bitmap ?: return@runCatching null
+        val sm = android.graphics.Bitmap.createScaledBitmap(bmp, 9, 8, true)
+        fun g(p: Int) = (p shr 16 and 255) * 299 + (p shr 8 and 255) * 587 + (p and 255) * 114
+        var h = 0L
+        for (y in 0 until 8) for (x in 0 until 8) if (g(sm.getPixel(x, y)) > g(sm.getPixel(x + 1, y))) h = h or (1L shl (y * 8 + x))
+        h
+    }.getOrNull()
+}
+
+/** QA: load 200+ For You videos, vet them all, and log how many re-posted duplicates were dropped and how many are left. */
+suspend fun qaDedupe(ctx: android.content.Context) {
+    val f = ShortFeed(true)
+    var guard = 0
+    while (f.items.size < 230 && guard++ < 20) { val before = f.items.size; f.loadMore(); if (f.items.size == before && guard > 3) break }
+    f.vet(ctx, 0, f.items.size)
+    val first = f.items.take(200)
+    val keys = first.map { it.key }.toSet().size; val urls = first.map { it.video.substringBefore('?') }.toSet().size
+    val pr = first.mapNotNull { s -> s.poster?.let { p -> posterPrint(ctx, p)?.let { it to s.duration } } }
+    var left = 0
+    for (a in pr.indices) for (b in 0 until a) if (java.lang.Long.bitCount(pr[a].first xor pr[b].first) <= 6 && kotlin.math.abs(pr[a].second - pr[b].second) <= 1) { left++; break }
+    android.util.Log.i("YidDedupe", "checked ${first.size} videos: removed ${f.removedDupes} re-posted duplicates; left: same id ${first.size - keys}, same file ${first.size - urls}, same picture+length $left")
 }

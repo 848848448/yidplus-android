@@ -16,6 +16,8 @@ sealed class Screen {
     data class Chat(val room: Room) : Screen()
     data class Video(val url: String, val title: String) : Screen()
     data class Photo(val url: String) : Screen()
+    /** Full-screen photos and videos of one chat or channel: swipe left/right for the next, pinch to zoom, drag down to close. */
+    data class Gallery(val items: List<GItem>, val start: Int) : Screen()
     data class Web(val url: String) : Screen()
     object Player : Screen()
     object Notifications : Screen()
@@ -41,7 +43,7 @@ object Nav {
     }
 
     fun open(s: Screen) {
-        Perf.start(when (s) { is Screen.Channel -> "Channel"; is Screen.Chat -> "Chat"; is Screen.Video -> "Video"; is Screen.Photo -> "Photo"; is Screen.Web -> "Web"; Screen.Player -> "Player"; Screen.Notifications -> "Notifications" })
+        Perf.start(when (s) { is Screen.Channel -> "Channel"; is Screen.Chat -> "Chat"; is Screen.Video -> "Video"; is Screen.Photo -> "Photo"; is Screen.Gallery -> "Photo"; is Screen.Web -> "Web"; Screen.Player -> "Player"; Screen.Notifications -> "Notifications" })
         if (wide && s is Screen.Channel && tab == Tab.Home && stack.isEmpty()) { homeDetail = s; return }
         if (wide && s is Screen.Chat && tab == Tab.Chats && stack.isEmpty()) { chatDetail = s; return }
         stack.add(s)

@@ -202,7 +202,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
                 posts.isEmpty() && loading -> Loading()
                 posts.isEmpty() -> Text("No posts yet", Modifier.padding(24.dp))
                 else -> LazyColumn(Modifier.fillMaxSize(), state = state, contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 6.dp)) {
-                    items(posts, key = { it.id }) { p -> PostCard(p, if (p == posts.first()) Modifier.firstFocus() else Modifier) }
+                    items(posts, key = { it.id }) { p -> PostCard(p, if (p == posts.first()) Modifier.firstFocus() else Modifier, onMedia = { url -> openGallery(posts.filter { it.isPhoto || it.isVideo }.mapNotNull { q -> q.media?.let { GItem(it, q.isVideo, if (q.isVideo) q.thumb else null, q.title) } }, url) }) }
                     if (loading) item { Loading(Modifier.fillMaxWidth().padding(16.dp)) }
                 }
             }
@@ -211,15 +211,15 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
 }
 
 @Composable
-private fun PostCard(p: TgPost, modifier: Modifier) {
+private fun PostCard(p: TgPost, modifier: Modifier, onMedia: (String) -> Unit = { }) {
     val c = ctx()
     var expanded by remember { mutableStateOf(false) }
     val firstUrl = remember(p.text) { urlRegex.find(p.text)?.value }
     Surface(modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
         Column(Modifier.tap(RoundedCornerShape(14.dp)) {
             when {
-                p.isVideo || p.isAudio -> Nav.open(Screen.Video(p.media!!, p.title.ifBlank { p.author }))
-                p.isPhoto -> Nav.open(Screen.Photo(p.media!!))
+                p.isVideo || p.isPhoto -> onMedia(p.media!!)
+                p.isAudio -> Nav.open(Screen.Video(p.media!!, p.title.ifBlank { p.author }))
                 p.text.length > 280 && !expanded -> expanded = true
                 firstUrl != null -> openUrl(c, firstUrl)
                 p.media != null -> openUrl(c, p.media + "&download=1")

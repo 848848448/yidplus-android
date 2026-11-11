@@ -2,7 +2,7 @@ name: Native app (branch native) build + emulator QA
 
 on:
   push:
-    branches: [native]
+    branches: [native, 'feat-*']
     paths: ['app/**', '*.gradle.kts', 'gradle.properties', 'qa/**', '.github/workflows/native.yml']
   workflow_dispatch:
 
@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: native
+  group: native-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -58,9 +58,9 @@ jobs:
           mkdir -p /tmp/log && (grep -E "^e: |error:|FAILED|BUILD|What went wrong" -A3 build.log | head -300 > /tmp/log/errors.txt || true)
           tail -400 build.log > /tmp/log/build-tail.txt 2>/dev/null || true
           ls -la dist/ > /tmp/log/dist.txt 2>/dev/null || true
-          cd /tmp/log && git init -q && git checkout -q -b ci-log-native && git add -A
+          cd /tmp/log && git init -q && git checkout -q -b ci-log-${{ github.ref_name }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native build log ${{ github.run_id }} ${{ job.status }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log-native
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log-${{ github.ref_name }}
 
   qa:
     needs: build
@@ -99,6 +99,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           test -d qa/out || exit 0
-          cd qa/out && git init -q && git checkout -q -b qa-native-${{ matrix.target }} && git add -A
+          cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-${{ matrix.target }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native QA run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-native-${{ matrix.target }}
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-${{ matrix.target }}
