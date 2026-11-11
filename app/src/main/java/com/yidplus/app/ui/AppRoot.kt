@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.layout.isImeVisible
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -113,7 +115,10 @@ fun AppRoot(onExit: () -> Unit) {
                     }
                     if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo && top !is Screen.Gallery && SiteConfig.visible(Tab.Music)) MiniPlayer()
                     // Like WhatsApp: inside a chat, a channel, a photo/video or any detail screen the bar hides; Back brings it back.
-                    if (!wide && top == null) BottomBar(dark = immersive)
+                    // Hidden while the keyboard is up (search, typing), like WhatsApp, so the screen keeps its room.
+                    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+                    val imeUp = WindowInsets.isImeVisible
+                    if (!wide && top == null && !imeUp) BottomBar(dark = immersive)
                 }
             }
             UpdateDialogs()
