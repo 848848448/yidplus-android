@@ -101,6 +101,47 @@ key 17; sleep 1; key 17; sleep 1
 check shorts
 key 4; sleep 2; focus "BACK from Shorts"; shot 18-after-shorts-back
 
+# >>>>> helper B (feat-social): channels, header, shorts extras >>>>>
+# Signed out, like the rest of this script: notifications, follow, join, reactions, comments and upload need sign-in and
+# show their sign-in state here.
+tapui() { # tap the first thing on screen whose text or content-desc is exactly $1
+  local want="$1" b
+  timeout 30 adb shell uiautomator dump /sdcard/b.xml >/dev/null 2>&1
+  b=$(timeout 20 adb shell cat /sdcard/b.xml 2>/dev/null | tr '>' '\n' | grep -E "(text|content-desc)=\"$want\"" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+  if [ -z "$b" ]; then log "tapui: '$want' not on screen"; return 0; fi
+  set -- $b; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "tapui '$want'"
+}
+tab Home; sleep 4; shot B01-channels-telegram
+tapui "Members"; sleep 5; shot B02-channels-members
+tapui "New posts"; sleep 3; shot B03-channels-recent
+key 20; key 23; sleep 6; shot B04-member-channel; focus "OK on a member channel"
+tapui "Shorts \([0-9]+\)"; sleep 1; shot B05-member-channel-shorts
+key 4; sleep 1
+tapui "Telegram"; sleep 3
+key 20; key 23; sleep 6; shot B06-tg-channel-joinbar
+tapui "More"; sleep 1; shot B07-tg-channel-menu
+tapui "Channel info"; sleep 4; shot B08-tg-channel-info
+key 4; sleep 1; key 4; sleep 1
+tapui "Search"; sleep 2; shot B09-channels-search
+timeout 10 adb shell input text "news"; sleep 3; shot B10-channels-search-typed
+tapui "Search all of YID PLUS"; sleep 5; shot B11-global-search
+tapui "Telegram"; sleep 2; shot B12-global-search-telegram
+key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
+tab Home; sleep 2
+tapui "Profile"; sleep 1; shot B13-avatar-menu
+key 4; sleep 1
+check social-channels
+view "https://yidplus.com/shorts"; sleep 8
+key 7; sleep 2
+key 15; sleep 4; shot B14-shorts-creator-page; log "key 8 = creator page"
+key 4; sleep 2
+key 16; sleep 3; shot B15-shorts-search; log "key 9 = search"
+key 4; sleep 2
+key 14; sleep 3; shot B16-shorts-upload; log "key 7 = upload (signed out: sign-in prompt)"
+key 4; sleep 2
+check social-shorts
+# <<<<< helper B (feat-social) <<<<<
+
 # ---- Music (switched off on the site right now: it is hidden in the app too; the QA switch shows it for the photos) ----
 view "https://yidplus.com/music"; sleep 4; shot 19a-music-off-on-site; focus "open /music while the site has Music off"
 timeout 20 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_FEATURES --ez all true >/dev/null 2>&1; sleep 2
