@@ -56,11 +56,11 @@ object LookPrefs {
         wallpaper = s.getString("wallpaper", "default") ?: "default"
         silentCalls = s.getBoolean("silentCalls", false)
     }
-    fun setColor(i: Int) { colorTheme = i.coerceIn(0, ColorPresets.size - 1); p()?.edit()?.putInt("colorTheme", colorTheme)?.apply() }
-    fun setHighContrast(v: Boolean) { highContrast = v; p()?.edit()?.putBoolean("highContrast", v)?.apply() }
-    fun setReduceMotion(v: Boolean) { reduceMotion = v; p()?.edit()?.putBoolean("reduceMotion", v)?.apply() }
-    fun setWallpaper(id: String) { wallpaper = id; p()?.edit()?.putString("wallpaper", id)?.apply() }
-    fun setSilentCalls(v: Boolean) { silentCalls = v; p()?.edit()?.putBoolean("silentCalls", v)?.apply() }
+    fun putColor(i: Int) { colorTheme = i.coerceIn(0, ColorPresets.size - 1); p()?.edit()?.putInt("colorTheme", colorTheme)?.apply() }
+    fun putHighContrast(v: Boolean) { highContrast = v; p()?.edit()?.putBoolean("highContrast", v)?.apply() }
+    fun putReduceMotion(v: Boolean) { reduceMotion = v; p()?.edit()?.putBoolean("reduceMotion", v)?.apply() }
+    fun putWallpaper(id: String) { wallpaper = id; p()?.edit()?.putString("wallpaper", id)?.apply() }
+    fun putSilentCalls(v: Boolean) { silentCalls = v; p()?.edit()?.putBoolean("silentCalls", v)?.apply() }
 
     /** The chosen colour theme. Theme.kt: primary = preset.accent (light) / preset.accentLight (dark); Midnight forces dark. */
     val preset: ColorPreset get() = ColorPresets[colorTheme]

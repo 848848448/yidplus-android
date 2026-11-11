@@ -96,9 +96,9 @@ private fun LabelRow(icon: androidx.compose.ui.graphics.vector.ImageVector, titl
 fun ReadingCard() {
     var guide by remember { mutableStateOf(false) }
     SettingsCard("Reading and help") {
-        SettingRow(Icons.Filled.Contrast, "Higher contrast", "Darker text and lines", switch = LookPrefs.highContrast) { LookPrefs.setHighContrast(!LookPrefs.highContrast) }
+        SettingRow(Icons.Filled.Contrast, "Higher contrast", "Darker text and lines", switch = LookPrefs.highContrast) { LookPrefs.putHighContrast(!LookPrefs.highContrast) }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.MotionPhotosOff, "Reduce motion", "Fewer animations", switch = LookPrefs.reduceMotion) { LookPrefs.setReduceMotion(!LookPrefs.reduceMotion) }
+        SettingRow(Icons.Filled.MotionPhotosOff, "Reduce motion", "Fewer animations", switch = LookPrefs.reduceMotion) { LookPrefs.putReduceMotion(!LookPrefs.reduceMotion) }
         RowDivider(64.dp)
         SettingRow(Icons.Filled.HelpOutline, "App guide and what's new", null) { guide = true }
     }
@@ -137,7 +137,7 @@ fun ColorThemeCard() {
                     repeat(4 - rowIdx.size) { Spacer(Modifier.width(72.dp)) }
                 }
             }
-            if (LookPrefs.colorTheme != 0) Text("Reset to default", Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp).tap(RoundedCornerShape(8.dp)) { LookPrefs.setColor(0) }.padding(8.dp),
+            if (LookPrefs.colorTheme != 0) Text("Reset to default", Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp).tap(RoundedCornerShape(8.dp)) { LookPrefs.putColor(0) }.padding(8.dp),
                 color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
         }
     }
@@ -147,7 +147,7 @@ fun ColorThemeCard() {
 private fun Swatch(i: Int) {
     val p = ColorPresets[i]
     val sel = LookPrefs.colorTheme == i
-    Column(Modifier.width(72.dp).tap(RoundedCornerShape(10.dp)) { LookPrefs.setColor(i) }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(Modifier.width(72.dp).tap(RoundedCornerShape(10.dp)) { LookPrefs.putColor(i) }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(44.dp).clip(CircleShape).border(if (sel) 3.dp else 1.dp, if (sel) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant, CircleShape)
             .padding(if (sel) 4.dp else 0.dp).clip(CircleShape).background(Brush.linearGradient(listOf(p.accent, p.accentLight))), contentAlignment = Alignment.Center) {
             if (p.dark) Box(Modifier.size(16.dp).clip(CircleShape).background(p.bg))
@@ -186,7 +186,7 @@ class SettingsChat : PageScreen() {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             row.forEach { w ->
                                 val sel = LookPrefs.wallpaper == w.id
-                                Column(Modifier.weight(1f).tap(RoundedCornerShape(12.dp)) { LookPrefs.setWallpaper(w.id) }.then(if (w.id == "default") Modifier.firstFocus() else Modifier),
+                                Column(Modifier.weight(1f).tap(RoundedCornerShape(12.dp)) { LookPrefs.putWallpaper(w.id) }.then(if (w.id == "default") Modifier.firstFocus() else Modifier),
                                     horizontalAlignment = Alignment.CenterHorizontally) {
                                     Box(Modifier.fillMaxWidth().height(70.dp).clip(RoundedCornerShape(12.dp))
                                         .background(if (w.from != null && w.to != null) Brush.verticalGradient(listOf(w.from, w.to)) else Brush.verticalGradient(listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant)))
@@ -203,7 +203,7 @@ class SettingsChat : PageScreen() {
             SettingsCard("Chats") {
                 SettingRow(Icons.Filled.NotificationsOff, "Muted chats", "Chats you silenced") { Nav.open(SettingsMutedChats()) }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.PhoneDisabled, "Silent calls", "Incoming calls don't ring", switch = LookPrefs.silentCalls) { LookPrefs.setSilentCalls(!LookPrefs.silentCalls) }
+                SettingRow(Icons.Filled.PhoneDisabled, "Silent calls", "Incoming calls don't ring", switch = LookPrefs.silentCalls) { LookPrefs.putSilentCalls(!LookPrefs.silentCalls) }
             }
             SettingsHint("Wallpaper and silent calls are kept on this phone, like on the website.")
         }
