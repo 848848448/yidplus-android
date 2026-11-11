@@ -270,7 +270,7 @@ object Notifier {
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pi = PendingIntent.getActivity(ctx, 7000, open, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val title = ctx.getString(R.string.update_notif_title, info.versionName)
-        val short = notes.lineSequence().firstOrNull()?.removePrefix("•").trim().orEmpty().ifBlank { ctx.getString(R.string.update_tap, info.versionName) }
+        val short = (notes.lineSequence().firstOrNull() ?: "").removePrefix("•").trim().ifBlank { ctx.getString(R.string.update_tap, info.versionName) }
         val big = (if (notes.isBlank()) "" else notes + "\n\n") + ctx.getString(R.string.update_notif_tap)
         val n = NotificationCompat.Builder(ctx, CHANNEL_UPDATES)
             .setSmallIcon(R.drawable.ic_stat_logo)
