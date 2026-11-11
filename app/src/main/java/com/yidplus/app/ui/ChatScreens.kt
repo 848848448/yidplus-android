@@ -120,10 +120,11 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var typing by remember(room.id) { mutableStateOf<List<String>>(emptyList()) }
     var error by remember { mutableStateOf<String?>(null) }
     var loaded by remember { mutableStateOf(false) }
-    var text by rememberSaveable(room.id) { mutableStateOf("") }
+    var text by rememberSaveable(room.id) { mutableStateOf(ChDrafts.get(c, room.id)) }
     var sending by remember { mutableStateOf(false) }
     var replyTo by remember(room.id) { mutableStateOf<ChatMsg?>(null) }
     var editing by remember(room.id) { mutableStateOf<ChatMsg?>(null) }
+    LaunchedEffect(text) { delay(600); if (editing == null) ChDrafts.put(c, room.id, text) }
     var actionFor by remember { mutableStateOf<ChatMsg?>(null) }
     var emojiOpen by remember { mutableStateOf(false) }
     var attachOpen by remember { mutableStateOf(false) }
@@ -245,13 +246,13 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         if (card != null) { text = card; sendText() } else toast(c, "Couldn't read that contact")
     }
     // Voice notes: tap the mic to record, tap ✓ to send or ✕ to cancel (works with the keypad too).
-    val rec = remember { VoiceRecorder(c.applicationContext) }
+    val rec = remember { ChatVoiceRecorder(c.applicationContext) }
     var recording by remember { mutableStateOf(false) }
     var recSec by remember { mutableStateOf(0) }
-    fun startRec() { if (rec.start()) { recording = true; recSec = 0; VoicePlayer.stop() } else toast(c, "Can't use the microphone") }
+    fun startRec() { if (rec.start()) { recording = true; recSec = 0; ChatVoicePlayer.stop() } else toast(c, "Can't use the microphone") }
     val micPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRec() else toast(c, "Allow the microphone to record voice messages") }
     LaunchedEffect(recording) { while (recording) { delay(120); rec.sample(); recSec = rec.seconds() } }
-    DisposableEffect(room.id) { onDispose { if (recording) rec.stop(false); VoicePlayer.stop() } }
+    DisposableEffect(room.id) { onDispose { if (recording) rec.stop(false); ChatVoicePlayer.stop() } }
     fun mic() {
         if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRec() else micPerm.launch(Manifest.permission.RECORD_AUDIO)
     }
@@ -311,6 +312,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (me != null && room.type != "private" && (info?.inviteCode != null || info?.canManage == true)) ChMenuItem(Icons.Filled.Link, "Share invite link") {
                         menu = false; scope.launch { runCatching { info?.inviteCode ?: ChatApi.invite(room.id) }.onSuccess { share(c, "Join \"${room.name}\" on YID PLUS: ${Api.BASE}/chat?join=$it") }.onFailure { toast(c, Api.friendly(it)) } }
                     }
+                    if (info?.canManage == true && room.type != "private") ChMenuItem(Icons.Filled.Settings, if (isGroup) "Edit group" else "Edit channel") { menu = false; Nav.open(ChEditGroup(room)) }
                     if (me != null) ChMenuItem(Icons.Filled.Bookmark, "Saved messages") { menu = false; Nav.open(ChSaved()) }
                     if (me != null && joinedOk && info != null) ChMenuItem(Icons.AutoMirrored.Filled.ExitToApp, if (room.type == "private") "Delete chat" else if (isGroup) "Leave group" else "Leave channel", Color(0xFFD32F2F)) {
                         menu = false
@@ -402,7 +404,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         else Icon(if (canSend) (if (editing != null) Icons.Filled.Check else Icons.AutoMirrored.Filled.Send) else Icons.Filled.Mic, if (canSend) "Send" else "Record voice message", tint = Color.White)
                     }
                 }
-                if (emojiOpen && !recording) ChEmojiPanel { e -> text += e }
+                if (emojiOpen && !recording) ChEmojiPanel(onSticker = { url ->
+                    emojiOpen = false
+                    scope.launch { runCatching { Api.post("/api/chat", JSONObject().put("room_id", room.id).put("type", "sticker").put("text", url)) }.onFailure { toast(c, Api.friendly(it)) }; pull() }
+                }) { e -> text += e }
                 if (attachOpen && !recording) ChAttachSheet(onPick = { what ->
                     attachOpen = false
                     when (what) {
@@ -433,7 +438,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             actionFor = null
             when (act) {
                 "open" -> when { m.isImage || m.isVideo -> m.media?.let { openGallery(msgs.filter { (it.isImage || it.isVideo) && it.media != null }.map { q -> GItem(q.media!!, q.isVideo, null, q.nick) }, it) }
-                    m.isAudio -> m.media?.let { VoicePlayer.toggle(c, m.id, it) }; m.media != null -> openUrl(c, m.media)
+                    m.isAudio -> m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) }; m.media != null -> openUrl(c, m.media)
                     else -> urlRegex.find(m.text)?.value?.let { openUrl(c, it) } }
                 "reply" -> { replyTo = m; editing = null }
                 "copy" -> chCopy(c, if (m.isFile || m.isImage || m.isVideo) (m.caption.ifBlank { m.media ?: "" }) else m.text)
