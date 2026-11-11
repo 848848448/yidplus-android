@@ -186,6 +186,21 @@ fun SoEmpty(icon: ImageVector, text: String, modifier: Modifier = Modifier, acti
     }
 }
 
+/**
+ * Comments as a full page over the screen (WhatsApp / Instagram on a small phone): the bar with Back, the list, and the
+ * box to write at the bottom, which always stays above the keyboard (a bottom sheet hid it at 480x640). Back closes it.
+ */
+@Composable
+fun SoCommentsPanel(title: String, onDismiss: () -> Unit, body: @Composable ColumnScope.() -> Unit) {
+    androidx.activity.compose.BackHandler { onDismiss() }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(Modifier.fillMaxSize()) {
+            TopBar(title, onBack = onDismiss)
+            body()
+        }
+    }
+}
+
 /** A row of pill chips (topics, filters); the chosen one is filled green. Every chip is focusable for the keypad. */
 @Composable
 fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, dark: Boolean = false) {
