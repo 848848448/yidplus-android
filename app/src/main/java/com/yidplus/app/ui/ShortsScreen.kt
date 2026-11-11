@@ -412,7 +412,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                 Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, onLike)
                 Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, onComments)
                 val isSaved = Feeds.saved.any { it.key == s.key }
-                if (!small) Action(if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onSave)
+                if (!small) Action(if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onClick = onSave)
                 Action(Icons.Filled.Share, "Share", Color.White, small = small) { share(c, s.shareUrl) }
                 if (!small) Action(if (Prefs.muted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp, if (Prefs.muted) "Off" else "Sound", Color.White) { Prefs.setMute(!Prefs.muted) }
                 var menu by remember { mutableStateOf(false) }

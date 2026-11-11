@@ -42,6 +42,7 @@ object UpdateUi {
     private const val EVERY = 6L * 60 * 60 * 1000
 
     fun check(ctx: Context, force: Boolean, userAsked: Boolean = false) {
+        if (BuildConfig.VERSION_NAME.startsWith("0.0.") && !userAsked) return // CI test builds never offer updates
         val prefs = Updater.prefs(ctx)
         if (!force && System.currentTimeMillis() - prefs.getLong("lastUiCheck", 0L) < EVERY) return
         prefs.edit().putLong("lastUiCheck", System.currentTimeMillis()).apply()

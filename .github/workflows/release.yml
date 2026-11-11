@@ -114,7 +114,7 @@ jobs:
   qa:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -125,19 +125,21 @@ jobs:
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
-      - name: Emulator test (install, open, Shorts, Chats, dark mode, offline)
-        timeout-minutes: 25
+      # Qin F21-style keypad phone: Android 11 (API 30), no Google services, 480x640, D-pad;
+      # the same run then resizes to a 1080x2400 phone and a 10" tablet in both orientations.
+      - name: Emulator test (Android 11, no Google services, 480x640 + phone + tablet, D-pad)
+        timeout-minutes: 35
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 30
           target: default
           arch: x86_64
-          profile: pixel_6
-          ram-size: 4096M
+          profile: pixel_4
+          ram-size: 3072M
           disk-size: 4096M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash qa/qa.sh dist/YIDPLUS.apk
+          script: bash qa/native.sh dist/YIDPLUS.apk
       - name: Publish QA screenshots
         if: always()
         env:
@@ -149,7 +151,7 @@ jobs:
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-evidence
       - name: Fail on crash
         run: |
-          test -f qa/out/RESULT && cat qa/out/RESULT
+          cat qa/out/RESULT
           grep -q '^PASS' qa/out/RESULT
 
   release:
