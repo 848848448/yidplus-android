@@ -348,5 +348,367 @@
     "followers": 0
    }
   ]
+ },
+ "/api/telegram-channels": {
+  "ok": true,
+  "channels": [
+   {
+    "username": "fxnews",
+    "title": "יידישע נייעס",
+    "photo_url": null,
+    "members": 1240,
+    "last_text": "היינט: א נייע ווערסיע פון YID PLUS איז ארויס",
+    "last_media": "",
+    "last_post_at": "2026-11-11T20:55:00.000Z",
+    "unread": 3,
+    "joined": true
+   },
+   {
+    "username": "fxmusic",
+    "title": "Chasidish Music 🎵",
+    "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "members": 860,
+    "last_text": "",
+    "last_media": "audio",
+    "last_post_at": "2026-11-11T18:10:00.000Z",
+    "unread": 0,
+    "joined": true
+   },
+   {
+    "username": "fxshiurim",
+    "title": "'שיעורים יומיים",
+    "photo_url": null,
+    "members": 432,
+    "last_text": "דף היומי – שבת דף כ\"ג",
+    "last_media": "video",
+    "last_post_at": "2026-11-10T07:00:00.000Z",
+    "unread": 0,
+    "joined": false
+   },
+   {
+    "username": "fxdeals",
+    "title": "Deals & Discounts",
+    "photo_url": null,
+    "members": 97,
+    "last_text": "",
+    "last_media": "photo",
+    "last_post_at": "2026-11-09T12:00:00.000Z",
+    "unread": 0,
+    "joined": false
+   }
+  ]
+ },
+ "/api/telegram-ingest?username=fxnews&limit=15": {
+  "ok": true,
+  "posts": [
+   {
+    "tg_msg_id": 105,
+    "text": "היינט: א נייע ווערסיע פון YID PLUS איז ארויס 🎉\nדערהייַנטיקט אייער אפ.",
+    "media_type": "",
+    "media_url": null,
+    "posted_at": "2026-11-11T20:55:00.000Z",
+    "views": 312,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 104,
+    "text": "א בילד פון דער שמחה",
+    "media_type": "photo",
+    "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "posted_at": "2026-11-11T17:20:00.000Z",
+    "views": 540,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 103,
+    "text": "",
+    "media_type": "photo",
+    "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "posted_at": "2026-11-11T17:19:00.000Z",
+    "views": 530,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 102,
+    "text": "ווידעא פון נעכטן",
+    "media_type": "video",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "media_duration": 34,
+    "posted_at": "2026-11-10T21:00:00.000Z",
+    "views": 801,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 101,
+    "text": "https://yidplus.com – אלע נייעס אויף איין ארט",
+    "media_type": "",
+    "media_url": null,
+    "posted_at": "2026-11-09T09:00:00.000Z",
+    "views": 1020,
+    "author_name": ""
+   }
+  ]
+ },
+ "/api/telegram-reactions?username=fxnews": {
+  "ok": true,
+  "reactions": {}
+ },
+ "/api/shorts": {
+  "ok": true,
+  "shorts": [
+   {
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 172,
+    "comments": 0,
+    "created_at": "2026-08-23T09:31:26.393Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "6630b5bb-e297-417b-bc25-fdd9d23836d9",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 66,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:13.056Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664752750_9f8a7c54-32f9-41fa-807a-a2c2a7d801db.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5e56e09b-5e91-45f9-8050-fe3fdc1b2dbb",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 53,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:04.668Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664744352_fdfd8d82-e9c6-43af-b79a-7ec42554c92c.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "62644202-0563-4309-9d49-3c1fbb726af6",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 46,
+    "comments": 0,
+    "created_at": "2026-08-02T09:58:54.413Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664734151_b0cbc4e4-f0c5-4a72-bf15-270a3b766033.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5619e488-7ae0-488d-a3fa-5152f974c6dd",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 50,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:48.714Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534528381_ad0aa0cc-73aa-4b01-8a4b-3398d13e43ab.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "32edd03e-3407-4ef8-8fbb-ce959445ad6d",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 48,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:32.634Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534511982_43f067fd-b777-4268-8993-f3c8a653a22b.mp4",
+    "liked": false,
+    "saved": false
+   }
+  ]
+ },
+ "/api/shorts?limit=1": {
+  "ok": true,
+  "shorts": [
+   {
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 172,
+    "comments": 0,
+    "created_at": "2026-08-23T09:31:26.393Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "liked": false,
+    "saved": false
+   }
+  ]
+ },
+ "/api/posts?limit=1": {
+  "ok": true,
+  "posts": [
+   {
+    "id": "fxp1",
+    "user_id": "demo-me",
+    "caption": "x",
+    "content": "",
+    "created_at": "2026-11-11T18:15:16.490Z"
+   }
+  ]
+ },
+ "/api/shorts?owner_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "shorts": [
+   {
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 172,
+    "comments": 0,
+    "created_at": "2026-08-23T09:31:26.393Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "6630b5bb-e297-417b-bc25-fdd9d23836d9",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 66,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:13.056Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664752750_9f8a7c54-32f9-41fa-807a-a2c2a7d801db.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5e56e09b-5e91-45f9-8050-fe3fdc1b2dbb",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 53,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:04.668Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664744352_fdfd8d82-e9c6-43af-b79a-7ec42554c92c.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "62644202-0563-4309-9d49-3c1fbb726af6",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 46,
+    "comments": 0,
+    "created_at": "2026-08-02T09:58:54.413Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664734151_b0cbc4e4-f0c5-4a72-bf15-270a3b766033.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5619e488-7ae0-488d-a3fa-5152f974c6dd",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 50,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:48.714Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534528381_ad0aa0cc-73aa-4b01-8a4b-3398d13e43ab.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "32edd03e-3407-4ef8-8fbb-ce959445ad6d",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 48,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:32.634Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534511982_43f067fd-b777-4268-8993-f3c8a653a22b.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "f05f9306-56bf-4c14-ad37-5b75425e1e68",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 45,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:17.773Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534497248_c52834ee-dcf0-4afa-a788-80a69ca96ebb.mp4",
+    "liked": false,
+    "saved": false
+   }
+  ]
+ },
+ "/api/follows?user_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "followers": 2,
+  "following": 4,
+  "is_following": false,
+  "is_private": false,
+  "has_pending_request": false
+ },
+ "/api/shorts/comments?short_id=73925fde-69b8-44e5-8ebe-daeb8abefc7b": {
+  "ok": true,
+  "comments": [
+   {
+    "id": "fsc1",
+    "user_id": "u-y",
+    "nickname": "Yossi Klein",
+    "photo_url": null,
+    "text": "שיין!",
+    "created_at": "2026-11-11T19:00:00.000Z"
+   }
+  ]
  }
 }

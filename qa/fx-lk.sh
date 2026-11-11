@@ -60,13 +60,14 @@ lk_mark join-tg; lk_tapui "Join channel"; sleep 3; shot LK-05e-tg-joined
 key 4; sleep 2; lk_tap 240 262 3; shot LK-05b-tg-channel-reopen-cached; key 4; sleep 2
 # 3. My own channel: like, comment, new post, photo -> gallery (pinch, double-tap, swipe)
 lk_mine 6; shot LK-06-my-channel
+adb shell input swipe 240 520 240 250 400; sleep 2
 lk_mark like-post; lk_tapui "Like"; sleep 2; shot LK-07-my-channel-liked
 lk_mark comment-post; lk_tapui "Comment"; sleep 3; shot LK-08-post-comments
-adb shell input text "Shkoyach"; sleep 1; lk_mark send-comment; lk_tapui "Send"; sleep 2; shot LK-09-comment-sent
+adb shell input text "Shkoyach"; sleep 1; key 111; sleep 1; lk_mark send-comment; lk_tapui "Send"; sleep 2; shot LK-09-comment-sent
 key 4; sleep 1; key 4; sleep 1
 lk_mine 4
 adb shell input swipe 240 520 240 200 400; sleep 2; shot LK-09b-my-channel-scrolled
-lk_tapui "Photo"; sleep 3; shot LK-22-gallery-open
+adb shell input swipe 240 520 240 300 400; sleep 2; lk_tapui "Photo"; sleep 3; shot LK-22-gallery-open
 lk_pinch 240 330; sleep 1; shot LK-23-gallery-pinched; lk_glog
 lk_dtap 240 330; sleep 1; shot LK-24-gallery-double-tap-reset; lk_glog
 lk_dtap 300 260; sleep 1; shot LK-25-gallery-double-tap-zoom; lk_glog
@@ -77,23 +78,23 @@ lk_mine 4
 lk_mark new-post; lk_tapui "New post"; sleep 3; adb shell input text "Test%spost%sfrom%sthe%sapp"; sleep 1; shot LK-10-new-post
 lk_tapui "Post"; sleep 3; shot LK-11-new-post-sent
 key 4; sleep 2; lk_mine 4
-lk_mark new-photo-post; lk_tapui "New post"; sleep 3; adb shell input text "Photo%spost"; lk_tapui "Photo"; sleep 4; shot LK-11b-photo-picker
+lk_mark new-photo-post; lk_tapui "New post"; sleep 3; adb shell input text "Photo%spost"; sleep 1; key 111; sleep 1; lk_tapui "Photo"; sleep 4; shot LK-11b-photo-picker
 lk_tapui "lkqa.png"; sleep 3; shot LK-11c-photo-picked; lk_tapui "Post"; sleep 4; shot LK-11d-photo-post-sent
 key 4; sleep 2; key 4; sleep 2
 # 4. Shorts: like, comment, swipe, Uploads tab (like/save/view to the site), upload page
 tab Shorts; sleep 10; shot LK-12-shorts
 lk_mark like-short; lk_tapui "Like"; sleep 2; shot LK-13-short-liked
 lk_mark comment-short; lk_tapui "Comment"; sleep 3; adb shell input text "Nice"; sleep 1; shot LK-14-short-comments
-lk_tapui "Post"; sleep 2; key 4; sleep 1; key 4; sleep 1
+key 4; sleep 1; lk_tapui "Post"; sleep 2; shot LK-14b-short-comment-sent; key 4; sleep 1
 lk_mark swipe-short; adb shell input swipe 240 470 240 250 120; sleep 4; shot LK-15-short-swiped
 adb shell input swipe 240 470 240 250 120; sleep 4; shot LK-16-short-swiped2
 lk_tapui "Uploads"; sleep 6; shot LK-16b-shorts-uploads
 lk_mark like-upload; lk_tapui "Like"; sleep 2
 lk_mark save-upload; lk_tapui "Save"; sleep 2; shot LK-16c-upload-liked-saved
 lk_mark follow-creator; lk_tapui "More"; sleep 1; lk_tapui "@[^\"]*videos[^\"]*"; sleep 4; shot LK-16d-creator; lk_tapui "Follow"; sleep 2; shot LK-16e-creator-followed; key 4; sleep 3
-lk_mark comment-upload; lk_tapui "Comment"; sleep 3; adb shell input text "Great"; lk_tapui "Post"; sleep 2; key 4; sleep 1; key 4; sleep 1
+lk_mark comment-upload; lk_tapui "Comment"; sleep 3; adb shell input text "Great"; sleep 1; key 111; sleep 1; lk_tapui "Post"; sleep 2; shot LK-16f-upload-comments; key 4; sleep 1
 lk_mark upload-short; lk_tapui "Upload a Short"; sleep 4; shot LK-17-upload-picker
-lk_tapui "lkqa.mp4"; sleep 3; shot LK-17b-upload-picked; adb shell input text "QA%sshort"; sleep 1; lk_tapui "Upload"; sleep 5; shot LK-17c-upload-sent
+lk_tapui "lkqa.mp4"; sleep 3; shot LK-17b-upload-picked; lk_tapui "Upload"; sleep 5; shot LK-17c-upload-sent
 key 4; sleep 2
 # 5. Signed out first open: the guest bar must be slim
 fx false; restart 7; tab Chats; sleep 4; shot LK-18-guest-chats; tab Home; sleep 4; shot LK-19-guest-channels
