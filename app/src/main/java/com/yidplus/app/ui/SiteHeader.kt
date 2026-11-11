@@ -57,7 +57,7 @@ import java.net.URLEncoder
 
 // The website's header items (search, the notifications bell with its unread count, the profile menu), native.
 
-object NotifCount {
+object SoNotifCount {
     var unread by mutableIntStateOf(0)
     private var at = 0L
     suspend fun refresh(force: Boolean = false) {
@@ -71,15 +71,15 @@ object NotifCount {
 
 /** Search, bell (with the unread count) and the profile picture menu, for a top bar's actions. */
 @Composable
-fun HeaderActions(onSearch: (() -> Unit)? = null) {
+fun SoHeaderActions(onSearch: (() -> Unit)? = null) {
     val c = ctx()
     val tint = LocalContentColor.current
     val me = Session.me
-    LaunchedEffect(me?.id) { while (true) { NotifCount.refresh(); delay(60_000) } }
-    IconBtn(Icons.Filled.Search, "Search", { if (onSearch != null) onSearch() else Nav.open(SiteSearchPage()) }, tint = tint)
+    LaunchedEffect(me?.id) { while (true) { SoNotifCount.refresh(); delay(60_000) } }
+    IconBtn(Icons.Filled.Search, "Search", { if (onSearch != null) onSearch() else Nav.open(SoSearchPage()) }, tint = tint)
     if (me != null) Box {
-        IconBtn(Icons.Filled.Notifications, "Notifications", { Nav.open(NotifsPage()) }, tint = tint)
-        if (NotifCount.unread > 0) SoBadge(NotifCount.unread, Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 2.dp))
+        IconBtn(Icons.Filled.Notifications, "Notifications", { Nav.open(SoNotifsPage()) }, tint = tint)
+        if (SoNotifCount.unread > 0) SoBadge(SoNotifCount.unread, Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 2.dp))
     }
     var menu by remember { mutableStateOf(false) }
     Box {
@@ -98,9 +98,9 @@ fun HeaderActions(onSearch: (() -> Unit)? = null) {
                 }
                 HorizontalDivider()
                 DropdownMenuItem(text = { Text("My channel") }, leadingIcon = { Icon(Icons.Filled.AccountBox, null) },
-                    onClick = { menu = false; Nav.open(UserChannelPage(me.id, me.nickname)) })
+                    onClick = { menu = false; Nav.open(SoUserChannelPage(me.id, me.nickname)) })
                 DropdownMenuItem(text = { Text("Notifications") }, leadingIcon = { Icon(Icons.Filled.Notifications, null) },
-                    onClick = { menu = false; Nav.open(NotifsPage()) })
+                    onClick = { menu = false; Nav.open(SoNotifsPage()) })
             }
             DropdownMenuItem(text = { Text(if (me != null) "Settings" else "Sign in") }, leadingIcon = { Icon(if (me != null) Icons.Filled.Settings else Icons.Filled.Login, null) },
                 onClick = { menu = false; Nav.go(Tab.Profile) })
@@ -114,7 +114,7 @@ fun HeaderActions(onSearch: (() -> Unit)? = null) {
 fun soRoute(ctx: Context, link: String) {
     val u = Api.abs(link.ifBlank { "/" }) ?: return
     val uri = Uri.parse(u)
-    uri.getQueryParameter("channel")?.let { Nav.open(UserChannelPage(it, "")); return }
+    uri.getQueryParameter("channel")?.let { Nav.open(SoUserChannelPage(it, "")); return }
     if ((uri.path ?: "").startsWith("/c/")) { Nav.open(Screen.Web(u)); return }
     com.yidplus.app.MainActivity.route(ctx, u)
 }
@@ -129,9 +129,9 @@ private fun notifIcon(t: String): Pair<ImageVector, Color> = when (t) {
 }
 
 /** The bell's list: what happened (likes, follows, comments, mentions, channel posts), newest first. */
-class NotifsPage : PageScreen() {
+class SoNotifsPage : PageScreen() {
     override val perfName = "Notifications"
-    override fun equals(other: Any?) = other is NotifsPage
+    override fun equals(other: Any?) = other is SoNotifsPage
     override fun hashCode() = 7
     @Composable override fun Content() {
         val c = ctx()
@@ -141,7 +141,7 @@ class NotifsPage : PageScreen() {
         LaunchedEffect(res) {
             res.load(force = true); Perf.shown("Notifications")
             // Opening the list reads everything, like the site's bell.
-            if (res.data?.any { !it.read } == true) runCatching { Api.post("/api/notifications", JSONObject().put("read", "all")); NotifCount.unread = 0 }
+            if (res.data?.any { !it.read } == true) runCatching { Api.post("/api/notifications", JSONObject().put("read", "all")); SoNotifCount.unread = 0 }
         }
         var confirm by remember { mutableStateOf(false) }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -179,7 +179,7 @@ class NotifsPage : PageScreen() {
             }
         }
         if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("Clear all notifications?") },
-            confirmButton = { TextButton({ confirm = false; scope.launch { runCatching { Api.delete("/api/notifications") }; res.data = emptyList(); NotifCount.unread = 0 } }) { Text("Clear") } },
+            confirmButton = { TextButton({ confirm = false; scope.launch { runCatching { Api.delete("/api/notifications") }; res.data = emptyList(); SoNotifCount.unread = 0 } }) { Text("Clear") } },
             dismissButton = { TextButton({ confirm = false }) { Text("Cancel") } })
     }
 }
@@ -194,9 +194,9 @@ sealed class SoHit(val key: String) {
 }
 
 /** The header's search: channels (members), Telegram channels, posts and Shorts, in one place. */
-class SiteSearchPage(val start: Int = 0) : PageScreen() {
+class SoSearchPage(val start: Int = 0) : PageScreen() {
     override val perfName = "Search"
-    override fun equals(other: Any?) = other is SiteSearchPage && other.start == start
+    override fun equals(other: Any?) = other is SoSearchPage && other.start == start
     override fun hashCode() = 11 + start
     @Composable override fun Content() {
         val c = ctx()
@@ -265,18 +265,18 @@ class SiteSearchPage(val start: Int = 0) : PageScreen() {
 private fun HitRow(h: SoHit, c: Context) {
     val (title, sub, kindLabel) = when (h) {
         is SoHit.Member -> Triple(h.name, h.bio.ifBlank { "${soNum(h.followers)} followers" }, "Channel")
-        is SoHit.Telegram -> Triple(h.ch.title, "@" + h.ch.username + " · ${soNum(h.ch.members)} members", "Telegram")
+        is SoHit.Telegram -> Triple(h.ch.title, "@" + h.ch.username + " · " + soMembers(h.ch.members), "Telegram")
         is SoHit.Post -> Triple(h.name.ifBlank { "Post" }, h.text.replace('\n', ' '), "Post")
         is SoHit.Short -> Triple(h.text.ifBlank { "Short video" }, ago(h.at), "Short")
         is SoHit.Feed -> Triple(h.clip.caption.replace('\n', ' ').ifBlank { "Short video" }, "@" + h.clip.creator, "Short")
     }
     Row(Modifier.fillMaxWidth().heightIn(min = 68.dp).tap(RoundedCornerShape(0.dp)) {
         when (h) {
-            is SoHit.Member -> Nav.open(UserChannelPage(h.ownerId, h.name))
+            is SoHit.Member -> Nav.open(SoUserChannelPage(h.ownerId, h.name))
             is SoHit.Telegram -> Nav.open(Screen.Channel(h.ch))
-            is SoHit.Post -> Nav.open(UserChannelPage(h.userId, h.name))
-            is SoHit.Short -> openUploadShort(h.id)
-            is SoHit.Feed -> openFeedClip(h.clip)
+            is SoHit.Post -> Nav.open(SoUserChannelPage(h.userId, h.name))
+            is SoHit.Short -> soOpenUploadShort(h.id)
+            is SoHit.Feed -> soOpenFeedClip(h.clip)
         }
     }.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         when (h) {

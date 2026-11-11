@@ -66,10 +66,10 @@ object SoRefresh { var tick by mutableIntStateOf(0) }
 
 // ───────────────────────── Telegram channels ─────────────────────────
 
-val TG_QUICK = listOf("👍", "❤️", "😂", "🔥", "😮", "😢", "🙏", "💯")
+val SO_TG_QUICK = listOf("👍", "❤️", "😂", "🔥", "😮", "😢", "🙏", "💯")
 
 /** Reactions on one Telegram channel's posts: counts per emoji and mine. */
-class TgReacts(val username: String) {
+class SoTgReacts(val username: String) {
     val counts = mutableStateMapOf<Long, Map<String, Int>>()
     val mine = mutableStateMapOf<Long, String>()
     suspend fun load() {
@@ -99,7 +99,7 @@ class TgReacts(val username: String) {
 
 /** The reaction pills under a channel post, and the + that opens the 8 quick emoji. */
 @Composable
-fun TgReactionRow(id: Long, reacts: TgReacts, modifier: Modifier = Modifier) {
+fun SoTgReactionRow(id: Long, reacts: SoTgReacts, modifier: Modifier = Modifier) {
     val c = ctx(); val scope = rememberCoroutineScope()
     val counts = reacts.counts[id].orEmpty(); val my = reacts.mine[id]
     var pick by remember { mutableStateOf(false) }
@@ -122,7 +122,7 @@ fun TgReactionRow(id: Long, reacts: TgReacts, modifier: Modifier = Modifier) {
                 }
                 DropdownMenu(pick, { pick = false }) {
                     Row(Modifier.padding(horizontal = 6.dp)) {
-                        for (e in TG_QUICK) Box(Modifier.size(42.dp).tap(CircleShape) { pick = false; scope.launch { reacts.react(c, id, e) } }
+                        for (e in SO_TG_QUICK) Box(Modifier.size(42.dp).tap(CircleShape) { pick = false; scope.launch { reacts.react(c, id, e) } }
                             .background(if (e == my) Green.copy(alpha = 0.16f) else Color.Transparent, CircleShape), contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
                     }
                 }
@@ -132,7 +132,7 @@ fun TgReactionRow(id: Long, reacts: TgReacts, modifier: Modifier = Modifier) {
 }
 
 /** Joins / leaves a Telegram channel here on YID PLUS (the site's Join bar). Returns the new state, or null. */
-suspend fun tgToggleJoin(ctx: Context, username: String): Pair<Boolean, Int>? {
+suspend fun soTgToggleJoin(ctx: Context, username: String): Pair<Boolean, Int>? {
     if (Session.me == null) { toast(ctx, "Sign in to join channels"); Nav.go(Tab.Profile); return null }
     return try {
         val r = Api.post("/api/telegram-join", JSONObject().put("username", username)).soCheck()
@@ -142,7 +142,7 @@ suspend fun tgToggleJoin(ctx: Context, username: String): Pair<Boolean, Int>? {
     } catch (e: Exception) { toast(ctx, Api.friendly(e)); null }
 }
 
-fun tgLink(username: String) = Api.BASE + "/chat#tg=" + username
+fun soTgLink(username: String) = Api.BASE + "/chat#tg=" + username
 
 /** A video's picture: its poster when Telegram has one, otherwise a calm card with the play button (never a black box). */
 @Composable
@@ -166,7 +166,7 @@ fun SoVideoPoster(url: String?, title: String, duration: Int, modifier: Modifier
 }
 
 /** Channel info: picture, name, how many joined here, Join / Leave, share, members (and the admin's remove). */
-data class TgInfoPage(val ch: TgChannel) : PageScreen() {
+data class SoTgInfoPage(val ch: TgChannel) : PageScreen() {
     override val perfName = "ChannelInfo"
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
@@ -195,14 +195,14 @@ data class TgInfoPage(val ch: TgChannel) : PageScreen() {
                         Text(ch.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 16.dp),
                             style = TextStyle(textDirection = TextDirection.Content))
                         Text("@" + ch.username, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${soNum(members)} members" + (if (posts >= 0) " · ${soNum(posts)} posts" else ""), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(soMembers(members) + (if (posts >= 0) " · ${soNum(posts)} posts" else ""), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(14.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SoPill(if (joined) "Leave" else "Join", !joined, {
-                                if (!busy) scope.launch { busy = true; tgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; busy = false } },
+                                if (!busy) scope.launch { busy = true; soTgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; busy = false } },
                                 Modifier.firstFocus(), icon = if (joined) Icons.Filled.Logout else Icons.Filled.Add)
-                            SoPill("Share", false, { share(c, ch.title + "\n" + tgLink(ch.username)) }, icon = Icons.Filled.Share)
-                            SoPill("Copy link", false, { soCopy(c, tgLink(ch.username)) }, icon = Icons.Filled.Link)
+                            SoPill("Share", false, { share(c, ch.title + "\n" + soTgLink(ch.username)) }, icon = Icons.Filled.Share)
+                            SoPill("Copy link", false, { soCopy(c, soTgLink(ch.username)) }, icon = Icons.Filled.Link)
                         }
                     }
                     Spacer(Modifier.height(8.dp))
@@ -231,7 +231,7 @@ data class TgInfoPage(val ch: TgChannel) : PageScreen() {
 
 /** Admins add a public Telegram channel by its @username (the site's "Add channel"). */
 @Composable
-fun AddTgChannelDialog(onDone: () -> Unit) {
+fun SoAddTgChannelDialog(onDone: () -> Unit) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var u by remember { mutableStateOf("") }; var t by remember { mutableStateOf("") }; var busy by remember { mutableStateOf(false) }
     AlertDialog(onDismissRequest = onDone, title = { Text("Add a Telegram channel") },
