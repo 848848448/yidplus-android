@@ -127,7 +127,10 @@
     '@media (max-width:380px){.shorts-tabs{gap:10px!important}.shorts-tab{font-size:14px!important;white-space:nowrap;padding:8px 1px 10px!important}.shorts-brand{width:26px!important;height:26px!important}}' +
     '@media (max-height:520px){.src-chips{top:44px!important;padding:4px 10px 6px!important}.src-chip{padding:5px 11px!important;font-size:12.5px!important}' +
       '.src-rail{gap:0!important;bottom:10px!important;right:4px!important}.src-act{min-height:34px!important;min-width:50px!important;gap:1px!important}.src-ic{width:36px!important;height:30px!important}.src-ic svg{width:24px;height:24px}' +
-      '.src-act span:not(.src-ic){font-size:10.5px!important}.src-info{bottom:12px!important;right:64px!important;left:10px!important}.src-av.big{width:36px!important;height:36px!important}}' +
+      '.src-act span:not(.src-ic){font-size:10.5px!important}.src-info{bottom:12px!important;right:64px!important;left:10px!important}.src-av.big{width:36px!important;height:36px!important}' +
+      '.src-chips{left:0!important;transform:none!important;width:calc(100% - 58px)!important}}' +
+    '@media (max-height:400px){.src-act .src-lb:not([data-n]){display:none!important}.src-act{min-height:0!important;padding:1px 0!important}.src-ic{height:27px!important}.src-rail{gap:3px!important;bottom:8px!important}' +
+      '.src-act.src-me{display:none!important}.src-chips{top:40px!important;width:100%!important}.shorts-topbar{padding-top:4px!important}}' +
     /* one compact header: the big collapsing "YID PLUS" title repeats the logo on a small screen */
     '#home-topbar .m3-topbar-title-large{display:none!important}' +
     '#home-topbar .app-title-display{display:none!important}' +
