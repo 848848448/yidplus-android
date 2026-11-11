@@ -22,6 +22,10 @@ object Prefs {
     fun setThemeMode(v: Int) { theme = v; p.edit().putInt("theme", v).apply() }
     fun setMute(v: Boolean) { muted = v; p.edit().putBoolean("muted", v).apply() }
     fun enableNotify(v: Boolean) { notify = v; p.edit().putBoolean("notify", v).apply() }
+    /** The tab you were on, so the app opens straight back to it. */
+    var lastTab: String
+        get() = p.getString("lastTab", "") ?: ""
+        set(v) { p.edit().putString("lastTab", v).apply() }
     fun hintSeen() { keypadHintSeen = true; p.edit().putBoolean("keypadHint", true).apply() }
 
     // Guests' likes on For You stay on the phone (same as the website).

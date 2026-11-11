@@ -23,7 +23,8 @@ sealed class Screen {
 
 /** The app's own navigation: 5 tabs, each with its own stack; Back goes back inside the app. */
 object Nav {
-    var tab by mutableStateOf(com.yidplus.app.data.SiteConfig.tabs.firstOrNull() ?: Tab.Chats)
+    var tab by mutableStateOf(runCatching { Tab.valueOf(com.yidplus.app.data.Prefs.lastTab) }.getOrNull()?.takeIf { com.yidplus.app.data.SiteConfig.visible(it) }
+        ?: com.yidplus.app.data.SiteConfig.tabs.firstOrNull() ?: Tab.Chats)
     val start: Tab get() = com.yidplus.app.data.SiteConfig.tabs.firstOrNull() ?: Tab.Chats
     val stack = mutableStateListOf<Screen>()
     /** On tablets the opened channel / chat shows beside its list instead of over it. */
@@ -34,7 +35,7 @@ object Nav {
 
     fun go(t: Tab) {
         val ok = if (com.yidplus.app.data.SiteConfig.visible(t)) t else start
-        stack.clear(); tab = ok; Perf.start(ok.name)
+        stack.clear(); tab = ok; Perf.start(ok.name); com.yidplus.app.data.Prefs.lastTab = ok.name
     }
 
     fun open(s: Screen) {
@@ -49,7 +50,7 @@ object Nav {
         if (stack.isNotEmpty()) { stack.removeAt(stack.lastIndex); return true }
         if (tab == Tab.Home && homeDetail != null) { homeDetail = null; return true }
         if (tab == Tab.Chats && chatDetail != null) { chatDetail = null; return true }
-        if (tab != start) { tab = start; return true }
+        if (tab != start) { tab = start; com.yidplus.app.data.Prefs.lastTab = start.name; return true }
         return false
     }
 }
