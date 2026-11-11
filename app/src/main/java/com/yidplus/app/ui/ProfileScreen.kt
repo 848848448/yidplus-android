@@ -2,6 +2,7 @@ package com.yidplus.app.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,10 +11,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -28,15 +28,31 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Feedback
+import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,49 +64,125 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.yidplus.app.BuildConfig
 import com.yidplus.app.GoogleAuth
 import com.yidplus.app.NotifyWorker
 import com.yidplus.app.data.Api
+import com.yidplus.app.data.Disk
 import com.yidplus.app.data.Notif
 import com.yidplus.app.data.Prefs
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.Store
 import com.yidplus.app.data.objects
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ProfileScreen() {
     val me = Session.me
-    Column(Modifier.fillMaxSize()) {
+    val c = ctx()
+    val scope = rememberCoroutineScope()
+    // Emulator QA (signed out): `--es qa_page demo:Privacy` shows the signed-in screens with a sample profile.
+    LaunchedEffect(Unit) {
+        while (true) {
+            val v = qaExtra(c, "qa_page")
+            if (v != null) {
+                qaClear(c, "qa_page")
+                if (v.startsWith("demo")) MyProfile.demo = true
+                val page: Screen? = when (v.substringAfter(':', "")) {
+                    "EditProfile" -> EditProfilePage()
+                    "Privacy" -> PrivacyPage()
+                    "Security" -> SecurityPage()
+                    "NotifPrefs" -> NotifPrefsPage()
+                    "Blocked" -> BlockedPage()
+                    "FollowRequests" -> FollowRequestsPage()
+                    "MutedChats" -> MutedChatsPage()
+                    "Feedback" -> FeedbackPage()
+                    "Admin" -> AdminPage()
+                    "About" -> AboutPage()
+                    else -> null
+                }
+                if (v == "off") MyProfile.demo = false
+                if (page != null) Nav.open(page)
+            }
+            delay(600)
+        }
+    }
+    val signedIn = me != null || MyProfile.demo
+    LaunchedEffect(me?.id, MyProfile.demo) { if (signedIn) MyProfile.load() }
+    var deleting by remember { mutableStateOf(0) }
+    var signingOut by remember { mutableStateOf(false) }
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar("Settings")
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-                Column(Modifier.widthIn(max = 560.dp).fillMaxWidth()) {
-                    if (me == null) LoginForm() else {
-                        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Avatar(me.photo, me.nickname, 64.dp)
-                            Column(Modifier.padding(start = 14.dp).weight(1f)) {
-                                Text(me.nickname, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                                Text(me.email, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                if (me.isOwner) Text("Owner", color = Gold, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Column(Modifier.widthIn(max = 640.dp).fillMaxWidth()) {
+                    if (!signedIn) Surface(color = MaterialTheme.colorScheme.surface) { LoginForm() } else {
+                        MyProfileHeader { Nav.open(EditProfilePage()) }
+                        SettingsCard("Account") {
+                            SettingRow(Icons.Filled.Edit, "Edit profile", "Name, photo, cover, bio, links", modifier = Modifier.firstFocus()) { Nav.open(EditProfilePage()) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.Lock, "Privacy", "Private account, who can message you, read receipts") { Nav.open(PrivacyPage()) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.Security, "Security", "Password, two-step verification, devices") { Nav.open(SecurityPage()) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.NotificationsActive, "Notifications", "What yidplus.com tells you about") { Nav.open(NotifPrefsPage()) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.Block, "Blocked users", null) { Nav.open(BlockedPage()) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.Notifications, "Activity", "Likes, comments, follows") { Nav.open(Screen.Notifications) }
+                        }
+                        val nick = MyProfile.text("nickname").ifBlank { me?.nickname ?: "" }
+                        SettingsCard("My page") {
+                            SettingRow(Icons.Filled.Share, "Share my profile", "yidplus.com/@$nick") { share(c, "https://yidplus.com/@" + Uri.encode(nick)) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.Link, "Copy profile link", null) { copyText(c, "https://yidplus.com/@" + Uri.encode(nick)) }
+                            if ((MyProfile.p?.optInt("verified") ?: 0) != 1) {
+                                RowDivider(64.dp)
+                                SettingRow(Icons.Filled.Verified, "Get verified", "Ask the YID PLUS team for the verified mark") {
+                                    scope.launch {
+                                        runCatching { if (!MyProfile.demo) Api.post("/api/verify-request", org.json.JSONObject()) }
+                                            .onSuccess { toast(c, "Request sent. The team will look at it.") }.onFailure { toast(c, Api.friendly(it)) }
+                                    }
+                                }
                             }
                         }
-                        SettingRow(Icons.Filled.Notifications, "Notifications", "Likes, comments, follows") { Nav.open(Screen.Notifications) }
-                        SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "My page on yidplus.com", "Edit profile, upload, settings") { Nav.open(Screen.Web(Api.BASE + "/")) }
                     }
-                    Settings()
+                    AppSettings()
+                    if (signedIn && meIsAdmin) SettingsCard("Admin") {
+                        SettingRow(Icons.Filled.AdminPanelSettings, "Admin panel", "Members, features on/off, stats, the full control center") { Nav.open(AdminPage()) }
+                    }
+                    if (signedIn) SettingsCard {
+                        SettingRow(Icons.AutoMirrored.Filled.Logout, "Sign out", Session.me?.email) { signingOut = true }
+                        RowDivider(64.dp)
+                        SettingRow(Icons.Filled.DeleteForever, "Delete account", "Removes your account and everything in it", danger = true) { deleting = 1 }
+                    }
+                    Text("YID PLUS ${BuildConfig.VERSION_NAME}", Modifier.fillMaxWidth().padding(vertical = 20.dp), textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
     }
+    if (signingOut) SettingsConfirmDialog("Sign out?", "You can sign in again any time.", "Sign out", onOk = { scope.launch { Session.logout(); MyProfile.demo = false; toast(c, "Signed out") } }, onDismiss = { signingOut = false })
+    if (deleting == 1) SettingsConfirmDialog("Delete your account?", "Your account, messages, videos and music are deleted for good. This can't be undone.", "Continue", danger = true,
+        onOk = { deleting = 2 }, onDismiss = { if (deleting == 1) deleting = 0 })
+    if (deleting == 2) PasswordConfirmDialog("Delete account", "Enter your password to delete your account for good.", "Delete forever", danger = true,
+        onOk = {
+            scope.launch {
+                runCatching { if (!MyProfile.demo) Api.delete("/api/profile") }
+                    .onSuccess { toast(c, "Account deleted"); Session.logout(); MyProfile.demo = false }.onFailure { toast(c, Api.friendly(it)) }
+            }
+        }, onDismiss = { deleting = 0 })
 }
 
 @Composable
@@ -119,7 +211,7 @@ private fun LoginForm() {
     }
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Logo(Modifier.align(Alignment.CenterHorizontally))
-        Text("Sign in with your yidplus.com account", Modifier.align(Alignment.CenterHorizontally), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Sign in with your yidplus.com account", Modifier.align(Alignment.CenterHorizontally).padding(bottom = 6.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (!form) {
             PrimaryButton("Sign in with email", { form = true }, Modifier.fillMaxWidth().firstFocus())
             SecondaryButton("Sign in with Google", { GoogleAuth.start(c) }, Modifier.fillMaxWidth())
@@ -140,39 +232,75 @@ private fun LoginForm() {
     }
 }
 
+@OptIn(coil.annotation.ExperimentalCoilApi::class)
 @Composable
-private fun Settings() {
+private fun AppSettings() {
     val c = ctx()
     val scope = rememberCoroutineScope()
     val askNotif = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (!ok) toast(c, "Notifications are off in Android settings") }
-    SectionTitle("App")
-    SettingRow(Icons.Filled.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
-    SettingRow(Icons.Filled.DarkMode, "Theme", listOf("Same as phone", "Light", "Dark")[Prefs.theme]) { Prefs.setThemeMode((Prefs.theme + 1) % 3) }
-    SettingRow(Icons.Filled.Notifications, "Notifications", if (Prefs.notify) "New messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off", switch = Prefs.notify) {
-        Prefs.enableNotify(!Prefs.notify)
-        if (Prefs.notify) {
-            NotifyWorker.schedule(c)
-            com.yidplus.app.Push.start(c)
-            if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(c, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) askNotif.launch(Manifest.permission.POST_NOTIFICATIONS)
+    var pick by remember { mutableStateOf<String?>(null) }
+    val themes = listOf("Same as phone", "Light", "Dark")
+    val sizes = listOf("Small", "Normal", "Large")
+    SettingsCard("App") {
+        SettingRow(Icons.Filled.DarkMode, "Theme", null, value = themes[Prefs.theme]) { pick = "theme" }
+        RowDivider(64.dp)
+        SettingRow(Icons.Filled.FormatSize, "Text size", null, value = sizes[UiPrefs.textSize]) { pick = "size" }
+        RowDivider(64.dp)
+        SettingRow(Icons.Filled.Notifications, "Phone notifications", if (Prefs.notify) "New messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off", switch = Prefs.notify) {
+            Prefs.enableNotify(!Prefs.notify)
+            if (Prefs.notify) {
+                NotifyWorker.schedule(c)
+                com.yidplus.app.Push.start(c)
+                if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(c, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) askNotif.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+        RowDivider(64.dp)
+        SettingRow(Icons.Filled.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
+        RowDivider(64.dp)
+        SettingRow(Icons.Filled.Keyboard, "Keypad help", "↑↓ move · OK open · Back goes back · Shorts: 1 like, 3 comments") { Prefs.keypadHintSeen = false; Feeds.tab = ShortsTab.ForYou; Nav.go(Tab.Shorts) }
+        RowDivider(64.dp)
+        SettingRow(Icons.Filled.CleaningServices, "Clear cache", "Frees space; your account and settings stay") {
+            scope.launch {
+                withContext(Dispatchers.IO) { runCatching { Disk.clear() }; runCatching { coil.Coil.imageLoader(c).diskCache?.clear() } }
+                runCatching { coil.Coil.imageLoader(c).memoryCache?.clear() }
+                Store.clear(); toast(c, "Cache cleared")
+            }
         }
     }
-    SettingRow(Icons.Filled.Keyboard, "Keypad help", "↑↓ move · OK open · Back goes back · Shorts: 1 like, 3 comments") { Prefs.keypadHintSeen = false; Feeds.tab = ShortsTab.ForYou; Nav.go(Tab.Shorts) }
-    SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open yidplus.com in the browser", null) { openUrl(c, Api.BASE) }
-    SettingRow(Icons.Filled.Info, "About", "YID PLUS ${BuildConfig.VERSION_NAME} · native app") { toast(c, "YID PLUS ${BuildConfig.VERSION_NAME}") }
-    if (Session.me != null) SettingRow(Icons.AutoMirrored.Filled.Logout, "Sign out", Session.me?.email) { scope.launch { Session.logout(); toast(c, "Signed out") } }
-    Spacer(Modifier.height(24.dp))
+    SettingsCard("Help") {
+        SettingRow(Icons.Filled.Feedback, "Send feedback", "Report a problem or share an idea") { Nav.open(FeedbackPage()) }
+        if (Session.me != null || MyProfile.demo) {
+            RowDivider(64.dp)
+            SettingRow(Icons.Filled.Download, "Download my data", "A copy of your profile, saved to Downloads") { scope.launch { toast(c, exportMyData(c)) } }
+        }
+        RowDivider(64.dp)
+        SettingRow(Icons.Filled.Info, "About YID PLUS", "Version ${BuildConfig.VERSION_NAME} · privacy · terms") { Nav.open(AboutPage()) }
+    }
+    when (pick) {
+        "theme" -> SettingsChoiceDialog("Theme", themes, Prefs.theme, { Prefs.setThemeMode(it) }, { pick = null })
+        "size" -> SettingsChoiceDialog("Text size", sizes, UiPrefs.textSize, { UiPrefs.setText(it) }, { pick = null })
+    }
 }
 
-@Composable
-private fun SettingRow(icon: ImageVector, title: String, sub: String?, switch: Boolean? = null, onClick: () -> Unit) {
-    // A standard settings row: icon, left-aligned title + one line under it, a switch where it's on/off.
-    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-        Column(Modifier.padding(start = 16.dp).weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-            if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+class AboutPage : PageScreen() {
+    override val perfName = "About"
+    @Composable override fun Content() {
+        val c = ctx()
+        SettingsPage("About") {
+            Column(Modifier.fillMaxWidth().padding(vertical = 28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Logo()
+                Text("Version ${BuildConfig.VERSION_NAME} · native app", Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            SettingsCard {
+                SettingRow(Icons.Filled.SystemUpdate, "Check for updates", UpdateUi.status, modifier = Modifier.firstFocus()) { UpdateUi.check(c, force = true, userAsked = true) }
+                RowDivider(64.dp)
+                SettingRow(Icons.Filled.PrivacyTip, "Privacy policy", null) { Nav.open(Screen.Web(Api.BASE + "/privacy.html")) }
+                RowDivider(64.dp)
+                SettingRow(Icons.Filled.Description, "Terms of use", null) { Nav.open(Screen.Web(Api.BASE + "/terms.html")) }
+                RowDivider(64.dp)
+                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open yidplus.com in the browser", null) { openUrl(c, Api.BASE) }
+            }
         }
-        if (switch != null) androidx.compose.material3.Switch(switch, null, modifier = Modifier.padding(start = 8.dp))
     }
 }
 
@@ -181,7 +309,7 @@ private fun SettingRow(icon: ImageVector, title: String, sub: String?, switch: B
 fun NotificationsScreen() {
     val c = ctx()
     val scope = rememberCoroutineScope()
-    val res = remember(Session.me?.id) { Store.res("/api/notifications") { j -> j.optJSONArray("notifications").objects().map(Notif::from) } }
+    val res = remember(Session.me?.id) { Store.res("/api/notifications") { j -> j.optJSONArray("notifications").objects().map(Notif::from).distinctBy { it.id } } }
     LaunchedEffect(res) { res.load(force = true); if (res.data?.any { !it.read } == true) runCatching { Api.post("/api/notifications", org.json.JSONObject().put("read", "all")) } }
     Column(Modifier.fillMaxSize()) {
         TopBar("Notifications", onBack = { Nav.back() })
@@ -189,18 +317,20 @@ fun NotificationsScreen() {
         when {
             list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
             list == null -> Loading()
-            list.isEmpty() -> Text("Nothing yet", Modifier.padding(24.dp))
-            else -> LazyColumn(Modifier.fillMaxSize()) {
+            list.isEmpty() -> EmptyNote(Icons.Filled.Notifications, "No notifications yet", "Likes, comments and new followers show up here.")
+            else -> LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
                 items(list, key = { it.id }) { n ->
-                    Row(Modifier.fillMaxWidth().background(if (!n.read) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .5f) else androidx.compose.ui.graphics.Color.Transparent)
+                    Row(Modifier.fillMaxWidth().background(if (!n.read) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .45f) else androidx.compose.ui.graphics.Color.Transparent)
                         .tap(RoundedCornerShape(0.dp)) { if (n.link.isNotBlank()) com.yidplus.app.MainActivity.route(c, Api.abs(n.link)!!) }
-                        .then(if (n == list.first()) Modifier.firstFocus() else Modifier).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Avatar(null, n.actor.ifBlank { "Y" }, 36.dp)
-                        Column(Modifier.padding(start = 10.dp).weight(1f)) {
-                            Text(n.text.ifBlank { n.type }, style = MaterialTheme.typography.bodyMedium)
-                            Text(ago(n.at), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        .then(if (n == list.first()) Modifier.firstFocus() else Modifier).heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Avatar(null, n.actor.ifBlank { "Y" }, 44.dp)
+                        Column(Modifier.padding(start = 14.dp).weight(1f)) {
+                            Text(n.text.ifBlank { n.type }, style = MaterialTheme.typography.bodyLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                            Text(ago(n.at), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                        if (!n.read) Box(Modifier.padding(start = 8.dp).size(10.dp).clip(CircleShape).background(BadgeGreen))
                     }
+                    RowDivider(74.dp)
                 }
             }
         }
