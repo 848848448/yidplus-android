@@ -1,5 +1,5 @@
 # Helper CH (chats, 2.0.2): signed-in chat QA with the fixture account. Sourced by qa/signedin.sh fx_block (helpers from qa/native.sh).
-# Every write is answered locally and logged (tag YidFx); qa/out/fx-requests.txt is the proof each action matches the site's chat.js call.
+# Run after the shared fixture block. Every write is answered locally and logged (tag YidFx); qa/out/fx-requests.txt is the proof each action matches the site's chat.js call.
 chpos() { # centre of the first node whose text or content-desc CONTAINS $1 (prints "x y", or nothing)
   timeout 30 adb shell uiautomator dump /sdcard/ch.xml >/dev/null 2>&1
   local b; b=$(timeout 20 adb shell cat /sdcard/ch.xml 2>/dev/null | tr '>' '\n' | grep -F -- "$1" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
