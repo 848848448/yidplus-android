@@ -101,7 +101,8 @@ adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n com.yidplus.app/.Cha
 adb shell cmd statusbar expand-notifications; sleep 3; shot A8-notification-chat
 timeout 30 adb shell uiautomator dump /sdcard/n.xml >/dev/null 2>&1
 EB=$(timeout 20 adb shell cat /sdcard/n.xml 2>/dev/null | grep -oiE 'resource-id="android:id/expand_button"[^>]*bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | head -1 | grep -oE '[0-9]+' | tail -4 | tr '\n' ' ')
-if [ -n "$EB" ]; then read X1 Y1 X2 Y2 <<< "$EB"; adb shell input tap $(( (X1 + X2) / 2 )) $(( (Y1 + Y2) / 2 )); sleep 2; fi
+HASREPLY=$(timeout 20 adb shell cat /sdcard/n.xml 2>/dev/null | grep -ciE 'text="reply"')
+if [ -n "$EB" ] && [ "${HASREPLY:-0}" = "0" ]; then read X1 Y1 X2 Y2 <<< "$EB"; adb shell input tap $(( (X1 + X2) / 2 )) $(( (Y1 + Y2) / 2 )); sleep 2; fi
 shot A8b-notification-expanded; log "expand button: ${EB:-not found}"
 timeout 30 adb shell uiautomator dump /sdcard/n.xml >/dev/null 2>&1
 log "stacked messages shown: $(timeout 20 adb shell cat /sdcard/n.xml 2>/dev/null | grep -oE 'text="(Moshe Klein|Yossi Weiss|I.ll be there at 8|📷 Photo)"' | sort | uniq -c | tr '\n' ' ')"
