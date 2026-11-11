@@ -67,7 +67,8 @@ adb shell cmd statusbar expand-notifications; sleep 3; shot 02-notification
 for i in 1 2 3; do xy=$(find_xy "YID PLUS update v$WANT"); [ -n "$xy" ] && break; sleep 2; done
 if [ -n "$xy" ]; then log "NOTIFICATION: found 'YID PLUS update v$WANT'"; NOTIF=1; else log "NOTIFICATION: not found"; NOTIF=0; fi
 # expand it to show the notes, then tap it
-[ -n "$xy" ] && { adb shell input swipe ${xy% *} ${xy#* } ${xy% *} $(( ${xy#* } + 300 )) 300; sleep 2; shot 03-notification-expanded; }
+# Android already shows it expanded (title, notes, UPDATE button); a swipe here would pull the quick settings over it.
+[ -n "$xy" ] && shot 03-notification-expanded
 xy=$(find_xy "YID PLUS update v$WANT")
 [ -n "$xy" ] && adb shell input tap $xy && log "tapped the notification"
 sleep 4; shot 04-downloading
