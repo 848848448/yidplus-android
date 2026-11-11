@@ -114,36 +114,7 @@ jobs:
   qa:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Qin F21-style keypad phone: Android 11, no Google services, 480x640, old built-in web engine
-          - name: small-android11
-            api: 30
-            profile: pixel_6
-            size: 480x640
-            density: 240
-            rot: ''
-          - name: phone-android14
-            api: 34
-            profile: pixel_6
-            size: ''
-            density: ''
-            rot: ''
-          - name: tablet-portrait
-            api: 34
-            profile: pixel_6
-            size: 1600x2560
-            density: 320
-            rot: ''
-          - name: tablet-landscape
-            api: 34
-            profile: pixel_6
-            size: 1600x2560
-            density: 320
-            rot: landscape
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -154,34 +125,34 @@ jobs:
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
-      - name: Released version for comparison
-        run: curl -fsSL -o dist/released.apk "https://github.com/${{ github.repository }}/releases/latest/download/YIDPLUS.apk" || true
-      - name: Emulator test (${{ matrix.name }})
-        timeout-minutes: 25
+      # Qin F21-style keypad phone: Android 11 (API 30), no Google services, 480x640, D-pad;
+      # the same run then resizes to a 1080x2400 phone and a 10" tablet in both orientations.
+      - name: Emulator test (Android 11, no Google services, 480x640 + phone + tablet, D-pad)
+        timeout-minutes: 35
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api }}
+          api-level: 30
           target: default
           arch: x86_64
-          profile: ${{ matrix.profile }}
+          profile: pixel_4
           ram-size: 3072M
           disk-size: 4096M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: BASELINE_APK=${{ matrix.name == 'small-android11' && 'dist/released.apk' || '' }} bash qa/screens.sh dist/YIDPLUS.apk ${{ matrix.name }} "${{ matrix.size }}" "${{ matrix.density }}" "${{ matrix.rot }}"
+          script: bash qa/native.sh dist/YIDPLUS.apk
       - name: Publish QA screenshots
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           test -d qa/out || exit 0
-          cd qa/out && git init -q && git checkout -q -b qa-${{ matrix.name }} && git add -A
-          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "QA ${{ needs.build.outputs.version }} ${{ matrix.name }} run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ matrix.name }}
+          cd qa/out && git init -q && git checkout -q -b qa-evidence && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "QA ${{ needs.build.outputs.version }} run ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-evidence
       - name: Fail on crash
         run: |
-          cat qa/out/${{ matrix.name }}/RESULT
-          grep -q '^PASS' qa/out/${{ matrix.name }}/RESULT
+          cat qa/out/RESULT
+          grep -q '^PASS' qa/out/RESULT
 
   release:
     needs: [build, qa]

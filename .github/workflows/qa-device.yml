@@ -29,7 +29,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
       - name: Emulator test
-        timeout-minutes: 25
+        timeout-minutes: 35
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ github.event.inputs.api }}
@@ -40,7 +40,8 @@ jobs:
           disk-size: 4096M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash qa/screens.sh dist/YIDPLUS.apk ${{ github.event.inputs.name }} "${{ github.event.inputs.size }}" "${{ github.event.inputs.density }}" ""
+          # 2.0 and newer are the native app: the full native test (480x640, phone, tablet, D-pad) on the chosen image
+          script: bash qa/native.sh dist/YIDPLUS.apk
       - name: Publish screenshots
         if: always()
         env:
@@ -51,4 +52,4 @@ jobs:
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "device test ${{ github.run_id }}"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.event.inputs.name }}
       - name: Result
-        run: cat qa/out/*/RESULT && grep -q '^PASS' qa/out/*/RESULT
+        run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT

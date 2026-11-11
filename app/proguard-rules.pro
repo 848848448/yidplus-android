@@ -1,5 +1,4 @@
-# The JavaScript bridge methods are called by name from the page.
--keepclassmembers class com.yidplus.app.WebBridge {
-    @android.webkit.JavascriptInterface <methods>;
-}
--keepattributes JavascriptInterface
+# Native app (v2). Libraries ship their own rules.
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**

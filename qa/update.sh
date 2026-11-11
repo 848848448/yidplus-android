@@ -29,10 +29,23 @@ log "install old: $(adb install -r "$OLD" 2>&1 | tail -1)"
 log "installed version: $(ver)  latest release: $WANT"
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 adb logcat -c
+if [ "${NOTIFY:-0}" = 1 ]; then
+  # The background check posts "YID PLUS update vX.Y.Z" with the release notes; tapping it downloads + installs.
+  adb shell am start -W -n $PKG/.MainActivity -a com.yidplus.app.QA_UPDATE_NOTIFY >/dev/null
+  sleep 3; adb shell input keyevent 3; sleep 12
+  adb shell cmd statusbar expand-notifications; sleep 3
+  for i in $(seq 1 10); do xy=$(find_xy "YID PLUS update v$WANT"); [ -n "$xy" ] && break; sleep 3; done
+  shot 00-update-notification
+  [ -n "$xy" ] && log "notification shown: YID PLUS update v$WANT" || log "notification NOT found"
+  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/notification-ui.xml" >/dev/null 2>&1
+  tap "YID PLUS update v$WANT" 5 || true
+  sleep 3; shot 01-update-from-notification
+else
 adb shell am start -W -n $PKG/.MainActivity >/dev/null
 for i in $(seq 1 20); do xy=$(find_xy "Update available"); [ -n "$xy" ] && break; sleep 2; done
 sleep 1; shot 01-update-available
 tap "Update" 5 || true
+fi
 sleep 2; shot 02-allow-updates
 tap "Open settings" 5 && { sleep 4; shot 03-android-settings; }
 adb shell appops set $PKG REQUEST_INSTALL_PACKAGES allow

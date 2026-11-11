@@ -8,6 +8,10 @@ on:
       from_version:
         description: 'Older released version to start from, e.g. 1.0.0'
         required: true
+      notify:
+        description: 'Start from the update notification (2.0.0 and newer) instead of the in-app box'
+        required: false
+        default: '0'
 
 permissions:
   contents: write
@@ -32,14 +36,14 @@ jobs:
         timeout-minutes: 25
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 30
           target: default
           arch: x86_64
-          profile: pixel_6
-          ram-size: 4096M
+          profile: pixel_4
+          ram-size: 3072M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash qa/update.sh dist/old.apk "$(jq -r .versionName dist/latest.json)"
+          script: NOTIFY=${{ github.event.inputs.notify }} bash qa/update.sh dist/old.apk "$(jq -r .versionName dist/latest.json)"
       - name: Publish evidence
         if: always()
         env:

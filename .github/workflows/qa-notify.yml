@@ -8,7 +8,7 @@ on:
       as_version:
         description: 'Version number to give the test build (older than the newest release)'
         required: true
-        default: '1.0.2'
+        default: '1.9.9'
 
 permissions:
   contents: write
@@ -48,11 +48,11 @@ jobs:
         timeout-minutes: 25
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 30
           target: default
           arch: x86_64
-          profile: pixel_6
-          ram-size: 4096M
+          profile: pixel_4
+          ram-size: 3072M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: bash qa/notify.sh dist/test.apk "$(jq -r .versionName dist/latest.json)"

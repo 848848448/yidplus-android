@@ -310,5 +310,11 @@ class UpdateWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
             runCatching { WorkManager.getInstance(ctx).cancelUniqueWork("update-check") }
             runCatching { WorkManager.getInstance(ctx).enqueueUniquePeriodicWork("update-check-6h", ExistingPeriodicWorkPolicy.KEEP, req) }
         }
+
+        /** One check right now (emulator QA of the update notification). */
+        fun now(ctx: Context) {
+            runCatching { WorkManager.getInstance(ctx).enqueueUniqueWork("update-now", androidx.work.ExistingWorkPolicy.REPLACE,
+                androidx.work.OneTimeWorkRequestBuilder<UpdateWorker>().setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()) }
+        }
     }
 }
