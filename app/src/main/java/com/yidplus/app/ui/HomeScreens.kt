@@ -137,9 +137,9 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
     var joined by remember(ch.username, ch.joined) { mutableStateOf(ch.joined) }
     // Like the site's channel list / WhatsApp's Updates: photo, name and time on one line, the last post under it,
     // then the unread number (joined) or a small Join button. Members count when there is no post yet.
-    Row(modifier.fillMaxWidth().heightIn(min = 72.dp).background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+    Row(modifier.fillMaxWidth().heightIn(min = 68.dp).background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
         .restoreFocus("ch:" + ch.username).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "ch:" + ch.username; Nav.open(Screen.Channel(ch.copy(joined = joined))) }
-        .padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        .padding(horizontal = 16.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
         SoThumb(ch.photo, ch.title, 50.dp)
         Column(Modifier.weight(1f).padding(start = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -156,7 +156,11 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
                 Text(prev, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left), maxLines = 1, overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (joined) SoBadge(ch.unread, Modifier.padding(start = 8.dp))
-                else SoPill("Join", true, { scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } }, Modifier.padding(start = 8.dp).soTouchOnly())
+                // A small outlined Join (like Telegram's), so the row keeps WhatsApp's height.
+                else Box(Modifier.padding(start = 8.dp).heightIn(min = 28.dp).soTouchOnly().tap(RoundedCornerShape(14.dp)) { scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } }
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 3.dp), contentAlignment = Alignment.Center) {
+                    Text("Join", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+                }
             }
         }
     }

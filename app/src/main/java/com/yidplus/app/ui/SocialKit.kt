@@ -189,17 +189,22 @@ fun SoEmpty(icon: ImageVector, text: String, modifier: Modifier = Modifier, acti
 /** A row of pill chips (topics, filters); the chosen one is filled green. Every chip is focusable for the keypad. */
 @Composable
 fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, dark: Boolean = false) {
-    // Scrolls sideways with room at both ends, so at 480 px no chip is ever cut mid-word.
-    LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        itemsIndexed(options) { i, o ->
-            val on = i == selected
-            val bg = if (on) Green else if (dark) Color.White.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant
-            val fg = if (on) Color.White else if (dark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-            Box(Modifier.heightIn(min = 34.dp).tap(RoundedCornerShape(17.dp)) { onSelect(i) }.background(bg, RoundedCornerShape(17.dp)).padding(horizontal = 14.dp, vertical = 7.dp),
-                contentAlignment = Alignment.Center) {
-                Text(o, color = fg, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
-            }
+    @Composable fun Chip(i: Int, o: String, m: Modifier) {
+        val on = i == selected
+        val bg = if (on) Green else if (dark) Color.White.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant
+        val fg = if (on) Color.White else if (dark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+        Box(m.heightIn(min = 34.dp).tap(RoundedCornerShape(17.dp)) { onSelect(i) }.background(bg, RoundedCornerShape(17.dp)).padding(horizontal = 10.dp, vertical = 7.dp),
+            contentAlignment = Alignment.Center) {
+            Text(o, color = fg, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1, softWrap = false)
         }
+    }
+    // Up to four short filters share the width (they always fit at 480 px, nothing cut at the edge); more scroll
+    // sideways with room at both ends, so no chip is ever cut mid-word.
+    val total = options.sumOf { it.length }
+    if (options.size <= 4 && total <= 30) Row(modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        options.forEachIndexed { i, o -> Chip(i, o, Modifier.weight(1f)) }
+    } else LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        itemsIndexed(options) { i, o -> Chip(i, o, Modifier.padding(horizontal = 2.dp)) }
     }
 }
 

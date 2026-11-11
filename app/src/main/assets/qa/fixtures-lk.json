@@ -93,5 +93,260 @@
     "likes": 0
    }
   ]
+ },
+ "/api/channels?limit=400": {
+  "ok": true,
+  "channels": [
+   {
+    "id": "ch-demo",
+    "owner_id": "demo-me",
+    "nickname": "משה'לע",
+    "verified": 1,
+    "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "followers": 16,
+    "bio": "YID PLUS 👑",
+    "last_post_at": "2026-11-11T18:15:16.490Z"
+   },
+   {
+    "id": "a4d1ce45-f44a-412e-a8b6-c1278b365475",
+    "owner_id": "40da7cf5-4cb2-47d8-b652-eb4f5ec9c376",
+    "nickname": "פישעלע",
+    "verified": 0,
+    "photo_url": "/api/media/avatars%2F40da7cf5-4cb2-47d8-b652-eb4f5ec9c376.png?v=1784164780024",
+    "followers": 7
+   },
+   {
+    "id": "87c81191-2849-457a-b575-b2f9ba486824",
+    "owner_id": "2bdc84d5-7723-4581-8697-691ba283494d",
+    "nickname": "CEO",
+    "verified": 0,
+    "photo_url": null,
+    "followers": 7
+   },
+   {
+    "id": "e81f9d63-f82d-43d1-8812-6988b56ac203",
+    "owner_id": "392d8eda-e0dd-44ea-a51e-f55ead12fb0c",
+    "nickname": "Yanky",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/392d8eda-e0dd-44ea-a51e-f55ead12fb0c_1785879385829.png",
+    "followers": 5
+   },
+   {
+    "id": "c034d4f4-2daf-4aa4-bd56-7b0ce63a15ac",
+    "owner_id": "cd33c19b-44ba-47f0-bba4-67937a863bdc",
+    "nickname": "חיים",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "followers": 4
+   },
+   {
+    "id": "5ce9c401-aa5f-41e5-9a66-69551284dabd",
+    "owner_id": "cc8a8c05-5c96-4f7f-9dc2-4dfd9c67dfab",
+    "nickname": "ליצים",
+    "verified": 0,
+    "photo_url": null,
+    "followers": 3
+   },
+   {
+    "id": "03a2974e7e8931537d1a07985226c1a9",
+    "owner_id": "e6275bfd-f83a-4154-b4f7-f262f99b89f2",
+    "nickname": "YidFace",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/e6275bfd-f83a-4154-b4f7-f262f99b89f2_1785879386796.jpg",
+    "followers": 3
+   },
+   {
+    "id": "25d732ad4ccb17fd19915a3b24c566f0",
+    "owner_id": "ad553366-fc8c-4a8f-a156-9c3190600349",
+    "nickname": "Python",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/ad553366-fc8c-4a8f-a156-9c3190600349_1785879399365.png",
+    "followers": 3
+   },
+   {
+    "id": "213e361a-5746-4758-8b17-4cf077757d43",
+    "owner_id": "2618b7e5-b558-4654-8e68-76e2f47f4d4e",
+    "nickname": "Shaya",
+    "verified": 0,
+    "photo_url": null,
+    "followers": 3
+   },
+   {
+    "id": "79950e4df54a1cf246cf39f2ade31a95",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nickname": "DealPoint",
+    "verified": 1,
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "followers": 2
+   },
+   {
+    "id": "158c78dc-be46-4d72-b951-45d2435ea2d9",
+    "owner_id": "f18ccd10-7058-4c5e-8f90-1e86699f30f4",
+    "nickname": "Shimel’a",
+    "verified": 1,
+    "photo_url": "/api/media/avatars%2Ff18ccd10-7058-4c5e-8f90-1e86699f30f4.jpg?v=1784849124680",
+    "followers": 2
+   },
+   {
+    "id": "10824080ebe642f497550a55ca667df6",
+    "owner_id": "dcdc5502-6120-4047-aec1-98db22f0c837",
+    "nickname": "CarDriver",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/dcdc5502-6120-4047-aec1-98db22f0c837_1785879386532.png",
+    "followers": 1
+   },
+   {
+    "id": "5521beef-cd66-4ac9-8288-d374900af608",
+    "owner_id": "9b9359de-7ce1-4c83-b231-99a5bfe15f76",
+    "nickname": "Jack Weiss",
+    "verified": 0,
+    "photo_url": null,
+    "followers": 1
+   },
+   {
+    "id": "54d9f0f5-ec8b-48f3-b2d7-8e7d580ae649",
+    "owner_id": "daf76edd-6362-46b5-8a73-5831b45916cc",
+    "nickname": "Saj",
+    "verified": 0,
+    "photo_url": "/api/media/avatars%2Fdaf76edd-6362-46b5-8a73-5831b45916cc.jpg?v=1783300658574",
+    "followers": 1
+   },
+   {
+    "id": "4c332905185204b86b1f745a33c7af28",
+    "owner_id": "bc914b49-ea0a-4799-bec2-2a16b3099a61",
+    "nickname": "BenzionZoldan",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIeRAC2m385XRH_b45P91-hu5G-nW37X3JelDWB1pEBcfoYDWfR=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "65eba6bb9a4ae991d24ca09eb6c2f082",
+    "owner_id": "dd35630a-ce33-4e6f-905c-b1e9c84cf9e9",
+    "nickname": "ari",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIsvc88A7IqeT5PfKTl6pVS-ChmyLdQpFo5OhvHPDHS5Qs5fA=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "104f5fbb08873df943a082f67270b98e",
+    "owner_id": "c352c9b7-73ba-4945-8b8f-c3dc5b1b4ace",
+    "nickname": "UshyCarTrust",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocK1gL14DJ4eplW8Dji4rWkMmPMLp9pzmczHgaMAPNVJGd18-w=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "75ecc19c2a68d57f46e8d0ce2d144f23",
+    "owner_id": "fe3ac45d-d36a-4626-9343-0ff2851e7236",
+    "nickname": "HindyFreilich",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocLqa_sGh-V3oEPWHLXO7J8gU_LX2fp7cj0DYlvhyOEh3cYqRg=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "0cfc3f06f63c6eabdd146d76f8a25cbf",
+    "owner_id": "e7e0802d-abb9-4164-bad9-2f699f98fd26",
+    "nickname": "lipa1234",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocJKGyXVM1dFUkZYReOvGkkDEPAIjUkO6QVFq1lZGpCcjxYAROMc=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "99d364d2a0bd07d44c55177deaf481ad",
+    "owner_id": "d9b309bb-4dc8-4256-88cf-8163841974f2",
+    "nickname": "MendelS",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIQ9QKNuBT8Zzrt28WZA5uVgoSshymL3NvKkbxur-Bos5UmCQ=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "2a1407570e8618b2e41c886ffcd560bd",
+    "owner_id": "f5b8c837-de7c-4176-a75d-a0252139cb12",
+    "nickname": "Jhondoe",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocK7c3uEpxIU1udX4r7ZFHDWXN1B_vsYb7hwssNomHZ-d5Ugzw=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "b09e5e9add7da9e9a484ef66438f0d2e",
+    "owner_id": "8be6298a-b529-4ddf-b102-6b00520657ec",
+    "nickname": "UsherSchwartz",
+    "verified": 0,
+    "photo_url": "https://lh3.googleusercontent.com/a/ACg8ocJfKEcPtZr1Tq-LLmk3CeXD9SYe2TN1zFHRcNsDqagP-PjcYg=s96-c",
+    "followers": 0
+   },
+   {
+    "id": "ab0aba6a-aabf-4858-994c-2d7d6d1b3a12",
+    "owner_id": "8ea8866f-c338-4a1c-b49d-a94a8da235a8",
+    "nickname": "HighTag",
+    "verified": 1,
+    "photo_url": "/api/media/avatars%2F8ea8866f-c338-4a1c-b49d-a94a8da235a8.jpg?v=1785936422705",
+    "followers": 0
+   },
+   {
+    "id": "eca3c92398cb774b90b9b2753b3cb398",
+    "owner_id": "864588a7-3c90-4c58-b184-30e374ae83e7",
+    "nickname": "Duvi",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/864588a7-3c90-4c58-b184-30e374ae83e7_1785974549998.png",
+    "followers": 0
+   },
+   {
+    "id": "f943aa34e1531d8637ab0da69a5ceb9a",
+    "owner_id": "0e2cfeb4-6dd8-4c66-9f01-d388d7cb9ab8",
+    "nickname": "Shie",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/0e2cfeb4-6dd8-4c66-9f01-d388d7cb9ab8_1785974549706.png",
+    "followers": 0
+   },
+   {
+    "id": "506e5dcbef45bb0d0aa2a8d6c77ae4d5",
+    "owner_id": "de57a280-201e-4381-92a4-56e169fb4440",
+    "nickname": "YidiWiess",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/de57a280-201e-4381-92a4-56e169fb4440_1785974549335.png",
+    "followers": 0
+   },
+   {
+    "id": "945bd29d-8040-4480-868b-dd1f9f9da89f",
+    "owner_id": "9a9b5c2f-9c3c-4796-9e7e-2733de75ebd6",
+    "nickname": "TheRebbe",
+    "verified": 0,
+    "photo_url": "/api/media/avatars%2F9a9b5c2f-9c3c-4796-9e7e-2733de75ebd6.png?v=1785829906824",
+    "followers": 0
+   },
+   {
+    "id": "5d4b98631d6ff58a23214a3704812f7a",
+    "owner_id": "2548c052-bc71-456e-a003-259ce75166c9",
+    "nickname": "abishungar",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/2548c052-bc71-456e-a003-259ce75166c9_1785879415478.png",
+    "followers": 0
+   },
+   {
+    "id": "43f60bf5c630295fb3174214608fb207",
+    "owner_id": "9a46008c-4948-46b5-af48-6ef3b7ee15cc",
+    "nickname": "ChaimLandau",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/9a46008c-4948-46b5-af48-6ef3b7ee15cc_1785879415249.png",
+    "followers": 0
+   },
+   {
+    "id": "1c87371466c5bef202391a14b956bb43",
+    "owner_id": "3aa6a264-befe-4439-bf42-988ac903be26",
+    "nickname": "Ari",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/3aa6a264-befe-4439-bf42-988ac903be26_1785879414926.jpg",
+    "followers": 0
+   },
+   {
+    "id": "cdfe4075322fb729d75beeecc1b11b64",
+    "owner_id": "0f9ab2a2-f467-4196-a25b-df15cf904897",
+    "nickname": "DudyAbisch",
+    "verified": 0,
+    "photo_url": "/api/media/user-avatars/0f9ab2a2-f467-4196-a25b-df15cf904897_1785879414651.jpg",
+    "followers": 0
+   }
+  ]
  }
 }
