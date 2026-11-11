@@ -1,0 +1,100 @@
+[23:06:09] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[23:06:13] screen 480x640 @ 240 dpi
+[23:06:13] ---- Signed in (QA fixture account) ----
+[23:06:17] fixture true
+[23:06:25] shot F01-home-signedin
+[23:06:25] open https://yidplus.com/chat
+[23:06:30] shot F02-chats-list
+[23:06:32] chat list texts:  text="Chats"  text="All"  text="16"  text="Private"  text="3"  text="Groups"  text="12"  text="YK"  text="Yossi Klein"  text="7:26 PM"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="חפ"  text="חברים פון שול"  text="7:19 PM"  text="System message"  text="12"  text="YW"  text="Yanky Weiss"  text="6:52 PM"  text="16"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[23:06:39] shot F03-chat-dm
+[23:06:41] shot F03b-chat-dm-up
+[23:06:45] open https://yidplus.com/chat
+[23:06:58] shot F04-chat-group
+[23:07:00] shot F04b-group-up
+[23:07:02] shot F04c-group-top
+[23:07:06] shot F05-message-actions
+[23:07:15] shot F06-notifications
+[23:07:18] tab Home
+[23:07:21] shot F07-home-header
+[23:07:21] open https://yidplus.com/shorts
+[23:07:30] shot F08-shorts-signedin
+[23:07:30] tab Profile
+[23:07:33] shot F09-profile-signedin
+[23:07:44] shot F09b-profile-scrolled
+[23:07:58] open https://yidplus.com/chat
+[23:08:02] shot F10-chats-dark
+[23:08:08] shot F11-chat-dark
+[23:08:15] screen 1080x2400 @ 420 dpi
+[23:08:23] open https://yidplus.com/chat
+[23:08:27] shot F12-phone-chats
+[23:08:33] shot F13-phone-chat
+[23:08:37] screen 480x640 @ 240 dpi
+[23:08:37] ---- qa/fx-nw.sh ----
+[23:08:49] nw open ai_row
+[23:08:49] shot NW-01-chatlist-status-ai
+[23:08:51] nw texts chatlist:  content-desc="Back"  text="Chats"  text="מ"  content-desc="Add status"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="חש"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  content-desc="Pinned"  text="Ask me anything"  text="Y"  text="Yanky"  text="12:40"  text="Yanky: גוט שבת!"  text="חג"  text="חברים גרופע"  text="12:40" 
+[23:08:54] nw tapped 'YID PLUS AI'
+[23:08:57] shot NW-02-ai-chat
+[23:09:00] nw tapped 'Message YID PLUS AI'
+[23:09:02] shot NW-03-ai-typed
+[23:09:07] shot NW-04-ai-asked
+[23:09:11] nw tapped 'Clear chat'
+[23:09:12] shot NW-05-ai-clear-confirm
+[23:09:15] nw tapped 'Clear'
+[23:09:19] shot NW-06-ai-cleared-welcome
+[23:09:21] nw_tap: 'Give me an idea' not on screen
+[23:09:26] nw tapped 'Give me an idea'
+[23:09:29] shot NW-07-ai-chip-asked
+[23:09:38] nw open status
+[23:09:38] shot NW-08-status-viewer
+[23:09:40] nw texts viewer:  text="8:30 at the shul, bring a friend!"  content-desc="Close"  text="Y"  text="Yanky"  text="6h ago"  text="Reply…"  content-desc="Like status" 
+[23:09:43] shot NW-09-status-next
+[23:09:52] shot NW-10-status-next-user
+[23:09:56] nw tapped 'Like status'
+[23:09:58] shot NW-11-status-liked
+[23:10:02] nw tapped 'Reply…'
+[23:10:05] shot NW-12-status-replied
+[23:10:16] nw open status_me
+[23:10:16] shot NW-13-my-status
+[23:10:18] nw_tap: '14 views' not on screen
+[23:10:21] nw tapped '6 views'
+[23:10:23] shot NW-14-my-viewers
+[23:10:32] nw open status_me
+[23:10:35] nw tapped 'More'
+[23:10:37] shot NW-15-my-status-menu
+[23:10:40] nw tapped 'Delete'
+[23:10:42] shot NW-16-my-status-deleted
+[23:10:49] nw open post_status
+[23:10:49] shot NW-17-post-status
+[23:10:54] nw tapped 'Change colour'
+[23:10:57] nw tapped 'Change colour'
+[23:10:58] shot NW-18-post-status-typed
+[23:11:05] nw tapped 'Followers'
+[23:11:06] shot NW-18b-post-status-colours
+[23:11:09] nw tapped 'Post status'
+[23:11:12] shot NW-19-after-post
+[23:11:18] nw open saved
+[23:11:18] shot NW-20-saved
+[23:11:20] nw texts saved:  content-desc="Back"  text="Saved items"  text="3 items"  text="אביסל חינוך פאראן דאגי אויך &#128021;&#129325;"  text="Short · @Shimel’a · 7h"  content-desc="Remove from saved"  text="@DealPoint"  text="Short · 1d"  content-desc="Remove from saved"  text="מזמור לדוד"  text="Song · Yid Plus Music · 3d"  content-desc="Remove from saved" 
+[23:11:23] nw tapped 'Remove from saved'
+[23:11:24] shot NW-21-unsaved-undo
+[23:11:27] nw tapped 'UNDO'
+[23:11:29] shot NW-22-undo
+[23:11:35] shot NW-23-saved-short-playing
+[23:11:45] nw open history
+[23:11:45] shot NW-24-history
+[23:11:49] nw tapped 'Clear all'
+[23:11:50] shot NW-25-history-confirm
+[23:11:53] nw tapped 'Clear'
+[23:11:55] shot NW-26-history-cleared
+[23:12:05] nw open ai_row
+[23:12:05] shot NW-27-dark-chatlist
+[23:12:09] nw tapped 'YID PLUS AI'
+[23:12:12] shot NW-28-dark-ai
+[23:12:24] nw open saved
+[23:12:24] shot NW-29-dark-saved
+[23:12:29] nw writes so far: 18
+[23:12:29] fixture writes the app would have sent: 24
+[23:12:33] fixture false
