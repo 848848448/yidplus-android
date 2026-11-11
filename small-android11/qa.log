@@ -1,0 +1,32 @@
+[05:07:10] screen: Override size: 480x640 Override density: 240 rotation=portrait android=11
+[05:07:10] web engine:   Current WebView package (name, version): (com.android.webview, 83.0.4103.120)
+[05:07:10] install: Success
+[05:07:11] baseline install: 
+[05:07:31] shot 00-released-version c21e3daa
+[05:07:36] shot 00-released-version-swiped 364bad87
+[05:07:36] re-install test build: Success
+[05:07:54] shot 01-home 0473d8c7
+[05:07:59] shot 02-home-touch-scrolled 110e6027
+[05:07:59] TOUCH SCROLL: page moved
+[05:08:10] shot 03-home-dpad-down 5cb50f9d
+[05:08:10] DPAD: moved
+[05:08:13] BOTTOM BAR: Chats | Shorts | Channels | Settings
+[05:08:15] tapped nav 'Chats' at 59 555
+[05:08:27] shot 04-chats 929824fc
+[05:08:31] shot 05-chats-scrolled 8506d72f
+[05:08:33] tapped nav 'Shorts' at 180 555
+[05:08:47] shot 06-shorts d64780dc
+[05:08:58] shot 06b-shorts-swiped 2517f1a2
+[05:09:03] shot 06c-shorts-dpad-down 833df029
+[05:09:08] shot 06d-shorts-dpad-up a62c187b
+[05:09:08] SHORTS SWIPE: moved
+[05:09:08] SHORTS DPAD: moved
+[05:09:20] MUSIC: not in the bottom bar (turned off in the site's admin)
+[05:09:25] tapped nav 'Channels' at 300 555
+[05:09:35] shot 09-channels 48321d7e
+[05:09:38] shot 09b-channels-scrolled 3ee39c3e
+[05:09:40] tapped nav 'Settings' at 419 555
+[05:09:50] shot 10-settings 22cf1edf
+[05:09:55] shot 11-after-back 661a95c8
+[05:11:01] shot 12-dpad-to-bottom-bar 32abfd1f
+  mCurrentFocus=Window{ff937a0 u0 com.yidplus.app/com.yidplus.app.MainActivity}
