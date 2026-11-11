@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.gestures.detectTapGestures
+
 import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -67,10 +69,18 @@ fun PhotoScreen(url: String) {
     var scale by remember { mutableFloatStateOf(1f) }
     var ox by remember { mutableFloatStateOf(0f) }
     var oy by remember { mutableFloatStateOf(0f) }
-    Box(Modifier.fillMaxSize().background(Color.Black).pointerInput(Unit) {
-        detectTransformGestures { _, pan, zoom, _ -> scale = (scale * zoom).coerceIn(1f, 5f); if (scale > 1f) { ox += pan.x; oy += pan.y } else { ox = 0f; oy = 0f } }
-    }) {
-        AsyncImage(url, null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().graphicsLayer(scaleX = scale, scaleY = scale, translationX = ox, translationY = oy))
+    // Opens at once from the picture already loaded in the list (same address = same cached image), fitted to the
+    // screen. Pinch or double-tap to zoom; swipe down to close.
+    Box(Modifier.fillMaxSize().background(Color.Black)
+        .pointerInput(Unit) { detectTapGestures(onDoubleTap = { if (scale > 1f) { scale = 1f; ox = 0f; oy = 0f } else scale = 2.5f }) }
+        .pointerInput(Unit) {
+            detectTransformGestures { _, pan, zoom, _ ->
+                scale = (scale * zoom).coerceIn(1f, 5f)
+                if (scale > 1f) { ox += pan.x; oy += pan.y } else { oy += pan.y; ox = 0f; if (oy > 260f) { oy = 0f; Nav.back() } }
+            }
+        }) {
+        AsyncImage(model = coil.request.ImageRequest.Builder(c).data(url).placeholderMemoryCacheKey(url).crossfade(false).build(), contentDescription = null,
+            contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().graphicsLayer(scaleX = scale, scaleY = scale, translationX = ox, translationY = if (scale > 1f) oy else oy.coerceAtLeast(0f)))
         Box(Modifier.align(Alignment.TopStart).padding(androidx.compose.ui.unit.Dp(6f))) { IconBtn(Icons.Filled.Close, "Close", { Nav.back() }, tint = Color.White, modifier = Modifier.firstFocus()) }
         Box(Modifier.align(Alignment.TopEnd).padding(androidx.compose.ui.unit.Dp(6f))) { IconBtn(Icons.Filled.Share, "Share", { share(c, url) }, tint = Color.White) }
     }
