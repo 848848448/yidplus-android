@@ -220,7 +220,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // Title takes the room it has and ellipsizes; the time always keeps its place at the far end (RTL names can't push it away).
                     Text(r.name, Modifier.weight(1f).padding(end = 10.dp), fontSize = 16.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
+                        style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                     Text(chatTime(r.lastTime), fontSize = 12.sp, color = if (r.unread > 0 && !ri.muted) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
                 Spacer(Modifier.height(3.dp))
@@ -229,7 +229,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier) {
                     val v = ChatCache.version
                     val pv = remember(ri, v) { chatPreview(ri) }
                     Text(if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
+                        fontSize = 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                     if (ri.muted) Icon(Icons.Filled.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(4.dp)); ChBadge(r.unread, ri.muted)
                 }
@@ -239,3 +239,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier) {
     }
 }
 
+
+/** Row text sits at the row's leading edge whatever script it is in (a Yiddish name in an English UI starts at the left, like WhatsApp), so it never drifts over to the time. */
+@Composable
+internal fun chLeadAlign(): TextAlign = if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Ltr) TextAlign.Left else TextAlign.Right
