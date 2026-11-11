@@ -77,6 +77,15 @@ fun Modifier.tap(shape: Shape = RoundedCornerShape(10.dp), role: Role = Role.But
         .clickable(interactionSource = src, indication = androidx.compose.material3.ripple(), enabled = enabled, role = role, onClick = onClick)
 }
 
+/** The row that opened a screen gets the keypad focus back when you come Back to the list. */
+fun Modifier.restoreFocus(key: String): Modifier = composed {
+    if (Nav.lastOpened != key) return@composed this
+    val fr = remember { FocusRequester() }
+    val back = Nav.stack.isEmpty()
+    LaunchedEffect(back) { if (back && Keys.keypad) { for (i in 0 until 8) { delay(80); if (runCatching { fr.requestFocus() }.isSuccess) break } } }
+    this.focusRequester(fr)
+}
+
 /** Put the keypad focus here when the screen opens (only on keypad phones). */
 fun Modifier.firstFocus(always: Boolean = false): Modifier = composed {
     val fr = remember { FocusRequester() }

@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.border
+
 import androidx.compose.foundation.layout.imePadding
 
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -421,8 +423,9 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
             // Right side actions
             Column(Modifier.align(Alignment.BottomEnd).padding(end = 4.dp, bottom = if (small) 30.dp else 46.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(if (small) 4.dp else 10.dp)) {
                 val following = s.creatorId in Feeds.follows
-                Box {
-                    Avatar(s.avatar, s.creator, if (small) 36.dp else 42.dp)
+                // On short screens the creator's picture moves down next to the name, so the rail never reaches the top tabs.
+                if (!small) Box {
+                    Avatar(s.avatar, s.creator, 42.dp)
                     if (s.fromSrc) Box(Modifier.align(Alignment.BottomCenter).size(18.dp).clip(CircleShape).background(if (following) Green else Color(0xFFE53935))
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
@@ -455,8 +458,18 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
             // Caption + creator
             Column(Modifier.align(Alignment.BottomStart).padding(start = 10.dp, end = 64.dp, bottom = 24.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("@" + s.creator.ifBlank { "yidplus" }, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1)
+                    if (small) {
+                        Avatar(s.avatar, s.creator, 28.dp); Spacer(Modifier.width(6.dp))
+                    }
+                    Text("@" + s.creator.ifBlank { "yidplus" }, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                     if (s.verified) Icon(Icons.Filled.Verified, null, tint = Gold, modifier = Modifier.padding(start = 3.dp).size(14.dp))
+                    if (small && s.fromSrc) {
+                        val f = s.creatorId in Feeds.follows
+                        Text(if (f) "Following" else "+ Follow", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 8.dp).border(1.dp, Color.White.copy(alpha = .8f), RoundedCornerShape(12.dp))
+                                .tap(RoundedCornerShape(12.dp)) { if (f) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c) }
+                                .padding(horizontal = 8.dp, vertical = 2.dp))
+                    }
                 }
                 var open by remember { mutableStateOf(false) }
                 if (s.caption.isNotBlank()) Text(s.caption, color = Color.White, maxLines = if (open) 8 else 2, overflow = TextOverflow.Ellipsis,

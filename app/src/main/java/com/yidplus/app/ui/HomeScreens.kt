@@ -122,7 +122,7 @@ fun HomeScreen() {
 private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
     val selected = Nav.homeDetail?.ch?.username == ch.username
     Row(modifier.fillMaxWidth().background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-        .tap(RoundedCornerShape(0.dp)) { Nav.open(Screen.Channel(ch)) }.padding(horizontal = 16.dp, vertical = 10.dp),
+        .restoreFocus("ch:" + ch.username).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "ch:" + ch.username; Nav.open(Screen.Channel(ch)) }.padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically) {
         Avatar(ch.photo, ch.title, 48.dp)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {

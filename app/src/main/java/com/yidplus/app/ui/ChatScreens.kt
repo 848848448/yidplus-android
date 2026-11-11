@@ -125,7 +125,7 @@ fun ChatsScreen() {
 private fun RoomRow(r: Room, modifier: Modifier) {
     val sel = Nav.chatDetail?.room?.id == r.id
     Row(modifier.fillMaxWidth().background(if (sel) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-        .tap(RoundedCornerShape(0.dp)) { Nav.open(Screen.Chat(r)) }.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        .restoreFocus("room:" + r.id).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) }.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Avatar(r.photo, r.name, 48.dp, emoji = if (r.photo == null && r.type != "private") r.emoji else null)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {

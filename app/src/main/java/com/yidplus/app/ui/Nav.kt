@@ -32,6 +32,8 @@ object Nav {
     var chatDetail by mutableStateOf<Screen.Chat?>(null)
     var wide = false
     var shortsDeepLink by mutableStateOf<String?>(null)
+    /** The list row that opened the screen on top, so Back puts the keypad focus back on it. */
+    var lastOpened by mutableStateOf<String?>(null)
 
     fun go(t: Tab) {
         val ok = if (com.yidplus.app.data.SiteConfig.visible(t)) t else start
