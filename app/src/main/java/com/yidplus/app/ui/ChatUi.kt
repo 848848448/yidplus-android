@@ -234,7 +234,7 @@ internal fun ChRow(title: String, sub: String?, lead: @Composable () -> Unit, mo
 
 /** Search: my chats by name, messages in all my chats (the site's search), and public groups to join. */
 @Composable
-internal fun ChSearchResults(q: String, rooms: List<RoomInfo>) {
+internal fun ChSearchResults(q: String, rooms: List<ChatRoomInfo>) {
     var msgs by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var groups by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var busy by remember { mutableStateOf(false) }
@@ -243,7 +243,7 @@ internal fun ChSearchResults(q: String, rooms: List<RoomInfo>) {
         if (q.trim().length < 2 || Session.me == null) return@LaunchedEffect
         delay(400); busy = true
         runCatching { msgs = chObjs(Api.get("/api/chat?search=" + chEnc(q.trim())).optJSONArray("messages")).take(40) }
-        runCatching { val mine = rooms.map { it.room.id }.toSet(); groups = chObjs(Api.get("/api/chat/rooms?search=" + chEnc(q.trim())).optJSONArray("rooms")).filter { it.str2("id") !in mine } }
+        runCatching { val mine = rooms.map { it.room.id }.toSet(); groups = chObjs(Api.get("/api/chat/rooms?search=" + chEnc(q.trim())).optJSONArray("rooms")).filter { it.chStr("id") !in mine } }
         busy = false
     }
     val hits = remember(q, rooms) { if (q.isBlank()) rooms else rooms.filter { it.room.name.contains(q.trim(), true) || it.room.preview.contains(q.trim(), true) } }
@@ -252,19 +252,19 @@ internal fun ChSearchResults(q: String, rooms: List<RoomInfo>) {
         if (hits.isNotEmpty()) { item { ChSection("Chats") }; items(hits, key = { "r" + it.room.id }) { ChRoomRow(it, Modifier) } }
         if (groups.isNotEmpty()) {
             item { ChSection("Public groups") }
-            items(groups, key = { "g" + it.str2("id") }) { g ->
-                ChRow(g.str2("nick"), "${g.optInt("members")} members · tap to view", { ChAvatar(Api.abs(g.str2("photo_url").ifBlank { null }), g.str2("nick"), g.str2("id")) }) {
-                    Nav.open(Screen.Chat(ChatApi.roomOf(g.str2("id"), "group", g.str2("nick"), Api.abs(g.str2("photo_url").ifBlank { null }))))
+            items(groups, key = { "g" + it.chStr("id") }) { g ->
+                ChRow(g.chStr("nick"), "${g.optInt("members")} members · tap to view", { ChAvatar(Api.abs(g.chStr("photo_url").ifBlank { null }), g.chStr("nick"), g.chStr("id")) }) {
+                    Nav.open(Screen.Chat(ChatApi.roomOf(g.chStr("id"), "group", g.chStr("nick"), Api.abs(g.chStr("photo_url").ifBlank { null }))))
                 }
             }
         }
         if (msgs.isNotEmpty()) {
             item { ChSection("Messages") }
-            items(msgs, key = { "m" + it.str2("id") }) { m ->
-                ChRow(m.str2("room_name").ifBlank { m.str2("sender_nick") }, m.str2("sender_nick") + ": " + m.str2("text").take(120), { ChAvatar(null, m.str2("sender_nick"), m.str2("sender_id"), 44.dp) },
-                    trail = { Text(chatTime(m.str2("created_at")), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }) {
-                    val ri = rooms.firstOrNull { it.room.id == m.str2("room_id") }
-                    Nav.open(Screen.Chat(ri?.room ?: ChatApi.roomOf(m.str2("room_id"), m.str2("room_type").ifBlank { "group" }, m.str2("room_name"))))
+            items(msgs, key = { "m" + it.chStr("id") }) { m ->
+                ChRow(m.chStr("room_name").ifBlank { m.chStr("sender_nick") }, m.chStr("sender_nick") + ": " + m.chStr("text").take(120), { ChAvatar(null, m.chStr("sender_nick"), m.chStr("sender_id"), 44.dp) },
+                    trail = { Text(chatTime(m.chStr("created_at")), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }) {
+                    val ri = rooms.firstOrNull { it.room.id == m.chStr("room_id") }
+                    Nav.open(Screen.Chat(ri?.room ?: ChatApi.roomOf(m.chStr("room_id"), m.chStr("room_type").ifBlank { "group" }, m.chStr("room_name"))))
                 }
             }
         }
@@ -272,7 +272,7 @@ internal fun ChSearchResults(q: String, rooms: List<RoomInfo>) {
     }
 }
 
-internal fun JSONObject.str2(k: String): String = if (isNull(k)) "" else optString(k, "")
+internal fun JSONObject.chStr(k: String): String = if (isNull(k)) "" else optString(k, "")
 
 @Composable
 internal fun ChSection(t: String) {
@@ -307,7 +307,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
         when {
             m.viewOnce && !mine && m.media != null -> onMedia(m.media)
             m.isVideo || m.isImage -> (m.media ?: m.local)?.let(onMedia)
-            m.isAudio -> m.media?.let { VoicePlayer.toggle(c, m.id, it) }
+            m.isAudio -> m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) }
             m.media != null -> openUrl(c, m.media)
             link != null -> openUrl(c, link)
             else -> onLong()
@@ -378,8 +378,8 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
 @Composable
 private fun ChVideoThumb(url: String, maxW: Dp) {
     val c = ctx()
-    var bmp by remember(url) { mutableStateOf(VideoThumbs.cached(url)) }
-    LaunchedEffect(url) { if (bmp == null) bmp = VideoThumbs.load(c, url) }
+    var bmp by remember(url) { mutableStateOf(ChatVideoThumbs.cached(url)) }
+    LaunchedEffect(url) { if (bmp == null) bmp = ChatVideoThumbs.load(c, url) }
     Box(Modifier.width(maxW.coerceAtMost(260.dp)).height(180.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF263238)), contentAlignment = Alignment.Center) {
         bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
         Box(Modifier.size(54.dp).clip(CircleShape).background(Color.Black.copy(alpha = .5f)), contentAlignment = Alignment.Center) {
@@ -393,16 +393,16 @@ private fun ChVideoThumb(url: String, maxW: Dp) {
 @Composable
 private fun ChVoice(m: ChatMsg, fg: Color) {
     val c = ctx()
-    val me = VoicePlayer.playing == m.id
-    LaunchedEffect(me) { while (me) { VoicePlayer.tick(); delay(200) } }
+    val me = ChatVoicePlayer.playing == m.id
+    LaunchedEffect(me) { while (me) { ChatVoicePlayer.tick(); delay(200) } }
     val peaks = remember(m.text) { m.text.substringAfter('|', "").split(',').mapNotNull { it.trim().toIntOrNull() }.ifEmpty { List(32) { i -> 20 + (i * 37 % 60) } } }
     Row(Modifier.padding(4.dp).width(230.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(42.dp).clip(CircleShape).background(ChatLook.bar).tap(CircleShape) { m.media?.let { VoicePlayer.toggle(c, m.id, it) } }, contentAlignment = Alignment.Center) {
-            Icon(if (me && !VoicePlayer.paused) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (me) "Pause" else "Play", tint = Color.White)
+        Box(Modifier.size(42.dp).clip(CircleShape).background(ChatLook.bar).tap(CircleShape) { m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) } }, contentAlignment = Alignment.Center) {
+            Icon(if (me && !ChatVoicePlayer.paused) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (me) "Pause" else "Play", tint = Color.White)
         }
         Column(Modifier.weight(1f).padding(start = 8.dp)) {
             Row(Modifier.height(26.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                val n = peaks.size.coerceAtMost(32); val done = if (me) (VoicePlayer.progress * n).toInt() else 0
+                val n = peaks.size.coerceAtMost(32); val done = if (me) (ChatVoicePlayer.progress * n).toInt() else 0
                 for (i in 0 until n) Box(Modifier.weight(1f).height((4 + peaks[i * peaks.size / n] * 22 / 100).dp).clip(RoundedCornerShape(2.dp)).background(if (i < done) ChatLook.bar else ChatLook.sub().copy(alpha = .45f)))
             }
             Text(if (m.isVoice) (m.voiceDur.ifBlank { "Voice message" }) else m.fileName, fontSize = 12.sp, color = ChatLook.sub(), maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -422,7 +422,7 @@ private fun ChPoll(id: String) {
     Column(Modifier.padding(6.dp).widthIn(min = 220.dp, max = 300.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Filled.Poll, null, Modifier.size(16.dp), tint = ChatLook.bar); Text(" POLL", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ChatLook.bar) }
         if (p == null) { Text("Loading poll…", fontSize = 14.sp, color = ChatLook.sub()); return@Column }
-        Text(p.str2("question"), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.ink(), style = TextStyle(textDirection = TextDirection.Content))
+        Text(p.chStr("question"), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.ink(), style = TextStyle(textDirection = TextDirection.Content))
         val closed = p.optBoolean("closed")
         chObjs(p.optJSONArray("options")).forEach { o ->
             val pct = o.optInt("pct"); val my = o.optBoolean("my_vote")
@@ -430,7 +430,7 @@ private fun ChPoll(id: String) {
                 runCatching { Api.put("/api/polls", JSONObject().put("id", id).put("vote", JSONArray().put(o.opt("id")))) }.onFailure { toast(c, Api.friendly(it)) }; load() } }.padding(4.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(if (my) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked, null, Modifier.size(18.dp), tint = if (my) ChatLook.bar else ChatLook.sub())
-                    Text("  " + o.str2("text"), Modifier.weight(1f), fontSize = 15.sp, color = ChatLook.ink(), style = TextStyle(textDirection = TextDirection.Content))
+                    Text("  " + o.chStr("text"), Modifier.weight(1f), fontSize = 15.sp, color = ChatLook.ink(), style = TextStyle(textDirection = TextDirection.Content))
                     Text("$pct%", fontSize = 13.sp, color = ChatLook.sub())
                 }
                 LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(top = 3.dp).height(5.dp).clip(RoundedCornerShape(3.dp)), color = ChatLook.bar, trackColor = ChatLook.sub().copy(alpha = .2f))
@@ -449,7 +449,7 @@ internal fun ChActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                 Text(m.preview.ifBlank { "Message" }, Modifier.padding(horizontal = 18.dp, vertical = 6.dp), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content))
                 if (signedIn && !m.failed) Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    QUICK_REACTS.forEachIndexed { i, e ->
+                    CHAT_QUICK_REACTS.forEachIndexed { i, e ->
                         Box(Modifier.size(44.dp).clip(CircleShape).background(if (myReact == e) ChatLook.bar.copy(alpha = .2f) else Color.Transparent).then(if (i == 0) Modifier.firstFocus(always = true) else Modifier)
                             .tap(CircleShape) { onAct("react:$e") }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) }
                     }
@@ -483,19 +483,25 @@ private fun ActRow(icon: ImageVector, text: String, color: Color = Color.Unspeci
     }
 }
 
-/** Emoji panel under the composer, with the site's categories. */
+/** Emoji panel under the composer, with the site's categories and its stickers. */
 @Composable
-internal fun ChEmojiPanel(onEmoji: (String) -> Unit) {
+internal fun ChEmojiPanel(onSticker: ((String) -> Unit)? = null, onEmoji: (String) -> Unit) {
     var cat by remember { mutableStateOf(0) }
-    val list = remember(cat) { EMOJI_SETS[cat].second.split(' ').filter { it.isNotBlank() } }
+    val stickerTab = if (onSticker != null) CHAT_EMOJI_SETS.size else -1
+    val list = remember(cat) { if (cat == stickerTab) emptyList() else CHAT_EMOJI_SETS[cat].second.split(' ').filter { it.isNotBlank() } }
     Column(Modifier.fillMaxWidth().height(230.dp).background(MaterialTheme.colorScheme.surface)) {
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-            EMOJI_SETS.forEachIndexed { i, (icon, _) ->
+            CHAT_EMOJI_SETS.forEachIndexed { i, (icon, _) ->
                 Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { cat = i }.background(if (i == cat) ChatLook.bar.copy(alpha = .15f) else Color.Transparent), contentAlignment = Alignment.Center) { Text(icon, fontSize = 20.sp) }
+            }
+            if (onSticker != null) Box(Modifier.height(44.dp).tap(RoundedCornerShape(8.dp)) { cat = stickerTab }.background(if (cat == stickerTab) ChatLook.bar.copy(alpha = .15f) else Color.Transparent).padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
+                Text("Stickers", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             }
         }
         HorizontalDivider(thickness = 0.5.dp)
-        LazyVerticalGrid(GridCells.Adaptive(44.dp), Modifier.fillMaxSize()) {
+        if (cat == stickerTab && onSticker != null) LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.fillMaxSize()) {
+            gridItems(CHAT_STICKERS) { s -> Box(Modifier.size(76.dp).tap(RoundedCornerShape(10.dp)) { onSticker(s) }.padding(6.dp), contentAlignment = Alignment.Center) { AsyncImage(s, "Sticker", Modifier.fillMaxSize()) } }
+        } else LazyVerticalGrid(GridCells.Adaptive(44.dp), Modifier.fillMaxSize()) {
             gridItems(list) { e -> Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { onEmoji(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) } }
         }
     }

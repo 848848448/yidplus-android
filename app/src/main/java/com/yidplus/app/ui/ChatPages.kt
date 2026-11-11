@@ -300,11 +300,11 @@ class ChJoinLink : PageScreen() {
             OutlinedTextField(link, { link = it }, Modifier.fillMaxWidth().padding(16.dp).firstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
             val p = preview
             if (p != null) Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                ChAvatar(Api.abs(p.str2("photo_url").ifBlank { null }), p.str2("name"), p.str2("id"), 80.dp)
-                Text(p.str2("name"), Modifier.padding(top = 8.dp), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, style = TextStyle(textDirection = TextDirection.Content))
+                ChAvatar(Api.abs(p.chStr("photo_url").ifBlank { null }), p.chStr("name"), p.chStr("id"), 80.dp)
+                Text(p.chStr("name"), Modifier.padding(top = 8.dp), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, style = TextStyle(textDirection = TextDirection.Content))
                 Text("${p.optInt("members")} members", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 PrimaryButton("Join", {
-                    scope.launch { runCatching { ChatApi.join(null, code) }.onSuccess { id -> ChatApi.rooms.load(true); Nav.back(); Nav.open(Screen.Chat(ChatApi.info(id)?.room ?: ChatApi.roomOf(id, p.str2("type").ifBlank { "group" }, p.str2("name")))) }.onFailure { toast(c, Api.friendly(it)) } }
+                    scope.launch { runCatching { ChatApi.join(null, code) }.onSuccess { id -> ChatApi.rooms.load(true); Nav.back(); Nav.open(Screen.Chat(ChatApi.info(id)?.room ?: ChatApi.roomOf(id, p.chStr("type").ifBlank { "group" }, p.chStr("name")))) }.onFailure { toast(c, Api.friendly(it)) } }
                 }, Modifier.fillMaxWidth().padding(top = 14.dp))
             } else if (err != null) Text(err!!, Modifier.padding(16.dp), color = MaterialTheme.colorScheme.error)
             else ChEmpty(Icons.Filled.Link, "Paste a group's invite link to see it and join")
@@ -328,21 +328,21 @@ class ChSaved : PageScreen() {
                 l == null -> ChSkeleton(5)
                 l.isEmpty() -> ChEmpty(Icons.Filled.StarBorder, "No saved messages yet. Long-press a message → Save message")
                 else -> LazyColumn(Modifier.fillMaxSize()) {
-                    items(l, key = { it.str2("message_id") }) { b ->
-                        val txt = b.str2("text").let { if (b.str2("type") == "voice") "🎤 Voice message" else if (it.isBlank() && b.str2("media_key").isNotBlank()) "📎 Media" else it }
-                        ChRow(b.str2("sender_nick"), txt, { ChAvatar(null, b.str2("sender_nick"), b.str2("sender_nick"), 44.dp) },
-                            trail = { Text(chatTime(b.str2("msg_time")), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }) { sel = b }
+                    items(l, key = { it.chStr("message_id") }) { b ->
+                        val txt = b.chStr("text").let { if (b.chStr("type") == "voice") "🎤 Voice message" else if (it.isBlank() && b.chStr("media_key").isNotBlank()) "📎 Media" else it }
+                        ChRow(b.chStr("sender_nick"), txt, { ChAvatar(null, b.chStr("sender_nick"), b.chStr("sender_nick"), 44.dp) },
+                            trail = { Text(chatTime(b.chStr("msg_time")), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }) { sel = b }
                     }
                 }
             }
         }
         sel?.let { b ->
-            AlertDialog(onDismissRequest = { sel = null }, title = { Text(b.str2("sender_nick")) }, text = {
+            AlertDialog(onDismissRequest = { sel = null }, title = { Text(b.chStr("sender_nick")) }, text = {
                 Column {
-                    Text(b.str2("text"), fontSize = 15.sp, maxLines = 8, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-                    ChDialogRow("Open chat") { sel = null; val rid = b.str2("room_id"); Nav.open(Screen.Chat(ChatApi.info(rid)?.room ?: ChatApi.roomOf(rid, "group", "Chat"))) }
-                    ChDialogRow("Copy") { sel = null; chCopy(c, b.str2("text")) }
-                    ChDialogRow("Remove from saved", Color(0xFFD32F2F)) { sel = null; scope.launch { runCatching { ChatApi.unsave(b.str2("message_id")) }; load() } }
+                    Text(b.chStr("text"), fontSize = 15.sp, maxLines = 8, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                    ChDialogRow("Open chat") { sel = null; val rid = b.chStr("room_id"); Nav.open(Screen.Chat(ChatApi.info(rid)?.room ?: ChatApi.roomOf(rid, "group", "Chat"))) }
+                    ChDialogRow("Copy") { sel = null; chCopy(c, b.chStr("text")) }
+                    ChDialogRow("Remove from saved", Color(0xFFD32F2F)) { sel = null; scope.launch { runCatching { ChatApi.unsave(b.chStr("message_id")) }; load() } }
                 }
             }, confirmButton = { TextButton({ sel = null }) { Text("Close") } })
         }
@@ -359,7 +359,7 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
         var q by remember { mutableStateOf("") }
         var busy by remember { mutableStateOf(false) }
         val sent = remember { mutableStateListOf<String>() }
-        fun forward(to: RoomInfo) {
+        fun forward(to: ChatRoomInfo) {
             if (busy || to.room.id in sent) return
             busy = true
             scope.launch {
