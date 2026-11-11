@@ -297,13 +297,13 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
             }
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            SoAction(if (p.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (p.likes > 0) soNum(p.likes) else "Like", if (p.liked) Color(0xFFE53958) else null) {
+            SoAction(if (p.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (p.likes > 0) soNum(p.likes) else "Like", if (p.liked) Color(0xFFE53958) else null, "Like") {
                 if (Session.me == null) { toast(c, "Sign in to like"); return@SoAction }
                 val on = !p.liked; onChange(p.copy(liked = on, likes = maxOf(0, p.likes + if (on) 1 else -1)))
                 scope.launch { runCatching { Api.put("/api/posts", JSONObject().put("id", p.id).put("like", on)) }.onSuccess { onChange(p.copy(liked = on, likes = it.optInt("likes"))) }
                     .onFailure { onChange(p); toast(c, Api.friendly(it)) } }
             }
-            SoAction(Icons.Filled.ChatBubbleOutline, if (p.comments > 0) soNum(p.comments) else "Comment", null, onComments)
+            SoAction(Icons.Filled.ChatBubbleOutline, if (p.comments > 0) soNum(p.comments) else "Comment", null, "Comment", onComments)
             SoAction(Icons.Filled.Share, "Share", null) { share(c, (if (p.caption.isNotBlank()) p.caption.take(140) + "\n" else "") + Api.BASE + "/?channel=" + soEnc(p.userId)) }
         }
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))
@@ -314,10 +314,10 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
 }
 
 @Composable
-fun SoAction(icon: ImageVector, label: String, tint: Color?, onClick: () -> Unit) {
+fun SoAction(icon: ImageVector, label: String, tint: Color?, desc: String = label, onClick: () -> Unit) {
     val col = tint ?: MaterialTheme.colorScheme.onSurfaceVariant
     Row(Modifier.heightIn(min = 44.dp).tap(RoundedCornerShape(22.dp), onClick = onClick).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, tint = col, modifier = Modifier.size(20.dp)); Spacer(Modifier.width(6.dp))
+        Icon(icon, desc, tint = col, modifier = Modifier.size(20.dp)); Spacer(Modifier.width(6.dp))
         Text(label, fontSize = 14.sp, color = col, fontWeight = FontWeight.Medium)
     }
 }
@@ -401,7 +401,7 @@ class SoNewPostPage : PageScreen() {
                 try {
                     val f = file
                     if (f != null) soUpload(c, "/api/posts", f, mapOf("caption" to text.trim())) { v -> progress = v }
-                    else Api.post("/api/posts", JSONObject().put("caption", text.trim())).soCheck()
+                    else Api.post("/api/posts", JSONObject().put("caption", text.trim()).put("content", "")).soCheck()
                     toast(c, "Posted ✓"); SoRefresh.tick++; Nav.back()
                 } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { progress = null }
             }

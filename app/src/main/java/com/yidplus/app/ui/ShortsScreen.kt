@@ -489,8 +489,8 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
                 }
-                Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, onLike)
-                Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, onComments)
+                Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, "Like", onLike)
+                Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, "Comment", onComments)
                 val isSaved = Feeds.saved.any { it.key == s.key }
                 if (!small) Action(if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onClick = onSave)
                 Action(Icons.Filled.Share, "Share", Color.White, small = small) { share(c, s.shareUrl) }
@@ -547,9 +547,9 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 }
 
 @Composable
-private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, onClick: () -> Unit) {
+private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, onClick: () -> Unit) {
     Column(Modifier.tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, label, tint = tint, modifier = Modifier.size(if (small) 26.dp else 30.dp))
+        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 26.dp else 30.dp))
         Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall, maxLines = 1)
     }
 }
