@@ -22,6 +22,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Base64
 import android.view.KeyEvent
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -80,11 +81,17 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val ACTION_CHECK_UPDATE = "com.yidplus.app.CHECK_UPDATE"
+        const val ACTION_INSTALL_UPDATE = "com.yidplus.app.INSTALL_UPDATE"
+        private const val NAV_ID0 = 0x7f0f1000
+        private val NAV_LIGHT_BG = Color.WHITE
+        private val NAV_DARK_BG = Color.rgb(0x14, 0x22, 0x1F)
+        /** The site's own default bottom nav (index.html), used until the page reports the live one. */
+        private const val DEFAULT_NAV = """{"items":[{"key":"chats","label":"Chats","icon":"forum"},{"key":"music","label":"Music","icon":"music_note"},{"key":"shorts","label":"Shorts","icon":"movie"},{"key":"explore","label":"Channels","icon":"explore"},{"key":"settings","label":"Settings","icon":"settings"}]}"""
         const val HOME = "https://yidplus.com/"
         private val APP_HOSTS = setOf("yidplus.com", "www.yidplus.com")
         private val BRIDGE_ORIGINS = setOf("https://yidplus.com", "https://www.yidplus.com")
         private const val MAX_SAVE = 200L * 1024 * 1024
-        private const val CHECK_EVERY_MS = 12L * 60 * 60 * 1000
+        private const val CHECK_EVERY_MS = 6L * 60 * 60 * 1000
     }
 
     private lateinit var web: WebView
@@ -93,6 +100,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var offline: View
     private lateinit var fullscreen: FrameLayout
     private lateinit var toolbar: MaterialToolbar
+    private lateinit var navLine: View
     private lateinit var nav: BottomNavigationView
     private lateinit var titleView: TextView
     private var section = JSONObject()
@@ -211,6 +219,7 @@ class MainActivity : AppCompatActivity() {
         fullscreen = findViewById(R.id.fullscreen)
         toolbar = findViewById(R.id.toolbar)
         nav = findViewById(R.id.nav)
+        navLine = findViewById(R.id.nav_line)
         titleView = findViewById(R.id.title)
         setupBars()
 
@@ -247,7 +256,35 @@ class MainActivity : AppCompatActivity() {
             if (!handleIntent(intent, coldStart = true)) web.loadUrl(HOME)
         }
         watchNetwork()
-        maybeCheckForUpdate(force = intent?.action == ACTION_CHECK_UPDATE)
+        askNotificationPermission()
+        if (intent?.action == ACTION_INSTALL_UPDATE) installFromNotification()
+        else maybeCheckForUpdate(force = intent?.action == ACTION_CHECK_UPDATE)
+    }
+
+    /** Android 13+: update notifications need the person's yes, asked once. */
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT < 33) return
+        if (hasPermission(android.Manifest.permission.POST_NOTIFICATIONS)) return
+        val p = prefsNative()
+        if (p.getBoolean("askedNotif", false)) return
+        p.edit().putBoolean("askedNotif", true).apply()
+        runCatching { requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 4242) }
+    }
+
+    /** Tapping the "update" notification: download and install straight away. */
+    private fun installFromNotification() {
+        Notifier.cancel(this, 7000)
+        io.execute {
+            val info = Updater.fetch()
+            main.post {
+                if (isFinishing || isDestroyed) return@post
+                when {
+                    info == null -> toast(getString(R.string.update_check_failed))
+                    !Updater.isNewer(this, info) -> toast(getString(R.string.up_to_date, BuildConfig.VERSION_NAME))
+                    else -> startUpdate(info)
+                }
+            }
+        }
     }
 
     private fun prefsNative() = getSharedPreferences("native", MODE_PRIVATE)
@@ -283,7 +320,8 @@ class MainActivity : AppCompatActivity() {
 
         web.addJavascriptInterface(WebBridge(
             onPullable = { refresh.pageAllowsPull = it },
-            onBars = { _, _ -> },
+            onBars = { t, _ -> if (t != null) main.post { applyTop(t) } },
+            onNav = { j -> main.post { applyNav(j, save = true) } },
             onSection = { json -> main.post { onSection(json) } },
             onFocusNav = { main.post { focusNav() } },
             onFocusTop = { main.post { focusTop() } },
@@ -462,6 +500,7 @@ class MainActivity : AppCompatActivity() {
         setIntent(intent)
         handleIntent(intent, coldStart = false)
         if (intent.action == ACTION_CHECK_UPDATE) maybeCheckForUpdate(force = true)
+        if (intent.action == ACTION_INSTALL_UPDATE) installFromNotification()
     }
 
     /** true when it loaded something. */
@@ -652,107 +691,130 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // ---- Native top bar and bottom bar ------------------------------------------------------
+    // ---- Bottom bar: the site's own nav items (order, labels, icons), with what the site's admin turned off left out ----
 
-    private val tabIds = intArrayOf(R.id.tab_home, R.id.tab_chats, R.id.tab_shorts, R.id.tab_music, R.id.tab_me)
-    private val tabNames = arrayOf("home", "chats", "shorts", "music", "me")
+    /** Keys as the site names them (data-nav): chats, music, shorts, explore, settings … */
+    private var navKeys: List<String> = emptyList()
+    private var navJson: String = ""
+    private var currentTab: String = ""
+
+    private fun navIcon(name: String, key: String): Int = when (name.ifBlank { key }) {
+        "forum", "chat", "chats", "chat_bubble", "message" -> R.drawable.ic_ms_forum
+        "music_note", "music", "radio" -> R.drawable.ic_ms_music_note
+        "movie", "shorts", "smart_display" -> R.drawable.ic_ms_movie
+        "explore", "channels" -> R.drawable.ic_ms_explore
+        "settings" -> R.drawable.ic_ms_settings
+        "home", "dashboard" -> R.drawable.ic_ms_home
+        "person", "account_circle", "profile", "me" -> R.drawable.ic_ms_person
+        "notifications" -> R.drawable.ic_ms_notifications
+        "search" -> R.drawable.ic_ms_search
+        else -> when (key) {
+            "chats" -> R.drawable.ic_ms_forum; "music" -> R.drawable.ic_ms_music_note; "shorts" -> R.drawable.ic_ms_movie
+            "explore" -> R.drawable.ic_ms_explore; "settings" -> R.drawable.ic_ms_settings; else -> R.drawable.ic_ms_circle
+        }
+    }
 
     private fun setupBars() {
-        toolbar.inflateMenu(R.menu.top_bar)
-        toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_refresh -> { reload(); true }
-                R.id.action_update -> { maybeCheckForUpdate(force = true, userAsked = true); true }
-                else -> false
-            }
-        }
-        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-        findViewById<View>(R.id.brand).setOnClickListener { goTab(0) }
+        toolbar.visibility = View.GONE // one header only: the site's own (it carries the page's buttons)
         nav.setOnItemSelectedListener { item ->
-            if (!navFromCode) { val i = tabIds.indexOf(item.itemId); if (i >= 0) goTab(i, fromNav = true) }
+            if (!navFromCode) goTab(item.itemId - NAV_ID0, fromNav = true)
             true
         }
-        nav.setOnItemReselectedListener { item -> val i = tabIds.indexOf(item.itemId); if (i >= 0) goTab(i, fromNav = true) }
-        // Keypad phones: every bottom-bar button can take focus and shows it
-        nav.post {
-            for (id in tabIds) nav.findViewById<View>(id)?.let { v -> v.isFocusable = true; v.nextFocusUpId = R.id.web }
-        }
-        // A plain colour while a page loads; the page never paints the system bars any more
+        nav.setOnItemReselectedListener { item -> goTab(item.itemId - NAV_ID0, fromNav = true) }
+        // Last nav the site sent (works offline); first run: the site's default nav, the page corrects it in a second
+        val cached = prefsNative().getString("navConfig", null)
+        applyNav(cached ?: DEFAULT_NAV, save = false)
         applyBars(0, 0)
     }
 
-    /** Opens a section. On the main page this switches screens in place; elsewhere it loads the page. */
+    private fun applyNav(json: String, save: Boolean) {
+        if (json == navJson) return
+        val arr = try { JSONObject(json).getJSONArray("items") } catch (e: Exception) { return }
+        val keys = ArrayList<String>()
+        val labels = ArrayList<String>()
+        val icons = ArrayList<String>()
+        for (k in 0 until minOf(arr.length(), 5)) {
+            val o = arr.optJSONObject(k) ?: continue
+            val key = o.optString("key").take(24)
+            if (key.isBlank() || key in keys) continue
+            keys += key; labels += o.optString("label").ifBlank { key }.take(16); icons += o.optString("icon").take(32)
+        }
+        if (keys.isEmpty()) return
+        navJson = json
+        if (save) prefsNative().edit().putString("navConfig", json).apply()
+        if (keys == navKeys && labels == (0 until nav.menu.size()).map { nav.menu.getItem(it).title.toString() }) return
+        navKeys = keys
+        navFromCode = true
+        try {
+            nav.menu.clear()
+            for (k in keys.indices) nav.menu.add(Menu.NONE, NAV_ID0 + k, k, labels[k]).setIcon(navIcon(icons[k], keys[k]))
+        } finally { navFromCode = false }
+        nav.post {
+            for (k in keys.indices) nav.findViewById<View>(NAV_ID0 + k)?.let { v -> v.isFocusable = true; v.nextFocusUpId = R.id.web }
+        }
+        markTab(currentTab)
+    }
+
+    /** Opens a section exactly the way the site's own nav button does. */
     private fun goTab(i: Int, fromNav: Boolean = false) {
+        if (i < 0 || i >= navKeys.size) return
         if (customView != null) exitFullscreen()
         if (offline.visibility == View.VISIBLE) offline.visibility = View.GONE
-        selectTab(i)
-        val name = tabNames[i]
-        val url = when (name) {
-            "home" -> "https://yidplus.com/?goto=home"
+        val key = navKeys[i]
+        markTab(key)
+        val url = when (key) {
             "chats" -> "https://yidplus.com/yidplus-chat.html"
             "shorts" -> "https://yidplus.com/yidplus-shorts.html"
             "music" -> "https://yidplus.com/yidplus-music.html"
-            else -> if (section.optBoolean("signedIn")) "https://yidplus.com/?goto=settings" else "https://yidplus.com/?signin=1"
+            else -> "https://yidplus.com/?goto=" + Uri.encode(key)
         }
         val host = web.url?.let { Uri.parse(it).host }
-        if (pageShown && host in APP_HOSTS) {
-            web.evaluateJavascript("(function(){if(window.__ypGo){window.__ypGo('$name');return 1}return 0})()") { r ->
+        if (pageShown && host in APP_HOSTS && offline.visibility != View.VISIBLE) {
+            web.evaluateJavascript("(function(){if(window.__ypGo){return window.__ypGo(" + JSONObject.quote(key) + ")?1:0}return 0})()") { r ->
                 if (r != "1") web.loadUrl(url)
             }
         } else web.loadUrl(url)
         if (fromNav) web.requestFocus()
     }
 
-    private fun selectTab(i: Int) {
-        if (i < 0) return
+    private fun markTab(key: String) {
+        currentTab = key
+        val i = navKeys.indexOf(key)
         navFromCode = true
-        try { if (nav.selectedItemId != tabIds[i]) nav.selectedItemId = tabIds[i] } finally { navFromCode = false }
+        try {
+            if (i >= 0) {
+                nav.menu.setGroupCheckable(0, true, true)
+                nav.menu.findItem(NAV_ID0 + i)?.isChecked = true
+            } else {
+                // a page that is not one of the nav's sections: nothing lit
+                nav.menu.setGroupCheckable(0, true, false)
+                for (k in 0 until nav.menu.size()) nav.menu.getItem(k).isChecked = false
+                nav.menu.setGroupCheckable(0, true, true)
+            }
+        } finally { navFromCode = false }
     }
 
     private fun onSection(json: String) {
         val s = try { JSONObject(json) } catch (e: Exception) { return }
         section = s
-        val tab = s.optString("tab")
-        val i = tabNames.indexOf(tab)
-        if (i >= 0) selectTab(i)
-        nav.menu.findItem(R.id.tab_me)?.title = getString(if (s.optBoolean("signedIn")) R.string.tab_me else R.string.tab_sign_in)
-        val shorts = tab == "shorts" && !s.optBoolean("inner")
-        toolbar.visibility = if (shorts || customView != null) View.GONE else View.VISIBLE
-        titleView.text = s.optString("title").ifBlank { getString(R.string.app_name) }
-        val inner = s.optBoolean("inner")
-        if (inner) {
-            toolbar.setNavigationIcon(R.drawable.ic_back)
-            toolbar.navigationContentDescription = getString(R.string.back)
-            findViewById<ImageView>(R.id.brand_logo).visibility = View.GONE
-        } else {
-            toolbar.navigationIcon = null
-            findViewById<ImageView>(R.id.brand_logo).visibility = View.VISIBLE
-        }
-        applyBars(0, 0)
+        markTab(s.optString("tab"))
+        applyBars(0, 0) // Shorts: black bars and a dark nav, like the site
     }
 
     private fun focusNav() {
-        val id = if (nav.selectedItemId != 0) nav.selectedItemId else tabIds[0]
-        (nav.findViewById<View>(id) ?: nav).requestFocus()
+        val i = navKeys.indexOf(currentTab).coerceAtLeast(0)
+        (nav.findViewById<View>(NAV_ID0 + i) ?: nav).requestFocus()
     }
 
-    private fun focusTop() {
-        if (toolbar.visibility != View.VISIBLE) return
-        // the refresh button (or the back arrow on inner pages)
-        val target = (0 until toolbar.childCount).map { toolbar.getChildAt(it) }.lastOrNull { it.isFocusable || it is ViewGroup }
-        (target ?: toolbar).requestFocus()
-    }
+    private fun focusTop() { /* no native top bar any more */ }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        // From the top bar, D-pad down goes back into the page; from the page, the digits 1-5 are handled by the page script.
-        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-            val f = currentFocus
-            if (f != null && f !== web && isInside(f, toolbar)) { web.requestFocus(); return true }
-        }
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode in KeyEvent.KEYCODE_1..KeyEvent.KEYCODE_5) {
             val f = currentFocus
-            if (f == null || isInside(f, nav) || isInside(f, toolbar)) { goTab(event.keyCode - KeyEvent.KEYCODE_1); return true }
+            if (f == null || isInside(f, nav)) { goTab(event.keyCode - KeyEvent.KEYCODE_1); return true }
         }
+        // Menu key (keypad phones): check for updates
+        if (event.action == KeyEvent.ACTION_UP && event.keyCode == KeyEvent.KEYCODE_MENU) { maybeCheckForUpdate(force = true, userAsked = true); return true }
         return super.dispatchKeyEvent(event)
     }
 
@@ -796,14 +858,38 @@ class MainActivity : AppCompatActivity() {
         w.loadUrl(url.toString())
     }
 
-    private fun applyBars(@Suppress("UNUSED_PARAMETER") pageTop: Int, @Suppress("UNUSED_PARAMETER") pageBottom: Int) {
+    private var pageTop: Int? = null
+    private var navStyle = ""
+    /** The bar looks like the site's own nav: light with a green active item, black with gold on Shorts. */
+    private fun styleNav(dark: Boolean, shorts: Boolean) {
+        val key = "$dark/$shorts"
+        if (key == navStyle) return
+        navStyle = key
+        val bg = if (shorts) Color.BLACK else if (dark) NAV_DARK_BG else NAV_LIGHT_BG
+        val on = if (dark) 0xFFE9C46A.toInt() else 0xFF1F6F5C.toInt()
+        val off = if (dark) 0xA6FFFFFF.toInt() else 0xFF5F6F6A.toInt()
+        val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf(android.R.attr.state_focused), intArrayOf())
+        val tint = android.content.res.ColorStateList(states, intArrayOf(on, on, off))
+        nav.setBackgroundColor(bg)
+        nav.itemIconTintList = tint
+        nav.itemTextColor = tint
+        nav.itemActiveIndicatorColor = android.content.res.ColorStateList.valueOf(if (dark) 0x33E9C46A else 0x1F1F6F5C)
+        navLine.setBackgroundColor(if (dark) 0x14FFFFFF else 0x1A14221F)
+    }
+
+    private fun applyTop(c: Int) { if (pageTop != c) { pageTop = c; applyBars(0, 0) } }
+
+    private fun applyBars(@Suppress("UNUSED_PARAMETER") a: Int, @Suppress("UNUSED_PARAMETER") b: Int) {
         val fullscreenVideo = customView != null
+        val onShorts = ::nav.isInitialized && currentTab == "shorts"
         val top = when {
-            fullscreenVideo -> Color.BLACK
-            ::toolbar.isInitialized && toolbar.visibility == View.VISIBLE -> ContextCompat.getColor(this, R.color.top_bar)
-            else -> Color.BLACK
+            fullscreenVideo || onShorts -> Color.BLACK
+            ::offline.isInitialized && offline.visibility == View.VISIBLE -> ContextCompat.getColor(this, R.color.page_bg)
+            else -> pageTop ?: ContextCompat.getColor(this, R.color.page_bg)
         }
-        val bottom = if (fullscreenVideo) Color.BLACK else ContextCompat.getColor(this, R.color.bottom_bar)
+        val darkNav = onShorts || fullscreenVideo || !isLight(top)
+        if (::nav.isInitialized) styleNav(darkNav, onShorts)
+        val bottom = if (fullscreenVideo) Color.BLACK else if (onShorts) Color.BLACK else if (darkNav) NAV_DARK_BG else NAV_LIGHT_BG
         lastTop = top; lastBottom = bottom
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -872,6 +958,7 @@ class MainActivity : AppCompatActivity() {
                     info == null -> if (userAsked) toast(getString(R.string.update_check_failed))
                     !Updater.isNewer(this, info) -> if (userAsked) toast(getString(R.string.up_to_date, BuildConfig.VERSION_NAME))
                     else -> {
+                        Notifier.updateAvailable(this, info)
                         val laterFor = prefs.getLong("laterCode", -1L)
                         val laterAt = prefs.getLong("laterAt", 0L)
                         val snoozed = laterFor == info.versionCode && System.currentTimeMillis() - laterAt < 24L * 60 * 60 * 1000

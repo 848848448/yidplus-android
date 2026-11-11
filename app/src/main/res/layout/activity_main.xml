@@ -13,6 +13,7 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="@dimen/top_bar_h"
             android:background="@color/top_bar"
@@ -133,11 +134,17 @@
             </LinearLayout>
         </FrameLayout>
 
+        <View
+            android:id="@+id/nav_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#1A14221F" />
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/nav"
             android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_bar_h"
-            android:background="@color/bottom_bar"
+            android:background="#FFFFFF"
             android:nextFocusUp="@id/web"
             app:itemActiveIndicatorStyle="@style/YidPlus.NavIndicator"
             app:itemBackground="@drawable/nav_item_bg"
@@ -149,7 +156,7 @@
             app:itemTextAppearanceInactive="@style/YidPlus.NavText"
             app:itemTextColor="@color/nav_item"
             app:labelVisibilityMode="labeled"
-            app:menu="@menu/bottom_nav" />
+            app:elevation="0dp" />
     </LinearLayout>
 
     <FrameLayout

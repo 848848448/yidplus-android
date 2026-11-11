@@ -31,9 +31,79 @@
     if (window.Element && !Element.prototype.replaceChildren) Element.prototype.replaceChildren = function () { while (this.firstChild) this.removeChild(this.firstChild); this.append.apply(this, arguments); };
   } catch (e) {}
 
+
+  // ---- Flexbox `gap` (Chrome 84+): an older engine ignores it, so every row of icons, chips and buttons touches.
+  // Measure once; when missing, each flex box with a gap gets a class whose rule puts the same space between its children.
+  (function () {
+    function flexGapOk() {
+      try {
+        var d = document.createElement('div'); d.style.cssText = 'display:flex;flex-direction:column;row-gap:1px;position:absolute;visibility:hidden';
+        d.appendChild(document.createElement('div')); d.appendChild(document.createElement('div'));
+        (document.body || document.documentElement).appendChild(d); var ok = d.scrollHeight === 1; d.parentNode.removeChild(d); return ok;
+      } catch (e) { return true; }
+    }
+    var ok = null, rules = {}, sheet = null, pending = [], timer = 0;
+    function rule(cls, css) {
+      if (rules[cls]) return; rules[cls] = 1;
+      if (!sheet) { sheet = document.createElement('style'); sheet.setAttribute('data-yp-compat', 'gap'); (document.head || document.documentElement).appendChild(sheet); }
+      sheet.appendChild(document.createTextNode(css + '\n'));
+    }
+    function px(v) { var n = parseFloat(v); return isFinite(n) && n > 0 ? Math.round(n * 10) / 10 : 0; }
+    function fix(el) {
+      if (el.__ypGap) return; el.__ypGap = 1;
+      var cs = getComputedStyle(el), disp = cs.display;
+      if (disp !== 'flex' && disp !== 'inline-flex') return;
+      var cg = px(cs.columnGap), rg = px(cs.rowGap); if (!cg && !rg) return;
+      var dir = cs.flexDirection, wrap = cs.flexWrap !== 'nowrap', rtl = cs.direction === 'rtl', col = dir.indexOf('column') === 0, rev = /reverse/.test(dir);
+      var cls;
+      if (wrap) {
+        cls = 'ypg-w' + (col ? 'c' : 'r') + '-' + String(cg).replace('.', '_') + '-' + String(rg).replace('.', '_');
+        rule(cls, col ? '.' + cls + '>*{margin-bottom:' + rg + 'px;-webkit-margin-end:' + cg + 'px}' : '.' + cls + '>*{-webkit-margin-end:' + cg + 'px;margin-bottom:' + rg + 'px}');
+      } else if (col) {
+        if (!rg) return; cls = 'ypg-c' + (rev ? 'r' : '') + '-' + String(rg).replace('.', '_');
+        rule(cls, '.' + cls + '>*+*{margin-' + (rev ? 'bottom' : 'top') + ':' + rg + 'px}');
+      } else {
+        if (!cg) return; cls = 'ypg-r' + (rev ? 'r' : '') + '-' + String(cg).replace('.', '_');
+        rule(cls, '.' + cls + '>*+*{-webkit-margin-' + (rev ? 'end' : 'start') + ':' + cg + 'px}');
+      }
+      el.classList.add(cls);
+    }
+    function walk(root) {
+      if (!root || root.nodeType !== 1) return;
+      fix(root); var all = root.getElementsByTagName('*');
+      for (var i = 0; i < all.length; i++) fix(all[i]);
+    }
+    function run() {
+      timer = 0; if (ok === null) ok = flexGapOk(); if (ok) { pending = []; return; }
+      var list = pending; pending = [];
+      for (var i = 0; i < list.length; i++) walk(list[i]);
+    }
+    function later(n) { pending.push(n); if (!timer) timer = setTimeout(run, 120); }
+    function start() {
+      if (ok === null) ok = flexGapOk(); if (ok) return;
+      walk(document.body);
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var m = ms[i];
+          if (m.type === 'attributes') { if (m.target.__ypGap && m.target.nodeType === 1) { m.target.__ypGap = 0; later(m.target); } continue; }
+          for (var j = 0; j < m.addedNodes.length; j++) if (m.addedNodes[j].nodeType === 1) later(m.addedNodes[j]);
+        }
+      }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+      // stylesheets that arrive late (and the site's own class changes) — one more pass after load
+      window.addEventListener('load', function () { setTimeout(function () { var all = document.body.getElementsByTagName('*'); for (var i = 0; i < all.length; i++) all[i].__ypGap = 0; walk(document.body); }, 400); });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  })();
+
   // ---- CSS gaps ----
   var NO_INSET = !S('inset', '0'), NO_LOGICAL = !S('margin-inline', '0') || !S('inset-inline-start', '0'),
       NO_DVH = !S('height', '1dvh'), NO_AR = !S('aspect-ratio', '1');
+  if (!S('color', 'color-mix(in srgb, red 50%, blue)')) {
+    // color-mix() (Chrome 111+): without it these bars lose their background and the page shows through
+    var cm = document.createElement('style'); cm.setAttribute('data-yp-compat', 'color-mix');
+    cm.textContent = '.topbar{background-color:var(--bg)}.bottom-nav{background-color:var(--bg)}.chat-input-bar{background-color:var(--surface)}.chat-item.unread{background-color:var(--bg2)}';
+    var put = function () { var h = document.head || document.documentElement; if (h) h.appendChild(cm); else setTimeout(put, 0); }; put();
+  }
   if (!(NO_INSET || NO_LOGICAL || NO_DVH || NO_AR)) return;
   window.__ypCompatCss = true;
 

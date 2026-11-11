@@ -1,8 +1,9 @@
 ## New
-- A bottom bar on every screen: Home, Chats, Shorts, Music, Profile
-- A top bar with the YID PLUS logo, a back arrow on inner pages, and a refresh button
-- Keypad phones: the D-pad scrolls and moves between buttons, OK opens, and keys 1-5 jump to a tab
+- One header only: the page's own header, no more double "YID PLUS" bar
+- The bottom menu is the website's own menu (Chats, Shorts, Channels, Settings...) and follows the site's admin settings
+- Update notification with what's new; tap it to install
+- Settings shows the app version and a "Check for updates" button
 
 ## Fixed
-- Pages scroll again on phones with an older built-in web engine (for example Android 11 keypad phones)
-- Google sign-in works on phones without Chrome or Google services
+- Neat, even spacing on small screens and older phones (480x640 keypad phones)
+- Shorts fills the screen; buttons and topics fit on small screens

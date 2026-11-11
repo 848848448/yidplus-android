@@ -11,6 +11,7 @@ class WebBridge(
     private val onFocusNav: () -> Unit = {},
     private val onFocusTop: () -> Unit = {},
     private val onTab: (Int) -> Unit = {},
+    private val onNav: (String) -> Unit = {},
 ) {
     @JavascriptInterface fun setPullable(value: Boolean) = onPullable(value)
 
@@ -25,6 +26,9 @@ class WebBridge(
     @JavascriptInterface fun focusTop() = onFocusTop()
 
     @JavascriptInterface fun tab(n: Int) = onTab(n)
+
+    /** The site's own bottom nav as the page shows it (items the site's admin turned off are already left out). */
+    @JavascriptInterface fun setNav(json: String?) { if (json != null && json.length < 4000) onNav(json) }
 
     companion object {
         private val RGB = Regex("""rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)""")

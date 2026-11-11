@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Screen-size test run by CI for every phone shape: installs the APK, checks touch and D-pad
-# scrolling, the bottom bar (Home, Chats, Shorts, Music, Profile), Back, and saves screenshots.
+# scrolling, the bottom bar (the site's own nav items), Shorts swiping, Back, and saves screenshots.
 #   qa/screens.sh APK NAME [WxH DENSITY] [landscape]
 set -u
 APK="$1"; NAME="$2"; SIZE="${3:-}"; DENS="${4:-}"; ROT="${5:-}"
@@ -48,6 +48,39 @@ anr_check() {
     ANR=1
   fi
 }
+# The bottom bar's items: the lowest on-screen node with this text (the page above may use the same word)
+nav_xy() {
+  timeout 30 adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+  timeout 30 adb pull /sdcard/ui.xml /tmp/ui-$NAME.xml >/dev/null 2>&1
+  python3 - "$1" "/tmp/ui-$NAME.xml" <<'EOF'
+import re, sys
+x = open(sys.argv[2], encoding='utf-8').read(); want = sys.argv[1].lower(); best = None
+for n in re.findall(r'<node [^>]*>', x):
+    t = (re.search(r' text="([^"]*)"', n) or [None, ''])[1].lower()
+    d = (re.search(r'content-desc="([^"]*)"', n) or [None, ''])[1].lower()
+    if (t == want and 'navigation_bar_item' in n) or (d == want and 'navigation_bar_item' in n):
+        b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', n)
+        if b:
+            a, c, e, f = map(int, b.groups())
+            if best is None or c > best[1]: best = ((a + e) // 2, (c + f) // 2)
+if best: print(best[0], best[1])
+EOF
+}
+nav_labels() {
+  timeout 30 adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+  timeout 30 adb pull /sdcard/ui.xml /tmp/ui-$NAME.xml >/dev/null 2>&1
+  python3 - "/tmp/ui-$NAME.xml" <<'EOF'
+import re, sys
+x = open(sys.argv[1], encoding='utf-8').read()
+out = []
+for n in re.findall(r'<node [^>]*>', x):
+    if 'navigation_bar_item_large_label_view' in n or 'navigation_bar_item_small_label_view' in n:
+        t = (re.search(r' text="([^"]*)"', n) or [None, ''])[1]
+        if t and t not in out: out.append(t)
+print(' | '.join(out))
+EOF
+}
+navtap() { local xy; for i in $(seq 1 ${2:-8}); do xy=$(nav_xy "$1"); if [ -n "$xy" ]; then adb shell input tap $xy; log "tapped nav '$1' at $xy"; return 0; fi; sleep 2; done; log "did not find nav '$1'"; FAIL=1; return 1; }
 ANR=0
 CF=0
 tap() { local xy; for i in $(seq 1 ${2:-8}); do xy=$(find_xy "$1"); if [ -n "$xy" ]; then adb shell input tap $xy; log "tapped '$1' at $xy"; return 0; fi; sleep 2; done; log "did not find '$1'"; FAIL=1; return 1; }
@@ -107,18 +140,30 @@ sleep 1; shot 03-home-dpad-down
 if same 02-home-touch-scrolled 03-home-dpad-down; then log "DPAD: nothing moved"; FAIL=1; else log "DPAD: moved"; fi
 
 anr_check dpad
-tap "$PKG:id/tab_chats"; sleep 12; shot 04-chats
+log "BOTTOM BAR: $(nav_labels)"
+navtap "Chats"; sleep 12; shot 04-chats
 adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 05-chats-scrolled
 check chats
 
-tap "$PKG:id/tab_shorts"; sleep 14; shot 06-shorts
+navtap "Shorts"; sleep 14; shot 06-shorts
 check shorts
 anr_check shorts
-tap "$PKG:id/tab_music"; sleep 12; shot 07-music
-adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 08-music-scrolled
-check music
-tap "$PKG:id/tab_me"; sleep 12; shot 09-profile
-tap "$PKG:id/tab_home"; sleep 12; shot 10-home-again
+# Shorts: a swipe up and the D-pad both go to the next video; a short screen recording for the report
+timeout 30 adb shell screenrecord --time-limit 24 --bit-rate 2000000 /sdcard/shorts.mp4 >/dev/null 2>&1 &
+REC=$!
+sleep 3
+adb shell input swipe $CX $((H*75/100)) $CX $((H*20/100)) 250; sleep 4; shot 06b-shorts-swiped
+adb shell input keyevent 20; sleep 4; shot 06c-shorts-dpad-down
+adb shell input keyevent 19; sleep 4; shot 06d-shorts-dpad-up
+if same 06-shorts 06b-shorts-swiped; then log "SHORTS SWIPE: nothing changed"; else log "SHORTS SWIPE: moved"; fi
+if same 06b-shorts-swiped 06c-shorts-dpad-down; then log "SHORTS DPAD: nothing changed"; else log "SHORTS DPAD: moved"; fi
+wait $REC 2>/dev/null; sleep 1; timeout 60 adb pull /sdcard/shorts.mp4 "$OUT/shorts.mp4" >/dev/null 2>&1 || true
+check shorts-swipe
+if nav_xy "Music" | grep -q .; then navtap "Music"; sleep 12; shot 07-music; adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 08-music-scrolled; check music
+else log "MUSIC: not in the bottom bar (turned off in the site's admin)"; fi
+navtap "Channels"; sleep 10; shot 09-channels
+adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 09b-channels-scrolled
+navtap "Settings"; sleep 10; shot 10-settings
 adb shell input keyevent 4; sleep 4; shot 11-after-back
 check back
 

@@ -46,7 +46,8 @@
       if (k !== lastBars) { lastBars = k; B.setBars(t, b); }
     } catch (_) {}
   }
-  // native bars own the colours now (kept for old app builds)
+  // one header (the site's): the status bar takes the colour of the page's top edge
+  setInterval(bars, 700); document.addEventListener('DOMContentLoaded', function () { setTimeout(bars, 50); }); window.addEventListener('load', bars);
 
 
   // ---- Native share sheet (WebView has no navigator.share) ----
@@ -118,9 +119,26 @@
   var css = '' +
     '.bottom-nav{display:none!important}' +
     '.yp-app-hide{display:none!important}' +
-    '.scroll-area{padding-bottom:12px!important}' +
+    /* the site leaves room for its own nav; the app's nav sits below the page instead */
+    '.scroll-area{padding-bottom:16px!important}' +
+    'html{--src-nav-h:0px!important}' +
+    '@media (max-width:600px){.src-cont,.src-chips,.shorts-topbar{max-width:none!important;border-inline:0!important;box-shadow:none!important}}' +
+    /* Shorts on a small screen (e.g. 480x640 keypad phones): tabs on one line, chips below them, the action rail fits the height */
+    '@media (max-width:380px){.shorts-tabs{gap:10px!important}.shorts-tab{font-size:14px!important;white-space:nowrap;padding:8px 1px 10px!important}.shorts-brand{width:26px!important;height:26px!important}}' +
+    '@media (max-height:520px){.src-chips{top:44px!important;padding:4px 10px 6px!important}.src-chip{padding:5px 11px!important;font-size:12.5px!important}' +
+      '.src-rail{gap:0!important;bottom:10px!important;right:4px!important}.src-act{min-height:34px!important;min-width:50px!important;gap:1px!important}.src-ic{width:36px!important;height:30px!important}.src-ic svg{width:24px;height:24px}' +
+      '.src-act span:not(.src-ic){font-size:10.5px!important}.src-info{bottom:12px!important;right:64px!important;left:10px!important}.src-av.big{width:36px!important;height:36px!important}}' +
+    /* one compact header: the big collapsing "YID PLUS" title repeats the logo on a small screen */
+    '#home-topbar .m3-topbar-title-large{display:none!important}' +
+    '#home-topbar .app-title-display{display:none!important}' +
+    '.topbar{min-height:48px;box-sizing:border-box}' +
+    '.fab-speed-dial,#explore-fab{bottom:16px!important}' +
+    '[style*="bottom:80px"][style*="position:fixed"]{bottom:16px!important}' +
     'html.yp-keys :focus,html.yp-keys .yp-kfocus{outline:3px solid #D4AF37!important;outline-offset:-3px!important;border-radius:6px}' +
-    '#yp-android-chip,.pwa-install-banner,.pwa-ib{display:none!important}';
+    '#yp-android-chip,.pwa-install-banner,.pwa-ib,#pwa-install-banner{display:none!important}' +
+    '#yp-app-row{display:flex;align-items:center;gap:12px;margin:12px 12px 0;padding:12px 14px;background:var(--surface,#fff);border:1px solid var(--border,#e3e9e7);border-radius:14px;font-family:inherit}' +
+    '#yp-app-row .t{flex:1;min-width:0}#yp-app-row .t b{display:block;font-size:.92rem}#yp-app-row .t span{font-size:.76rem;color:var(--muted,#6b7a76)}' +
+    '#yp-app-row button{border:0;border-radius:20px;padding:.45rem .9rem;background:var(--accent,#1F6F5C);color:#fff;font:inherit;font-size:.8rem;font-weight:700}';
   function addCss() {
     if (document.getElementById('yp-app-css')) return;
     var host = document.head || document.documentElement; if (!host) return;
@@ -135,70 +153,85 @@
     for (var i = list.length - 1; i >= 0; i--) if (visible(list[i])) return list[i];
     return null;
   }
-  var TITLES = { home: 'YID PLUS', explore: 'Channels', settings: 'Settings', profile: 'Profile', channel: 'Channel', auth: 'Sign in',
-    chats: 'Chats', chatroom: 'Chat', chatinfo: 'Info', 'topics-list': 'Topics', music: 'Music', shorts: 'Shorts' };
-  var ROOTS = { page: 1, home: 1, explore: 1, settings: 1, auth: 1, chats: 1, music: 1, shorts: 1 };
+  // ---- The bottom nav is the site's own: same items, order, labels and icons, minus what the admin turned off ----
+  var FEAT = { shorts: 'shorts', music: 'music', explore: 'channels' }; // nav key -> admin feature switch (Admin -> Features)
+  var flags = null;
+  function loadFlags() {
+    try {
+      fetch('/api/settings', { credentials: 'include' }).then(function (r) { return r.json(); })
+        .then(function (res) { flags = (res && res.settings) || {}; report(); }).catch(function () {});
+    } catch (_) {}
+  }
+  function featureOff(key) {
+    var s = flags || (window.STATE && STATE.settings) || null; if (!s) return null;
+    var f = FEAT[key]; if (!f) return false;
+    if (s['feat_' + f] !== 'off') return false;
+    return s['feat_' + f + '_allowed_me'] !== 'true';
+  }
+  function siteNav() {
+    var navs = document.querySelectorAll('.bottom-nav'); if (!navs.length) return null;
+    var nav = navs[0], btns = nav.querySelectorAll('.nav-item[data-nav]'), items = [];
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i], key = b.getAttribute('data-nav');
+      var lab = b.querySelector('.nav-label'), ic = b.querySelector('.material-symbols-rounded,.material-icons');
+      var off = featureOff(key);
+      if (off === null) off = b.style.display === 'none';   // settings not read yet: what the site itself shows
+      if (off) continue;
+      items.push({ key: key, label: ((lab && lab.textContent) || key).trim(), icon: ((ic && ic.textContent) || '').trim() });
+    }
+    return items.length ? { items: items } : null;
+  }
+  var lastNav = '';
+  function reportNav() {
+    if (!B || !B.setNav || flags === null) return;
+    var n = siteNav(); if (!n) return;
+    var k = JSON.stringify(n); if (k !== lastNav) { lastNav = k; B.setNav(k); }
+  }
   function section() {
-    var p = path(), scr = activeScreen(), id = scr && scr.id ? scr.id.replace(/^screen-/, '') : '';
-    var tab;
+    var p = path(), scr = activeScreen(), id = scr && scr.id ? scr.id.replace(/^screen-/, '') : '', tab = '';
     if (/^\/(yidplus-)?chat/.test(p)) tab = 'chats';
     else if (/^\/(yidplus-)?music/.test(p)) tab = 'music';
-    else if (/^\/(yidplus-)?shorts/.test(p)) { tab = 'shorts'; id = 'shorts'; }
-    else if (p === '/' || p === '/index') tab = (id === 'settings' || id === 'profile' || id === 'auth') ? 'me' : 'home';
-    else tab = '';
-    if (!id) id = tab || 'page';
-    var title = TITLES[id] || '';
-    if (scr && !ROOTS[id]) {
-      var h = scr.querySelector('.topbar-title,.topbar-name,.ch-name,.chat-title,h1,h2');
-      if (h && h.textContent.trim()) title = h.textContent.trim().slice(0, 40);
-    }
-    if (!title) title = (document.title || 'YID PLUS').replace(/\s*[|·–-]\s*YID ?PLUS.*$/i, '').slice(0, 40);
+    else if (/^\/(yidplus-)?shorts/.test(p)) tab = 'shorts';
+    else if (scr) { var a = scr.querySelector('.bottom-nav .nav-item.active[data-nav]'); tab = a ? a.getAttribute('data-nav') : (id === 'explore' || id === 'settings' ? id : ''); }
     var signedIn = !!(window.STATE && STATE.user && STATE.user.id);
-    return { tab: tab, id: id, title: title, inner: !ROOTS[id], signedIn: signedIn };
+    return { tab: tab, id: id || tab || 'page', signedIn: signedIn };
   }
-  // The site's title-only header doubles the native top bar: hide just those
-  function hideDupHeaders() {
-    var bars = document.querySelectorAll('.topbar');
-    for (var i = 0; i < bars.length; i++) {
-      var b = bars[i]; if (b.__ypChecked) continue;
-      var kids = b.children, onlyTitle = kids.length > 0;
-      for (var k = 0; k < kids.length; k++) if (!/topbar-logo/.test(kids[k].className) || kids[k].querySelector('button,a,input')) onlyTitle = false;
-      if (onlyTitle) b.classList.add('yp-app-hide');
-      b.__ypChecked = true;
-    }
+  // The site's title-only header ("Channels") is kept: it is the page's one header now.
+  function hideDupHeaders() {}
+  // Settings: the app's version and a "Check for updates" button
+  function appRow() {
+    if (!B) return;
+    var scr = document.getElementById('screen-settings'); if (!scr || document.getElementById('yp-app-row')) return;
+    var area = scr.querySelector('.scroll-area'); if (!area) return;
+    var row = document.createElement('div'); row.id = 'yp-app-row';
+    var v = (B.version ? String(B.version()) : '');
+    row.innerHTML = '<div class="t"><b>YID PLUS app</b><span>Version ' + v.replace(/[^0-9a-z.\-]/gi, '') + '</span></div><button type="button">Check for updates</button>';
+    row.querySelector('button').addEventListener('click', function () { post({ type: 'checkUpdate' }); });
+    area.insertBefore(row, area.firstChild);
   }
   var lastSec = '';
   function report() {
     try {
-      if (!TOP || !B || !B.setSection || !document.body) return;
-      hideDupHeaders();
+      if (!TOP || !B || !document.body) return;
+      reportNav(); appRow();
+      if (!B.setSection) return;
       var s = section(), k = JSON.stringify(s);
       if (k !== lastSec) { lastSec = k; B.setSection(k); }
     } catch (_) {}
   }
+  if (TOP) loadFlags();
   document.addEventListener('DOMContentLoaded', report);
   window.addEventListener('load', report);
   window.addEventListener('popstate', function () { setTimeout(report, 50); });
   document.addEventListener('click', function () { setTimeout(report, 80); setTimeout(report, 450); }, true);
   setInterval(report, 600);
 
-  // The native bottom bar calls this
-  window.__ypGo = function (tab) {
-    var onIndex = path() === '/' || path() === '/index';
-    var signedIn = !!(window.STATE && STATE.user && STATE.user.id);
-    function nav(screen, url) {
-      if (onIndex && typeof window.navTo === 'function' && document.getElementById('screen-' + screen)) { window.navTo(screen); setTimeout(report, 60); }
-      else location.href = url;
-    }
-    if (tab === 'home') nav('home', '/?goto=home');
-    else if (tab === 'chats') location.href = '/yidplus-chat.html';
-    else if (tab === 'shorts') location.href = '/yidplus-shorts.html';
-    else if (tab === 'music') location.href = '/yidplus-music.html';
-    else if (tab === 'me') {
-      if (signedIn) nav('settings', '/?goto=settings');
-      else if (typeof window._guestGoSignIn === 'function') window._guestGoSignIn();
-      else location.href = '/?signin=1';
-    }
+  // The native bottom bar calls this: press the site's own nav button, so it does exactly what the site does
+  window.__ypGo = function (key) {
+    var scr = activeScreen(), b = (scr && scr.querySelector('.bottom-nav .nav-item[data-nav="' + key + '"]')) || document.querySelector('.bottom-nav .nav-item[data-nav="' + key + '"]');
+    if (!b) return false;
+    b.click(); setTimeout(report, 60); setTimeout(report, 400);
+    return true;
   };
 
   // ---- Keypad phones: D-pad scrolls and moves between buttons, OK clicks, 1-5 pick a tab ----
