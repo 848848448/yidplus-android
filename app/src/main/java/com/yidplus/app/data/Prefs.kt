@@ -21,7 +21,7 @@ object Prefs {
     }
     fun setThemeMode(v: Int) { theme = v; p.edit().putInt("theme", v).apply() }
     fun setMute(v: Boolean) { muted = v; p.edit().putBoolean("muted", v).apply() }
-    fun setNotify(v: Boolean) { notify = v; p.edit().putBoolean("notify", v).apply() }
+    fun enableNotify(v: Boolean) { notify = v; p.edit().putBoolean("notify", v).apply() }
     fun hintSeen() { keypadHintSeen = true; p.edit().putBoolean("keypadHint", true).apply() }
 
     // Guests' likes on For You stay on the phone (same as the website).
