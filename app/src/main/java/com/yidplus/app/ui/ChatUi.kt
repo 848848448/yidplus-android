@@ -313,10 +313,10 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
             else -> onLong()
         }
     }
-    Column(modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, top = if (first) 5.dp else 1.dp, bottom = 1.dp), horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
+    Column(Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, top = if (first) 5.dp else 1.dp, bottom = 1.dp), horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
         Row(verticalAlignment = Alignment.Top) {
             if (!mine && group) { if (first) ChAvatar(m.photo, m.nick, m.senderId, 30.dp) else Spacer(Modifier.width(30.dp)); Spacer(Modifier.width(6.dp)) }
-            Column(Modifier.widthIn(min = 64.dp, max = maxW).clip(shape).background(if (highlight) Color(0xFFFFF59D) else bg)
+            Column(modifier.widthIn(min = 64.dp, max = maxW).clip(shape).background(if (highlight) Color(0xFFFFF59D) else bg)
                 .then(if (focused && Keys.keypad) Modifier.border(2.dp, Gold, shape) else Modifier)
                 .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onClick = { if (Keys.keypad) onLong() else open() }, onLongClick = onLong)
                 .padding(horizontal = 4.dp, vertical = 4.dp)) {
