@@ -1,5 +1,9 @@
 package com.yidplus.app.ui
 
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -145,6 +149,7 @@ class PostStatusPage : PageScreen() {
     @Composable override fun Content() { PostStatus() }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PostStatus() {
     val c = ctx()
@@ -178,21 +183,11 @@ private fun PostStatus() {
     val fieldColors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
         focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
         focusedTextColor = Color.White, unfocusedTextColor = Color.White)
-    Box(Modifier.fillMaxSize().then(if (media == null) Modifier.background(Statuses.brush(Statuses.BGS[bg])) else Modifier.background(Color.Black)).imePadding()) {
-        val m = media
-        if (m == null) {
-            TextField(text, { if (it.length <= 700) text = it }, Modifier.align(Alignment.Center).fillMaxWidth().padding(horizontal = 20.dp).focusRequester(fr),
-                placeholder = { Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = 28.sp, textAlign = TextAlign.Center) },
-                textStyle = TextStyle(fontSize = if (text.length > 120) 20.sp else 28.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center,
-                    textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
-        } else {
-            if (isVideo) Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.PlayCircle, null, tint = Color.White, modifier = Modifier.size(72.dp))
-                Text("Video ready to post", color = Color.White, fontSize = 16.sp)
-            } else AsyncImage(m, "Chosen photo", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(top = 56.dp, bottom = 150.dp))
-        }
+    val ime = WindowInsets.isImeVisible
+    Box(Modifier.fillMaxSize().then(if (media == null) Modifier.background(Statuses.brush(Statuses.BGS[bg])) else Modifier.background(Color.Black))) {
+      Column(Modifier.fillMaxSize().imePadding()) {
         // Top bar
-        Row(Modifier.align(Alignment.TopCenter).fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
             IconBtn(Icons.Filled.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
             Spacer(Modifier.weight(1f))
             if (media == null) IconBtn(Icons.Filled.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
@@ -200,9 +195,23 @@ private fun PostStatus() {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
         }
+        // Middle: the text (or the chosen media) takes whatever room is left, so the keyboard never pushes controls over it
+        Box(Modifier.weight(1f).fillMaxWidth().clipToBounds(), contentAlignment = Alignment.Center) {
+            val m = media
+            if (m == null) {
+                val big = if (ime) 22.sp else 28.sp
+                TextField(text, { if (it.length <= 700) text = it }, Modifier.fillMaxWidth().padding(horizontal = 20.dp).focusRequester(fr),
+                    placeholder = { Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = big, textAlign = TextAlign.Center) },
+                    textStyle = TextStyle(fontSize = if (text.length > 120) 18.sp else big, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center,
+                        textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
+            } else if (isVideo) Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Filled.PlayCircle, null, tint = Color.White, modifier = Modifier.size(72.dp))
+                Text("Video ready to post", color = Color.White, fontSize = 16.sp)
+            } else AsyncImage(m, "Chosen photo", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+        }
         // Bottom: colours, caption, who sees it, post
-        Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(bottom = 10.dp)) {
-            if (media == null) LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.fillMaxWidth().then(if (ime) Modifier else Modifier.navigationBarsPadding()).padding(bottom = 10.dp)) {
+            if (media == null && !ime) LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 itemsIndexed(Statuses.BGS) { i, b ->
                     Box(Modifier.size(30.dp).clip(CircleShape).background(Statuses.brush(b))
                         .border(if (i == bg) 2.5.dp else 1.dp, if (i == bg) Color.White else Color.White.copy(alpha = .4f), CircleShape)
@@ -231,5 +240,6 @@ private fun PostStatus() {
                 }
             }
         }
+      }
     }
 }
