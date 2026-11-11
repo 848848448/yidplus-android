@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.layout.isImeVisible
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -7,9 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -59,12 +64,25 @@ fun AppRoot(onExit: () -> Unit) {
         LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
         BackHandler { if (!Nav.back()) onExit() }
         val top = Nav.stack.lastOrNull()
-        val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
+        val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Gallery || (top is PageScreen && top.immersive) || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
         val holder = rememberSaveableStateHolder()
 
-        Box(Modifier.fillMaxSize().background(if (immersive) Color.Black else MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.safeDrawing)) {
+        // The status bar takes the colour of the brand bar under it (black on full-screen video), with white icons.
+        val view = androidx.compose.ui.platform.LocalView.current
+        val dark = isDark()
+        val barTop = if (immersive) Color.Black else if (top == null && Nav.tab == Tab.Shorts) Color.Black else topBarColor()
+        androidx.compose.runtime.SideEffect {
+            (view.context as? android.app.Activity)?.window?.let { w ->
+                val c = androidx.core.view.WindowCompat.getInsetsController(w, view)
+                c.isAppearanceLightStatusBars = false
+                c.isAppearanceLightNavigationBars = !dark && !immersive
+            }
+        }
+        Box(Modifier.fillMaxSize().background(if (immersive) Color.Black else MaterialTheme.colorScheme.background)) {
+        Box(Modifier.fillMaxWidth().height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()).background(barTop))
+        Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             Row(Modifier.fillMaxSize()) {
-                if (wide && top !is Screen.Video && top !is Screen.Photo) NavRail()
+                if (wide && top !is Screen.Video && top !is Screen.Photo && top !is Screen.Gallery) NavRail()
                 Column(Modifier.weight(1f).fillMaxHeight()) {
                     if (!Net.online) OfflineStrip()
                     if (SiteConfig.maintenance) Notice(SiteConfig.maintenanceMessage)
@@ -86,19 +104,25 @@ fun AppRoot(onExit: () -> Unit) {
                                     is Screen.Chat -> ChatScreen(top.room)
                                     is Screen.Video -> VideoScreen(top.url, top.title)
                                     is Screen.Photo -> PhotoScreen(top.url)
+                                    is Screen.Gallery -> GalleryScreen(top.items, top.start)
                                     is Screen.Web -> WebScreen(top.url)
                                     Screen.Player -> PlayerScreen()
                                     Screen.Notifications -> NotificationsScreen()
+                                    is PageScreen -> top.Content()
                                 }
                             }
                         }
                     }
-                    if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo && SiteConfig.visible(Tab.Music)) MiniPlayer()
+                    if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo && top !is Screen.Gallery && SiteConfig.visible(Tab.Music)) MiniPlayer()
                     // Like WhatsApp: inside a chat, a channel, a photo/video or any detail screen the bar hides; Back brings it back.
-                    if (!wide && top == null) BottomBar(dark = immersive)
+                    // Hidden while the keyboard is up (search, typing), like WhatsApp, so the screen keeps its room.
+                    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+                    val imeUp = WindowInsets.isImeVisible
+                    if (!wide && top == null && !imeUp) BottomBar(dark = immersive)
                 }
             }
             UpdateDialogs()
+        }
         }
     }
 }
@@ -156,9 +180,9 @@ private val tabIcons: Map<Tab, ImageVector> = mapOf(
 @Composable
 private fun BottomBar(dark: Boolean) {
     val bg = if (dark) Color(0xFF0E1715) else MaterialTheme.colorScheme.surface
-    Surface(color = bg, tonalElevation = 3.dp) {
+    Surface(color = bg, shadowElevation = 8.dp) {
         Column {
-            if (!dark) HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
+            if (!dark) HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
@@ -169,8 +193,8 @@ private fun BottomBar(dark: Boolean) {
 @Composable
 private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
     val sel = Nav.tab == t && Nav.stack.isEmpty()
-    val on = if (dark) Color.White.copy(alpha = .85f) else MaterialTheme.colorScheme.onSurfaceVariant
-    val active = if (dark) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
+    val on = if (dark) Color.White.copy(alpha = .78f) else MaterialTheme.colorScheme.onSurfaceVariant
+    val active = if (dark) Color.White else MaterialTheme.colorScheme.primary
     val pill = if (dark) Color.White.copy(alpha = .16f) else MaterialTheme.colorScheme.primaryContainer
     // Material 3 navigation bar item: 24 dp icon in a pill when selected, 12 sp label under it.
     Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) Nav.stack.clear() else Nav.go(t) }.padding(vertical = 5.dp),
@@ -180,7 +204,7 @@ private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
             val n = when (t) { Tab.Chats -> Badges.chats; Tab.Home -> Badges.channels; else -> 0 }
             if (n > 0) Box(Modifier.align(Alignment.TopEnd)) { Badge(n) }
         }
-        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = if (sel) (if (dark) Color.White else MaterialTheme.colorScheme.onSurface) else on,
+        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = if (sel) (if (dark) Color.White else MaterialTheme.colorScheme.primary) else on,
             fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.dp))
     }
 }
@@ -189,7 +213,7 @@ private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
 private fun NavRail() {
     Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxHeight().width(84.dp).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("Y+", fontWeight = FontWeight.Black, color = Gold, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 10.dp))
+            Text("Y+", fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 10.dp))
             for (t in SiteConfig.tabs) TabItem(t, false, Modifier.width(76.dp))
         }
     }

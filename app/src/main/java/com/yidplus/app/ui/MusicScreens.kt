@@ -105,13 +105,17 @@ object Music {
         then?.let { pending.add(it) }
         if (connecting) return
         connecting = true
-        val f = MediaController.Builder(ctx, SessionToken(ctx, ComponentName(ctx, MusicService::class.java))).buildAsync()
+        // The application context, never an Activity: Android unbinds an Activity's services when it is destroyed
+        // (e.g. the update notification reopening the app), and the controller's own unbind then crashed the app
+        // with "Service not registered".
+        val app = ctx.applicationContext
+        val f = MediaController.Builder(app, SessionToken(app, ComponentName(app, MusicService::class.java))).buildAsync()
         f.addListener({
             connecting = false
             val c = runCatching { f.get() }.getOrNull() ?: return@addListener
             controller = c; c.addListener(listener); sync(c)
             pending.toList().forEach { it(c) }; pending.clear()
-        }, ContextCompat.getMainExecutor(ctx))
+        }, ContextCompat.getMainExecutor(app))
     }
 
     fun play(ctx: Context, list: List<Track>, index: Int) {

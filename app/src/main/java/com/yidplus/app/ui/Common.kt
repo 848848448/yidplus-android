@@ -57,6 +57,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.graphics.graphicsLayer
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -77,6 +89,15 @@ fun Modifier.tap(shape: Shape = RoundedCornerShape(10.dp), role: Role = Role.But
         .clickable(interactionSource = src, indication = androidx.compose.material3.ripple(), enabled = enabled, role = role, onClick = onClick)
 }
 
+/** The row that opened a screen gets the keypad focus back when you come Back to the list. */
+fun Modifier.restoreFocus(key: String): Modifier = composed {
+    if (Nav.lastOpened != key) return@composed this
+    val fr = remember { FocusRequester() }
+    val back = Nav.stack.isEmpty()
+    LaunchedEffect(back) { if (back && Keys.keypad) { for (i in 0 until 8) { delay(80); if (runCatching { fr.requestFocus() }.isSuccess) break } } }
+    this.focusRequester(fr)
+}
+
 /** Put the keypad focus here when the screen opens (only on keypad phones). */
 fun Modifier.firstFocus(always: Boolean = false): Modifier = composed {
     val fr = remember { FocusRequester() }
@@ -90,13 +111,15 @@ fun Modifier.firstFocus(always: Boolean = false): Modifier = composed {
 
 @Composable
 fun TopBar(title: String, onBack: (() -> Unit)? = null, sub: String? = null, lead: (@Composable () -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
-    Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 2.dp, shadowElevation = 1.dp) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (onBack != null) IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack, size = 44.dp) else Spacer(Modifier.width(12.dp))
-            lead?.invoke()
+    // The brand bar (WhatsApp/Telegram style): green, white 20 sp title, white icons. Everything placed in it
+    // (the back arrow, `lead`, `actions`) takes white as its content colour.
+    Surface(color = topBarColor(), contentColor = Color.White, shadowElevation = 3.dp) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (onBack != null) IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack, size = 48.dp) else Spacer(Modifier.width(12.dp))
+            if (lead != null) Box(Modifier.padding(start = 2.dp, end = 4.dp)) { lead() }
             Column(Modifier.weight(1f).padding(horizontal = 6.dp)) {
-                Text(title, style = MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                Text(title, style = MaterialTheme.typography.titleLarge, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp), color = Color.White.copy(alpha = .82f), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             actions()
         }
@@ -104,76 +127,168 @@ fun TopBar(title: String, onBack: (() -> Unit)? = null, sub: String? = null, lea
 }
 
 @Composable
-fun IconBtn(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = MaterialTheme.colorScheme.onSurface, modifier: Modifier = Modifier, size: Dp = 44.dp) {
+fun IconBtn(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, modifier: Modifier = Modifier, size: Dp = 44.dp) {
     Box(modifier.size(size).tap(CircleShape, onClick = onClick), contentAlignment = Alignment.Center) {
-        Icon(icon, contentDescription = label, tint = tint, modifier = Modifier.size(size * 0.58f))
+        Icon(icon, contentDescription = label, tint = tint, modifier = Modifier.size(size * 0.56f))
     }
 }
 
 @Composable
 fun Logo(modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        Text("YID", fontWeight = FontWeight.Black, fontSize = 20.sp, color = MaterialTheme.colorScheme.primary)
-        Text(" PLUS", fontWeight = FontWeight.Black, fontSize = 20.sp, color = Gold)
+        Text("YID", fontWeight = FontWeight.Black, fontSize = 22.sp, color = MaterialTheme.colorScheme.primary)
+        Text(" PLUS", fontWeight = FontWeight.Black, fontSize = 22.sp, color = Gold)
     }
 }
+
+/** Calm, distinct colours for people without a photo (picked from the name, so a person keeps the same colour). */
+private val avatarPalette = listOf(
+    Color(0xFF1F6F5C), Color(0xFF2B7A9B), Color(0xFF7056A8), Color(0xFFC0564A), Color(0xFFC7822A),
+    Color(0xFF3E8E52), Color(0xFF4767A8), Color(0xFFAD4F7E), Color(0xFF00897B), Color(0xFF6D7F2B),
+)
+fun avatarColor(name: String): Color = avatarPalette[Math.floorMod(name.trim().lowercase().hashCode(), avatarPalette.size)]
+
+/** "Moshe Klein" -> "MK", "yidplus" -> "Y", "משה קליין" -> "מק". Emoji and symbols count as a letter. */
+fun nameInitials(name: String): String {
+    val words = name.trim().split(Regex("\\s+")).map { it.trimStart('@', '#', '.', '_', '-') }.filter { it.isNotEmpty() }
+    if (words.isEmpty()) return "Y"
+    fun first(w: String) = String(Character.toChars(w.codePointAt(0))).uppercase()
+    return if (words.size == 1) first(words[0]) else first(words[0]) + first(words[1])
+}
+
+private val defaultPic = Regex("(default[-_]?(avatar|user|profile)|placeholder|no[-_]?avatar|/globe|anonymous)", RegexOption.IGNORE_CASE)
 
 @Composable
 fun Avatar(url: String?, name: String, size: Dp = 40.dp, emoji: String? = null) {
-    Box(Modifier.size(size).clip(CircleShape).background(Green), contentAlignment = Alignment.Center) {
-        val letter = emoji?.takeIf { it.isNotBlank() } ?: name.trim().take(1).uppercase().ifBlank { "Y" }
-        Text(letter, color = Color.White, fontWeight = FontWeight.Bold, fontSize = (size.value * 0.42f).sp)
-        if (!url.isNullOrBlank()) AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+    // A real photo when there is one; otherwise a coloured circle with the person's initials (never a generic globe).
+    val photo = url?.takeIf { it.isNotBlank() && !defaultPic.containsMatchIn(it) }
+    val label = emoji?.takeIf { it.isNotBlank() } ?: nameInitials(name)
+    Box(Modifier.size(size).clip(CircleShape).background(avatarColor(name.ifBlank { "Y" })), contentAlignment = Alignment.Center) {
+        Text(label, color = Color.White, fontWeight = FontWeight.SemiBold, maxLines = 1,
+            fontSize = (size.value * (if (label.length > 1 && emoji.isNullOrBlank()) 0.36f else 0.44f)).sp)
+        if (photo != null) AsyncImage(model = photo, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
     }
 }
 
+/** Unread count: a green pill with white numbers (grey when the chat is muted). */
 @Composable
-fun Badge(n: Int) {
+fun Badge(n: Int, muted: Boolean = false) {
     if (n <= 0) return
-    Box(Modifier.clip(CircleShape).background(Gold).padding(horizontal = 6.dp, vertical = 1.dp), contentAlignment = Alignment.Center) {
-        Text(if (n > 99) "99+" else n.toString(), color = GreenDeep, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+    Box(Modifier.heightIn(min = 20.dp).widthIn(min = 20.dp).clip(CircleShape).background(if (muted) MaterialTheme.colorScheme.outline else BadgeGreen)
+        .padding(horizontal = 5.dp, vertical = 1.dp), contentAlignment = Alignment.Center) {
+        Text(if (n > 99) "99+" else n.toString(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
     }
 }
 
+/**
+ * Loading state. Full-screen lists get a soft skeleton (grey rows that pulse) instead of a bare spinner;
+ * small boxes, buttons and Shorts keep a small spinner. `skeleton` forces one or the other.
+ */
 @Composable
-fun Loading(modifier: Modifier = Modifier.fillMaxSize()) {
-    Box(modifier, contentAlignment = Alignment.Center) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, modifier = Modifier.size(32.dp)) }
+fun Loading(modifier: Modifier = Modifier.fillMaxSize(), skeleton: Boolean? = null) {
+    val list = skeleton ?: (modifier == Modifier.fillMaxSize() && !(Nav.tab == Tab.Shorts && Nav.stack.isEmpty()))
+    if (list) SkeletonRows(modifier) else
+        Box(modifier, contentAlignment = Alignment.Center) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, modifier = Modifier.size(28.dp)) }
+}
+
+/** Placeholder rows shaped like the list that is coming (avatar + two lines), pulsing gently. */
+@Composable
+fun SkeletonRows(modifier: Modifier = Modifier.fillMaxSize(), rows: Int = 8, avatar: Boolean = true) {
+    val t = rememberInfiniteTransition(label = "skeleton")
+    val a by t.animateFloat(0.45f, 1f, infiniteRepeatable(tween(750), RepeatMode.Reverse), label = "pulse")
+    val c = MaterialTheme.colorScheme.onSurface.copy(alpha = if (isDark()) 0.10f else 0.07f)
+    Column(modifier.graphicsLayer { alpha = a }) {
+        repeat(rows) { i ->
+            Row(Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (avatar) { Box(Modifier.size(48.dp).clip(CircleShape).background(c)); Spacer(Modifier.width(14.dp)) }
+                Column(Modifier.weight(1f)) {
+                    Box(Modifier.fillMaxWidth(if (i % 2 == 0) 0.55f else 0.42f).height(14.dp).clip(RoundedCornerShape(7.dp)).background(c))
+                    Spacer(Modifier.height(9.dp))
+                    Box(Modifier.fillMaxWidth(if (i % 3 == 0) 0.85f else 0.7f).height(12.dp).clip(RoundedCornerShape(6.dp)).background(c))
+                }
+            }
+        }
+    }
+}
+
+/** A friendly empty state: an icon in a soft circle, one bold line, one quiet line, and an optional button. */
+@Composable
+fun EmptyNote(icon: ImageVector, title: String, sub: String? = null, modifier: Modifier = Modifier.fillMaxSize(), action: String? = null, onAction: (() -> Unit)? = null) {
+    Column(modifier.padding(horizontal = 32.dp, vertical = 24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Box(Modifier.size(72.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(36.dp))
+        }
+        Spacer(Modifier.height(14.dp))
+        Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
+        if (!sub.isNullOrBlank()) Text(sub, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        if (action != null && onAction != null) { Spacer(Modifier.height(16.dp)); PrimaryButton(action, onAction, Modifier.firstFocus()) }
+    }
 }
 
 @Composable
 fun Problem(message: String, offline: Boolean, onRetry: () -> Unit, modifier: Modifier = Modifier.fillMaxSize()) {
     Column(modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Icon(if (offline) Icons.Filled.CloudOff else Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(48.dp))
-        Spacer(Modifier.size(10.dp))
-        Text(if (offline) "You're offline" else "Couldn't load this", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Text(if (offline) "Check your internet. This page loads by itself when you're back online." else message,
-            style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box(Modifier.size(72.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+            Icon(if (offline) Icons.Filled.CloudOff else Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(36.dp))
+        }
         Spacer(Modifier.size(14.dp))
+        Text(if (offline) "You're offline" else "Couldn't load this", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(if (offline) "Check your internet. This page loads by itself when you're back online." else message,
+            Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.size(16.dp))
         PrimaryButton("Try again", onRetry, Modifier.firstFocus())
     }
 }
 
 @Composable
 fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, color: Color = MaterialTheme.colorScheme.primary) {
-    Box(modifier.heightIn(min = 44.dp).tap(RoundedCornerShape(22.dp), enabled = enabled, onClick = onClick).background(if (enabled) color else color.copy(alpha = .4f)).padding(horizontal = 20.dp, vertical = 10.dp),
+    val fg = if (color == Gold) GreenDeep else if (color == MaterialTheme.colorScheme.primary) MaterialTheme.colorScheme.onPrimary else Color.White
+    Box(modifier.heightIn(min = 48.dp).tap(RoundedCornerShape(24.dp), enabled = enabled, onClick = onClick).background(if (enabled) color else color.copy(alpha = .4f)).padding(horizontal = 22.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center) {
-        Text(text, color = if (color == Gold) GreenDeep else Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+        Text(text, color = fg, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
 @Composable
 fun SecondaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, icon: ImageVector? = null) {
-    Row(modifier.heightIn(min = 44.dp).tap(RoundedCornerShape(22.dp), onClick = onClick).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(22.dp)).padding(horizontal = 16.dp, vertical = 10.dp),
+    Row(modifier.heightIn(min = 48.dp).tap(RoundedCornerShape(24.dp), onClick = onClick).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(24.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
         if (icon != null) { Icon(icon, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary); Spacer(Modifier.width(8.dp)) }
-        Text(text, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text(text, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
 @Composable
 fun SectionTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(start = 16.dp, top = 18.dp, bottom = 4.dp))
+    Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 6.dp))
+}
+
+/** A thin list divider that starts after the avatar/icon column, like WhatsApp's. */
+@Composable
+fun RowDivider(start: Dp = 72.dp) {
+    HorizontalDivider(Modifier.padding(start = start), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+/**
+ * A settings / menu row: 24 dp icon, 16 sp title with one quiet line under it, and at the end a switch (when
+ * `switch` is set), a value (e.g. "Dark") or nothing. 56 dp tall, 72 with a subtitle. Works by touch and by OK.
+ */
+@Composable
+fun SettingRow(icon: ImageVector, title: String, sub: String? = null, switch: Boolean? = null, value: String? = null, danger: Boolean = false,
+               modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val ink = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+    Row(modifier.fillMaxWidth().heightIn(min = if (sub.isNullOrBlank()) 56.dp else 68.dp).tap(RoundedCornerShape(0.dp), role = if (switch != null) Role.Switch else Role.Button, onClick = onClick)
+        .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, null, tint = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
+        Column(Modifier.padding(start = 24.dp).weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+        if (value != null) Text(value, Modifier.padding(start = 8.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+        if (switch != null) Switch(switch, null, modifier = Modifier.padding(start = 10.dp),
+            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, checkedBorderColor = MaterialTheme.colorScheme.primary))
+    }
 }
 
 private val iso = object : ThreadLocal<SimpleDateFormat>() {

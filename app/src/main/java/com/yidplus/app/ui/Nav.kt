@@ -16,9 +16,23 @@ sealed class Screen {
     data class Chat(val room: Room) : Screen()
     data class Video(val url: String, val title: String) : Screen()
     data class Photo(val url: String) : Screen()
+    /** Full-screen photos and videos of one chat or channel: swipe left/right for the next, pinch to zoom, drag down to close. */
+    data class Gallery(val items: List<GItem>, val start: Int) : Screen()
     data class Web(val url: String) : Screen()
     object Player : Screen()
     object Notifications : Screen()
+}
+
+/**
+ * A screen that draws itself. New screens subclass this in their own file (no edit to Nav.kt or AppRoot.kt needed):
+ * `data class GroupInfo(val room: Room) : PageScreen() { override val perfName = "GroupInfo"; @Composable override fun Content() { ... } }`
+ * Opened with Nav.open(GroupInfo(room)); the bottom bar hides while it is open, Back closes it.
+ */
+abstract class PageScreen : Screen() {
+    open val perfName: String get() = this::class.simpleName ?: "Page"
+    /** true = black, full screen, no bars (like the photo viewer). */
+    open val immersive: Boolean get() = false
+    @androidx.compose.runtime.Composable abstract fun Content()
 }
 
 /** The app's own navigation: 5 tabs, each with its own stack; Back goes back inside the app. */
@@ -32,6 +46,8 @@ object Nav {
     var chatDetail by mutableStateOf<Screen.Chat?>(null)
     var wide = false
     var shortsDeepLink by mutableStateOf<String?>(null)
+    /** The list row that opened the screen on top, so Back puts the keypad focus back on it. */
+    var lastOpened by mutableStateOf<String?>(null)
 
     fun go(t: Tab) {
         val ok = if (com.yidplus.app.data.SiteConfig.visible(t)) t else start
@@ -39,7 +55,7 @@ object Nav {
     }
 
     fun open(s: Screen) {
-        Perf.start(when (s) { is Screen.Channel -> "Channel"; is Screen.Chat -> "Chat"; is Screen.Video -> "Video"; is Screen.Photo -> "Photo"; is Screen.Web -> "Web"; Screen.Player -> "Player"; Screen.Notifications -> "Notifications" })
+        Perf.start(when (s) { is Screen.Channel -> "Channel"; is Screen.Chat -> "Chat"; is Screen.Video -> "Video"; is Screen.Photo -> "Photo"; is Screen.Gallery -> "Photo"; is Screen.Web -> "Web"; Screen.Player -> "Player"; Screen.Notifications -> "Notifications"; is PageScreen -> s.perfName })
         if (wide && s is Screen.Channel && tab == Tab.Home && stack.isEmpty()) { homeDetail = s; return }
         if (wide && s is Screen.Chat && tab == Tab.Chats && stack.isEmpty()) { chatDetail = s; return }
         stack.add(s)

@@ -84,18 +84,21 @@ class NotifyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
             for (r in rooms) {
                 val k = "room:" + r.id
                 val last = r.lastTime ?: continue
-                if (r.unread <= 0) { if (st.contains(k)) { e.remove(k); nm.cancel("chat", r.id.hashCode()) }; continue }
+                if (r.unread <= 0) { if (st.contains(k)) { e.remove(k); nm.cancel("chat", r.id.hashCode()); ChatNotify.clear(ctx, r.id) }; continue }
                 if (st.getString(k, null) == last) continue
                 e.putString(k, last)
                 if (first || !allowed) continue
-                val open = Intent(ctx, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_CHAT).putExtra("room", r.json().toString())
-                val n = NotificationCompat.Builder(ctx, CH_CHATS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF1F6F5C.toInt())
-                    .setContentTitle(r.name).setContentText(r.preview.ifBlank { "New message" })
-                    .setStyle(NotificationCompat.BigTextStyle().bigText(r.preview.ifBlank { "New message" }))
-                    .setNumber(r.unread).setSubText(if (r.unread > 1) "${r.unread} new" else null)
-                    .setCategory(NotificationCompat.CATEGORY_MESSAGE).setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setGroup(GROUP_CHATS).setAutoCancel(true).setOnlyAlertOnce(false)
-                    .setContentIntent(pi(ctx, r.id.hashCode(), open)).build()
+                // WhatsApp-style: who wrote, their photo, the messages stacked, inline Reply + Mark as read (ChatNotify). Plain text if the messages can't load.
+                val n = runCatching { ChatNotify.build(ctx, r) }.getOrNull() ?: run {
+                    val open = Intent(ctx, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_CHAT).putExtra("room", r.json().toString())
+                    NotificationCompat.Builder(ctx, CH_CHATS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF1F6F5C.toInt())
+                        .setContentTitle(r.name).setContentText(r.preview.ifBlank { "New message" })
+                        .setStyle(NotificationCompat.BigTextStyle().bigText(r.preview.ifBlank { "New message" }))
+                        .setNumber(r.unread).setSubText(if (r.unread > 1) "${r.unread} new" else null)
+                        .setCategory(NotificationCompat.CATEGORY_MESSAGE).setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setGroup(GROUP_CHATS).setAutoCancel(true).setOnlyAlertOnce(false)
+                        .setContentIntent(pi(ctx, r.id.hashCode(), open)).build()
+                }
                 runCatching { nm.notify("chat", r.id.hashCode(), n) }; shown++
             }
             val unreadChats = rooms.count { it.unread > 0 }

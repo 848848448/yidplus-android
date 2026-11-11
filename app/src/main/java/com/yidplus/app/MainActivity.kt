@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity() {
             "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
             "com.yidplus.app.QA_FEATURES" -> com.yidplus.app.data.SiteConfig.qaShowAll = i.getBooleanExtra("all", false)
             "com.yidplus.app.QA_UPDATE_NOTIFY" -> UpdateWorker.now(this)
+            "com.yidplus.app.QA_DEDUPE" -> lifecycleScope.launch { com.yidplus.app.ui.qaDedupe(applicationContext) }
             ACTION_INSTALL_UPDATE -> UpdateUi.installNow(this)
             ACTION_OPEN_TAB -> runCatching { Tab.valueOf(i.getStringExtra("tab") ?: "Home") }.getOrNull()?.let { Nav.go(it) }
             ACTION_OPEN_NOTIFS -> { Nav.go(Tab.Home); Nav.open(Screen.Notifications) }
