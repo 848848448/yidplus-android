@@ -54,7 +54,7 @@ lk_tapui "Telegram"; sleep 3
 # 2. A Telegram channel (cached copy first, no spinner)
 lk_tap 240 262 7; shot LK-04-tg-channel
 adb shell input swipe 240 520 240 260 300; sleep 2; shot LK-05-tg-channel-scrolled
-lk_mark react-tg; lk_tapui "React"; sleep 1; lk_tapui "👍"; sleep 2; shot LK-05c-tg-reacted
+lk_mark react-tg; lk_tapui "React"; sleep 1; lk_tapui "Quick reaction 1"; sleep 2; shot LK-05c-tg-reacted
 lk_mark share-tg; lk_tapui "Share post"; sleep 3; shot LK-05d-tg-share-sheet; key 4; sleep 1
 lk_mark join-tg; lk_tapui "Join channel"; sleep 3; shot LK-05e-tg-joined
 key 4; sleep 2; lk_tap 240 262 3; shot LK-05b-tg-channel-reopen-cached; key 4; sleep 2
@@ -68,10 +68,16 @@ key 4; sleep 1; key 4; sleep 1
 lk_mine 4
 adb shell input swipe 240 520 240 200 400; sleep 2; shot LK-09b-my-channel-scrolled
 adb shell input swipe 240 520 240 300 400; sleep 2; lk_tapui "Photo"; sleep 3; shot LK-22-gallery-open
-lk_pinch 240 330; sleep 1; shot LK-23-gallery-pinched; lk_glog
-lk_dtap 240 330; sleep 1; shot LK-24-gallery-double-tap-reset; lk_glog
-lk_dtap 300 260; sleep 1; shot LK-25-gallery-double-tap-zoom; lk_glog
-lk_dtap 300 260; sleep 1
+log "touch devices: $(timeout 10 adb shell getevent -pl 2>/dev/null | tr -d '\r' | grep -E 'add device|name:' | paste - - | grep -i touch | head -4 | tr -s ' ' | tr '\n' ';')"
+# (a) the app's own QA hook plays a real 2-finger MotionEvent pinch through the window (proves the gesture code)
+timeout 10 adb shell am broadcast -a com.yidplus.app.QA_GESTURE --es g pinch >/dev/null 2>&1; sleep 2; shot LK-23-gallery-pinched; lk_glog
+adb shell input swipe 300 330 160 330 300; sleep 1; shot LK-23b-gallery-zoomed-panned
+timeout 10 adb shell am broadcast -a com.yidplus.app.QA_GESTURE --es g dtap >/dev/null 2>&1; sleep 2; shot LK-24-gallery-double-tap-reset; lk_glog
+timeout 10 adb shell am broadcast -a com.yidplus.app.QA_GESTURE --es g dtap >/dev/null 2>&1; sleep 2; shot LK-25-gallery-double-tap-zoom; lk_glog
+timeout 10 adb shell am broadcast -a com.yidplus.app.QA_GESTURE --es g pinchin >/dev/null 2>&1; sleep 2; lk_glog
+# (b) the same through the emulator's raw touch screen (two slots)
+lk_pinch 240 330; sleep 1; shot LK-25b-gallery-raw-pinch; lk_glog
+lk_dtap 240 330; sleep 2; lk_glog
 adb shell input swipe 420 330 80 330 160; sleep 2; shot LK-26-gallery-swiped-next
 key 4; sleep 2; key 4; sleep 2
 lk_mine 4
