@@ -320,5 +320,51 @@
     "verified": 1
    }
   ]
+ },
+ "/api/settings": {
+  "ok": true,
+  "settings": {
+   "feat_shorts": "on",
+   "feat_music": "off",
+   "feat_status": "on",
+   "feat_channels": "on",
+   "feat_guest": "on",
+   "feat_music_allow": ""
+  }
+ },
+ "/api/channels": {
+  "ok": true,
+  "channels": [
+   {
+    "id": "c1",
+    "owner_id": "u-chan1",
+    "nickname": "Yanky Music",
+    "name": "Yanky Music",
+    "verified": 0,
+    "followers": 1240,
+    "total_views": 58210,
+    "photo_url": null
+   },
+   {
+    "id": "c2",
+    "owner_id": "u-chaim",
+    "nickname": "חיים'ס ניגונים",
+    "name": "חיים'ס ניגונים",
+    "verified": 1,
+    "followers": 860,
+    "total_views": 31002,
+    "photo_url": null
+   },
+   {
+    "id": "c3",
+    "owner_id": "u-x3",
+    "nickname": "Kids Corner",
+    "name": "Kids Corner",
+    "verified": 0,
+    "followers": 312,
+    "total_views": 9020,
+    "photo_url": null
+   }
+  ]
  }
 }

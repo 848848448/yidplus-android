@@ -137,7 +137,7 @@ fun NotifRow(n: Notif, unread: Boolean, first: Boolean, onClick: () -> Unit) {
                 if (who.isNotBlank()) { withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(who) }; append(" ") }
                 append(action)
             }
-            Text(line, style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Content)),
+            Text(line, style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Ltr)),
                 color = MaterialTheme.colorScheme.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
             Text(ago(n.at), style = MaterialTheme.typography.labelMedium,
                 color = if (unread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))

@@ -12,6 +12,17 @@ adt() {
   if [ -z "$b" ]; then log "adt: '$1' not on screen"; return 0; fi
   set -- $b; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "adt '$1'"
 }
+# scroll down until $1 is on screen (at most 8 swipes), then tap it
+adfind() {
+  local i b
+  for i in 1 2 3 4 5 6 7 8 9; do
+    timeout 30 adb shell uiautomator dump /sdcard/ad.xml >/dev/null 2>&1
+    b=$(timeout 20 adb shell cat /sdcard/ad.xml 2>/dev/null | tr '>' '\n' | grep -E "(text|content-desc)=\"$1\"" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+    if [ -n "$b" ]; then set -- $b; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "adfind tapped after $((i-1)) swipes"; return 0; fi
+    adswipe
+  done
+  log "adfind: '$1' not found"
+}
 # tap the thing whose text is $1, else the point $2 $3 (text fields' labels aren't always in the UI dump)
 adtap() {
   local b; timeout 30 adb shell uiautomator dump /sdcard/ad.xml >/dev/null 2>&1
@@ -30,14 +41,14 @@ adswipe; shot AD-05-settings-verify-share
 adswipe; adswipe; shot AD-06-settings-bottom
 check "AD settings scroll"
 # Colour theme + text size (kept on the phone, like the site's localStorage)
-tab Profile; sleep 2; adswipe; adswipe; adt "Ocean Blue"; sleep 1; adt "L"; sleep 1; shot AD-07-ocean-blue-large-text
+tab Profile; sleep 3; adfind "Ocean Blue"; adt "L"; sleep 2; shot AD-07-ocean-blue-large-text
 adt "M"; adt "Emerald Teal"; sleep 1
 # Save profile (PUT /api/profile with the changed field, like theme.js saveEditField)
-adq EditProfile 5; shot AD-07b-edit-profile; adtap "Brooklyn, NY" 240 420; timeout 10 adb shell input keyevent KEYCODE_MOVE_END; adtype "_Monsey"; adhidekb; adt "SAVE"; sleep 3
+adq EditProfile 5; shot AD-07b-edit-profile; adfind "Brooklyn, NY"; timeout 10 adb shell input keyevent KEYCODE_MOVE_END; adtype "_Monsey"; adhidekb; adt "SAVE"; sleep 3
 proof "save profile" "PUT /api/profile"
 # Privacy (theme.js toggleSetting: PUT /api/profile {key: 1|0})
 adq Privacy; shot AD-08-privacy; adt "Private account"; sleep 2; proof "private account" "is_private"
-adt "Read receipts"; sleep 2; proof "read receipts" "read_receipts"; key 4
+adfind "Read receipts"; sleep 2; proof "read receipts" "read_receipts"; key 4
 # Notification prefs
 adq NotifPrefs; adt "New likes"; sleep 2; proof "notif likes" "notif_likes"; shot AD-09-notif-prefs; key 4
 # Chat settings (wallpaper / silent calls are local)
@@ -45,8 +56,9 @@ adq ChatSettings; adt "Mint"; sleep 1; shot AD-10-chat-settings; key 4
 
 log "---- AD: Notifications page ----"
 timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_NOTIFS >/dev/null 2>&1; sleep 5; shot AD-11-notifications
-key 23; sleep 3; proof "open notification" "POST /api/notifications"; shot AD-12-notification-opened; key 4; sleep 2
-adt "Mark all read"; sleep 2; proof "mark all read" "\"read\":\"all\""; shot AD-13-notifications-all-read; key 4
+adt "Mark all read"; sleep 2; proof "mark all read" "\"read\":\"all\""; shot AD-13-notifications-all-read; key 4; sleep 1
+restart 5; timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_NOTIFS >/dev/null 2>&1; sleep 5
+timeout 10 adb shell input tap 240 140; sleep 4; proof "open one notification" "\"read\":\"n"; shot AD-12-notification-opened; key 4; sleep 2
 
 log "---- AD: Admin (native) ----"
 adq Admin 6; shot AD-20-admin-dashboard
@@ -58,19 +70,19 @@ adq AdminUsers 5; shot AD-25-admin-users
 adtap "Search by nickname or email" 240 140; adtype "Yan"; sleep 2; adhidekb; shot AD-26-admin-users-search; key 4
 adq AdminUser 5; shot AD-27-admin-user
 adt "Verify"; sleep 2; proof "verify user" "\"verified\":true"
-adt "Mute"; sleep 2; adt "24 hours"; sleep 2; proof "mute user" "POST /api/admin/mute"
-adt "Block"; sleep 2; shot AD-28-admin-block-confirm; adt "Block"; sleep 2; proof "block user" "\"blocked\":true"
-adswipe; adt "Promote to super admin"; sleep 2; adt "Yes"; sleep 2; proof "promote" "\"role\":\"admin_super\""
+adfind "Mute"; sleep 2; adt "24 hours"; sleep 2; proof "mute user" "POST /api/admin/mute"
+adfind "Block"; sleep 2; shot AD-28-admin-block-confirm; adt "Block"; sleep 2; proof "block user" "\"blocked\":true"
+adfind "Promote to super admin"; sleep 2; adt "Yes"; sleep 2; proof "promote" "\"role\":\"admin_super\""
 shot AD-29-admin-user-after; key 4
 adq AdminReports 5; shot AD-30-admin-reports; adt "Dismiss"; sleep 2; proof "dismiss report" "DELETE /api/reports"
 adt "Ban"; sleep 2; adt "Ban"; sleep 2; proof "ban from report" "\"blocked\":true"; key 4
 adq AdminVerify 5; shot AD-31-admin-verify; adt "Approve"; sleep 2; proof "approve verify" "PUT /api/verify-request"; key 4
-adq AdminChannels 6; shot AD-32-admin-channels; adt "Verify"; sleep 2; proof "verify channel" "PUT /api/admin/users"; key 4
+adq AdminChannels 6; shot AD-32-admin-channels; adt "Verify"; sleep 2; proof "verify channel" "u-chan1"; key 4
 adq AdminTelegram 6; shot AD-33-admin-telegram; adtap "@channelusername" 240 190; adtype "yidplustest"; adhidekb; adt "Add channel"; sleep 2; proof "add telegram channel" "POST /api/telegram-channels"; key 4
 adq AdminBroadcast 5; shot AD-34-admin-broadcast; adtap "Message" 240 200; adtype "Shalom_everyone"; adhidekb; adt "Send now"; sleep 2; shot AD-35-broadcast-confirm; adt "Send"; sleep 3; proof "broadcast" "POST /api/broadcasts"; key 4
 adq AdminBadWords 5; shot AD-36-admin-word-filter; adtap "Add a word" 180 205; adtype "testbadword"; adhidekb; adt "Add"; sleep 2; proof "add bad word" "POST /api/admin/bad-words"
 adt "spamword"; sleep 2; proof "remove bad word" "DELETE /api/admin/bad-words"; key 4
-adq AdminWeb 5; shot AD-37-admin-web-pin; adtap "••••" 240 300; adtype "1234"; adhidekb; sleep 1; adt "Unlock"; sleep 6; proof "admin pin" "/api/admin/verify-pin"; shot AD-38-admin-web-after-pin; key 4
+adq AdminWeb 5; shot AD-37-admin-web-pin; adtype "1234"; sleep 1; timeout 10 adb shell input keyevent 66; sleep 4; adt "Unlock"; sleep 1; sleep 6; proof "admin pin" "/api/admin/verify-pin"; shot AD-38-admin-web-after-pin; key 4
 check "AD admin"
 
 log "---- AD: dark mode ----"

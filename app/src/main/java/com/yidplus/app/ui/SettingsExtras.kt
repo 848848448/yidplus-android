@@ -28,7 +28,7 @@ import com.yidplus.app.data.str
 
 // The website's Settings page, section by section (js/theme.js buildSettingsPage + js/comfort.js "Reading and help").
 
-/** The site's top card: photo, name, @nickname, email and an Edit Profile button. */
+/** The site's top card: photo, name, @nickname, email and an Edit Profile button (laid out as a row so it fits a 480x640 screen). */
 @Composable
 fun SettingsTopCard(onEdit: () -> Unit) {
     val me = Session.me
@@ -40,22 +40,26 @@ fun SettingsTopCard(onEdit: () -> Unit) {
     val verified = (p?.optInt("verified") ?: 0) == 1
     val role = when { me?.isOwner == true || me?.role == "owner" -> "Owner"; me?.role == "admin_super" -> "Super admin"; me?.role == "admin_limited" -> "Moderator"; else -> null }
     Surface(color = MaterialTheme.colorScheme.surface) {
-        Column(Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(Modifier.tap(CircleShape, onClick = onEdit)) {
-                Avatar(photo, nick.ifBlank { "Me" }, 88.dp)
-                Box(Modifier.align(Alignment.BottomEnd).size(28.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
-                    contentAlignment = Alignment.Center) { Icon(Icons.Filled.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(15.dp)) }
+        Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.tap(CircleShape, onClick = onEdit)) {
+                    Avatar(photo, nick.ifBlank { "Me" }, 72.dp)
+                    Box(Modifier.align(Alignment.BottomEnd).size(24.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
+                        contentAlignment = Alignment.Center) { Icon(Icons.Filled.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(13.dp)) }
+                }
+                Column(Modifier.weight(1f).padding(start = 14.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(first ?: nick, style = MaterialTheme.typography.titleLarge.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                        if (verified) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 6.dp).size(18.dp))
+                        if (role != null) Text(role, Modifier.padding(start = 6.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.tertiaryContainer).padding(horizontal = 6.dp, vertical = 1.dp),
+                            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onTertiaryContainer, maxLines = 1)
+                    }
+                    Text("@$nick", style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Ltr)), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (!email.isNullOrBlank()) Text(email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
             }
-            Row(Modifier.padding(top = 10.dp, start = 16.dp, end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(first ?: nick, style = MaterialTheme.typography.titleLarge.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                if (verified) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 6.dp).size(20.dp))
-            }
-            Text("@$nick", style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Content)), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (!email.isNullOrBlank()) Text(email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (role != null) Text(role, Modifier.padding(top = 6.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.tertiaryContainer).padding(horizontal = 8.dp, vertical = 2.dp),
-                style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
-            Box(Modifier.padding(top = 12.dp).clip(RoundedCornerShape(20.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp))
-                .firstFocus().tap(RoundedCornerShape(20.dp), onClick = onEdit).padding(horizontal = 22.dp, vertical = 9.dp)) {
+            Box(Modifier.padding(top = 12.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp))
+                .firstFocus().tap(RoundedCornerShape(20.dp), onClick = onEdit).padding(vertical = 9.dp), contentAlignment = Alignment.Center) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Edit, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                     Text("Edit Profile", Modifier.padding(start = 6.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
