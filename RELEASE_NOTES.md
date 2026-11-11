@@ -1,9 +1,9 @@
 ## New
-- One header only: the page's own header, no more double "YID PLUS" bar
-- The bottom menu is the website's own menu (Chats, Shorts, Channels, Settings...) and follows the site's admin settings
-- Update notification with what's new; tap it to install
-- Settings shows the app version and a "Check for updates" button
+- Tabs stay open: switching between Chats, Shorts, Channels and Settings is instant, no reload
+- No more loading line at the top
+- Shorts: a short flick goes to the next video
 
-## Fixed
-- Neat, even spacing on small screens and older phones (480x640 keypad phones)
-- Shorts fills the screen; buttons and topics fit on small screens
+## From 1.0.3
+- One header only, and the bottom menu is the website's own menu (follows the site's admin settings)
+- Neat, even spacing on small screens and older phones
+- Update notification with what's new; tap it to install

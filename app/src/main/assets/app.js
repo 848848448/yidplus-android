@@ -213,16 +213,40 @@
     area.insertBefore(row, area.firstChild);
   }
   var lastSec = '';
-  function report() {
+  function report(force) {
     try {
       if (!TOP || !B || !document.body) return;
+      if (document.hidden && force !== true) return; // a kept-alive tab that is not on screen stays quiet
       reportNav(); appRow();
       if (!B.setSection) return;
       var s = section(), k = JSON.stringify(s);
       if (k !== lastSec) { lastSec = k; B.setSection(k); }
     } catch (_) {}
   }
+  window.__ypReport = function () { lastSec = ''; lastBars = ''; report(true); try { if (B) B.setBars(bgAt(Math.floor(innerWidth / 2), 1), ''); } catch (_) {} };
   if (TOP) loadFlags();
+
+  // ---- Shorts: a short, quick flick is enough to go to the next / previous video (old engines need a long drag) ----
+  (function () {
+    var y0 = 0, t0 = 0, top0 = 0, box = null;
+    function feed(el) { return el && el.closest ? el.closest('#src-cont,#swipe-cont') : null; }
+    document.addEventListener('touchstart', function (e) {
+      box = feed(e.target); if (!box || e.touches.length !== 1) { box = null; return; }
+      if (e.target.closest('.src-sheet,.cmt-drawer,input,textarea,.src-chips')) { box = null; return; }
+      y0 = e.touches[0].clientY; t0 = Date.now(); top0 = box.scrollTop;
+    }, { capture: true, passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (!box) return;
+      var c = box; box = null;
+      var dy = y0 - (e.changedTouches[0] ? e.changedTouches[0].clientY : y0), dt = Date.now() - t0, h = c.clientHeight || innerHeight;
+      if (Math.abs(dy) < 28 || dt > 700) return;
+      var from = Math.round(top0 / h), to = Math.max(0, from + (dy > 0 ? 1 : -1));
+      setTimeout(function () {
+        if (Math.round(c.scrollTop / h) === to) return; // the page already went there
+        try { c.scrollTo({ top: to * h, behavior: 'smooth' }); } catch (_) { c.scrollTop = to * h; }
+      }, 60);
+    }, { capture: true, passive: true });
+  })();
   document.addEventListener('DOMContentLoaded', report);
   window.addEventListener('load', report);
   window.addEventListener('popstate', function () { setTimeout(report, 50); });

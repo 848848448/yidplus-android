@@ -164,6 +164,10 @@ else log "MUSIC: not in the bottom bar (turned off in the site's admin)"; fi
 navtap "Channels"; sleep 10; shot 09-channels
 adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 09b-channels-scrolled
 navtap "Settings"; sleep 10; shot 10-settings
+# Tabs are kept alive: going back to Chats shows it at once (no reload, no loading line)
+navtap "Chats"; sleep 1.5; shot 10b-chats-again-1s
+navtap "Shorts"; sleep 1.5; shot 10c-shorts-again-1s
+navtap "Settings"; sleep 1.5
 adb shell input keyevent 4; sleep 4; shot 11-after-back
 check back
 

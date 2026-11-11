@@ -83,6 +83,8 @@ class MainActivity : AppCompatActivity() {
         const val ACTION_CHECK_UPDATE = "com.yidplus.app.CHECK_UPDATE"
         const val ACTION_INSTALL_UPDATE = "com.yidplus.app.INSTALL_UPDATE"
         private const val NAV_ID0 = 0x7f0f1000
+        private const val PAUSE_VIDEOS_JS = "document.querySelectorAll('video').forEach(function(v){if(!v.paused){v.__ypWas=1;v.pause()}})"
+        private const val RESUME_VIDEOS_JS = "document.querySelectorAll('video').forEach(function(v){if(v.__ypWas){v.__ypWas=0;var p=v.play();if(p&&p.catch)p.catch(function(){})}})"
         private val NAV_LIGHT_BG = Color.WHITE
         private val NAV_DARK_BG = Color.rgb(0x14, 0x22, 0x1F)
         /** The site's own default bottom nav (index.html), used until the page reports the live one. */
@@ -94,7 +96,10 @@ class MainActivity : AppCompatActivity() {
         private const val CHECK_EVERY_MS = 6L * 60 * 60 * 1000
     }
 
-    private lateinit var web: WebView
+    private lateinit var web: WebView // the WebView on screen now
+    /** One WebView per bottom-bar page, kept alive: switching tabs shows it again instead of reloading. */
+    private val webs = LinkedHashMap<String, WebView>()
+    private var webGroup = "index"
     private lateinit var refresh: PullRefreshLayout
     private lateinit var progress: LinearProgressIndicator
     private lateinit var offline: View
@@ -255,6 +260,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             if (!handleIntent(intent, coldStart = true)) web.loadUrl(HOME)
         }
+        webGroup = groupOfUrl(web.url ?: intent?.data?.toString() ?: HOME)
+        webs[webGroup] = web
         watchNetwork()
         askNotificationPermission()
         if (intent?.action == ACTION_INSTALL_UPDATE) installFromNotification()
@@ -290,7 +297,11 @@ class MainActivity : AppCompatActivity() {
     private fun prefsNative() = getSharedPreferences("native", MODE_PRIVATE)
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun setupWebView() {
+    private fun setupWebView() = setupWebView(web)
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupWebView(web: WebView) {
+        val w = web
         val bg = ContextCompat.getColor(this, R.color.page_bg)
         web.setBackgroundColor(bg)
         val s = web.settings
@@ -319,13 +330,13 @@ class MainActivity : AppCompatActivity() {
         cookies.setAcceptThirdPartyCookies(web, true)
 
         web.addJavascriptInterface(WebBridge(
-            onPullable = { refresh.pageAllowsPull = it },
-            onBars = { t, _ -> if (t != null) main.post { applyTop(t) } },
+            onPullable = { if (w === this@MainActivity.web) refresh.pageAllowsPull = it },
+            onBars = { t, _ -> if (t != null) main.post { if (w === this@MainActivity.web) applyTop(t) } },
             onNav = { j -> main.post { applyNav(j, save = true) } },
-            onSection = { json -> main.post { onSection(json) } },
-            onFocusNav = { main.post { focusNav() } },
+            onSection = { json -> main.post { if (w === this@MainActivity.web) onSection(json) } },
+            onFocusNav = { main.post { if (w === this@MainActivity.web) focusNav() } },
             onFocusTop = { main.post { focusTop() } },
-            onTab = { n -> main.post { if (n in 1..5) goTab(n - 1) } },
+            onTab = { n -> main.post { if (w === this@MainActivity.web && n in 1..5) goTab(n - 1) } },
         ), "YidplusAppBridge")
 
         val script = assets.open("compat.js").bufferedReader().use { it.readText() } + "\n" +
@@ -345,12 +356,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
-                mainFrameFailed = false
-                progress.visibility = View.VISIBLE
+                if (view === this@MainActivity.web) mainFrameFailed = false
+                // no loading line: the page keeps showing until the next one paints
             }
 
             override fun onPageCommitVisible(view: WebView, url: String?) {
-                if (!mainFrameFailed) { pageShown = true; offline.visibility = View.GONE }
+                if (view === this@MainActivity.web && !mainFrameFailed) { pageShown = true; offline.visibility = View.GONE }
                 // Old web engines can't run the script at document start: run it as early as they let us
                 if (!docStart && url != null && Uri.parse(url).host in APP_HOSTS) view.evaluateJavascript(script, null)
             }
@@ -358,7 +369,7 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView, url: String?) {
                 refresh.isRefreshing = false
                 progress.visibility = View.GONE
-                if (!mainFrameFailed) { pageShown = true; offline.visibility = View.GONE }
+                if (view === this@MainActivity.web && !mainFrameFailed) { pageShown = true; offline.visibility = View.GONE }
                 // The site's own offline page (from its service worker) counts as offline too
                 loadedOffline = !isOnline()
                 if (!docStart && url != null && Uri.parse(url).host in APP_HOSTS) view.evaluateJavascript(script, null)
@@ -367,6 +378,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
                 if (!request.isForMainFrame) return
+                if (view !== this@MainActivity.web) { view.tag = "failed"; return }
                 mainFrameFailed = true
                 refresh.isRefreshing = false
                 progress.visibility = View.GONE
@@ -383,8 +395,7 @@ class MainActivity : AppCompatActivity() {
 
         web.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView, newProgress: Int) {
-                progress.setProgressCompat(newProgress, true)
-                if (newProgress >= 100) progress.visibility = View.GONE
+                // the top loading line is gone (it made every tab switch feel like a web page loading)
             }
 
             override fun onShowCustomView(view: View, callback: CustomViewCallback) {
@@ -563,7 +574,7 @@ class MainActivity : AppCompatActivity() {
                 main.post {
                     val left = AtomicInteger(set.size)
                     for (cookie in set) CookieManager.getInstance().setCookie("https://yidplus.com", cookie) {
-                        if (left.decrementAndGet() == 0) { CookieManager.getInstance().flush(); web.loadUrl(HOME) }
+                        if (left.decrementAndGet() == 0) { CookieManager.getInstance().flush(); dropOtherWebs(); web.loadUrl(HOME); web.setTag(R.id.content, loginNow()) }
                     }
                 }
             } catch (e: Exception) { main.post { toast(getString(R.string.google_failed)) } }
@@ -755,7 +766,66 @@ class MainActivity : AppCompatActivity() {
         markTab(currentTab)
     }
 
-    /** Opens a section exactly the way the site's own nav button does. */
+    /** Which kept-alive WebView a bottom-bar item lives in: the site has one page each for Chats, Shorts and Music, the rest is the main page. */
+    private fun groupOf(key: String) = when (key) { "chats" -> "chat"; "shorts" -> "shorts"; "music" -> "music"; else -> "index" }
+
+    private fun groupOfUrl(url: String?): String {
+        val p = url?.let { Uri.parse(it).path }?.removeSuffix(".html") ?: return "index"
+        return when {
+            p.startsWith("/yidplus-chat") || p.startsWith("/chat") -> "chat"
+            p.startsWith("/yidplus-shorts") || p.startsWith("/shorts") -> "shorts"
+            p.startsWith("/yidplus-music") || p.startsWith("/music") -> "music"
+            else -> "index"
+        }
+    }
+
+    /** Puts a kept-alive WebView on screen (creating it the first time). Shorts videos pause when it is hidden. */
+    private fun showWeb(group: String): Pair<WebView, Boolean> {
+        var created = false
+        val target = webs[group] ?: WebView(this).also { w ->
+            created = true
+            w.id = View.generateViewId()
+            w.isFocusable = true; w.isFocusableInTouchMode = true
+            w.nextFocusDownId = R.id.nav
+            setupWebView(w)
+            val content = findViewById<FrameLayout>(R.id.content)
+            content.addView(w, 1, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+            webs[group] = w
+        }
+        if (target !== web) {
+            val old = web
+            old.evaluateJavascript(PAUSE_VIDEOS_JS, null)
+            target.visibility = View.VISIBLE
+            old.visibility = View.INVISIBLE
+            web = target; webGroup = group
+            // signed in or out on another tab since this one loaded: load it fresh so it shows the same account
+            if (!created && loginKey(target) != loginNow()) { target.reload(); target.setTag(R.id.content, loginNow()) }
+            target.onResume()
+            target.evaluateJavascript(RESUME_VIDEOS_JS, null)
+            lastSecJs(target)
+        }
+        return target to created
+    }
+
+    /** The sign-in cookies only (other cookies change all the time). */
+    private fun loginNow(): String = (CookieManager.getInstance().getCookie("https://yidplus.com") ?: "")
+        .split(";").map { it.trim() }.filter { Regex("^[^=]*(sess|auth|token|sid|login|user)[^=]*=", RegexOption.IGNORE_CASE).containsMatchIn(it) }.sorted().joinToString(";")
+    private fun loginKey(w: WebView): String = (w.getTag(R.id.content) as? String) ?: loginNow().also { w.setTag(R.id.content, it) }
+
+    /** After signing in with Google every kept tab is out of date: drop them, they reopen fresh. */
+    private fun dropOtherWebs() {
+        val keep = web
+        for ((g, w) in webs.entries.toList()) if (w !== keep && w.id != R.id.web) {
+            webs.remove(g); runCatching { (w.parent as? ViewGroup)?.removeView(w); w.destroy() }
+        } else if (w !== keep) { webs.remove(g); w.loadUrl("about:blank"); w.visibility = View.INVISIBLE }
+    }
+
+    private fun lastSecJs(w: WebView) {
+        // the page tells the bar which section it is on (it only reports changes, so ask it to report now)
+        w.evaluateJavascript("window.__ypReport&&window.__ypReport(true)", null)
+    }
+
+    /** Opens a section exactly the way the site's own nav button does, in that section's kept-alive WebView: no reload. */
     private fun goTab(i: Int, fromNav: Boolean = false) {
         if (i < 0 || i >= navKeys.size) return
         if (customView != null) exitFullscreen()
@@ -768,13 +838,18 @@ class MainActivity : AppCompatActivity() {
             "music" -> "https://yidplus.com/yidplus-music.html"
             else -> "https://yidplus.com/?goto=" + Uri.encode(key)
         }
-        val host = web.url?.let { Uri.parse(it).host }
-        if (pageShown && host in APP_HOSTS && offline.visibility != View.VISIBLE) {
-            web.evaluateJavascript("(function(){if(window.__ypGo){return window.__ypGo(" + JSONObject.quote(key) + ")?1:0}return 0})()") { r ->
-                if (r != "1") web.loadUrl(url)
+        val group = groupOf(key)
+        val wasHere = webGroup == group
+        val (w, created) = showWeb(group)
+        if (created || w.url.isNullOrBlank() || w.tag == "failed") { w.tag = null; w.loadUrl(url) }
+        else if (group == "index" || (wasHere && groupOfUrl(w.url) != group)) {
+            // the main page switches screens in place; any other page that wandered off goes back to its section
+            w.evaluateJavascript("(function(){if(window.__ypGo){return window.__ypGo(" + JSONObject.quote(key) + ")?1:0}return 0})()") { r ->
+                if (r != "1") w.loadUrl(url)
             }
-        } else web.loadUrl(url)
-        if (fromNav) web.requestFocus()
+        }
+        if (fromNav) w.requestFocus()
+        applyBars(0, 0)
     }
 
     private fun markTab(key: String) {
@@ -1044,6 +1119,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         web.onResume()
+        web.evaluateJavascript(RESUME_VIDEOS_JS, null)
         if (awaitingInstallPermission) {
             awaitingInstallPermission = false
             val info = pendingUpdate
@@ -1054,6 +1130,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         CookieManager.getInstance().flush()
+        for (w in webs.values) w.evaluateJavascript(PAUSE_VIDEOS_JS, null)
         web.onPause()
         super.onPause()
     }
@@ -1072,7 +1149,7 @@ class MainActivity : AppCompatActivity() {
         fileCallback?.onReceiveValue(null); fileCallback = null
         mediaRequest?.deny(); mediaRequest = null
         network?.let { runCatching { (getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).unregisterNetworkCallback(it) } }
-        runCatching { (web.parent as? ViewGroup)?.removeView(web); web.destroy() }
+        for (w in (webs.values + web).toSet()) runCatching { (w.parent as? ViewGroup)?.removeView(w); w.destroy() }
         io.shutdown()
         super.onDestroy()
     }
