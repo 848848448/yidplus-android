@@ -132,9 +132,15 @@ object Fixture {
         val d = data ?: return null
         val u = r.url
         if (!u.host.endsWith("yidplus.com") || !u.encodedPath.startsWith("/api/")) return null
-        if (r.method != "GET") return JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
         val q = u.encodedQuery
         val full = u.encodedPath + (if (q.isNullOrBlank()) "" else "?$q")
+        if (r.method != "GET") {
+            // The QA log shows exactly what this action would send to the site (tag YidFx), so each action can be checked against the site's own code.
+            val ct = r.body?.contentType()?.toString().orEmpty()
+            val b = if (ct.contains("json")) runCatching { okio.Buffer().also { r.body?.writeTo(it) }.readUtf8().take(400) }.getOrDefault("") else "<$ct ${r.body?.contentLength() ?: 0} bytes>"
+            android.util.Log.i("YidFx", "${r.method} $full $b")
+            return JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
+        }
         return d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath)
     }
 }

@@ -25,6 +25,7 @@ fx_block() {
   size 480x640 240
   # Each area adds its own signed-in steps in qa/fx-<area>.sh (still signed in with the fixture account here).
   for f in qa/fx-*.sh; do [ -f "$f" ] || continue; log "---- $f ----"; restart 5; source "$f"; check "$f"; done
+  timeout 30 adb logcat -d -s YidFx > "$OUT/fx-requests.txt" 2>/dev/null; log "fixture writes the app would have sent: $(grep -c YidFx "$OUT/fx-requests.txt")"
   fx false; restart 5; check fx-off
 }
 fx_finish() {
