@@ -75,6 +75,8 @@ fun soNum(n: Int): String = when {
     else -> n.toString()
 }
 
+fun soMembers(n: Int): String = if (n == 1) "1 member" else soNum(n) + " members"
+
 object SoUser {
     val signedIn: Boolean get() = Session.me != null
     /** The site's super admins and the owner (what the site checks with isSuperOrOwner). */

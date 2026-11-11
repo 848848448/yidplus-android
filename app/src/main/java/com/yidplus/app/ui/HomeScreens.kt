@@ -1,5 +1,6 @@
 package com.yidplus.app.ui
 
+import androidx.activity.compose.BackHandler
 import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.core.RepeatMode
@@ -72,9 +73,10 @@ fun HomeScreen() {
     var q by rememberSaveable { mutableStateOf("") }
     var view by rememberSaveable { mutableIntStateOf(runCatching { Api.app.getSharedPreferences("social", 0).getInt("chView", 0) }.getOrDefault(0)) }
     var adding by remember { mutableStateOf(false) }
+    BackHandler(enabled = searching) { searching = false; q = "" }
     val list = res.data
     LaunchedEffect(list) { if (list != null) { Perf.shown("Home"); Badges.channels = list.filter { it.joined }.sumOf { it.unread } } }
-    val views = listOf("Telegram", "Joined", "Members", "New posts")
+    val views = listOf("Telegram", "Joined", "Members", "Recent")
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (searching) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
@@ -89,16 +91,16 @@ fun HomeScreen() {
             }
         } else TopBar("Channels") {
             if (SoUser.isSuper && view <= 1) IconBtn(Icons.Filled.Add, "Add a Telegram channel", { adding = true }, tint = LocalContentColor.current)
-            HeaderActions(onSearch = { searching = true })
+            SoHeaderActions(onSearch = { searching = true })
         }
         SoChips(views, view, { view = it; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", it).apply() } })
-        if (searching && q.trim().length >= 2) Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(SiteSearchPage()) }
+        if (searching && q.trim().length >= 2) Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(SoSearchPage()) }
             .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Filled.TravelExplore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             Text("Search all of YID PLUS", Modifier.padding(start = 12.dp), color = MaterialTheme.colorScheme.primary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
         }
         Box(Modifier.weight(1f)) {
-            if (view >= 2) SiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
+            if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
             else PullToRefreshBox(isRefreshing = res.loading && list != null, onRefresh = { scope.launch { res.load(force = true) } }, modifier = Modifier.fillMaxSize()) {
                 when {
                     list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
@@ -123,7 +125,7 @@ fun HomeScreen() {
             }
         }
     }
-    if (adding) AddTgChannelDialog { adding = false }
+    if (adding) SoAddTgChannelDialog { adding = false }
 }
 
 @Composable
@@ -142,12 +144,12 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
                 if (joined && ch.lastAt != null) Text(ago(ch.lastAt), fontSize = 12.sp, color = if (ch.unread > 0) Color(0xFF25A36F) else MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                val prev = if (!joined) "${soNum(ch.members)} members" else ch.lastText.replace('\n', ' ').ifBlank {
-                    when (ch.lastMedia) { "photo" -> "📷 Photo"; "video" -> "🎬 Video"; "audio" -> "🎵 Audio"; "" -> "${soNum(ch.members)} members"; else -> "📎 File" } }
+                val prev = if (!joined) soMembers(ch.members) else ch.lastText.replace('\n', ' ').ifBlank {
+                    when (ch.lastMedia) { "photo" -> "📷 Photo"; "video" -> "🎬 Video"; "audio" -> "🎵 Audio"; "" -> soMembers(ch.members); else -> "📎 File" } }
                 Text(prev, Modifier.weight(1f), fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = TextStyle(textDirection = TextDirection.Content))
                 if (joined) SoBadge(ch.unread, Modifier.padding(start = 8.dp))
-                else SoPill("Join", true, { scope.launch { tgToggleJoin(c, ch.username)?.let { joined = it.first } } }, Modifier.padding(start = 8.dp).soTouchOnly())
+                else SoPill("Join", true, { scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } }, Modifier.padding(start = 8.dp).soTouchOnly())
             }
         }
     }
@@ -163,7 +165,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
     val scope = rememberCoroutineScope()
     val posts = remember(ch.username) { mutableStateListOf<TgPost>() }
     val buffer = remember(ch.username) { ArrayList<TgPost>() }
-    val reacts = remember(ch.username) { TgReacts(ch.username) }
+    val reacts = remember(ch.username) { SoTgReacts(ch.username) }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var offline by remember { mutableStateOf(false) }
@@ -220,20 +222,20 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
         refresh(); if (posts.isNotEmpty()) Perf.shown("Channel")
     }
     LaunchedEffect(Net.online) { if (Net.online && offline) refresh() }
-    fun toggleJoin() { if (!joining) scope.launch { joining = true; tgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; joining = false } }
+    fun toggleJoin() { if (!joining) scope.launch { joining = true; soTgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; joining = false } }
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        TopBar(ch.title, onBack = { Nav.back() }, sub = "${soNum(members)} members", lead = {
-            Box(Modifier.tap(CircleShape) { Nav.open(TgInfoPage(ch.copy(joined = joined, members = members))) }) { SoThumb(ch.photo, ch.title, 36.dp) }
+        TopBar(ch.title, onBack = { Nav.back() }, sub = soMembers(members), lead = {
+            Box(Modifier.tap(CircleShape) { Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) }) { SoThumb(ch.photo, ch.title, 36.dp) }
         }) {
-            IconBtn(Icons.Filled.Share, "Share channel", { share(c, ch.title + "\n" + tgLink(ch.username)) }, tint = LocalContentColor.current)
+            IconBtn(Icons.Filled.Share, "Share channel", { share(c, ch.title + "\n" + soTgLink(ch.username)) }, tint = LocalContentColor.current)
             Box {
                 IconBtn(Icons.Filled.MoreVert, "More", { menu = true }, tint = LocalContentColor.current)
                 DropdownMenu(menu, { menu = false }) {
-                    DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Icons.Filled.Info, null) }, onClick = { menu = false; Nav.open(TgInfoPage(ch.copy(joined = joined, members = members))) })
+                    DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Icons.Filled.Info, null) }, onClick = { menu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) })
                     DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Icons.Filled.Logout else Icons.Filled.Add, null) },
                         onClick = { menu = false; toggleJoin() })
-                    DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Icons.Filled.Link, null) }, onClick = { menu = false; soCopy(c, tgLink(ch.username)) })
+                    DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Icons.Filled.Link, null) }, onClick = { menu = false; soCopy(c, soTgLink(ch.username)) })
                     DropdownMenuItem(text = { Text("Open in Telegram") }, leadingIcon = { Icon(Icons.AutoMirrored.Filled.Send, null) }, onClick = { menu = false; openUrl(c, "https://t.me/" + ch.username) })
                 }
             }
@@ -278,7 +280,7 @@ private fun PostSkeleton() {
 }
 
 @Composable
-private fun PostCard(p: TgPost, ch: TgChannel, reacts: TgReacts, modifier: Modifier, onMedia: (String) -> Unit = { }, onDeleted: () -> Unit = {}) {
+private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Modifier, onMedia: (String) -> Unit = { }, onDeleted: () -> Unit = {}) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     var ask by remember { mutableStateOf(false) }
@@ -289,8 +291,8 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: TgReacts, modifier: Modif
                 if (e.type != KeyEventType.KeyDown) return@onKeyEvent false
                 val n = e.nativeKeyEvent.keyCode - android.view.KeyEvent.KEYCODE_1
                 when {
-                    n in 0..7 -> { scope.launch { reacts.react(c, p.id, TG_QUICK[n]) }; true }
-                    e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_0 -> { share(c, listOf(ch.title, p.text.take(200), tgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n")); true }
+                    n in 0..7 -> { scope.launch { reacts.react(c, p.id, SO_TG_QUICK[n]) }; true }
+                    e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_0 -> { share(c, listOf(ch.title, p.text.take(200), soTgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n")); true }
                     else -> false
                 }
             }.tap(RoundedCornerShape(14.dp)) {
@@ -329,7 +331,7 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: TgReacts, modifier: Modif
                         fontSize = 16.sp, lineHeight = 22.sp, style = TextStyle(textDirection = TextDirection.Content))
                 }
             }
-            TgReactionRow(p.id, reacts, Modifier.padding(horizontal = 10.dp, vertical = 2.dp))
+            SoTgReactionRow(p.id, reacts, Modifier.padding(horizontal = 10.dp, vertical = 2.dp))
             Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 2.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (p.views > 0) { Icon(Icons.Filled.Visibility, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(" " + soNum(p.views), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -337,7 +339,7 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: TgReacts, modifier: Modif
                 Spacer(Modifier.weight(1f))
                 if (SoUser.isSuper) IconBtn(Icons.Filled.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
                 IconBtn(Icons.Filled.Share, "Share post", {
-                    share(c, listOf(ch.title, p.text.take(200), tgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n"))
+                    share(c, listOf(ch.title, p.text.take(200), soTgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n"))
                 }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
             }
         }
