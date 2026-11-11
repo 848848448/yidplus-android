@@ -95,31 +95,31 @@ fun ProfileScreen() {
     // Emulator QA (signed out): `--es qa_page demo:Privacy` shows the signed-in screens with a sample profile.
     LaunchedEffect(Unit) {
         while (true) {
-            val v = qaExtra(c, "qa_page")
+            val v = settingsQaExtra(c, "qa_page")
             if (v != null) {
-                qaClear(c, "qa_page")
-                if (v.startsWith("demo")) MyProfile.demo = true
+                settingsQaClear(c, "qa_page")
+                if (v.startsWith("demo")) SettingsProfile.demo = true
                 val page: Screen? = when (v.substringAfter(':', "")) {
-                    "EditProfile" -> EditProfilePage()
-                    "Privacy" -> PrivacyPage()
-                    "Security" -> SecurityPage()
-                    "NotifPrefs" -> NotifPrefsPage()
-                    "Blocked" -> BlockedPage()
+                    "EditProfile" -> SettingsEditProfile()
+                    "Privacy" -> SettingsPrivacy()
+                    "Security" -> SettingsSecurity()
+                    "NotifPrefs" -> SettingsNotifPrefs()
+                    "Blocked" -> SettingsBlocked()
                     "FollowRequests" -> FollowRequestsPage()
-                    "MutedChats" -> MutedChatsPage()
-                    "Feedback" -> FeedbackPage()
+                    "MutedChats" -> SettingsMutedChats()
+                    "Feedback" -> SettingsFeedback()
                     "Admin" -> AdminPage()
-                    "About" -> AboutPage()
+                    "About" -> SettingsAbout()
                     else -> null
                 }
-                if (v == "off") MyProfile.demo = false
+                if (v == "off") SettingsProfile.demo = false
                 if (page != null) Nav.open(page)
             }
             delay(600)
         }
     }
-    val signedIn = me != null || MyProfile.demo
-    LaunchedEffect(me?.id, MyProfile.demo) { if (signedIn) MyProfile.load() }
+    val signedIn = me != null || SettingsProfile.demo
+    LaunchedEffect(me?.id, SettingsProfile.demo) { if (signedIn) SettingsProfile.load() }
     var deleting by remember { mutableStateOf(0) }
     var signingOut by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -128,30 +128,30 @@ fun ProfileScreen() {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                 Column(Modifier.widthIn(max = 640.dp).fillMaxWidth()) {
                     if (!signedIn) Surface(color = MaterialTheme.colorScheme.surface) { LoginForm() } else {
-                        MyProfileHeader { Nav.open(EditProfilePage()) }
+                        SettingsProfileHeader { Nav.open(SettingsEditProfile()) }
                         SettingsCard("Account") {
-                            SettingRow(Icons.Filled.Edit, "Edit profile", "Name, photo, cover, bio, links", modifier = Modifier.firstFocus()) { Nav.open(EditProfilePage()) }
+                            SettingRow(Icons.Filled.Edit, "Edit profile", "Name, photo, cover, bio, links", modifier = Modifier.firstFocus()) { Nav.open(SettingsEditProfile()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Lock, "Privacy", "Private account, who can message you, read receipts") { Nav.open(PrivacyPage()) }
+                            SettingRow(Icons.Filled.Lock, "Privacy", "Private account, who can message you, read receipts") { Nav.open(SettingsPrivacy()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Security, "Security", "Password, two-step verification, devices") { Nav.open(SecurityPage()) }
+                            SettingRow(Icons.Filled.Security, "Security", "Password, two-step verification, devices") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.NotificationsActive, "Notifications", "What yidplus.com tells you about") { Nav.open(NotifPrefsPage()) }
+                            SettingRow(Icons.Filled.NotificationsActive, "Notifications", "What yidplus.com tells you about") { Nav.open(SettingsNotifPrefs()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Block, "Blocked users", null) { Nav.open(BlockedPage()) }
+                            SettingRow(Icons.Filled.Block, "Blocked users", null) { Nav.open(SettingsBlocked()) }
                             RowDivider(64.dp)
                             SettingRow(Icons.Filled.Notifications, "Activity", "Likes, comments, follows") { Nav.open(Screen.Notifications) }
                         }
-                        val nick = MyProfile.text("nickname").ifBlank { me?.nickname ?: "" }
+                        val nick = SettingsProfile.text("nickname").ifBlank { me?.nickname ?: "" }
                         SettingsCard("My page") {
                             SettingRow(Icons.Filled.Share, "Share my profile", "yidplus.com/@$nick") { share(c, "https://yidplus.com/@" + Uri.encode(nick)) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Link, "Copy profile link", null) { copyText(c, "https://yidplus.com/@" + Uri.encode(nick)) }
-                            if ((MyProfile.p?.optInt("verified") ?: 0) != 1) {
+                            SettingRow(Icons.Filled.Link, "Copy profile link", null) { settingsCopy(c, "https://yidplus.com/@" + Uri.encode(nick)) }
+                            if ((SettingsProfile.p?.optInt("verified") ?: 0) != 1) {
                                 RowDivider(64.dp)
                                 SettingRow(Icons.Filled.Verified, "Get verified", "Ask the YID PLUS team for the verified mark") {
                                     scope.launch {
-                                        runCatching { if (!MyProfile.demo) Api.post("/api/verify-request", org.json.JSONObject()) }
+                                        runCatching { if (!SettingsProfile.demo) Api.post("/api/verify-request", org.json.JSONObject()) }
                                             .onSuccess { toast(c, "Request sent. The team will look at it.") }.onFailure { toast(c, Api.friendly(it)) }
                                     }
                                 }
@@ -159,7 +159,7 @@ fun ProfileScreen() {
                         }
                     }
                     AppSettings()
-                    if (signedIn && meIsAdmin) SettingsCard("Admin") {
+                    if (signedIn && settingsIsAdmin) SettingsCard("Admin") {
                         SettingRow(Icons.Filled.AdminPanelSettings, "Admin panel", "Members, features on/off, stats, the full control center") { Nav.open(AdminPage()) }
                     }
                     if (signedIn) SettingsCard {
@@ -173,14 +173,14 @@ fun ProfileScreen() {
             }
         }
     }
-    if (signingOut) SettingsConfirmDialog("Sign out?", "You can sign in again any time.", "Sign out", onOk = { scope.launch { Session.logout(); MyProfile.demo = false; toast(c, "Signed out") } }, onDismiss = { signingOut = false })
+    if (signingOut) SettingsConfirmDialog("Sign out?", "You can sign in again any time.", "Sign out", onOk = { scope.launch { Session.logout(); SettingsProfile.demo = false; toast(c, "Signed out") } }, onDismiss = { signingOut = false })
     if (deleting == 1) SettingsConfirmDialog("Delete your account?", "Your account, messages, videos and music are deleted for good. This can't be undone.", "Continue", danger = true,
         onOk = { deleting = 2 }, onDismiss = { if (deleting == 1) deleting = 0 })
-    if (deleting == 2) PasswordConfirmDialog("Delete account", "Enter your password to delete your account for good.", "Delete forever", danger = true,
+    if (deleting == 2) SettingsPasswordDialog("Delete account", "Enter your password to delete your account for good.", "Delete forever", danger = true,
         onOk = {
             scope.launch {
-                runCatching { if (!MyProfile.demo) Api.delete("/api/profile") }
-                    .onSuccess { toast(c, "Account deleted"); Session.logout(); MyProfile.demo = false }.onFailure { toast(c, Api.friendly(it)) }
+                runCatching { if (!SettingsProfile.demo) Api.delete("/api/profile") }
+                    .onSuccess { toast(c, "Account deleted"); Session.logout(); SettingsProfile.demo = false }.onFailure { toast(c, Api.friendly(it)) }
             }
         }, onDismiss = { deleting = 0 })
 }
@@ -268,13 +268,13 @@ private fun AppSettings() {
         }
     }
     SettingsCard("Help") {
-        SettingRow(Icons.Filled.Feedback, "Send feedback", "Report a problem or share an idea") { Nav.open(FeedbackPage()) }
-        if (Session.me != null || MyProfile.demo) {
+        SettingRow(Icons.Filled.Feedback, "Send feedback", "Report a problem or share an idea") { Nav.open(SettingsFeedback()) }
+        if (Session.me != null || SettingsProfile.demo) {
             RowDivider(64.dp)
-            SettingRow(Icons.Filled.Download, "Download my data", "A copy of your profile, saved to Downloads") { scope.launch { toast(c, exportMyData(c)) } }
+            SettingRow(Icons.Filled.Download, "Download my data", "A copy of your profile, saved to Downloads") { scope.launch { toast(c, settingsExportData(c)) } }
         }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.Info, "About YID PLUS", "Version ${BuildConfig.VERSION_NAME} · privacy · terms") { Nav.open(AboutPage()) }
+        SettingRow(Icons.Filled.Info, "About YID PLUS", "Version ${BuildConfig.VERSION_NAME} · privacy · terms") { Nav.open(SettingsAbout()) }
     }
     when (pick) {
         "theme" -> SettingsChoiceDialog("Theme", themes, Prefs.theme, { Prefs.setThemeMode(it) }, { pick = null })
@@ -282,7 +282,7 @@ private fun AppSettings() {
     }
 }
 
-class AboutPage : PageScreen() {
+class SettingsAbout : PageScreen() {
     override val perfName = "About"
     @Composable override fun Content() {
         val c = ctx()

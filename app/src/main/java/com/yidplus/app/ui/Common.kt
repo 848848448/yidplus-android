@@ -149,7 +149,7 @@ private val avatarPalette = listOf(
 fun avatarColor(name: String): Color = avatarPalette[Math.floorMod(name.trim().lowercase().hashCode(), avatarPalette.size)]
 
 /** "Moshe Klein" -> "MK", "yidplus" -> "Y", "משה קליין" -> "מק". Emoji and symbols count as a letter. */
-fun initials(name: String): String {
+fun nameInitials(name: String): String {
     val words = name.trim().split(Regex("\\s+")).map { it.trimStart('@', '#', '.', '_', '-') }.filter { it.isNotEmpty() }
     if (words.isEmpty()) return "Y"
     fun first(w: String) = String(Character.toChars(w.codePointAt(0))).uppercase()
@@ -162,7 +162,7 @@ private val defaultPic = Regex("(default[-_]?(avatar|user|profile)|placeholder|n
 fun Avatar(url: String?, name: String, size: Dp = 40.dp, emoji: String? = null) {
     // A real photo when there is one; otherwise a coloured circle with the person's initials (never a generic globe).
     val photo = url?.takeIf { it.isNotBlank() && !defaultPic.containsMatchIn(it) }
-    val label = emoji?.takeIf { it.isNotBlank() } ?: initials(name)
+    val label = emoji?.takeIf { it.isNotBlank() } ?: nameInitials(name)
     Box(Modifier.size(size).clip(CircleShape).background(avatarColor(name.ifBlank { "Y" })), contentAlignment = Alignment.Center) {
         Text(label, color = Color.White, fontWeight = FontWeight.SemiBold, maxLines = 1,
             fontSize = (size.value * (if (label.length > 1 && emoji.isNullOrBlank()) 0.36f else 0.44f)).sp)

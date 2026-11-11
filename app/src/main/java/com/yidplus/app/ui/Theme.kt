@@ -32,7 +32,6 @@ val Gold = Color(0xFFD4AF37)
 val GoldSoft = Color(0xFFF3E2A6)
 /** Unread badges, online dots, "sent" ticks. A lighter green than the bar so it reads on both. */
 val BadgeGreen = Color(0xFF25A36F)
-val Danger = Color(0xFFD93025)
 
 private val Light = lightColorScheme(
     primary = Green, onPrimary = Color.White,
