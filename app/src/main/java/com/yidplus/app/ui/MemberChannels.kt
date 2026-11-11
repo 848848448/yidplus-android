@@ -63,9 +63,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 
 // ───────────────────────── Members' channels (the site's Channels tab) ─────────────────────────
 
-data class SiteChannel(val ownerId: String, val name: String, val photo: String?, val verified: Boolean, val bio: String, val followers: Int, val lastPostAt: String?) {
+data class SoSiteChannel(val ownerId: String, val name: String, val photo: String?, val verified: Boolean, val bio: String, val followers: Int, val lastPostAt: String?) {
     companion object {
-        fun from(j: JSONObject) = SiteChannel(j.str("owner_id"), j.str("nickname").ifBlank { "Member" }, Api.abs(j.strOrNull("photo_url")),
+        fun from(j: JSONObject) = SoSiteChannel(j.str("owner_id"), j.str("nickname").ifBlank { "Member" }, Api.abs(j.strOrNull("photo_url")),
             j.optInt("verified") == 1 || j.optBoolean("verified"), j.str("bio"), j.optInt("followers"), j.strOrNull("last_post_at"))
         fun list(j: JSONObject) = j.optJSONArray("channels").objects().map(::from).filter { it.ownerId.isNotBlank() }.distinctBy { it.ownerId }
     }
@@ -73,14 +73,14 @@ data class SiteChannel(val ownerId: String, val name: String, val photo: String?
 
 /** The members' channels directory: most followed first, or the most recently active. */
 @Composable
-fun SiteChannelsList(query: String, sort: Int) {
+fun SoSiteChannelsList(query: String, sort: Int) {
     val scope = rememberCoroutineScope()
-    val res = remember(Session.me?.id) { Store.res("/api/channels?limit=400", SiteChannel::list) }
+    val res = remember(Session.me?.id) { Store.res("/api/channels?limit=400", SoSiteChannel::list) }
     LaunchedEffect(res, SoRefresh.tick) { res.load(force = SoRefresh.tick > 0) }
-    val found = remember { mutableStateListOf<SiteChannel>() }
+    val found = remember { mutableStateListOf<SoSiteChannel>() }
     LaunchedEffect(query) {
         val q = query.trim(); if (q.length < 2) { found.clear(); return@LaunchedEffect }
-        delay(300); runCatching { val l = SiteChannel.list(Api.get("/api/channels?limit=50&search=" + soEnc(q))); found.clear(); found.addAll(l) }
+        delay(300); runCatching { val l = SoSiteChannel.list(Api.get("/api/channels?limit=50&search=" + soEnc(q))); found.clear(); found.addAll(l) }
     }
     val all = res.data
     val q = query.trim()
@@ -94,7 +94,7 @@ fun SiteChannelsList(query: String, sort: Int) {
             items(shown, key = { it.ownerId }) { ch ->
                 Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("sc:" + ch.ownerId)
                     .then(if (ch == shown.first()) Modifier.firstFocus() else Modifier)
-                    .tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "sc:" + ch.ownerId; Nav.open(UserChannelPage(ch.ownerId, ch.name)) }
+                    .tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "sc:" + ch.ownerId; Nav.open(SoUserChannelPage(ch.ownerId, ch.name)) }
                     .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     SoThumb(ch.photo, ch.name, 50.dp)
                     Column(Modifier.weight(1f).padding(start = 14.dp)) {
@@ -115,21 +115,21 @@ fun SiteChannelsList(query: String, sort: Int) {
     }
 }
 
-data class SitePost(val id: String, val userId: String, val caption: String, val media: String?, val likes: Int, val comments: Int, val liked: Boolean, val at: String?) {
+data class SoSitePost(val id: String, val userId: String, val caption: String, val media: String?, val likes: Int, val comments: Int, val liked: Boolean, val at: String?) {
     val isVideo get() = media != null && soIsVideo(media)
     companion object {
-        fun from(j: JSONObject): SitePost {
+        fun from(j: JSONObject): SoSitePost {
             val content = j.str("content")
             val media = soPostMedia(content)
             val caption = j.str("caption").ifBlank { if (media == null) content else "" }
-            return SitePost(j.str("id"), j.str("user_id"), caption, media, j.optInt("likes"), j.optInt("comments"), j.optBoolean("liked"), j.strOrNull("created_at"))
+            return SoSitePost(j.str("id"), j.str("user_id"), caption, media, j.optInt("likes"), j.optInt("comments"), j.optBoolean("liked"), j.strOrNull("created_at"))
         }
     }
 }
-data class WallShort(val id: String, val caption: String, val video: String, val likes: Int, val views: Int, val at: String?)
+data class SoWallShort(val id: String, val caption: String, val video: String, val likes: Int, val views: Int, val at: String?)
 
 /** A member's channel: picture, bio, numbers, Follow (or Request), Share, and its Posts and Shorts. */
-data class UserChannelPage(val ownerId: String, val name: String) : PageScreen() {
+data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen() {
     override val perfName = "UserChannel"
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
@@ -138,11 +138,11 @@ data class UserChannelPage(val ownerId: String, val name: String) : PageScreen()
         var locked by remember { mutableStateOf(false) }
         var following by remember { mutableStateOf(false) }
         var reqStatus by remember { mutableStateOf<String?>(null) }
-        val posts = remember { mutableStateListOf<SitePost>() }
-        val shorts = remember { mutableStateListOf<WallShort>() }
+        val posts = remember { mutableStateListOf<SoSitePost>() }
+        val shorts = remember { mutableStateListOf<SoWallShort>() }
         var tab by rememberSaveable { mutableIntStateOf(0) }
         var busy by remember { mutableStateOf(false) }
-        var commentsFor by remember { mutableStateOf<SitePost?>(null) }
+        var commentsFor by remember { mutableStateOf<SoSitePost?>(null) }
         var retry by remember { mutableIntStateOf(0) }
         val mine = Session.me?.id == ownerId
         LaunchedEffect(ownerId, retry, SoRefresh.tick) {
@@ -150,11 +150,11 @@ data class UserChannelPage(val ownerId: String, val name: String) : PageScreen()
                 val r = Api.get("/api/channels?owner_id=" + soEnc(ownerId))
                 ch = r.optJSONObject("channel"); locked = r.optBoolean("locked"); following = r.optBoolean("is_following"); reqStatus = r.strOrNull("request_status")
                 shorts.clear(); r.optJSONArray("wall").objects().filter { it.str("wall_type") == "short" }.forEach { s ->
-                    Api.abs(s.strOrNull("media_url"))?.let { shorts.add(WallShort(s.str("id"), s.str("caption"), it, s.optInt("likes"), s.optInt("views"), s.strOrNull("created_at"))) } }
+                    Api.abs(s.strOrNull("media_url"))?.let { shorts.add(SoWallShort(s.str("id"), s.str("caption"), it, s.optInt("likes"), s.optInt("views"), s.strOrNull("created_at"))) } }
                 if (!locked) {
                     val p = runCatching { Api.get("/api/posts?user_id=" + soEnc(ownerId)).optJSONArray("posts").objects() }.getOrNull()
                         ?: r.optJSONArray("wall").objects().filter { it.str("wall_type") == "post" }
-                    posts.clear(); posts.addAll(p.map(SitePost::from).distinctBy { it.id })
+                    posts.clear(); posts.addAll(p.map(SoSitePost::from).distinctBy { it.id })
                 }
                 if (!following && !mine && Session.me != null && reqStatus == null) runCatching {
                     val k = Api.get("/api/channel-follows?channel_owner_id=" + soEnc(ownerId) + "&check=1"); following = k.optBoolean("is_follower"); reqStatus = k.strOrNull("request_status") }
@@ -198,7 +198,7 @@ data class UserChannelPage(val ownerId: String, val name: String) : PageScreen()
                             Spacer(Modifier.weight(1f))
                             if (!mine) SoPill(when { following -> "Following ✓"; reqStatus == "pending" -> "Requested"; else -> "Follow" }, !following && reqStatus != "pending", { follow() },
                                 Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Icons.Filled.PersonAdd else null, enabled = !busy)
-                            else SoPill("New post", true, { Nav.open(NewPostPage()) }, Modifier.firstFocus(), icon = Icons.Filled.Edit)
+                            else SoPill("New post", true, { Nav.open(SoNewPostPage()) }, Modifier.firstFocus(), icon = Icons.Filled.Edit)
                         }
                         Column(Modifier.padding(start = 16.dp, end = 16.dp).offset(y = (-22).dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -221,7 +221,7 @@ data class UserChannelPage(val ownerId: String, val name: String) : PageScreen()
                                             .onSuccess { ch = JSONObject(j.toString()).put("privacy", nv); toast(c, if (nv == "public") "Your channel is public" else "Only followers see your posts") }
                                             .onFailure { toast(c, Api.friendly(it)) }
                                     } }, icon = if (priv) Icons.Filled.Lock else Icons.Filled.Public)
-                                SoPill("Requests", false, { Nav.open(FollowRequestsPage(ownerId)) }, icon = Icons.Filled.PersonAdd)
+                                SoPill("Requests", false, { Nav.open(SoChannelFollowRequestsPage(ownerId)) }, icon = Icons.Filled.PersonAdd)
                             }
                         }
                     }
@@ -234,16 +234,16 @@ data class UserChannelPage(val ownerId: String, val name: String) : PageScreen()
                     SoEmpty(Icons.Filled.Lock, if (reqStatus == "pending") "Request sent. You'll see the posts once it's approved." else "This channel is for followers only",
                         action = if (reqStatus == "pending") null else "Request to follow", onAction = { follow() })
                 } else if (tab == 0) {
-                    if (posts.isEmpty()) item(key = "noposts") { SoEmpty(Icons.Filled.Article, if (mine) "Write your first post" else "No posts yet", action = if (mine) "New post" else null, onAction = { Nav.open(NewPostPage()) }) }
+                    if (posts.isEmpty()) item(key = "noposts") { SoEmpty(Icons.Filled.Article, if (mine) "Write your first post" else "No posts yet", action = if (mine) "New post" else null, onAction = { Nav.open(SoNewPostPage()) }) }
                     items(posts, key = { "p" + it.id }) { p ->
-                        SitePostCard(p, title, photo, onChange = { n -> val i = posts.indexOfFirst { it.id == n.id }; if (i >= 0) posts[i] = n },
+                        SoSitePostCard(p, title, photo, onChange = { n -> val i = posts.indexOfFirst { it.id == n.id }; if (i >= 0) posts[i] = n },
                             onComments = { commentsFor = p }, onDeleted = { posts.removeAll { it.id == p.id } })
                     }
                 } else {
                     if (shorts.isEmpty()) item(key = "noshorts") { SoEmpty(Icons.Filled.Movie, "No Shorts yet") }
                     items(shorts.chunked(3), key = { "s" + it.first().id }) { row ->
                         Row(Modifier.fillMaxWidth().padding(horizontal = 2.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            for (s in row) Box(Modifier.weight(1f).aspectRatio(9f / 14f).tap(RoundedCornerShape(2.dp)) { openUploadShort(s.id) }) {
+                            for (s in row) Box(Modifier.weight(1f).aspectRatio(9f / 14f).tap(RoundedCornerShape(2.dp)) { soOpenUploadShort(s.id) }) {
                                 SoVideoPoster(null, s.caption, 0, Modifier.fillMaxSize())
                                 Row(Modifier.align(Alignment.BottomStart).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Filled.Visibility, null, tint = Color.White, modifier = Modifier.size(14.dp))
@@ -258,7 +258,7 @@ data class UserChannelPage(val ownerId: String, val name: String) : PageScreen()
                 item(key = "end") { Spacer(Modifier.height(24.dp)) }
             }
         }
-        commentsFor?.let { p -> PostCommentsSheet(p, onDismiss = { commentsFor = null }, onCount = { n -> val i = posts.indexOfFirst { it.id == p.id }; if (i >= 0) posts[i] = posts[i].copy(comments = n) }) }
+        commentsFor?.let { p -> SoPostCommentsSheet(p, onDismiss = { commentsFor = null }, onCount = { n -> val i = posts.indexOfFirst { it.id == p.id }; if (i >= 0) posts[i] = posts[i].copy(comments = n) }) }
     }
 }
 
@@ -272,7 +272,7 @@ private fun Stat(n: String, label: String) {
 
 /** One post on a member's channel: who and when, the words, the photo / video, then like, comment, share (and delete). */
 @Composable
-fun SitePostCard(p: SitePost, name: String, photo: String?, onChange: (SitePost) -> Unit, onComments: () -> Unit, onDeleted: () -> Unit) {
+fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSitePost) -> Unit, onComments: () -> Unit, onDeleted: () -> Unit) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     var ask by remember { mutableStateOf(false) }
@@ -325,7 +325,7 @@ fun SoAction(icon: ImageVector, label: String, tint: Color?, onClick: () -> Unit
 /** A post's comments: read, write, like and delete (your own, or any as an admin). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostCommentsSheet(p: SitePost, onDismiss: () -> Unit, onCount: (Int) -> Unit) {
+fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> Unit) {
     val c = ctx(); val scope = rememberCoroutineScope()
     val list = remember(p.id) { mutableStateListOf<JSONObject>() }
     var loading by remember { mutableStateOf(true) }
@@ -383,9 +383,9 @@ fun PostCommentsSheet(p: SitePost, onDismiss: () -> Unit, onCount: (Int) -> Unit
 }
 
 /** Write a post on your own channel: words, and a photo or a video if you like. */
-class NewPostPage : PageScreen() {
+class SoNewPostPage : PageScreen() {
     override val perfName = "NewPost"
-    override fun equals(other: Any?) = other is NewPostPage
+    override fun equals(other: Any?) = other is SoNewPostPage
     override fun hashCode() = 13
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
@@ -434,7 +434,7 @@ class NewPostPage : PageScreen() {
 }
 
 /** Your channel's follow requests (when it is followers-only): approve or reject. */
-data class FollowRequestsPage(val ownerId: String) : PageScreen() {
+data class SoChannelFollowRequestsPage(val ownerId: String) : PageScreen() {
     override val perfName = "FollowRequests"
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
