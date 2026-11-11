@@ -1,8 +1,12 @@
 # Helper CH (chats, 2.0.2): signed-in chat QA with the fixture account. Sourced by qa/signedin.sh fx_block (helpers from qa/native.sh).
 # Run after the shared fixture block. Every write is answered locally and logged (tag YidFx); qa/out/fx-requests.txt is the proof each action matches the site's chat.js call.
-chpos() { # centre of the first node whose text or content-desc CONTAINS $1 (prints "x y", or nothing)
+chpos() { # centre of the node whose text is exactly $1 (else whose text/desc contains it); prints "x y"; the matched node goes to the log
   timeout 30 adb shell uiautomator dump /sdcard/ch.xml >/dev/null 2>&1
-  local b; b=$(timeout 20 adb shell cat /sdcard/ch.xml 2>/dev/null | tr '>' '\n' | grep -F -- "$1" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+  local x n b; x=$(timeout 20 adb shell cat /sdcard/ch.xml 2>/dev/null | tr '>' '\n')
+  n=$(echo "$x" | grep -F -- "text=\"$1\"" | head -1); [ -z "$n" ] && n=$(echo "$x" | grep -F -- "$1" | tail -1)
+  [ -z "$n" ] && return 0
+  echo "  node: $(echo "$n" | grep -oE '(text|content-desc|class|bounds)="[^"]*"' | tr '\n' ' ' | cut -c1-240)" >> "$OUT/qa.log"
+  b=$(echo "$n" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
   [ -z "$b" ] && return 0; set -- $b; echo "$(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))"
 }
 chtap() { # tap the first node whose text or content-desc is exactly $1 (falls back to "contains"); chtap of native.sh is defined after this block runs
@@ -15,12 +19,13 @@ chtap() { # tap the first node whose text or content-desc is exactly $1 (falls b
 }
 chnot() { local p; p=$(chpos "$1"); if [ -n "$p" ]; then log "CH WRONG: '$1' is on screen"; else log "CH ok: '$1' not shown"; fi; }
 chhas() { local p; p=$(chpos "$1"); if [ -n "$p" ]; then log "CH ok: '$1' on screen"; else log "CH MISSING: '$1' not on screen"; fi; }
-chlong() { local p; p=$(chpos "$1"); [ -z "$p" ] && { log "chlong: '$1' not found"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press $*"; }
+chlong() { sleep 1; local p; p=$(chpos "$1"); [ -z "$p" ] && { log "chlong: '$1' not found"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press $*"; }
 chopen() { # chopen ID TYPE NAME-JSON-ESCAPED [extra json]
   timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
 chfx() { timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400 | sed 's/^/  YidFx: /' | tee -a "$OUT/qa.log" >/dev/null; }
 chkb() { log "keyboard shown after $1: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }
 adb shell pm grant $PKG android.permission.RECORD_AUDIO 2>/dev/null
+for ime in com.android.inputmethod.latin com.google.android.inputmethod.latin; do adb shell pm grant $ime android.permission.READ_CONTACTS 2>/dev/null; done # the keyboard's contacts prompt otherwise covers the screen
 
 # 1-3, 5, 6, 13: the chat list (previews with sender, no spinner, chips fit, rows, the green new-chat button)
 view "https://yidplus.com/chat"; sleep 8; shot CH-01-chat-list
@@ -29,7 +34,7 @@ log "CH list texts: $(timeout 20 adb shell cat /sdcard/chl.xml 2>/dev/null | gre
 adb shell input swipe 420 125 40 125 400; sleep 1; shot CH-02-chips-scrolled
 adb shell input swipe 240 450 240 150 400; sleep 1; shot CH-02b-list-scrolled; adb shell input swipe 240 150 240 600 300; sleep 1
 chtap "Start new chat"; sleep 2; shot CH-03-fab-menu
-chtap "New group"; sleep 3; adb shell input text "QA%sGroup"; sleep 1; shot CH-03b-new-group; chtap "Create"; sleep 3; chfx "/api/chat/rooms"; key 4; sleep 1; key 4; sleep 1
+chtap "New group"; sleep 3; chtap "Group name"; sleep 1; adb shell input text "QA%sGroup"; sleep 1; shot CH-03b-new-group; chtap "Create"; sleep 3; chfx "/api/chat/rooms"; key 4; sleep 1; key 4; sleep 1
 view "https://yidplus.com/chat"; sleep 3; chtap "Start new chat"; sleep 2; chtap "New chat"; sleep 4; shot CH-03c-new-chat; chtap "Dovid New"; sleep 3; chfx "other_user_id"; key 4; sleep 1; key 4; sleep 1
 # 10: search closes the keyboard
 view "https://yidplus.com/chat"; sleep 3; chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; chkb "typing in search"; key 4; sleep 2; chkb "Back from search"; shot CH-04-search-closed
@@ -49,8 +54,8 @@ chopen r-g4 group "Yeshiva" "" 6; shot CH-11-not-joined-group; chtap "Join group
 # Link cards, forwarded, deleted, view once, music; swipe to reply; long-press actions; send
 chopen r-links private "Berel Links" ",\"other_user_id\":\"u-berel\"" 7; shot CH-12-links-cards
 adb shell input swipe 240 220 240 560 300; sleep 2; shot CH-12b-links-up; adb shell input swipe 240 220 240 560 300; sleep 2; shot CH-12c-links-top
-key 4; sleep 1; chopen r-links private "Berel Links" ",\"other_user_id\":\"u-berel\"" 4
-p=$(chpos "See you at 8 tonight"); log "bubble at: $p"
+key 4; sleep 1; chopen r-links private "Berel Links" ",\"other_user_id\":\"u-berel\"" 7
+sleep 2; p=$(chpos "See you at 8 tonight"); log "bubble at: $p"
 if [ -n "$p" ]; then set -- $p; adb shell input swipe $(( $1 - 40 )) $2 $(( $1 + 200 )) $2 400; sleep 1; shot CH-13-swipe-reply; chhas "Reply to"; fi
 adb shell input text "Swipe%sreply%sOK"; sleep 1; chtap "Send"; sleep 1; shot CH-13b-swipe-reply-sent; chfx "reply_to_id"
 chlong "See you at 8 tonight"; shot CH-14-long-press-menu; chtap "Reply"; sleep 1; adb shell input text "Menu%sreply"; chtap "Send"; sleep 1; chfx "Menu reply"
