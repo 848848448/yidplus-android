@@ -433,7 +433,7 @@ class SoNewPostPage : PageScreen() {
             }
         }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            TopBar("New post", onBack = { Nav.back() }) { TextButton({ send() }, enabled = progress == null) { Text("Post", fontWeight = FontWeight.Bold, color = LocalContentColor.current) } }
+            TopBar("New post", onBack = { Nav.back() }) { TextButton({ send() }, enabled = progress == null) { Text("Post", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (progress == null) Color.White else Color.White.copy(alpha = .5f)) } }
             if (Session.me == null) { SoEmpty(Icons.Filled.Edit, "Sign in to post on your channel", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 OutlinedTextField(text, { text = it.take(2000) }, Modifier.fillMaxWidth().heightIn(min = 120.dp).firstFocus(always = true), placeholder = { Text("What's happening?") },

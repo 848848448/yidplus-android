@@ -115,7 +115,7 @@ lk_mark upload-short; lk_tapui "Upload a Short"
 sleep 4; shot LK-17-upload-picker
 lk_tapui "lkqa.mp4"; sleep 3
 if [ "$LK_OK" != 1 ]; then lk_inpicker && { log "picker open, file row not found: back"; key 4; sleep 2; }; lk_qapick video; fi
-shot LK-17b-upload-picked; lk_tapui "Upload"; [ "$LK_OK" != 1 ] && { log "Upload button: fixed position"; timeout 10 adb shell input tap 240 585; }
+shot LK-17b-upload-picked; lk_tapui "Upload"; [ "$LK_OK" != 1 ] && { log "Upload: top-bar action, fixed position"; timeout 10 adb shell input tap 440 88; }
 sleep 5; shot LK-17c-upload-sent
 key 4; sleep 2
 # 5. Signed out first open: the guest bar must be slim
