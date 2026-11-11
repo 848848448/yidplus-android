@@ -43,6 +43,10 @@ confirm_install() {
       if [ -n "$xy" ]; then shot 05-android-install-prompt; adb shell input tap $xy; log "confirmed Android's install prompt at $xy"; sleep 6; fi
     fi
     [ "$(ver)" = "$WANT" ] && return 0
+    # Older apps (1.0.x) need Update tapped again after the "allow installs" step; tap the app's own button at most twice.
+    if [ "$i" -gt 2 ] && [ "${again:-0}" -lt 2 ] && ! timeout 20 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -q packageinstaller; then
+      xy=$(find_xy "Update"); [ -n "$xy" ] && { adb shell input tap $xy; again=$(( ${again:-0} + 1 )); log "tapped the app's Update again ($again)"; sleep 5; }
+    fi
     sleep 3
   done
   return 1
