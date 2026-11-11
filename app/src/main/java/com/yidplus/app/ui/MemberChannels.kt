@@ -99,14 +99,18 @@ fun SoSiteChannelsList(query: String, sort: Int) {
                     SoThumb(ch.photo, ch.name, 50.dp)
                     Column(Modifier.weight(1f).padding(start = 14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(ch.name, Modifier.weight(1f, fill = false), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                style = TextStyle(textDirection = TextDirection.Content))
-                            if (ch.verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(16.dp))
-                            Spacer(Modifier.weight(1f))
-                            if (ch.lastPostAt != null) Text(ago(ch.lastPostAt), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
+                            // Name (left-aligned even in Yiddish) + verified mark together; the time keeps its place at the end.
+                            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                                Text(ch.name, Modifier.weight(1f, fill = false), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
+                                    color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                if (ch.verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(17.dp))
+                            }
+                            if (ch.lastPostAt != null) Text(ago(ch.lastPostAt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
                         }
-                        Text(ch.bio.replace('\n', ' ').ifBlank { "${soNum(ch.followers)} followers" }, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                        val bio = ch.bio.replace('\n', ' ').trim()
+                        Text((if (ch.followers == 1) "1 follower" else "${soNum(ch.followers)} followers") + if (bio.isNotEmpty()) " · $bio" else "",
+                            Modifier.padding(top = 3.dp), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
                 SoDivider(80.dp)
@@ -145,21 +149,30 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
         var commentsFor by remember { mutableStateOf<SoSitePost?>(null) }
         var retry by remember { mutableIntStateOf(0) }
         val mine = Session.me?.id == ownerId
+        // The saved copy shows at once (no skeleton when you've been here before); the site's answer replaces it quietly.
+        val cacheKey = Store.key("sc|" + ownerId)
+        fun applyData(r: JSONObject, p: List<JSONObject>?) {
+            ch = r.optJSONObject("channel"); locked = r.optBoolean("locked"); following = r.optBoolean("is_following"); reqStatus = r.strOrNull("request_status")
+            shorts.clear(); r.optJSONArray("wall").objects().filter { it.str("wall_type") == "short" }.forEach { s ->
+                Api.abs(s.strOrNull("media_url"))?.let { shorts.add(SoWallShort(s.str("id"), s.str("caption"), it, s.optInt("likes"), s.optInt("views"), s.strOrNull("created_at"))) } }
+            if (!locked) {
+                val pl = p ?: r.optJSONArray("wall").objects().filter { it.str("wall_type") == "post" }
+                posts.clear(); posts.addAll(pl.map(SoSitePost::from).distinctBy { it.id })
+            }
+        }
         LaunchedEffect(ownerId, retry, SoRefresh.tick) {
+            if (ch == null) withContext(Dispatchers.IO) { Disk.read(cacheKey) }?.let { d ->
+                runCatching { d.optJSONObject("r")?.let { r -> applyData(r, d.optJSONArray("posts")?.objects()); Perf.shown("UserChannel", fromCache = true) } }
+            }
             try {
                 val r = Api.get("/api/channels?owner_id=" + soEnc(ownerId))
-                ch = r.optJSONObject("channel"); locked = r.optBoolean("locked"); following = r.optBoolean("is_following"); reqStatus = r.strOrNull("request_status")
-                shorts.clear(); r.optJSONArray("wall").objects().filter { it.str("wall_type") == "short" }.forEach { s ->
-                    Api.abs(s.strOrNull("media_url"))?.let { shorts.add(SoWallShort(s.str("id"), s.str("caption"), it, s.optInt("likes"), s.optInt("views"), s.strOrNull("created_at"))) } }
-                if (!locked) {
-                    val p = runCatching { Api.get("/api/posts?user_id=" + soEnc(ownerId)).optJSONArray("posts").objects() }.getOrNull()
-                        ?: r.optJSONArray("wall").objects().filter { it.str("wall_type") == "post" }
-                    posts.clear(); posts.addAll(p.map(SoSitePost::from).distinctBy { it.id })
-                }
+                val p = if (r.optBoolean("locked")) null else runCatching { Api.get("/api/posts?user_id=" + soEnc(ownerId)).optJSONArray("posts").objects() }.getOrNull()
+                applyData(r, p)
+                withContext(Dispatchers.IO) { runCatching { Disk.write(cacheKey, JSONObject().put("r", r).put("posts", JSONArray().also { a -> p?.forEach { a.put(it) } })) } }
                 if (!following && !mine && Session.me != null && reqStatus == null) runCatching {
                     val k = Api.get("/api/channel-follows?channel_owner_id=" + soEnc(ownerId) + "&check=1"); following = k.optBoolean("is_follower"); reqStatus = k.strOrNull("request_status") }
                 err = null
-            } catch (e: Exception) { err = Api.friendly(e) }
+            } catch (e: Exception) { if (ch == null) err = Api.friendly(e) }
             Perf.shown("UserChannel")
         }
         val title = ch?.str("nickname")?.ifBlank { null } ?: name.ifBlank { "Channel" }
@@ -235,9 +248,11 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                         action = if (reqStatus == "pending") null else "Request to follow", onAction = { follow() })
                 } else if (tab == 0) {
                     if (posts.isEmpty()) item(key = "noposts") { SoEmpty(Icons.Filled.Article, if (mine) "Write your first post" else "No posts yet", action = if (mine) "New post" else null, onAction = { Nav.open(SoNewPostPage()) }) }
+                    // Every photo / video of the channel in one viewer: swipe from one to the next, like WhatsApp.
+                    val gal = posts.mapNotNull { q -> q.media?.let { GItem(it, q.isVideo, null, q.caption.take(60)) } }
                     items(posts, key = { "p" + it.id }) { p ->
                         SoSitePostCard(p, title, photo, onChange = { n -> val i = posts.indexOfFirst { it.id == n.id }; if (i >= 0) posts[i] = n },
-                            onComments = { commentsFor = p }, onDeleted = { posts.removeAll { it.id == p.id } })
+                            onComments = { commentsFor = p }, onDeleted = { posts.removeAll { it.id == p.id } }, gallery = gal)
                     }
                 } else {
                     if (shorts.isEmpty()) item(key = "noshorts") { SoEmpty(Icons.Filled.Movie, "No Shorts yet") }
@@ -272,7 +287,7 @@ private fun Stat(n: String, label: String) {
 
 /** One post on a member's channel: who and when, the words, the photo / video, then like, comment, share (and delete). */
 @Composable
-fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSitePost) -> Unit, onComments: () -> Unit, onDeleted: () -> Unit) {
+fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSitePost) -> Unit, onComments: () -> Unit, onDeleted: () -> Unit, gallery: List<GItem>? = null) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     var ask by remember { mutableStateOf(false) }
@@ -290,9 +305,9 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
             fontSize = 16.sp, lineHeight = 22.sp, maxLines = if (expanded) Int.MAX_VALUE else 8, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
         p.media?.let { m ->
             val maxH = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * 0.6f).dp
-            Box(Modifier.fillMaxWidth().padding(top = 4.dp).tap(RoundedCornerShape(0.dp)) { openGallery(listOf(GItem(m, p.isVideo, null, p.caption.take(60))), m) }) {
+            Box(Modifier.fillMaxWidth().padding(top = 4.dp).tap(RoundedCornerShape(0.dp)) { openGallery(gallery ?: listOf(GItem(m, p.isVideo, null, p.caption.take(60))), m) }) {
                 if (p.isVideo) SoVideoPoster(null, p.caption.take(60), 0, Modifier.fillMaxWidth().height(200.dp))
-                else AsyncImage(ImageRequest.Builder(c).data(m).crossfade(150).build(), null, contentScale = ContentScale.Fit,
+                else AsyncImage(ImageRequest.Builder(c).data(m).crossfade(150).build(), "Photo", contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp, max = maxH).background(MaterialTheme.colorScheme.surfaceVariant))
             }
         }

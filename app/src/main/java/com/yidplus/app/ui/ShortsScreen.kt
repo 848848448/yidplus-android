@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -374,6 +375,11 @@ fun ShortsScreen() {
             if (tab == ShortsTab.ForYou || tab == ShortsTab.Uploads) { if (page >= items.size - 4) feed.loadMore() }
             Perf.shown("Shorts")
             Feeds.markSeen(s.video)
+            // Like the site (shorts.js): a member's upload you watch counts a view and goes into your History.
+            if (!s.fromSrc && Session.me != null) launch {
+                runCatching { Api.put("/api/shorts", JSONObject().put("id", s.key).put("view", true)) }
+                runCatching { Api.post("/api/history", JSONObject().put("item_type", "short").put("item_id", s.key)) }
+            }
         }
     }
     LaunchedEffect(Unit) { delay(80); runCatching { focus.requestFocus() } }
@@ -398,6 +404,13 @@ fun ShortsScreen() {
         val i = Feeds.saved.indexOfFirst { it.key == s.key }
         if (i >= 0) { Feeds.saved.removeAt(i); toast(c, "Removed from Saved") } else { Feeds.saved.add(0, s); toast(c, "Saved") }
         Feeds.persist(c)
+        // A member's upload is also saved on your account, exactly like the site's bookmark (shorts.js /saves), so it shows in Saved Items.
+        if (!s.fromSrc && Session.me != null) scope.launch {
+            runCatching {
+                if (i >= 0) Api.delete("/api/saves?item_type=short&item_id=" + java.net.URLEncoder.encode(s.key, "UTF-8"))
+                else Api.post("/api/saves", JSONObject().put("item_type", "short").put("item_id", s.key))
+            }
+        }
     }
     fun togglePause() { paused = !paused; player.playWhenReady = !paused }
     fun go(d: Int) { val t = (pager.currentPage + d).coerceIn(0, maxOf(0, items.size - 1)); scope.launch { pager.animateScrollToPage(t) } }
@@ -435,7 +448,11 @@ fun ShortsScreen() {
             items.isEmpty() && (feed.loading || (tab != ShortsTab.Saved && tab != ShortsTab.Following)) -> Loading()
             items.isEmpty() -> Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else "Follow creators (tap + on their picture) to see them here.",
                 Modifier.align(Alignment.Center).padding(32.dp), color = Color.White)
-            else -> VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { items.getOrNull(it)?.key ?: it }) { page ->
+            // A quick short flick moves to the next Short (like TikTok / WhatsApp), and it settles without a bounce.
+            else -> VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { items.getOrNull(it)?.key ?: it },
+                flingBehavior = PagerDefaults.flingBehavior(state = pager, snapPositionalThreshold = 0.2f,
+                    snapAnimationSpec = androidx.compose.animation.core.spring(dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                        stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow))) { page ->
                 val s = items[page]
                 ShortPage(s, current = page == pager.settledPage, player = player, paused = paused,
                     onTap = { togglePause() }, onLike = { like(s) }, onComments = { commentsFor = s }, onSave = { toggleSave(s) },
