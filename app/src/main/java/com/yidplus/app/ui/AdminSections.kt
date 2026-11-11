@@ -146,7 +146,7 @@ fun AdminUserRow(u: JSONObject, first: Boolean = false, onClick: () -> Unit) {
             }
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("@$nick", style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                    Text("@$nick", style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                     if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                     roleName[u.str("role")]?.let { AdminTag(it, MaterialTheme.colorScheme.tertiary) }
                     if (u.optInt("blocked") == 1 || u.optBoolean("blocked")) AdminTag("Blocked", MaterialTheme.colorScheme.error)
@@ -191,7 +191,7 @@ data class AdminUserPage(val id: String, val rowJson: String) : PageScreen() {
                 Column(Modifier.fillMaxWidth().padding(vertical = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Avatar(Api.abs(u.strOrNull("photo_url")), nick, 84.dp)
                     Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("@$nick", style = MaterialTheme.typography.titleLarge.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("@$nick", style = MaterialTheme.typography.titleLarge.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         if (verified) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 6.dp).size(20.dp))
                     }
                     val line = listOfNotNull(if (u.optInt("online") == 1 || u.optBoolean("online")) "🟢 Online now" else "Offline",
@@ -297,7 +297,7 @@ class AdminReportsPage : PageScreen() {
                     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.Top) {
                         Avatar(null, r.str("reported_nick").ifBlank { "?" }, 44.dp)
                         Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                            Text("@" + r.str("reported_nick").ifBlank { r.str("reported_id") }, style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text("@" + r.str("reported_nick").ifBlank { r.str("reported_id") }, style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Text("Reported by @" + r.str("reporter_nick").ifBlank { r.str("reporter_id") } + " · " + ago(r.strOrNull("created_at")),
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Text(r.str("reason").ifBlank { "(no reason given)" }, style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Content)), modifier = Modifier.padding(top = 4.dp))
@@ -339,7 +339,7 @@ class AdminVerifyPage : PageScreen() {
                     Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Avatar(Api.abs(r.strOrNull("photo_url")), r.str("nickname").ifBlank { "U" }, 48.dp)
                         Column(Modifier.weight(1f).padding(start = 12.dp).tap(RoundedCornerShape(8.dp)) { Nav.open(AdminUserPage(r.str("user_id"), JSONObject().put("id", r.str("user_id")).put("nickname", r.str("nickname")).toString())) }) {
-                            Text("@" + r.str("nickname"), style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text("@" + r.str("nickname"), style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             r.strOrNull("note")?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis) }
                         }
                         AdminPill("Approve", BadgeGreen, filled = true, modifier = if (r === list.first()) Modifier.firstFocus() else Modifier) {

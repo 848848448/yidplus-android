@@ -68,7 +68,7 @@ class AdminChannelsPage : PageScreen() {
                         Avatar(Api.abs(ch.strOrNull("photo_url")), name.ifBlank { "C" }, 48.dp)
                         Column(Modifier.weight(1f).padding(start = 12.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("@$name", style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                                Text("@$name", style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                                 if (verified) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
                             Text(adminN(ch.optInt("followers")) + " followers · " + adminN(ch.optInt("total_views")) + " views", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)

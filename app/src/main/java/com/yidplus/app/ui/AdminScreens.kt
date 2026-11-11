@@ -60,14 +60,22 @@ class AdminPage : PageScreen() {
         val nowRes = remember { Res("/api/admin/insights") { it } }
         var flags by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
         var allowFor by remember { mutableStateOf<String?>(null) }
+        // null = still reading, false = the site didn't answer: the switches then stay locked, so nothing is saved from a wrong picture.
+        var flagsOk by remember { mutableStateOf<Boolean?>(null) }
+        var flagsTry by remember { mutableIntStateOf(0) }
         LaunchedEffect(Unit) {
             if (SettingsProfile.demo) {
                 statsRes.data = JSONObject().put("stats", JSONObject().put("users", 1834).put("new_today", 12).put("online", 47).put("shorts", 3120).put("messages", 98210).put("channels", 64).put("open_reports", 2))
-                flags = mapOf("feat_music" to "off"); return@LaunchedEffect
+                flags = mapOf("feat_music" to "off"); flagsOk = true; return@LaunchedEffect
             }
             launch { statsRes.load(force = true) }
             launch { nowRes.load(force = true) }
-            runCatching { Api.get("/api/settings").optJSONObject("settings") }.onSuccess { j -> if (j != null) flags = j.keys().asSequence().filter { it.startsWith("feat_") }.associateWith { j.optString(it) } }
+        }
+        LaunchedEffect(flagsTry) {
+            if (SettingsProfile.demo) return@LaunchedEffect
+            runCatching { Api.get("/api/settings").optJSONObject("settings") ?: error("no settings") }
+                .onSuccess { j -> flags = j.keys().asSequence().filter { it.startsWith("feat_") }.associateWith { j.optString(it) }; flagsOk = true }
+                .onFailure { flagsOk = false }
         }
         val s = statsRes.data?.optJSONObject("stats")
         val now = nowRes.data
@@ -125,6 +133,7 @@ class AdminPage : PageScreen() {
                     val on = flags[key] != "off"
                     SettingRow(featureIcons[key] ?: Icons.Filled.Star, label, desc + if (!owner) " · owner only" else "", switch = on) {
                         if (!owner) { toast(c, "Only the owner can change this"); return@SettingRow }
+                        if (flagsOk != true) { toast(c, "Couldn't read the current switches from yidplus.com yet. Trying again…"); flagsTry++; return@SettingRow }
                         val v = if (on) "off" else "on"
                         flags = flags + (key to v)
                         scope.launch {
@@ -138,6 +147,7 @@ class AdminPage : PageScreen() {
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
+            if (flagsOk == false) SettingsHint("⚠ yidplus.com didn't send the current switches, so they're locked to avoid saving the wrong value. Tap a switch to try again.")
             SettingsHint("Off = the tab disappears from the bottom bar for everyone, on the site and in the app.")
             // ── Rare sections stay on the website's admin page ──
             if (owner) SettingsCard("More on the website") {
