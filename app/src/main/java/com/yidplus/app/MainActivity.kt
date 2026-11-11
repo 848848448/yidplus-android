@@ -99,7 +99,12 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode in DPAD && !Keys.keypad) Keys.keypad = true
+        if (event.keyCode in DPAD && !Keys.keypad) {
+            // First D-pad press: show the keypad focus on the screen's first item (that press only wakes the focus,
+            // so it never jumps to the top bar first).
+            if (event.action == KeyEvent.ACTION_DOWN) Keys.keypad = true
+            if (event.keyCode == KeyEvent.KEYCODE_DPAD_UP || event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) return true
+        }
         return super.dispatchKeyEvent(event)
     }
 
