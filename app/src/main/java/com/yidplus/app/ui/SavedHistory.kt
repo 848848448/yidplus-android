@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -139,6 +140,7 @@ private fun NwListScreen(saved: Boolean) {
     var cleared by remember { mutableStateOf(false) }
     var undo by remember { mutableStateOf<NwItem?>(null) }
     var confirm by remember { mutableStateOf(false) }
+    val lst = rememberLazyListState()
     LaunchedEffect(Unit) { res.load(true) }
     LaunchedEffect(undo) { if (undo != null) { delay(5000); undo = null } }
     val list = res.data
@@ -154,7 +156,7 @@ private fun NwListScreen(saved: Boolean) {
                 list == null -> SkeletonRows(rows = 6)
                 shown.isEmpty() -> if (saved) EmptyNote(Icons.Filled.BookmarkBorder, "Nothing saved yet", "Tap Save on any Short or song to keep it here.")
                     else EmptyNote(Icons.Filled.History, "Nothing here yet", "Videos you watch and songs you play show up here.")
-                else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 88.dp)) {
+                else -> LazyColumn(Modifier.fillMaxSize(), state = lst, contentPadding = PaddingValues(bottom = 88.dp)) {
                     items(shown, key = { it.key }) { x ->
                         NwItemRow(x, saved, if (x === shown.first()) Modifier.firstFocus() else Modifier, onUnsave = {
                             hidden.add(x.key)
@@ -173,7 +175,7 @@ private fun NwListScreen(saved: Boolean) {
                     Text("Removed from saved", color = Color.White, fontSize = 15.sp, modifier = Modifier.weight(1f))
                     TextButton({
                         undo = null
-                        scope.launch { try { Saves.save(u.type, u.id); hidden.remove(u.key); toast(c, "Saved") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
+                        scope.launch { try { Saves.save(u.type, u.id); hidden.remove(u.key); runCatching { lst.scrollToItem(0) }; toast(c, "Saved") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
                     }, modifier = Modifier.firstFocus()) { Text("UNDO", color = Color(0xFF7FD6BC), fontWeight = FontWeight.Bold) }
                 }
             }

@@ -61,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -251,13 +252,15 @@ fun AiChatRow(onOpen: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically) {
             AiAvatar(52.dp)
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(AiChat.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                    Spacer(Modifier.width(6.dp))
-                    Box(Modifier.clip(RoundedCornerShape(4.dp)).background(Green).padding(horizontal = 5.dp, vertical = 1.dp)) {
-                        Text("AI", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                        Text(AiChat.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                        Spacer(Modifier.width(6.dp))
+                        Box(Modifier.clip(RoundedCornerShape(4.dp)).background(Green).padding(horizontal = 5.dp, vertical = 1.dp)) {
+                            Text("AI", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
-                    Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
                     Icon(Icons.Filled.PushPin, "Pinned", Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.height(3.dp))
@@ -290,12 +293,15 @@ private fun AiChatScreen(ask: String?) {
         AiChat.load()
         if (!ask.isNullOrBlank()) AiChat.send(ask)
     }
-    LaunchedEffect(Unit) { delay(200); runCatching { fr.requestFocus() } }
+    // No auto-focus: on small screens the keyboard would cover the history / welcome chips (WhatsApp opens chats closed too).
+    val kb = LocalSoftwareKeyboardController.current
+    val small = LocalConfiguration.current.screenHeightDp < 700
     LaunchedEffect(AiChat.messages.size, AiChat.sending) { if (AiChat.messages.isNotEmpty()) runCatching { list.animateScrollToItem(0) } }
     fun doSend() {
         val t = input.trim()
         if (t.isEmpty() || AiChat.sending) return
         input = ""
+        if (small) kb?.hide()
         scope.launch { AiChat.send(t) }
     }
     val blocked = AiChat.disabled || AiChat.notConfigured
@@ -343,15 +349,16 @@ private fun AiChatScreen(ask: String?) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AiWelcome(blocked: Boolean, onQuick: (String) -> Unit) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        AiAvatar(68.dp, square = true)
-        Spacer(Modifier.height(12.dp))
+    val short = LocalConfiguration.current.screenHeightDp < 600
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = if (short) 10.dp else 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        AiAvatar(if (short) 44.dp else 68.dp, square = true)
+        Spacer(Modifier.height(if (short) 6.dp else 12.dp))
         Text(AiChat.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(6.dp))
         Text(AiChat.welcome ?: "Ask me anything: questions, writing, translation, ideas, explanations, and even making images 🎨.",
             fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center,
             style = TextStyle(textDirection = TextDirection.Content), modifier = Modifier.widthIn(max = 340.dp))
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(if (short) 10.dp else 16.dp))
         when {
             AiChat.disabled -> AiNote("⏸️ YID PLUS AI is currently turned off.")
             AiChat.notConfigured -> AiNote("⚠️ YID PLUS AI is not set up yet.")
