@@ -33,7 +33,7 @@ object Nav {
     fun go(t: Tab) { stack.clear(); tab = t; Perf.start(t.name) }
 
     fun open(s: Screen) {
-        Perf.start(s.javaClass.simpleName)
+        Perf.start(when (s) { is Screen.Channel -> "Channel"; is Screen.Chat -> "Chat"; is Screen.Video -> "Video"; is Screen.Photo -> "Photo"; is Screen.Web -> "Web"; Screen.Player -> "Player"; Screen.Notifications -> "Notifications" })
         if (wide && s is Screen.Channel && tab == Tab.Home && stack.isEmpty()) { homeDetail = s; return }
         if (wide && s is Screen.Chat && tab == Tab.Chats && stack.isEmpty()) { chatDetail = s; return }
         stack.add(s)

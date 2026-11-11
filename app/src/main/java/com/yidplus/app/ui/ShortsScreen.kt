@@ -391,7 +391,8 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
     val c = ctx()
     BoxWithConstraints(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
         // Letterbox on wide screens (tablets, landscape): the video keeps its upright 9:16 frame.
-        val w = if (maxWidth > maxHeight * 0.75f) maxHeight * 9f / 16f else maxWidth
+        val w = if (maxWidth > maxHeight) maxHeight * 9f / 16f else maxWidth
+        val small = maxHeight < 560.dp
         Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { onTap() }, onDoubleTap = { if (!s.liked) onLike() }) }) {
             if (s.poster != null) AsyncImage(s.poster, null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
             if (current) AndroidView(factory = { ctx ->
@@ -400,24 +401,28 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
             if (current && paused) Icon(Icons.Filled.PlayArrow, "Paused", tint = Color.White.copy(alpha = .85f), modifier = Modifier.align(Alignment.Center).size(72.dp))
 
             // Right side actions
-            Column(Modifier.align(Alignment.BottomEnd).padding(end = 6.dp, bottom = 46.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.align(Alignment.BottomEnd).padding(end = 4.dp, bottom = if (small) 30.dp else 46.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(if (small) 2.dp else 10.dp)) {
                 val following = s.creatorId in Feeds.follows
                 Box {
-                    Avatar(s.avatar, s.creator, 40.dp)
+                    Avatar(s.avatar, s.creator, if (small) 32.dp else 40.dp)
                     if (s.fromSrc) Box(Modifier.align(Alignment.BottomCenter).size(18.dp).clip(CircleShape).background(if (following) Green else Color(0xFFE53935))
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
                 }
-                Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, onLike)
-                Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, onComments)
+                Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, onLike)
+                Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, onComments)
                 val isSaved = Feeds.saved.any { it.key == s.key }
-                Action(if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onSave)
-                Action(Icons.Filled.Share, "Share", Color.White) { share(c, s.shareUrl) }
-                Action(if (Prefs.muted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp, if (Prefs.muted) "Off" else "Sound", Color.White) { Prefs.setMute(!Prefs.muted) }
+                if (!small) Action(if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onSave)
+                Action(Icons.Filled.Share, "Share", Color.White, small = small) { share(c, s.shareUrl) }
+                if (!small) Action(if (Prefs.muted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp, if (Prefs.muted) "Off" else "Sound", Color.White) { Prefs.setMute(!Prefs.muted) }
                 var menu by remember { mutableStateOf(false) }
                 Box {
-                    Action(Icons.Filled.MoreVert, "More", Color.White) { menu = true }
+                    Action(Icons.Filled.MoreVert, "More", Color.White, small = small) { menu = true }
                     DropdownMenu(menu, { menu = false }) {
+                        if (small) {
+                            DropdownMenuItem(text = { Text(if (isSaved) "Saved ✓ (4)" else "Save (4)") }, onClick = { onSave(); menu = false })
+                            DropdownMenuItem(text = { Text(if (Prefs.muted) "Sound on (2)" else "Sound off (2)") }, onClick = { Prefs.setMute(!Prefs.muted); menu = false })
+                        }
                         for (sp in listOf(0.5f, 1f, 1.5f, 2f)) DropdownMenuItem(text = { Text((if (sp == speed) "✓ " else "   ") + "Speed ${sp}×") }, onClick = { onSpeed(sp); menu = false })
                         if (s.fromSrc) DropdownMenuItem(text = { Text("Not interested in ${s.creator}") }, onClick = { onHide(); menu = false })
                         DropdownMenuItem(text = { Text("Copy link") }, onClick = {
@@ -442,9 +447,9 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 }
 
 @Composable
-private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, onClick: () -> Unit) {
-    Column(Modifier.tap(RoundedCornerShape(12.dp), onClick = onClick).padding(3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, label, tint = tint, modifier = Modifier.size(28.dp))
+private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, onClick: () -> Unit) {
+    Column(Modifier.tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(icon, label, tint = tint, modifier = Modifier.size(if (small) 22.dp else 28.dp))
         Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall, maxLines = 1)
     }
 }
