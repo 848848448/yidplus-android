@@ -116,7 +116,7 @@ object Fixture {
     private fun load(c: Context) {
         // fixtures.json plus any fixtures-*.json next to it (each screen area keeps its own sample answers).
         val all = JSONObject()
-        val names = runCatching { c.assets.list("qa")?.toList() }.getOrNull().orEmpty().filter { it.startsWith("fixtures") && it.endsWith(".json") }.sorted()
+        val names = runCatching { c.assets.list("qa")?.toList() }.getOrNull().orEmpty().filter { it.startsWith("fixtures") && it.endsWith(".json") }.sortedBy { if (it == "fixtures.json") "" else it }
         for (n in names) runCatching {
             val j = JSONObject(c.assets.open("qa/$n").bufferedReader().use { it.readText() })
             for (k in j.keys()) all.put(k, j.get(k))
