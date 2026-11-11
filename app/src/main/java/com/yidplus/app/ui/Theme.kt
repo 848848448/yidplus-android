@@ -93,7 +93,7 @@ object UiPrefs {
 private fun TextStyle.sized(size: Float, line: Float, w: FontWeight, s: Float, track: Float = 0f) =
     copy(fontSize = (size * s).sp, lineHeight = (line * s).sp, fontWeight = w, letterSpacing = track.sp)
 
-/** One type scale for every screen: 20 sp bar titles, 16 sp row titles, 14 sp subtitles, 12 sp times. */
+/** One type scale for every screen (bigger, like WhatsApp): 20 sp bar titles, 17 sp row titles, 16 sp body, 15 sp previews, 13 sp times. */
 fun yidTypography(s: Float): Typography {
     val b = Typography()
     return Typography(
@@ -104,14 +104,14 @@ fun yidTypography(s: Float): Typography {
         headlineMedium = b.headlineMedium.sized(24f, 32f, FontWeight.SemiBold, s),
         headlineSmall = b.headlineSmall.sized(22f, 28f, FontWeight.SemiBold, s),
         titleLarge = b.titleLarge.sized(20f, 26f, FontWeight.SemiBold, s),
-        titleMedium = b.titleMedium.sized(16f, 22f, FontWeight.SemiBold, s, 0.1f),
+        titleMedium = b.titleMedium.sized(17f, 23f, FontWeight.SemiBold, s, 0.1f),
         titleSmall = b.titleSmall.sized(14f, 20f, FontWeight.SemiBold, s, 0.1f),
         bodyLarge = b.bodyLarge.sized(16f, 22f, FontWeight.Normal, s, 0.15f),
-        bodyMedium = b.bodyMedium.sized(14f, 20f, FontWeight.Normal, s, 0.15f),
-        bodySmall = b.bodySmall.sized(12f, 16f, FontWeight.Normal, s, 0.2f),
+        bodyMedium = b.bodyMedium.sized(15f, 21f, FontWeight.Normal, s, 0.15f),
+        bodySmall = b.bodySmall.sized(13f, 18f, FontWeight.Normal, s, 0.2f),
         labelLarge = b.labelLarge.sized(14f, 20f, FontWeight.SemiBold, s, 0.1f),
-        labelMedium = b.labelMedium.sized(12f, 16f, FontWeight.Medium, s, 0.3f),
-        labelSmall = b.labelSmall.sized(11f, 16f, FontWeight.Medium, s, 0.4f),
+        labelMedium = b.labelMedium.sized(13f, 18f, FontWeight.Medium, s, 0.3f),
+        labelSmall = b.labelSmall.sized(12f, 16f, FontWeight.Medium, s, 0.4f),
     )
 }
 

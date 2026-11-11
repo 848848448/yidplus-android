@@ -48,6 +48,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.yidplus.app.data.Net
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.SiteConfig
@@ -66,6 +70,7 @@ fun AppRoot(onExit: () -> Unit) {
         val top = Nav.stack.lastOrNull()
         val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Gallery || (top is PageScreen && top.immersive) || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
         val holder = rememberSaveableStateHolder()
+        NavBadgesFeed()
 
         // The status bar takes the colour of the brand bar under it (black on full-screen video), with white icons.
         val view = androidx.compose.ui.platform.LocalView.current
@@ -179,11 +184,11 @@ private val tabIcons: Map<Tab, ImageVector> = mapOf(
 
 @Composable
 private fun BottomBar(dark: Boolean) {
-    val bg = if (dark) Color(0xFF0E1715) else MaterialTheme.colorScheme.surface
+    val bg = if (dark) Color(0xFF0E1715) else if (isDark()) Color(0xFF141C19) else MaterialTheme.colorScheme.surface
     Surface(color = bg, shadowElevation = 8.dp) {
         Column {
-            if (!dark) HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-            Row(Modifier.fillMaxWidth().heightIn(min = 60.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            HorizontalDivider(thickness = 0.5.dp, color = if (dark) Color.White.copy(alpha = .08f) else MaterialTheme.colorScheme.outlineVariant)
+            Row(Modifier.fillMaxWidth().heightIn(min = 62.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
         }
@@ -194,17 +199,22 @@ private fun BottomBar(dark: Boolean) {
 private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
     val sel = Nav.tab == t && Nav.stack.isEmpty()
     val on = if (dark) Color.White.copy(alpha = .78f) else MaterialTheme.colorScheme.onSurfaceVariant
-    val active = if (dark) Color.White else MaterialTheme.colorScheme.primary
+    val active = if (dark) Color.White else if (isDark()) MaterialTheme.colorScheme.primary else Green
     val pill = if (dark) Color.White.copy(alpha = .16f) else MaterialTheme.colorScheme.primaryContainer
-    // Material 3 navigation bar item: 24 dp icon in a pill when selected, 12 sp label under it.
-    Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) Nav.stack.clear() else Nav.go(t) }.padding(vertical = 5.dp),
+    // Material 3 / WhatsApp navigation item: 24 dp icon in a pill when selected, 12 sp label under it, and the site's
+    // badges: the unread number on Chats (and on Channels for joined Telegram channels), a dot on Shorts / Channels.
+    val n = when (t) { Tab.Chats -> Badges.chats; Tab.Home -> Badges.channels; else -> 0 }
+    val dot = n <= 0 && when (t) { Tab.Shorts -> NavDots.shorts; Tab.Home -> NavDots.channels; else -> false }
+    Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) Nav.stack.clear() else Nav.go(t) }
+        .semantics { contentDescription = t.label + if (n > 0) ", $n unread" else if (dot) ", new" else "" }.padding(vertical = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(width = 56.dp, height = 30.dp).clip(RoundedCornerShape(15.dp)).background(if (sel) pill else Color.Transparent), contentAlignment = Alignment.Center) {
-            Icon(tabIcons[t]!!, t.label, tint = if (sel) active else on, modifier = Modifier.size(24.dp))
-            val n = when (t) { Tab.Chats -> Badges.chats; Tab.Home -> Badges.channels; else -> 0 }
-            if (n > 0) Box(Modifier.align(Alignment.TopEnd)) { Badge(n) }
+        Box(Modifier.size(width = 64.dp, height = 32.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(width = 58.dp, height = 30.dp).clip(RoundedCornerShape(15.dp)).background(if (sel) pill else Color.Transparent))
+            Icon(tabIcons[t]!!, null, tint = if (sel) active else on, modifier = Modifier.size(24.dp))
+            if (n > 0) Box(Modifier.align(Alignment.TopEnd).offset(x = (-4).dp, y = (-3).dp)) { Badge(n) }
+            else if (dot) Box(Modifier.align(Alignment.TopEnd).offset(x = (-14).dp, y = 2.dp).size(9.dp).clip(CircleShape).background(BadgeGreen))
         }
-        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = if (sel) (if (dark) Color.White else MaterialTheme.colorScheme.primary) else on,
+        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = if (sel) active else on,
             fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.dp))
     }
 }
