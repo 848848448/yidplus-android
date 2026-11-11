@@ -42,7 +42,7 @@ internal fun chEnc(s: String): String = URLEncoder.encode(s, "UTF-8")
 data class ChMember(val id: String, val nick: String, val photo: String?, val online: Boolean, val role: String, val admin: Boolean, val title: String)
 
 /** One room from /api/chat/rooms with everything the site sends (mute, members, pin, invite, admin rights). */
-data class RoomInfo(val room: Room, val muted: Boolean, val online: Boolean, val joined: Boolean, val isGroupAdmin: Boolean, val createdBy: String?,
+data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean, val joined: Boolean, val isGroupAdmin: Boolean, val createdBy: String?,
                     val inviteCode: String?, val pinnedId: String?, val description: String, val visibility: String,
                     val members: List<ChMember>, val featured: Boolean) {
     val isGroup get() = room.type == "group"
@@ -52,7 +52,7 @@ data class RoomInfo(val room: Room, val muted: Boolean, val online: Boolean, val
     val canManage: Boolean get() { val me = Session.me ?: return false; return isGroupAdmin || createdBy == me.id || chIsSiteAdmin() }
     val onlineCount get() = members.count { it.online }
     companion object {
-        fun from(j: JSONObject) = RoomInfo(Room.from(j), j.optBoolean("muted"), j.optBoolean("online"), j.optBoolean("joined", true), j.optBoolean("is_group_admin"),
+        fun from(j: JSONObject) = ChatRoomInfo(Room.from(j), j.optBoolean("muted"), j.optBoolean("online"), j.optBoolean("joined", true), j.optBoolean("is_group_admin"),
             j.strOrNull("created_by"), j.strOrNull("invite_code"), j.strOrNull("pinned_message_id"), j.str("description"), j.str("visibility"),
             chObjs(j.optJSONArray("member_list")).map { m -> ChMember(m.str("id"), m.str("nickname"), Api.abs(m.strOrNull("photo_url")), m.optInt("online") == 1 || m.optBoolean("online"), m.str("role"), m.optInt("is_group_admin") == 1 || m.optBoolean("is_group_admin"), m.str("title")) },
             j.optBoolean("featured"))
@@ -98,8 +98,8 @@ data class ChReact(val counts: Map<String, Int>, val mine: String?)
 /* ───────────────────────── Chat API calls (all existing yidplus.com endpoints) ───────────────────────── */
 
 object ChatApi {
-    val rooms get() = Store.res("/api/chat/rooms", RoomInfo::list)
-    fun info(id: String): RoomInfo? = rooms.data?.firstOrNull { it.room.id == id }
+    val rooms get() = Store.res("/api/chat/rooms", ChatRoomInfo::list)
+    fun info(id: String): ChatRoomInfo? = rooms.data?.firstOrNull { it.room.id == id }
 
     suspend fun messages(roomId: String): Pair<JSONObject, List<ChatMsg>> {
         val j = Api.get("/api/chat?room_id=" + chEnc(roomId))
@@ -195,7 +195,7 @@ fun chatDay(s: String?): String {
 }
 private fun startOfDay(ms: Long): Long = java.util.Calendar.getInstance().apply { timeInMillis = ms; set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }.timeInMillis
 
-fun roomPreview(r: Room): String {
+fun chatRoomPreview(r: Room): String {
     val p = r.preview
     if (Regex("""^\d+:\d\d\|""").containsMatchIn(p)) return "🎤 Voice message"
     return prettyPreview(p)
@@ -203,7 +203,7 @@ fun roomPreview(r: Room): String {
 
 /* ───────────────────────── Video posters (a real frame, never a black box) ───────────────────────── */
 
-object VideoThumbs {
+object ChatVideoThumbs {
     private val cache = LruCache<String, Bitmap>(24)
     private val gate = Semaphore(2)
     fun cached(url: String): Bitmap? = cache.get(url)
@@ -222,7 +222,7 @@ object VideoThumbs {
 
 /* ───────────────────────── Voice notes: one player for the whole app chat, and the recorder ───────────────────────── */
 
-object VoicePlayer {
+object ChatVoicePlayer {
     var playing by mutableStateOf<String?>(null); private set
     var progress by mutableStateOf(0f)
     var paused by mutableStateOf(false); private set
@@ -245,7 +245,7 @@ object VoicePlayer {
     fun stop() { runCatching { mp?.release() }; mp = null; playing = null; paused = false; progress = 0f }
 }
 
-class VoiceRecorder(private val ctx: Context) {
+class ChatVoiceRecorder(private val ctx: Context) {
     private var rec: MediaRecorder? = null
     var file: File? = null; private set
     var startedAt = 0L; private set
@@ -289,7 +289,7 @@ fun chShrink(ctx: Context, uri: Uri?, bmpIn: Bitmap?): ByteArray {
 }
 
 /** Emoji panel sets (the site's categories). */
-val EMOJI_SETS: List<Pair<String, String>> = listOf(
+val CHAT_EMOJI_SETS: List<Pair<String, String>> = listOf(
     "😀" to "😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥳 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕",
     "👍" to "👍 👎 👌 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ ✋ 🤚 🖐️ 🖖 👋 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💪 🦾 👀 👁️ 👂 👃 🧠 👶 🧒 👦 👧 🧑 👨 👩 🧔 👴 👵 🙋 🙇 🤦 🤷 💁 🙆 🙅 👪 👨‍👩‍👦 👨‍👩‍👧‍👦",
     "🐶" to "🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🐴 🦄 🐝 🦋 🐌 🐞 🐢 🐍 🐙 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🐘 🦒 🐪 🐫 🐑 🐐 🦌 🐕 🐈 🌸 🌹 🌻 🌷 🌲 🌳 🌴 🍀 🍁 🌈 ☀️ 🌙 ⭐ 🔥 💧 ❄️",
@@ -297,4 +297,14 @@ val EMOJI_SETS: List<Pair<String, String>> = listOf(
     "❤️" to "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 ✅ ❌ ⭕ ❗ ❓ ‼️ ⁉️ 💯 🔴 🟢 🔵 ⚪ ⚫ 🎉 🎊 🎁 🏆 🥇 ⚽ 🏀 🎵 🎶 🎤 🎧 📞 📱 💻 📷 🎥 📚 ✏️ 📌 📎 🔒 🔑 💡 ⏰ 💰 🚗 ✈️ 🏠 🌍",
     "🕎" to "🕎 ✡️ 🕍 📜 🍷 🕯️ 🍞 🥯 🍯 🍎 🫒 🌿 🎺 📖 🙏 💐 🎉 👑 🏛️ 🌟 ⭐ 🌙 🔯 🪔 🛡️ 🎭 🍇 🥂 🫓",
 ).map { it.first to it.second }
-val QUICK_REACTS = listOf("❤️", "😂", "😮", "😢", "👍", "🔥")
+val CHAT_QUICK_REACTS = listOf("❤️", "😂", "😮", "😢", "👍", "🔥")
+
+/** The site's sticker set (Noto animated emoji, the same URLs the website sends). */
+val CHAT_STICKERS: List<String> = listOf("1f600", "1f602", "1f60d", "1f62d", "1f621", "1f973", "1f44f", "1f525", "2764_fe0f", "1f64f", "1f44d", "1f914", "1f389", "1f48b", "1f499", "2728").map { "https://fonts.gstatic.com/s/e/notoemoji/latest/$it/512.gif" }
+
+/** Unsent text per chat survives leaving the chat and closing the app (like WhatsApp drafts). */
+object ChDrafts {
+    private fun p(c: Context) = c.getSharedPreferences("chat_drafts", Context.MODE_PRIVATE)
+    fun get(c: Context, room: String): String = runCatching { p(c).getString(room, "") ?: "" }.getOrDefault("")
+    fun put(c: Context, room: String, text: String) { runCatching { p(c).edit().apply { if (text.isBlank()) remove(room) else putString(room, text) }.apply() } }
+}

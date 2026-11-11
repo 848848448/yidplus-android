@@ -173,7 +173,7 @@ fun ChatsScreen() {
     }
 }
 
-private fun matchTab(r: RoomInfo, tab: String) = when (tab) {
+private fun matchTab(r: ChatRoomInfo, tab: String) = when (tab) {
     "private" -> r.isPrivate; "groups" -> r.isGroup; "channels" -> r.isChannel; "unread" -> r.room.unread > 0; else -> true
 }
 
@@ -183,8 +183,9 @@ internal fun ChMenuItem(icon: ImageVector, text: String, color: Color = Color.Un
 }
 
 @Composable
-internal fun ChRoomRow(ri: RoomInfo, modifier: Modifier) {
+internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier) {
     val r = ri.room
+    val c = ctx()
     val sel = Nav.chatDetail?.room?.id == r.id
     Column(modifier.background(if (sel) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)) {
         Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("room:" + r.id).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) }
@@ -201,8 +202,9 @@ internal fun ChRoomRow(ri: RoomInfo, modifier: Modifier) {
                 }
                 Spacer(Modifier.height(3.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(roomPreview(r).ifBlank { if (r.members > 0) "${r.members} members" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
+                    val draft = remember(r.id, Nav.stack.size) { ChDrafts.get(c, r.id) }
+                    Text(if (draft.isNotBlank()) "Draft: $draft" else chatRoomPreview(r).ifBlank { if (r.members > 0) "${r.members} members" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        fontSize = 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
                     if (ri.muted) Icon(Icons.Filled.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(4.dp)); ChBadge(r.unread, ri.muted)
                 }
