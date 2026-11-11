@@ -90,7 +90,7 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
     val isCentred get() = isSystem || isCall
     /** Voice notes carry "M:SS|peaks" in their text (the site's format). */
     val voiceDur get() = if (isVoice) text.substringBefore('|').takeIf { Regex("""\d+:\d\d""").matches(it) } ?: "" else ""
-    val caption get() = when { isVoice || isPoll || isSticker || isVoiceText || deleted || isCentred -> ""; isFile && text == fileName -> ""; text == "__once__" -> ""; else -> text.removeSuffix(" ↩ Forwarded") }
+    val caption get() = when { isVoice || isPoll || isSticker || isVoiceText || deleted || isCentred -> ""; (isFile || isMusic || isAudio) && (text == fileName || text == mediaKey.substringAfterLast('/').substringAfter('_')) -> ""; text == "__once__" -> ""; else -> text.removeSuffix(" ↩ Forwarded") }
     val fileName get() = mediaKey.substringAfterLast('/').substringAfter('_', mediaKey.substringAfterLast('/')).ifBlank { "File" }.let { if (type == "file" && text.isNotBlank() && !text.contains('\n') && text.length < 120) text else it }
     val preview: String get() = when {
         deleted -> "🚫 This message was deleted"
