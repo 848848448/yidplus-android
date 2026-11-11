@@ -59,7 +59,7 @@ fun AppRoot(onExit: () -> Unit) {
         LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
         BackHandler { if (!Nav.back()) onExit() }
         val top = Nav.stack.lastOrNull()
-        val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Gallery || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
+        val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Gallery || (top is PageScreen && top.immersive) || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
         val holder = rememberSaveableStateHolder()
 
         Box(Modifier.fillMaxSize().background(if (immersive) Color.Black else MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.safeDrawing)) {
@@ -90,6 +90,7 @@ fun AppRoot(onExit: () -> Unit) {
                                     is Screen.Web -> WebScreen(top.url)
                                     Screen.Player -> PlayerScreen()
                                     Screen.Notifications -> NotificationsScreen()
+                                    is PageScreen -> top.Content()
                                 }
                             }
                         }
