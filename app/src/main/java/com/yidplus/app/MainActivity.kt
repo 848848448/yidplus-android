@@ -93,6 +93,7 @@ class MainActivity : AppCompatActivity() {
     private var started = 0L
     @Volatile private var pageShown = false
     private var mainFrameFailed = false
+    @Volatile private var loadedOffline = false
     private var defaultBarColor = Color.WHITE
     private var lastTop = Color.WHITE
     private var lastBottom = Color.WHITE
@@ -297,6 +298,8 @@ class MainActivity : AppCompatActivity() {
                 refresh.isRefreshing = false
                 progress.visibility = View.GONE
                 if (!mainFrameFailed) { pageShown = true; offline.visibility = View.GONE }
+                // The site's own offline page (from its service worker) counts as offline too
+                loadedOffline = !isOnline()
                 if (!docStart && url != null && Uri.parse(url).host in APP_HOSTS) view.evaluateJavascript(script, null)
                 CookieManager.getInstance().flush()
             }
@@ -656,7 +659,9 @@ class MainActivity : AppCompatActivity() {
         val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val cb = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(n: Network) {
-                main.postDelayed({ if (offline.visibility == View.VISIBLE) reload() }, 800)
+                main.postDelayed({
+                    if (offline.visibility == View.VISIBLE || loadedOffline) { loadedOffline = false; reload() }
+                }, 800)
             }
         }
         runCatching { cm.registerDefaultNetworkCallback(cb); network = cb }

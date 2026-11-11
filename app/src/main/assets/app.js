@@ -35,7 +35,8 @@
     for (; el; el = el.parentElement) { var c = getComputedStyle(el).backgroundColor; if (solid(c)) return c; }
     var b = document.body && getComputedStyle(document.body).backgroundColor;
     if (solid(b)) return b;
-    return getComputedStyle(document.documentElement).backgroundColor || '';
+    var h = getComputedStyle(document.documentElement).backgroundColor;
+    return solid(h) ? h : '';
   }
   var lastBars = '';
   function bars() {
