@@ -67,9 +67,9 @@ uitext() { timeout 30 adb shell uiautomator dump /sdcard/g.xml >/dev/null 2>&1; 
 timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHANNEL --es username ZemelVIN --es title ZemelVIN >/dev/null 2>&1; sleep 7
 key 20; key 23; sleep 4; G1=$(uitext); shot 06a-gallery-open; log "gallery opened: ${G1:-no counter}"
 adb shell input swipe 420 330 60 330 150; sleep 3; G2=$(uitext); shot 06b-gallery-swiped; log "after swipe left: ${G2:-no counter}"
-adb shell input tap 240 330; adb shell input tap 240 330; sleep 2; shot 06c-gallery-zoomed
+timeout 20 adb shell 'input tap 240 330 & sleep 0.12; input tap 240 330; wait'; sleep 2; shot 06c-gallery-zoomed
 adb shell input swipe 420 330 60 330 150; sleep 2; G3=$(uitext); log "zoomed + swipe (should stay): ${G3:-no counter}"
-adb shell input tap 240 330; adb shell input tap 240 330; sleep 2
+timeout 20 adb shell 'input tap 240 330 & sleep 0.12; input tap 240 330; wait'; sleep 2
 key 22; sleep 2; G4=$(uitext); log "keypad RIGHT: ${G4:-no counter}"
 adb shell input swipe 240 200 240 600 250; sleep 3; G5=$(uitext); shot 06d-gallery-closed; log "after drag down: ${G5:-closed}"
 if [ -n "$G1" ] && [ -n "$G2" ] && [ "$G1" != "$G2" ] && [ "$G2" = "$G3" ] && [ "$G4" != "$G3" ] && [ -z "$G5" ]; then log "GALLERY PASS"; else log "GALLERY FAIL"; FAIL=1; fi
