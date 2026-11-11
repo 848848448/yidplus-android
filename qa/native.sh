@@ -64,7 +64,7 @@ check channel
 
 # ---- Chats (guest: featured groups) ----
 view "https://yidplus.com/chat"; sleep 6; shot 08-chats
-key 20; focus "DOWN in chats"
+focus "chats opened"
 key 23; sleep 7; shot 09-chat-room; focus "OK (open chat)"
 key 4; sleep 1; shot 10-chats-back
 check chats
@@ -98,7 +98,8 @@ check music
 tab Profile; sleep 3; shot 23-profile-signin; focus "profile opened"
 key 20; key 20; focus "DOWN DOWN in sign-in form"; shot 24-profile-dpad
 for i in 1 2 3 4 5 6 7 8; do key 20; done; sleep 1; focus "DOWN x8 (settings)"; shot 25-settings
-timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.CHECK_UPDATE >/dev/null; sleep 6; shot 26-check-updates
+for i in 1 2 3 4 5 6; do key 19; done
+timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.CHECK_UPDATE >/dev/null; sleep 2.5; shot 26-check-updates
 check profile
 
 # ---- Dark mode ----

@@ -1,5 +1,9 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.layout.imePadding
+
+import androidx.compose.foundation.layout.navigationBarsPadding
+
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import androidx.compose.animation.AnimatedVisibility
@@ -518,7 +522,7 @@ private fun CommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int) -> Unit
         }
     }
     ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(Modifier.fillMaxWidth().heightIn(min = 200.dp).padding(bottom = 8.dp)) {
+        Column(Modifier.fillMaxWidth().heightIn(min = 200.dp).navigationBarsPadding().imePadding().padding(bottom = 8.dp)) {
             Text("${list.size} comments", Modifier.align(Alignment.CenterHorizontally).padding(6.dp), fontWeight = FontWeight.Bold)
             Box(Modifier.weight(1f, fill = false).heightIn(max = 380.dp)) {
                 if (loading && list.isEmpty()) Loading(Modifier.fillMaxWidth().height(120.dp))
