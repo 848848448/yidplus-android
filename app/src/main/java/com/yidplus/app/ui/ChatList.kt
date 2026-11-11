@@ -37,6 +37,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.Forward
 import androidx.compose.material.icons.automirrored.filled.Reply
@@ -119,10 +120,18 @@ fun ChatsScreen() {
     var searching by rememberSaveable { mutableStateOf(false) }
     var q by rememberSaveable { mutableStateOf("") }
     var menu by remember { mutableStateOf(false) }
-    BackHandler(enabled = searching) { searching = false; q = "" }
+    var fabMenu by remember { mutableStateOf(false) }
+    var pulling by remember { mutableStateOf(false) }
+    val kb = LocalSoftwareKeyboardController.current
+    val focusMgr = androidx.compose.ui.platform.LocalFocusManager.current
+    // Gap 10: leaving search (✕ or Back) also closes the keyboard.
+    fun closeSearch() { searching = false; q = ""; kb?.hide(); focusMgr.clearFocus(force = true) }
+    BackHandler(enabled = searching) { closeSearch() }
+    // Gap 2: rows whose site preview is only "[system]" / "[call]" / "[voice]" get their real last line, fetched quietly once and cached.
+    LaunchedEffect(list) { list?.take(24)?.filter { chBarePreview(it.rawPreview) }?.forEach { ri -> launch { ChatCache.prefetch(ri.room.id) } } }
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-        if (searching) ChSearchField(q, { q = it }, "Search chats and messages", { searching = false; q = "" })
+        if (searching) ChSearchField(q, { q = it }, "Search chats and messages", { closeSearch() })
         else ChBar("Chats", sub = if (me == null) "Guest · featured groups" else null) {
             ChIcon(Icons.Filled.Search, "Search chats", { searching = true })
             if (me != null) Box {
@@ -143,24 +152,27 @@ fun ChatsScreen() {
             }
         }
         if (searching) { ChSearchResults(q, list ?: emptyList()); return@Column }
-        if (me != null) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Gap 5: the chips scroll sideways with room at the end, so none is ever cut mid-word at 480 px.
+        if (me != null) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 20.dp, top = 8.dp, bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CHAT_TABS.forEach { (k, label) ->
                 val on = tab == k
                 val n = list?.let { l -> l.filter { matchTab(it, k) }.sumOf { it.room.unread } } ?: 0
                 Row(Modifier.clip(RoundedCornerShape(18.dp)).background(if (on) ChatLook.bar.copy(alpha = .14f) else MaterialTheme.colorScheme.surfaceVariant)
                     .tap(RoundedCornerShape(18.dp)) { tab = k }.padding(horizontal = 14.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(label, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal, color = if (on) ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it } else MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(label, maxLines = 1, softWrap = false, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal, color = if (on) ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it } else MaterialTheme.colorScheme.onSurfaceVariant)
                     if (n > 0 && k != "unread") { Spacer(Modifier.width(6.dp)); ChBadge(n) }
                 }
             }
         }
-        PullToRefreshBox(isRefreshing = res.loading && list != null, onRefresh = { scope.launch { res.load(true) } }, modifier = Modifier.weight(1f)) {
+        // Gap 3: no spinner over the list, ever — the cached list stays and refreshes silently; only a pull the person makes shows the pull indicator.
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+        PullToRefreshBox(isRefreshing = pulling, onRefresh = { pulling = true; scope.launch { res.load(true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
             when {
                 list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
                 list == null -> ChSkeleton()
                 else -> {
                     val shown = remember(list, tab) { list.filter { matchTab(it, tab) } }
-                    LazyColumn(Modifier.fillMaxSize(), state = rememberLazyListState()) {
+                    LazyColumn(Modifier.fillMaxSize(), state = rememberLazyListState(), contentPadding = PaddingValues(bottom = if (me != null) 88.dp else 8.dp)) {
                         if (shown.isEmpty()) item {
                             if (me == null) ChEmpty(Icons.Filled.Forum, "No public groups right now")
                             else ChEmpty(Icons.Filled.Forum, if (tab == "all") "No chats yet. Start one!" else "Nothing here", action = if (tab == "all") "New message" else null) { Nav.open(ChNewChat()) }
@@ -169,6 +181,18 @@ fun ChatsScreen() {
                     }
                 }
             }
+        }
+        // Gap 13: WhatsApp's green round button for a new chat / group / channel (the site has the same green button).
+        if (me != null) Box(Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
+            Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
+                contentAlignment = Alignment.Center) { Icon(Icons.AutoMirrored.Filled.Chat, null, tint = Color.White, modifier = Modifier.size(26.dp)) }
+            DropdownMenu(fabMenu, { fabMenu = false }) {
+                ChMenuItem(Icons.Filled.Person, "New chat") { fabMenu = false; Nav.open(ChNewChat()) }
+                ChMenuItem(Icons.Filled.Group, "New group") { fabMenu = false; Nav.open(ChNewGroup("group")) }
+                ChMenuItem(Icons.Filled.Campaign, "New channel") { fabMenu = false; Nav.open(ChNewGroup("channel")) }
+                ChMenuItem(Icons.Filled.Link, "Join by invite link") { fabMenu = false; Nav.open(ChJoinLink()) }
+            }
+        }
         }
     }
 }
@@ -188,29 +212,30 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier) {
     val c = ctx()
     val sel = Nav.chatDetail?.room?.id == r.id
     Column(Modifier.background(if (sel) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)) {
-        Row(modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("room:" + r.id).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) }
-            .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            ChAvatar(r.photo, r.name, r.otherUserId ?: r.id, 52.dp, online = ri.isPrivate && ri.online)
+        // Gap 6: WhatsApp rows — 72 dp, 50 dp avatar, the name ellipsizes before it can reach the time, no glyph in front of the name.
+        Row(modifier.fillMaxWidth().height(72.dp).restoreFocus("room:" + r.id).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) }
+            .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            ChAvatar(r.photo, r.name, r.otherUserId ?: r.id, 50.dp, online = ri.isPrivate && ri.online)
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (ri.isChannel) Icon(Icons.Filled.Campaign, null, Modifier.size(16.dp).padding(end = 2.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    else if (ri.isGroup) Icon(Icons.Filled.Group, null, Modifier.size(16.dp).padding(end = 2.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     // Title takes the room it has and ellipsizes; the time always keeps its place at the far end (RTL names can't push it away).
-                    Text(r.name, Modifier.weight(1f).padding(start = 2.dp, end = 8.dp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    Text(r.name, Modifier.weight(1f).padding(end = 10.dp), fontSize = 16.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
                     Text(chatTime(r.lastTime), fontSize = 12.sp, color = if (r.unread > 0 && !ri.muted) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
                 Spacer(Modifier.height(3.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val draft = remember(r.id, Nav.stack.size) { ChDrafts.get(c, r.id) }
-                    Text(if (draft.isNotBlank()) "Draft: $draft" else chatRoomPreview(r).ifBlank { if (r.members > 0) "${r.members} members" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    val v = ChatCache.version
+                    val pv = remember(ri, v) { chatPreview(ri) }
+                    Text(if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
                     if (ri.muted) Icon(Icons.Filled.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(4.dp)); ChBadge(r.unread, ri.muted)
                 }
             }
         }
-        HorizontalDivider(Modifier.padding(start = 82.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
+        HorizontalDivider(Modifier.padding(start = 80.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
     }
 }
 

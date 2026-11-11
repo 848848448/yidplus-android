@@ -286,11 +286,11 @@ data class ChPickUsers(val roomId: String, val roomName: String) : PageScreen() 
 }
 
 /** Join a group by its invite link (https://yidplus.com/chat?join=CODE) or code: preview, then join. */
-class ChJoinLink : PageScreen() {
+class ChJoinLink(val initial: String = "") : PageScreen() {
     override val perfName get() = "JoinLink"
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
-        var link by remember { mutableStateOf("") }
+        var link by remember { mutableStateOf(initial) }
         var preview by remember { mutableStateOf<JSONObject?>(null) }
         var err by remember { mutableStateOf<String?>(null) }
         val code = remember(link) { Regex("""(?:join|invite|code)=([A-Za-z0-9_-]+)""").find(link)?.groupValues?.get(1) ?: link.trim().substringAfterLast('/').takeIf { Regex("""[A-Za-z0-9_-]{6,40}""").matches(it) } }
@@ -369,7 +369,7 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
                         Api.http.newCall(okhttp3.Request.Builder().url(m.media!!).build()).execute().use { r -> if (!r.isSuccessful) error("Couldn't fetch the file"); r.body!!.byteStream().use { i -> f.outputStream().use { o -> i.copyTo(o) } } }
                         val mime = when { m.isVoice -> "audio/mp4"; m.isImage -> "image/jpeg"; m.isVideo -> "video/mp4"; else -> "application/octet-stream" }
                         try { ChatApi.upload(c, to.room.id, null, f, if (m.isVoice) "voice" else m.type.ifBlank { "media" }, m.mediaKey.substringAfterLast('/').ifBlank { "file" }, mime, if (m.isVoice) m.text else m.caption) } finally { f.delete() }
-                    } else Api.post("/api/chat", JSONObject().put("room_id", to.room.id).put("type", if (m.isSticker) "sticker" else "text").put("text", if (m.isSticker) m.text else m.text.removeSuffix(" ↩ Forwarded") + " ↩ Forwarded"))
+                    } else ChatApi.forwardText(to.room.id, m)
                     sent.add(to.room.id); toast(c, "✅ Forwarded to ${to.room.name}")
                 } catch (e: Exception) { toast(c, "Forward failed: " + Api.friendly(e)) } finally { busy = false }
             }
