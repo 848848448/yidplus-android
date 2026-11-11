@@ -121,7 +121,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                 Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("@" + name.ifBlank { "yidplus" }, fontSize = 18.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                        if (verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(18.dp))
+                        if (verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
                     }
                     Text("${clips.size} videos", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
