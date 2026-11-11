@@ -345,8 +345,9 @@ fun ShortsScreen() {
             Key.Three -> { commentsFor = cur; true }
             Key.Four -> { cur?.let { toggleSave(it) }; true }
             Key.Six -> { cur?.let { share(c, it.shareUrl) }; true }
-            Key.Star -> { Feeds.tab = tabs[(tabs.indexOf(tab) + 1) % tabs.size]; true }
-            else -> false
+            else -> if (e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_STAR || e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_POUND) {
+                Feeds.tab = tabs[(tabs.indexOf(tab) + 1) % tabs.size]; true
+            } else false
         }
     }.focusRequester(focus).focusable()) {
         when {
