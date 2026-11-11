@@ -73,7 +73,7 @@ fun Modifier.tap(shape: Shape = RoundedCornerShape(10.dp), role: Role = Role.But
     val focused by src.collectIsFocusedAsState()
     this
         .clip(shape)
-        .then(if (focused) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold, shape) else Modifier)
+        .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold, shape) else Modifier)
         .clickable(interactionSource = src, indication = androidx.compose.material3.ripple(), enabled = enabled, role = role, onClick = onClick)
 }
 
@@ -91,11 +91,11 @@ fun Modifier.firstFocus(always: Boolean = false): Modifier = composed {
 @Composable
 fun TopBar(title: String, onBack: (() -> Unit)? = null, sub: String? = null, lead: (@Composable () -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
     Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 2.dp, shadowElevation = 1.dp) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (onBack != null) IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack) else Spacer(Modifier.width(8.dp))
+        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (onBack != null) IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack, size = 44.dp) else Spacer(Modifier.width(12.dp))
             lead?.invoke()
             Column(Modifier.weight(1f).padding(horizontal = 6.dp)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(title, style = MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
             }
             actions()
@@ -104,7 +104,7 @@ fun TopBar(title: String, onBack: (() -> Unit)? = null, sub: String? = null, lea
 }
 
 @Composable
-fun IconBtn(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = MaterialTheme.colorScheme.onSurface, modifier: Modifier = Modifier, size: Dp = 40.dp) {
+fun IconBtn(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = MaterialTheme.colorScheme.onSurface, modifier: Modifier = Modifier, size: Dp = 44.dp) {
     Box(modifier.size(size).tap(CircleShape, onClick = onClick), contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = label, tint = tint, modifier = Modifier.size(size * 0.58f))
     }
@@ -172,8 +172,8 @@ fun SecondaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modi
 
 @Composable
 fun SectionTitle(text: String) {
-    Text(text.uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 6.dp))
+    Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(start = 16.dp, top = 18.dp, bottom = 4.dp))
 }
 
 private val iso = object : ThreadLocal<SimpleDateFormat>() {

@@ -35,11 +35,27 @@ data class TgPost(val id: Long, val text: String, val mediaType: String, val med
     }
 }
 
+/** The site's raw room previews ("[system]", "[call]", "[image]") read like an app: "System message", "📞 Call", "📷 Photo". */
+fun prettyPreview(p: String): String {
+    val s = p.trim()
+    val m = Regex("""^(?:([^:\[\]]{1,40}):\s*)?\[(\w+)\]\s*(.*)$""").find(s) ?: return s
+    val who = m.groupValues[1].let { if (it.isBlank()) "" else "$it: " }
+    val rest = m.groupValues[3]
+    val label = when (m.groupValues[2].lowercase()) {
+        "system" -> "System message"
+        "call", "voice_call" -> "📞 Call"; "video_call" -> "📹 Video call"
+        "image", "photo" -> "📷 Photo"; "video" -> "🎬 Video"; "audio", "voice" -> "🎤 Voice message"
+        "file", "document" -> "📎 File"; "sticker" -> "Sticker"; "gif" -> "GIF"; "poll" -> "📊 Poll"; "location" -> "📍 Location"
+        else -> return s
+    }
+    return who + label + if (rest.isNotBlank()) " $rest" else ""
+}
+
 data class Room(val id: String, val type: String, val name: String, val photo: String?, val emoji: String, val preview: String,
                 val unread: Int, val lastTime: String?, val readOnly: Boolean, val guestView: Boolean, val members: Int, val otherUserId: String?) {
     companion object {
         fun from(j: JSONObject) = Room(j.str("id"), j.str("type"), j.str("nick").ifBlank { j.str("name") }, Api.abs(j.strOrNull("photo_url")),
-            j.str("emoji"), j.str("preview"), j.optInt("unread"), j.strOrNull("last_time"), j.optBoolean("read_only"), j.optBoolean("guest_view"),
+            j.str("emoji"), prettyPreview(j.str("preview")), j.optInt("unread"), j.strOrNull("last_time"), j.optBoolean("read_only"), j.optBoolean("guest_view"),
             j.optInt("members"), j.strOrNull("other_user_id"))
         fun list(j: JSONObject) = j.optJSONArray("rooms").objects().map(::from)
     }

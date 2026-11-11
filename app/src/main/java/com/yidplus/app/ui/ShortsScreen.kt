@@ -419,10 +419,10 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
             if (current && paused) Icon(Icons.Filled.PlayArrow, "Paused", tint = Color.White.copy(alpha = .85f), modifier = Modifier.align(Alignment.Center).size(72.dp))
 
             // Right side actions
-            Column(Modifier.align(Alignment.BottomEnd).padding(end = 4.dp, bottom = if (small) 30.dp else 46.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(if (small) 2.dp else 10.dp)) {
+            Column(Modifier.align(Alignment.BottomEnd).padding(end = 4.dp, bottom = if (small) 30.dp else 46.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(if (small) 4.dp else 10.dp)) {
                 val following = s.creatorId in Feeds.follows
                 Box {
-                    Avatar(s.avatar, s.creator, if (small) 32.dp else 40.dp)
+                    Avatar(s.avatar, s.creator, if (small) 36.dp else 42.dp)
                     if (s.fromSrc) Box(Modifier.align(Alignment.BottomCenter).size(18.dp).clip(CircleShape).background(if (following) Green else Color(0xFFE53935))
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
@@ -449,6 +449,9 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                     }
                 }
             }
+            // Soft dark gradient under the caption so white text is always readable.
+            Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(150.dp)
+                .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .62f)))))
             // Caption + creator
             Column(Modifier.align(Alignment.BottomStart).padding(start = 10.dp, end = 64.dp, bottom = 24.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -467,7 +470,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 @Composable
 private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, onClick: () -> Unit) {
     Column(Modifier.tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, label, tint = tint, modifier = Modifier.size(if (small) 22.dp else 28.dp))
+        Icon(icon, label, tint = tint, modifier = Modifier.size(if (small) 26.dp else 30.dp))
         Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall, maxLines = 1)
     }
 }

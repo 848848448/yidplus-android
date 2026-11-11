@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import androidx.compose.ui.unit.sp
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -123,11 +125,11 @@ fun ChatsScreen() {
 private fun RoomRow(r: Room, modifier: Modifier) {
     val sel = Nav.chatDetail?.room?.id == r.id
     Row(modifier.fillMaxWidth().background(if (sel) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-        .tap(RoundedCornerShape(0.dp)) { Nav.open(Screen.Chat(r)) }.padding(horizontal = 12.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
-        Avatar(r.photo, r.name, 44.dp, emoji = if (r.photo == null && r.type != "private") r.emoji else null)
+        .tap(RoundedCornerShape(0.dp)) { Nav.open(Screen.Chat(r)) }.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Avatar(r.photo, r.name, 48.dp, emoji = if (r.photo == null && r.type != "private") r.emoji else null)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(r.name, Modifier.weight(1f), fontWeight = if (r.unread > 0) FontWeight.ExtraBold else FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                Text(r.name, Modifier.weight(1f).padding(end = 6.dp), fontWeight = if (r.unread > 0) FontWeight.ExtraBold else FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Content))
                 Text(ago(r.lastTime), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -218,7 +220,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 msgs.isEmpty() && !loaded -> Loading()
                 msgs.isEmpty() -> Text("No messages yet. Say hi!", Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else -> {
-                    val rev = msgs.asReversed()
+                    val rev = remember(msgs.size, msgs.lastOrNull()?.id) { groupJoins(msgs.asReversed()) }
                     val firstReal = rev.firstOrNull { it.type != "system" }
                     LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(vertical = 6.dp)) {
                         items(rev, key = { it.id }) { m -> Bubble(m, mine = m.senderId == me?.id, group = room.type != "private", modifier = if (m == firstReal) Modifier.firstFocus() else Modifier) }
@@ -245,6 +247,20 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }
 }
 
+/** Runs of "X joined" lines become one small line: "Avi, Moshe and 5 others joined". */
+private fun groupJoins(list: List<Msg>): List<Msg> {
+    val out = ArrayList<Msg>(list.size); var run = ArrayList<Msg>()
+    fun flush() {
+        if (run.size <= 2) out.addAll(run) else {
+            val names = run.map { it.text.substringBefore(" joined").trim() }.filter { it.isNotBlank() }
+            out.add(run.first().copy(text = names.take(2).joinToString(", ") + " and ${names.size - 2} others joined"))
+        }
+        run = ArrayList()
+    }
+    for (m in list) { if (m.type == "system" && m.text.contains(" joined")) run.add(m) else { flush(); out.add(m) } }
+    flush(); return out
+}
+
 @Composable
 private fun Bubble(m: Msg, mine: Boolean, group: Boolean, modifier: Modifier) {
     val c = ctx()
@@ -260,7 +276,9 @@ private fun Bubble(m: Msg, mine: Boolean, group: Boolean, modifier: Modifier) {
     val link = remember(m.text) { urlRegex.find(m.text)?.value }
     Row(modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp), horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start, verticalAlignment = Alignment.Bottom) {
         if (!mine && group) { Avatar(m.photo, m.nick, 28.dp); Spacer(Modifier.size(6.dp)) }
-        Column(Modifier.widthIn(max = 300.dp).clip(RoundedCornerShape(16.dp)).background(bg)
+        // Never wider than the screen minus the margins; RTL (Yiddish) text wraps and aligns by its own direction.
+        val maxW = (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp * 0.8f).dp.coerceAtMost(420.dp)
+        Column(Modifier.widthIn(max = maxW).clip(RoundedCornerShape(16.dp)).background(bg)
             .tap(RoundedCornerShape(16.dp)) {
                 when {
                     m.isVideo || m.isAudio -> Nav.open(Screen.Video(m.media!!, m.nick))
@@ -271,13 +289,13 @@ private fun Bubble(m: Msg, mine: Boolean, group: Boolean, modifier: Modifier) {
             }.padding(horizontal = 10.dp, vertical = 6.dp)) {
             if (!mine && group) Text(m.nick, style = MaterialTheme.typography.labelMedium, color = Gold, fontWeight = FontWeight.Bold)
             when {
-                m.isImage -> AsyncImage(m.media, null, contentScale = ContentScale.Crop, modifier = Modifier.padding(vertical = 2.dp).size(200.dp, 160.dp).clip(RoundedCornerShape(10.dp)))
+                m.isImage -> AsyncImage(m.media, null, contentScale = ContentScale.Fit, modifier = Modifier.padding(vertical = 2.dp).widthIn(min = 140.dp, max = maxW).heightIn(max = 260.dp).clip(RoundedCornerShape(10.dp)))
                 m.isVideo || m.isAudio -> Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(if (m.isAudio) Icons.Filled.MusicNote else Icons.Filled.PlayArrow, null, tint = fg); Text(if (m.isAudio) " Voice / audio" else " Video", color = fg)
                 }
                 m.media != null -> Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Filled.AttachFile, null, tint = fg); Text(" " + m.mediaKey.substringAfterLast('/').take(40), color = fg, maxLines = 1) }
             }
-            if (m.text.isNotBlank()) Text(m.text, color = fg, style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content))
+            if (m.text.isNotBlank()) Text(m.text, color = fg, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp, textDirection = TextDirection.Content, textAlign = androidx.compose.ui.text.style.TextAlign.Start))
             Text(if (m.pending) "Sending…" else if (m.failed) "Not sent" else clock(m.createdAt), style = MaterialTheme.typography.labelSmall,
                 color = if (m.failed) MaterialTheme.colorScheme.error else fg.copy(alpha = .7f), modifier = Modifier.align(Alignment.End))
         }

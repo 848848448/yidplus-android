@@ -57,6 +57,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.yidplus.app.data.Api
@@ -87,14 +88,14 @@ fun HomeScreen() {
 
     Column(Modifier.fillMaxSize()) {
         Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 2.dp) {
-            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (searching) {
                     OutlinedTextField(q, { q = it }, Modifier.weight(1f).padding(vertical = 4.dp).firstFocus(always = true), singleLine = true,
                         placeholder = { Text("Search channels") }, textStyle = TextStyle(textDirection = TextDirection.Content),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search))
                     IconBtn(Icons.Filled.Close, "Close search", { searching = false; q = "" })
                 } else {
-                    Logo(Modifier.padding(start = 6.dp).weight(1f))
+                    Text("Channels", Modifier.padding(start = 8.dp).weight(1f), style = MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp), fontWeight = FontWeight.Bold)
                     if (Session.me != null) IconBtn(Icons.Filled.Notifications, "Notifications", { Nav.open(Screen.Notifications) })
                     IconBtn(Icons.Filled.Search, "Search", { searching = true })
                 }
@@ -121,9 +122,9 @@ fun HomeScreen() {
 private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
     val selected = Nav.homeDetail?.ch?.username == ch.username
     Row(modifier.fillMaxWidth().background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-        .tap(RoundedCornerShape(0.dp)) { Nav.open(Screen.Channel(ch)) }.padding(horizontal = 12.dp, vertical = 9.dp),
+        .tap(RoundedCornerShape(0.dp)) { Nav.open(Screen.Channel(ch)) }.padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Avatar(ch.photo, ch.title, 44.dp)
+        Avatar(ch.photo, ch.title, 48.dp)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(ch.title, Modifier.weight(1f).padding(end = 6.dp), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -140,7 +141,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
     }
 }
 
-private const val PAGE = 30
+private const val PAGE = 15
 
 /** A Telegram channel's posts, newest first, loaded a page at a time (and saved for offline). */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -226,9 +227,12 @@ private fun PostCard(p: TgPost, modifier: Modifier) {
             }
         }) {
             if (p.isPhoto || p.isVideo) {
-                Box(Modifier.fillMaxWidth().heightIn(min = 120.dp).background(Color(0xFF0B0B0B)), contentAlignment = Alignment.Center) {
+                // Every photo/video the same way: full card width, its own shape kept (never cropped), at most ~60% of the
+                // screen tall, on a dark frame while it loads.
+                val maxH = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * 0.6f).dp
+                Box(Modifier.fillMaxWidth().heightIn(min = 140.dp).background(Color(0xFF101614)), contentAlignment = Alignment.Center) {
                     AsyncImage(model = ImageRequest.Builder(c).data(p.thumb).crossfade(120).build(), contentDescription = null,
-                        contentScale = ContentScale.FillWidth, modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp))
+                        contentScale = ContentScale.Fit, modifier = Modifier.fillMaxWidth().heightIn(max = maxH))
                     if (p.isVideo) {
                         Box(Modifier.size(52.dp).clip(CircleShape).background(Color.Black.copy(alpha = .55f)), contentAlignment = Alignment.Center) {
                             Icon(Icons.Filled.PlayArrow, "Play", tint = Color.White, modifier = Modifier.size(34.dp))
