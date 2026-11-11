@@ -1,0 +1,28 @@
+--------- beginning of kernel
+--------- beginning of main
+--------- beginning of system
+--------- beginning of crash
+11-11 23:07:58.063  5500  5551 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-11 23:08:06.974  5500  6393 I YidFx   : POST /api/notifications {"read":"all"}
+11-11 23:08:59.188  5500  5554 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-11 23:09:04.191  5500  6393 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-11 23:09:25.891  6820  6854 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-11 23:09:30.896  6820  6854 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-11 23:10:04.092  7058  7091 I YidFx   : POST /api/ai/chat {"message":"Hello AI, what can you do?"}
+11-11 23:10:15.596  7058  7091 I YidFx   : DELETE /api/ai/chat < 0 bytes>
+11-11 23:10:26.885  7058  7094 I YidFx   : POST /api/ai/chat {"message":"Give me an idea"}
+11-11 23:10:36.459  7058  7093 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-11 23:10:41.440  7058  7091 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-11 23:10:43.663  7058  7094 I YidFx   : PUT /api/statuses {"view":true,"id":"st-d-1"}
+11-11 23:10:58.502  7058  7091 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-deal"}
+11-11 23:10:58.507  7058  7094 I YidFx   : POST /api/chat {"room_id":"fx-301984799454","type":"text","text":"❤️ (reacted to your status)"}
+11-11 23:11:00.221  7058  7091 I YidFx   : PUT /api/statuses {"view":true,"id":"st-c-1"}
+11-11 23:11:06.945  7058  7091 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-chaim"}
+11-11 23:11:06.965  7058  7094 I YidFx   : POST /api/chat {"room_id":"fx-310427385853","type":"text","text":"↩️ Amazing"}
+11-11 23:11:25.272  7058  7158 I YidFx   : PUT /api/statuses {"viewers":true,"id":"st-me-2"}
+11-11 23:11:44.180  7058  7094 I YidFx   : PUT /api/statuses {"action":"delete","id":"st-me-1"}
+11-11 23:12:15.048  7058  7094 I YidFx   : POST /api/statuses {"type":"text","text":"Gut Shabbos from the app","bg":"linear-gradient(135deg,#1b4332,#40916c)","privacy":"followers"}
+11-11 23:12:29.082  7058  7094 I YidFx   : DELETE /api/saves?item_type=short&item_id=77e14f2a-e196-4ff3-915d-21ffa29f468c < 0 bytes>
+11-11 23:12:33.440  7058  7094 I YidFx   : POST /api/saves {"item_type":"short","item_id":"77e14f2a-e196-4ff3-915d-21ffa29f468c"}
+11-11 23:12:37.257  7058  7158 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
+11-11 23:12:59.513  7058  8271 I YidFx   : DELETE /api/history < 0 bytes>
