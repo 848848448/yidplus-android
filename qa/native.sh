@@ -87,15 +87,15 @@ check chats
 # Needs sign-in, so not shown here: New message / group / channel, saved messages, composer (emoji, attach, mic), forward, polls, calls.
 view "https://yidplus.com/chat"; sleep 5; shot A0-chats-list
 adb shell input tap 447 78; sleep 2; shot A1-chats-search
-adb shell input text "Yid"; sleep 5; shot A2-chats-search-results; check chats-search
+adb shell input text "Links"; sleep 5; key 4; sleep 1; shot A2-chats-search-results; check chats-search
 key 4; sleep 2; shot A2b-search-closed-by-back
-key 20; key 23; sleep 7; shot A3-chat-room-bubbles; focus "chat opened from list"
+view "https://yidplus.com/chat"; sleep 5; key 23; sleep 7; shot A3-chat-room-bubbles; focus "OK on the first chat"
 adb shell input tap 447 78; sleep 2; shot A4-chat-menu
 key 4; sleep 1
 adb shell input tap 200 78; sleep 5; shot A5-chat-info; check chat-info
-key 4; sleep 3
-adb shell input swipe 240 400 240 400 900; sleep 2; shot A6-message-actions
-key 4; sleep 1; key 4; sleep 2; check chats-extras
+key 4; sleep 3; shot A5b-back-in-chat
+adb shell input swipe 240 420 240 420 900; sleep 2; shot A6-message-actions
+key 4; sleep 1; key 4; sleep 2; shot A7-back-to-list; check chats-extras
 # ==== Helper A (Chats 2.0.1) QA block: end ====
 
 # ---- Shorts ----

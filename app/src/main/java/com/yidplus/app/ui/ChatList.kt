@@ -187,8 +187,8 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier) {
     val r = ri.room
     val c = ctx()
     val sel = Nav.chatDetail?.room?.id == r.id
-    Column(modifier.background(if (sel) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("room:" + r.id).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) }
+    Column(Modifier.background(if (sel) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)) {
+        Row(modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("room:" + r.id).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) }
             .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             ChAvatar(r.photo, r.name, r.otherUserId ?: r.id, 52.dp, online = ri.isPrivate && ri.online)
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
