@@ -123,7 +123,7 @@ private fun LoginForm() {
         if (!form) {
             PrimaryButton("Sign in with email", { form = true }, Modifier.fillMaxWidth().firstFocus())
             SecondaryButton("Sign in with Google", { GoogleAuth.start(c) }, Modifier.fillMaxWidth())
-            SecondaryButton("Create an account", { Nav.open(Screen.Web(Api.BASE + "/?signup=1")) }, Modifier.fillMaxWidth(), icon = Icons.Filled.PersonAdd)
+            if (com.yidplus.app.data.SiteConfig.registrationOpen) SecondaryButton("Create an account", { Nav.open(Screen.Web(Api.BASE + "/?signup=1")) }, Modifier.fillMaxWidth(), icon = Icons.Filled.PersonAdd)
             return@Column
         }
         OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(always = true), label = { Text("Email") }, singleLine = true,
@@ -135,7 +135,6 @@ private fun LoginForm() {
         if (err != null) Text(err!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         PrimaryButton(if (busy) "Signing in…" else "Sign in", { go() }, Modifier.fillMaxWidth(), enabled = !busy)
         SecondaryButton("Sign in with Google", { GoogleAuth.start(c) }, Modifier.fillMaxWidth())
-        SecondaryButton("Create an account", { Nav.open(Screen.Web(Api.BASE + "/?signup=1")) }, Modifier.fillMaxWidth(), icon = Icons.Filled.PersonAdd)
         Text("Forgot your password? Reset it on yidplus.com.", Modifier.tap { Nav.open(Screen.Web(Api.BASE + "/reset-password")) }.padding(6.dp),
             color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
     }

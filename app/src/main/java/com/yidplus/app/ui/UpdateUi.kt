@@ -61,6 +61,20 @@ object UpdateUi {
         }
     }
 
+    /** Tapped the "YID PLUS update vX" notification: go straight to download + install. */
+    fun installNow(ctx: Context) {
+        Notifier.cancel(ctx, 7000)
+        status = "checking…"
+        scope.launch {
+            val info = withContext(Dispatchers.IO) { Updater.fetch() }
+            when {
+                info == null -> { status = "couldn't check"; toast(ctx, "Couldn't check for updates right now") }
+                !Updater.isNewer(ctx, info) -> { status = "up to date"; toast(ctx, "YID PLUS is up to date (${BuildConfig.VERSION_NAME})") }
+                else -> { status = "${info.versionName} available"; start(ctx, info) }
+            }
+        }
+    }
+
     fun later(ctx: Context, info: UpdateInfo) {
         Updater.prefs(ctx).edit().putLong("laterCode", info.versionCode).putLong("laterAt", System.currentTimeMillis()).apply()
         offer = null

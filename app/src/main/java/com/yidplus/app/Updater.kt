@@ -244,9 +244,9 @@ class PackageReplacedReceiver : BroadcastReceiver() {
 }
 
 object Notifier {
-    const val CHANNEL_UPDATES = "updates"
+    const val CHANNEL_UPDATES = "app-updates"
 
-    fun show(ctx: Context, id: Int, title: String, text: String, open: Intent) {
+    fun show(ctx: Context, id: Int, title: String, text: String, open: Intent, big: String? = null) {
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         val pi = PendingIntent.getActivity(ctx, id, open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val n = NotificationCompat.Builder(ctx, CHANNEL_UPDATES)
@@ -254,6 +254,8 @@ object Notifier {
             .setColor(0xFFD4AF37.toInt())
             .setContentTitle(title)
             .setContentText(text)
+            .apply { if (big != null) setStyle(NotificationCompat.BigTextStyle().bigText(big)) }
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pi)
             .setAutoCancel(true)
             .build()
@@ -268,12 +270,16 @@ class UpdateWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val info = Updater.fetch() ?: return@withContext Result.success()
         Updater.prefs(applicationContext).edit().putLong("lastCheck", System.currentTimeMillis()).apply()
-        if (Updater.isNewer(applicationContext, info)) {
+        if (Updater.isNewer(applicationContext, info) && !BuildConfig.VERSION_NAME.startsWith("0.0.")) {
+            // "YID PLUS update v2.0.1" + what's new (the release notes); tap = download and install.
+            val notes = info.notes.lines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }
+                .map { if (it.startsWith("- ") || it.startsWith("* ")) it.substring(2) else it }
             Notifier.show(
                 applicationContext, 7000,
-                applicationContext.getString(R.string.update_available),
-                applicationContext.getString(R.string.update_tap, info.versionName),
-                Intent(applicationContext, MainActivity::class.java).setAction(MainActivity.ACTION_CHECK_UPDATE),
+                "YID PLUS update v${info.versionName}",
+                notes.firstOrNull() ?: applicationContext.getString(R.string.update_tap, info.versionName),
+                Intent(applicationContext, MainActivity::class.java).setAction(MainActivity.ACTION_INSTALL_UPDATE),
+                big = (notes.joinToString("\n") { "• $it" } + "\n\nTap to update.").trim(),
             )
         }
         Result.success()
@@ -281,10 +287,17 @@ class UpdateWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
 
     companion object {
         fun schedule(ctx: Context) {
-            val req = PeriodicWorkRequestBuilder<UpdateWorker>(1, TimeUnit.DAYS)
+            val req = PeriodicWorkRequestBuilder<UpdateWorker>(8, TimeUnit.HOURS)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build()
-            runCatching { WorkManager.getInstance(ctx).enqueueUniquePeriodicWork("update-check", ExistingPeriodicWorkPolicy.KEEP, req) }
+            runCatching { WorkManager.getInstance(ctx).enqueueUniquePeriodicWork("update-check-8h", ExistingPeriodicWorkPolicy.KEEP, req) }
+            runCatching { WorkManager.getInstance(ctx).cancelUniqueWork("update-check") }
+        }
+
+        /** One check right now (QA, and the in-app "Check for updates" while the app goes to the background). */
+        fun now(ctx: Context) {
+            runCatching { WorkManager.getInstance(ctx).enqueueUniqueWork("update-now", androidx.work.ExistingWorkPolicy.REPLACE,
+                androidx.work.OneTimeWorkRequestBuilder<UpdateWorker>().setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()) }
         }
     }
 }

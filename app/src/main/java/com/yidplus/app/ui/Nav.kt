@@ -8,7 +8,8 @@ import com.yidplus.app.data.Perf
 import com.yidplus.app.data.Room
 import com.yidplus.app.data.TgChannel
 
-enum class Tab(val label: String) { Home("Channels"), Chats("Chats"), Shorts("Shorts"), Music("Music"), Profile("Profile") }
+/** The website's own bottom-bar items and labels (Home = the site's "Channels" tab, Profile = its "Settings" tab). */
+enum class Tab(val label: String) { Home("Channels"), Chats("Chats"), Shorts("Shorts"), Music("Music"), Profile("Settings") }
 
 sealed class Screen {
     data class Channel(val ch: TgChannel) : Screen()
@@ -22,7 +23,8 @@ sealed class Screen {
 
 /** The app's own navigation: 5 tabs, each with its own stack; Back goes back inside the app. */
 object Nav {
-    var tab by mutableStateOf(Tab.Home)
+    var tab by mutableStateOf(com.yidplus.app.data.SiteConfig.tabs.firstOrNull() ?: Tab.Chats)
+    val start: Tab get() = com.yidplus.app.data.SiteConfig.tabs.firstOrNull() ?: Tab.Chats
     val stack = mutableStateListOf<Screen>()
     /** On tablets the opened channel / chat shows beside its list instead of over it. */
     var homeDetail by mutableStateOf<Screen.Channel?>(null)
@@ -30,7 +32,10 @@ object Nav {
     var wide = false
     var shortsDeepLink by mutableStateOf<String?>(null)
 
-    fun go(t: Tab) { stack.clear(); tab = t; Perf.start(t.name) }
+    fun go(t: Tab) {
+        val ok = if (com.yidplus.app.data.SiteConfig.visible(t)) t else start
+        stack.clear(); tab = ok; Perf.start(ok.name)
+    }
 
     fun open(s: Screen) {
         Perf.start(when (s) { is Screen.Channel -> "Channel"; is Screen.Chat -> "Chat"; is Screen.Video -> "Video"; is Screen.Photo -> "Photo"; is Screen.Web -> "Web"; Screen.Player -> "Player"; Screen.Notifications -> "Notifications" })
@@ -44,7 +49,7 @@ object Nav {
         if (stack.isNotEmpty()) { stack.removeAt(stack.lastIndex); return true }
         if (tab == Tab.Home && homeDetail != null) { homeDetail = null; return true }
         if (tab == Tab.Chats && chatDetail != null) { chatDetail = null; return true }
-        if (tab != Tab.Home) { tab = Tab.Home; return true }
+        if (tab != start) { tab = start; return true }
         return false
     }
 }

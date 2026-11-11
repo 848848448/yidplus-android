@@ -19,10 +19,12 @@ class App : Application(), ImageLoaderFactory {
         Api.init(this)
         Prefs.init(this)
         Session.init(this)
+        com.yidplus.app.data.SiteConfig.init(this)
         Net.init(this)
         if (Build.VERSION.SDK_INT >= 26) {
             val nm = getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(NotificationChannel(Notifier.CHANNEL_UPDATES, getString(R.string.channel_updates), NotificationManager.IMPORTANCE_DEFAULT))
+            nm.createNotificationChannel(NotificationChannel(Notifier.CHANNEL_UPDATES, getString(R.string.channel_updates), NotificationManager.IMPORTANCE_HIGH))
+            runCatching { nm.deleteNotificationChannel("updates") }
         }
         NotifyWorker.channels(this)
         UpdateWorker.schedule(this)

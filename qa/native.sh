@@ -46,8 +46,10 @@ adb logcat -c
 adb shell am force-stop $PKG
 timeout 60 adb shell am start -W -n $PKG/.MainActivity | tee -a "$OUT/qa.log" | grep -E "TotalTime|WaitTime" | sed 's/^/first start: /' >> "$OUT/perf.txt"
 sleep 0.5; shot 00-splash
-sleep 7; shot 01-home
-check home
+sleep 7; shot 01-start
+log "bottom bar = the site's own (read from yidplus.com/api/settings): $(timeout 20 curl -s https://yidplus.com/api/settings | grep -o '"feat_[a-z]*":"[a-z]*"' | tr '\n' ' ')"
+check start
+tab Home; sleep 5; shot 01-home
 
 # ---- D-pad on Home ----
 key 20; focus "DOWN"; shot 02-home-dpad
@@ -80,7 +82,9 @@ key 17; sleep 1; key 17; sleep 1
 check shorts
 key 4; sleep 2; focus "BACK from Shorts"; shot 18-after-shorts-back
 
-# ---- Music ----
+# ---- Music (switched off on the site right now: it is hidden in the app too; the QA switch shows it for the photos) ----
+view "https://yidplus.com/music"; sleep 4; shot 19a-music-off-on-site; focus "open /music while the site has Music off"
+timeout 20 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_FEATURES --ez all true >/dev/null 2>&1; sleep 2
 view "https://yidplus.com/music"; sleep 6; shot 19-music
 key 20; focus "DOWN in music"
 key 23; sleep 6; shot 20-music-playing; log "OK = play"

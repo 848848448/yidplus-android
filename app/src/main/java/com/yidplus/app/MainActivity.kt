@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
         const val ACTION_OPEN_NOTIFS = "com.yidplus.app.OPEN_NOTIFS"
         const val ACTION_OPEN_CHANNEL = "com.yidplus.app.OPEN_CHANNEL"
         const val ACTION_OPEN_TAB = "com.yidplus.app.OPEN_TAB"
+        const val ACTION_INSTALL_UPDATE = "com.yidplus.app.INSTALL_UPDATE"
         private val DPAD = setOf(KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_CENTER)
 
         /** yidplus.com links open the matching native screen; anything else on the site opens in the fallback page view. */
@@ -45,7 +46,7 @@ class MainActivity : ComponentActivity() {
             if (host != "yidplus.com" && host != "www.yidplus.com") { com.yidplus.app.ui.openUrl(ctx, url); return }
             val path = (u.path ?: "/").trimEnd('/').lowercase()
             when {
-                path == "" || path == "/index" || path == "/index.html" -> Nav.go(Tab.Home)
+                path == "" || path == "/index" || path == "/index.html" -> Nav.go(Nav.start)
                 path == "/chat" || path == "/yidplus-chat" || path == "/chats" -> Nav.go(Tab.Chats)
                 path == "/shorts" || path == "/yidplus-shorts" -> { Nav.go(Tab.Shorts); u.getQueryParameter("v")?.let { Nav.shortsDeepLink = it } }
                 path == "/music" || path == "/yidplus-music" -> Nav.go(Tab.Music)
@@ -64,8 +65,7 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) handle(intent)
         lifecycleScope.launch {
             delay(1200)
-            Perf.shown("FirstFrameWindow")
-            UpdateUi.check(this@MainActivity, force = intent?.action == ACTION_CHECK_UPDATE, userAsked = intent?.action == ACTION_CHECK_UPDATE)
+            if (intent?.action != ACTION_INSTALL_UPDATE) UpdateUi.check(this@MainActivity, force = intent?.action == ACTION_CHECK_UPDATE, userAsked = intent?.action == ACTION_CHECK_UPDATE)
             Music.connect(this@MainActivity)
         }
     }
@@ -83,6 +83,9 @@ class MainActivity : ComponentActivity() {
             ACTION_OPEN_PLAYER -> Nav.open(Screen.Player)
             ACTION_OPEN_CHATS -> Nav.go(Tab.Chats)
             "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
+            "com.yidplus.app.QA_FEATURES" -> com.yidplus.app.data.SiteConfig.qaShowAll = i.getBooleanExtra("all", false)
+            "com.yidplus.app.QA_UPDATE_NOTIFY" -> UpdateWorker.now(this)
+            ACTION_INSTALL_UPDATE -> UpdateUi.installNow(this)
             ACTION_OPEN_TAB -> runCatching { Tab.valueOf(i.getStringExtra("tab") ?: "Home") }.getOrNull()?.let { Nav.go(it) }
             ACTION_OPEN_NOTIFS -> { Nav.go(Tab.Home); Nav.open(Screen.Notifications) }
             ACTION_OPEN_CHAT -> i.getStringExtra("room")?.let { runCatching { Room.from(JSONObject(it)) }.getOrNull() }?.let { Nav.go(Tab.Chats); Nav.open(Screen.Chat(it)) }
@@ -99,6 +102,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode in DPAD && !Keys.keypad && Nav.tab == Tab.Shorts && Nav.stack.isEmpty()) Keys.keypad = true
         if (event.keyCode in DPAD && !Keys.keypad) {
             // First D-pad press: show the keypad focus on the screen's first item (that press only wakes the focus,
             // so it never jumps to the top bar first).
@@ -112,6 +116,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         UpdateUi.onResume(this)
         if (Session.me != null) lifecycleScope.launch { Session.refresh() }
+        lifecycleScope.launch { com.yidplus.app.data.SiteConfig.refresh() }
     }
 
     override fun onStop() {

@@ -18,11 +18,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.SmartDisplay
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yidplus.app.data.Net
 import com.yidplus.app.data.Session
+import com.yidplus.app.data.SiteConfig
 
 @Composable
 fun AppRoot(onExit: () -> Unit) {
@@ -52,6 +53,8 @@ fun AppRoot(onExit: () -> Unit) {
         val twoPane = cfg.screenWidthDp >= 840 || (cfg.screenWidthDp >= 600 && cfg.screenWidthDp > cfg.screenHeightDp)
         Nav.wide = twoPane
         LaunchedEffect(Unit) { Session.refresh() }
+        // A feature the owner switched off on the site disappears here too (and its screen closes).
+        LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
         BackHandler { if (!Nav.back()) onExit() }
         val top = Nav.stack.lastOrNull()
         val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
@@ -62,13 +65,15 @@ fun AppRoot(onExit: () -> Unit) {
                 if (wide && top !is Screen.Video && top !is Screen.Photo) NavRail()
                 Column(Modifier.weight(1f).fillMaxHeight()) {
                     if (!Net.online) OfflineStrip()
+                    if (SiteConfig.maintenance) Notice(SiteConfig.maintenanceMessage)
                     Box(Modifier.weight(1f).fillMaxWidth()) {
                         holder.SaveableStateProvider(Nav.tab.name) {
+                            if (SiteConfig.guestOff && Session.me == null && Nav.tab != Tab.Profile) GuestGate() else
                             when (Nav.tab) {
                                 Tab.Home -> if (twoPane) TwoPane({ HomeScreen() }, { Nav.homeDetail?.let { key(it.ch.username) { ChannelScreen(it.ch, inPane = true) } } ?: EmptyPane("Pick a channel") }) else HomeScreen()
                                 Tab.Chats -> if (twoPane) TwoPane({ ChatsScreen() }, { Nav.chatDetail?.let { key(it.room.id) { ChatScreen(it.room, inPane = true) } } ?: EmptyPane("Pick a chat") }) else ChatsScreen()
                                 Tab.Shorts -> if (top == null) ShortsScreen() else Box(Modifier.fillMaxSize())
-                                Tab.Music -> MusicScreen()
+                                Tab.Music -> if (SiteConfig.visible(Tab.Music)) MusicScreen() else Box(Modifier.fillMaxSize())
                                 Tab.Profile -> ProfileScreen()
                             }
                         }
@@ -86,7 +91,7 @@ fun AppRoot(onExit: () -> Unit) {
                             }
                         }
                     }
-                    if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo) MiniPlayer()
+                    if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo && SiteConfig.visible(Tab.Music)) MiniPlayer()
                     if (!wide && top !is Screen.Chat && top !is Screen.Video && top !is Screen.Photo && top !is Screen.Player) BottomBar(dark = immersive)
                 }
             }
@@ -113,6 +118,25 @@ private fun EmptyPane(text: String) {
     }
 }
 
+/** The owner turned guest browsing off on the site: signed-out people are asked to sign in, like on the website. */
+@Composable
+private fun GuestGate() {
+    Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Logo()
+            Text("Sign in to see chats, Shorts and channels", Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            PrimaryButton("Sign in", { Nav.go(Tab.Profile) }, Modifier.firstFocus())
+        }
+    }
+}
+
+@Composable
+private fun Notice(text: String) {
+    Box(Modifier.fillMaxWidth().background(Color(0xFF1F6F5C)).padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
+        Text(text, color = Color.White, style = MaterialTheme.typography.labelMedium, maxLines = 2)
+    }
+}
+
 @Composable
 private fun OfflineStrip() {
     Box(Modifier.fillMaxWidth().background(Color(0xFF8A3B12)).padding(vertical = 3.dp), contentAlignment = Alignment.Center) {
@@ -121,8 +145,9 @@ private fun OfflineStrip() {
 }
 
 private val tabIcons: Map<Tab, ImageVector> = mapOf(
-    Tab.Home to Icons.Filled.Home, Tab.Chats to Icons.AutoMirrored.Filled.Chat, Tab.Shorts to Icons.Filled.SmartDisplay,
-    Tab.Music to Icons.Filled.LibraryMusic, Tab.Profile to Icons.Filled.AccountCircle,
+    // The website's own icons for the same items (forum, music_note, movie, explore, settings).
+    Tab.Home to Icons.Filled.Explore, Tab.Chats to Icons.Filled.Forum, Tab.Shorts to Icons.Filled.Movie,
+    Tab.Music to Icons.Filled.MusicNote, Tab.Profile to Icons.Filled.Settings,
 )
 
 @Composable
@@ -132,7 +157,7 @@ private fun BottomBar(dark: Boolean) {
         Column {
             if (!dark) HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
             Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                for (t in Tab.values()) TabItem(t, dark, Modifier.weight(1f))
+                for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
         }
     }
@@ -160,7 +185,7 @@ private fun NavRail() {
     Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxHeight().width(84.dp).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("Y+", fontWeight = FontWeight.Black, color = Gold, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 10.dp))
-            for (t in Tab.values()) TabItem(t, false, Modifier.width(76.dp))
+            for (t in SiteConfig.tabs) TabItem(t, false, Modifier.width(76.dp))
         }
     }
 }
