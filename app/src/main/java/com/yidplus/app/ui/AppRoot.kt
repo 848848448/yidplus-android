@@ -94,7 +94,8 @@ fun AppRoot(onExit: () -> Unit) {
                         }
                     }
                     if (top !is Screen.Player && top !is Screen.Video && top !is Screen.Photo && SiteConfig.visible(Tab.Music)) MiniPlayer()
-                    if (!wide && top !is Screen.Chat && top !is Screen.Video && top !is Screen.Photo && top !is Screen.Player) BottomBar(dark = immersive)
+                    // Like WhatsApp: inside a chat, a channel, a photo/video or any detail screen the bar hides; Back brings it back.
+                    if (!wide && top == null) BottomBar(dark = immersive)
                 }
             }
             UpdateDialogs()
