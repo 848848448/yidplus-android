@@ -30,6 +30,10 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
@@ -110,6 +114,17 @@ fun ProfileScreen() {
                     "Feedback" -> SettingsFeedback()
                     "Admin" -> AdminPage()
                     "About" -> SettingsAbout()
+                    "ChatSettings" -> SettingsChat()
+                    "Notifs" -> SoNotifsPage()
+                    "AdminUsers" -> AdminUsersPage()
+                    "AdminUser" -> AdminUserPage("u-yanky", org.json.JSONObject().put("id", "u-yanky").put("nickname", "Yanky").toString())
+                    "AdminReports" -> AdminReportsPage()
+                    "AdminVerify" -> AdminVerifyPage()
+                    "AdminChannels" -> AdminChannelsPage()
+                    "AdminTelegram" -> AdminTelegramPage()
+                    "AdminBroadcast" -> AdminBroadcastPage()
+                    "AdminBadWords" -> AdminBadWordsPage()
+                    "AdminWeb" -> AdminWebPage("ads")
                     else -> null
                 }
                 if (v == "off") SettingsProfile.demo = false
@@ -122,50 +137,61 @@ fun ProfileScreen() {
     LaunchedEffect(me?.id, SettingsProfile.demo) { if (signedIn) SettingsProfile.load() }
     var deleting by remember { mutableStateOf(0) }
     var signingOut by remember { mutableStateOf(false) }
+    LookPrefs.init(c)
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar("Settings")
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                 Column(Modifier.widthIn(max = 640.dp).fillMaxWidth()) {
+                    // The website's Settings page, in its order (js/theme.js buildSettingsPage).
                     if (!signedIn) Surface(color = MaterialTheme.colorScheme.surface) { LoginForm() } else {
-                        SettingsProfileHeader { Nav.open(SettingsEditProfile()) }
+                        SettingsTopCard { Nav.open(SettingsEditProfile()) }
+                        SettingsCard {
+                            // TODO(coordinator): SavedItemsPage / HistoryPage come from feat-new2 (ui/SavedHistory.kt); wire with Nav.open(SavedItemsPage()) / Nav.open(HistoryPage()).
+                            SettingRow(Icons.Filled.Bookmark, "Saved Items", "Messages, posts and Shorts you saved") { toast(c, "Saved Items opens in the next update") /* TODO: Nav.open(SavedItemsPage()) */ }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.History, "History", "What you watched and opened") { toast(c, "History opens in the next update") /* TODO: Nav.open(HistoryPage()) */ }
+                        }
+                    }
+                    ReadingCard()
+                    AppearanceCard()
+                    ColorThemeCard()
+                    if (signedIn) {
+                        StatsCard()
                         SettingsCard("Account") {
-                            SettingRow(Icons.Filled.Edit, "Edit profile", "Name, photo, cover, bio, links", modifier = Modifier.firstFocus()) { Nav.open(SettingsEditProfile()) }
+                            SettingRow(Icons.Filled.Edit, "Profile", "Name, photo, cover, bio, location, links") { Nav.open(SettingsEditProfile()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Lock, "Privacy", "Private account, who can message you, read receipts") { Nav.open(SettingsPrivacy()) }
+                            SettingRow(Icons.Filled.Lock, "Privacy", "Private account, active status, read receipts, who can message you") { Nav.open(SettingsPrivacy()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Security, "Security", "Password, two-step verification, devices") { Nav.open(SettingsSecurity()) }
+                            SettingRow(Icons.Filled.Security, "Security", "Password, two-factor authentication") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.NotificationsActive, "Notifications", "What yidplus.com tells you about") { Nav.open(SettingsNotifPrefs()) }
+                            SettingRow(Icons.Filled.Chat, "Chat", "Wallpaper, muted chats, silent calls") { Nav.open(SettingsChat()) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.NotificationsActive, "Notifications", "New messages, likes, followers, channel updates") { Nav.open(SettingsNotifPrefs()) }
+                            RowDivider(64.dp)
+                            val devs = SettingsProfile.res.data?.optJSONArray("sessions")?.length() ?: 0
+                            SettingRow(Icons.Filled.Devices, "Devices", if (devs > 0) "$devs active · sign out other devices" else "Where you're signed in") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
                             SettingRow(Icons.Filled.Block, "Blocked users", null) { Nav.open(SettingsBlocked()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Notifications, "Activity", "Likes, comments, follows") { Nav.open(Screen.Notifications) }
+                            SettingRow(Icons.Filled.Notifications, "Activity", "Likes, comments, follows") { Nav.open(SoNotifsPage()) }
                         }
-                        val nick = SettingsProfile.text("nickname").ifBlank { me?.nickname ?: "" }
-                        SettingsCard("My page") {
-                            SettingRow(Icons.Filled.Share, "Share my profile", "yidplus.com/@$nick") { share(c, "https://yidplus.com/@" + Uri.encode(nick)) }
-                            RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Link, "Copy profile link", null) { settingsCopy(c, "https://yidplus.com/@" + Uri.encode(nick)) }
-                            if ((SettingsProfile.p?.optInt("verified") ?: 0) != 1) {
-                                RowDivider(64.dp)
-                                SettingRow(Icons.Filled.Verified, "Get verified", "Ask the YID PLUS team for the verified mark") {
-                                    scope.launch {
-                                        runCatching { if (!SettingsProfile.demo) Api.post("/api/verify-request", org.json.JSONObject()) }
-                                            .onSuccess { toast(c, "Request sent. The team will look at it.") }.onFailure { toast(c, Api.friendly(it)) }
-                                    }
-                                }
-                            }
-                        }
+                        VerificationCard()
+                        ShareProfileCard()
                     }
                     AppSettings()
                     if (signedIn && settingsIsAdmin) SettingsCard("Admin") {
-                        SettingRow(Icons.Filled.AdminPanelSettings, "Admin panel", "Members, features on/off, stats, the full control center") { Nav.open(AdminPage()) }
+                        SettingRow(Icons.Filled.AdminPanelSettings, "Admin panel", "Users, reports, channels, broadcasts, features, stats") { Nav.open(AdminPage()) }
                     }
                     if (signedIn) SettingsCard {
-                        SettingRow(Icons.AutoMirrored.Filled.Logout, "Sign out", Session.me?.email) { signingOut = true }
+                        SettingRow(Icons.Filled.DeleteForever, "Delete Account", "Removes your account and everything in it", danger = true) { deleting = 1 }
                         RowDivider(64.dp)
-                        SettingRow(Icons.Filled.DeleteForever, "Delete account", "Removes your account and everything in it", danger = true) { deleting = 1 }
+                        SettingRow(Icons.AutoMirrored.Filled.Logout, "Sign Out", Session.me?.email) { signingOut = true }
+                    }
+                    SettingsCard {
+                        SettingRow(Icons.Filled.PrivacyTip, "Privacy Policy", null) { Nav.open(Screen.Web(Api.BASE + "/privacy.html")) }
+                        RowDivider(64.dp)
+                        SettingRow(Icons.Filled.Description, "Terms of Service", null) { Nav.open(Screen.Web(Api.BASE + "/terms.html")) }
                     }
                     Text("YID PLUS ${BuildConfig.VERSION_NAME}", Modifier.fillMaxWidth().padding(vertical = 20.dp), textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -242,10 +268,6 @@ private fun AppSettings() {
     val themes = listOf("Same as phone", "Light", "Dark")
     val sizes = listOf("Small", "Normal", "Large")
     SettingsCard("App") {
-        SettingRow(Icons.Filled.DarkMode, "Theme", null, value = themes[Prefs.theme]) { pick = "theme" }
-        RowDivider(64.dp)
-        SettingRow(Icons.Filled.FormatSize, "Text size", null, value = sizes[UiPrefs.textSize]) { pick = "size" }
-        RowDivider(64.dp)
         SettingRow(Icons.Filled.Notifications, "Phone notifications", if (Prefs.notify) "New messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off", switch = Prefs.notify) {
             Prefs.enableNotify(!Prefs.notify)
             if (Prefs.notify) {
@@ -304,35 +326,6 @@ class SettingsAbout : PageScreen() {
     }
 }
 
-/** The site's own notifications (likes, comments, follows, replies). */
+/** The site's own notifications (likes, comments, follows, replies): the same page as the bell (NotifsUi.kt). */
 @Composable
-fun NotificationsScreen() {
-    val c = ctx()
-    val scope = rememberCoroutineScope()
-    val res = remember(Session.me?.id) { Store.res("/api/notifications") { j -> j.optJSONArray("notifications").objects().map(Notif::from).distinctBy { it.id } } }
-    LaunchedEffect(res) { res.load(force = true); if (res.data?.any { !it.read } == true) runCatching { Api.post("/api/notifications", org.json.JSONObject().put("read", "all")) } }
-    Column(Modifier.fillMaxSize()) {
-        TopBar("Notifications", onBack = { Nav.back() })
-        val list = res.data
-        when {
-            list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
-            list == null -> Loading()
-            list.isEmpty() -> EmptyNote(Icons.Filled.Notifications, "No notifications yet", "Likes, comments and new followers show up here.")
-            else -> LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-                items(list, key = { it.id }) { n ->
-                    Row(Modifier.fillMaxWidth().background(if (!n.read) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .45f) else androidx.compose.ui.graphics.Color.Transparent)
-                        .tap(RoundedCornerShape(0.dp)) { if (n.link.isNotBlank()) com.yidplus.app.MainActivity.route(c, Api.abs(n.link)!!) }
-                        .then(if (n == list.first()) Modifier.firstFocus() else Modifier).heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Avatar(null, n.actor.ifBlank { "Y" }, 44.dp)
-                        Column(Modifier.padding(start = 14.dp).weight(1f)) {
-                            Text(n.text.ifBlank { n.type }, style = MaterialTheme.typography.bodyLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
-                            Text(ago(n.at), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        if (!n.read) Box(Modifier.padding(start = 8.dp).size(10.dp).clip(CircleShape).background(BadgeGreen))
-                    }
-                    RowDivider(74.dp)
-                }
-            }
-        }
-    }
-}
+fun NotificationsScreen() { NotifsPageBody() }
