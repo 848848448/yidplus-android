@@ -1,0 +1,18 @@
+[07:08:00] install: Success  version 1.9.9, newest release 2.0.0
+[07:08:17] shot 01-app-open-update-dialog
+[07:08:17] background check scheduled: ?
+          android.title=String (YID PLUS update v2.0.0)
+          android.text=String (YID PLUS 2.0: the whole app is now built for phones, not a web page inside an app. It opens in well under a second and scrolls smoothly, even on small keypad phones)
+          android.bigText=String (•  YID PLUS 2.0: the whole app is now built for phones, not a web page inside an app. It opens in well under a second and scrolls smoothly, even on small keypad phones
+[07:08:22] shot 02-notification
+[07:08:24] NOTIFICATION: found 'YID PLUS update v2.0.0'
+[07:08:24] shot 03-notification-expanded
+[07:08:27] tapped the notification
+[07:08:31] shot 04-downloading
+[07:08:32] shot 05-android-install-prompt
+[07:08:33] confirmed Android's install prompt at 865 1276
+[07:08:39] version after tapping the notification: 2.0.0
+[07:08:52] shot 06-new-version-running
+11-11 07:08:27.731   502   798 I ActivityTaskManager: START u0 {act=android.content.pm.action.CONFIRM_INSTALL flg=0x2000000 pkg=com.android.packageinstaller cmp=com.android.packageinstaller/.PackageInstallerActivity (has extras)} from uid 10070
+11-11 07:08:28.098   502   543 D ArtManagerInternalImpl: /data/misc/iorapd/com.android.packageinstaller/30/com.android.packageinstaller.PackageInstallerActivity/compiled_traces/compiled_trace.pb doesn't exist
+11-11 07:08:28.104   502   543 I ActivityTaskManager: Displayed com.android.packageinstaller/.PackageInstallerActivity: +400ms
