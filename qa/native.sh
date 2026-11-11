@@ -47,7 +47,7 @@ adb shell am force-stop $PKG
 timeout 60 adb shell am start -W -n $PKG/.MainActivity | tee -a "$OUT/qa.log" | grep -E "TotalTime|WaitTime" | sed 's/^/first start: /' >> "$OUT/perf.txt"
 sleep 0.5; shot 00-splash
 sleep 7; shot 01-start
-log "bottom bar = the site's own (read from yidplus.com/api/settings): $(timeout 20 curl -s https://yidplus.com/api/settings | grep -o '"feat_[a-z]*":"[a-z]*"' | tr '\n' ' ')"
+log "bottom bar = the site's own (read from yidplus.com/api/settings): $(timeout 20 curl -s -A 'Mozilla/5.0 (Linux; Android 11)' https://yidplus.com/api/settings | grep -o '"feat_[a-z]*":"[a-z]*"' | tr '\n' ' ')"
 check start
 tab Home; sleep 5; shot 01-home
 

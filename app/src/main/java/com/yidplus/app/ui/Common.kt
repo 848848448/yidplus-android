@@ -44,6 +44,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -80,8 +81,11 @@ fun Modifier.tap(shape: Shape = RoundedCornerShape(10.dp), role: Role = Role.But
 fun Modifier.firstFocus(always: Boolean = false): Modifier = composed {
     val fr = remember { FocusRequester() }
     val k = Keys.keypad
-    LaunchedEffect(k) { if (k || always) { delay(60); runCatching { fr.requestFocus() } } }
-    this.focusRequester(fr)
+    var got by remember { mutableStateOf(false) }
+    // A list item may not be placed yet (or the window not focused yet) on the first try: try again for up to ~2 s,
+    // and stop for good once it has had the focus, so it never pulls the focus back after you move.
+    LaunchedEffect(k) { if (k || always) { for (i in 0 until 16) { delay(if (i == 0) 60 else 120); if (got) break; runCatching { fr.requestFocus() } } } }
+    this.focusRequester(fr).onFocusChanged { if (it.isFocused || it.hasFocus) got = true }
 }
 
 @Composable

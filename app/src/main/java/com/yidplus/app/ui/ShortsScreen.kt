@@ -391,7 +391,9 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
     val c = ctx()
     BoxWithConstraints(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
         // Letterbox on wide screens (tablets, landscape): the video keeps its upright 9:16 frame.
-        val w = if (maxWidth > maxHeight) maxHeight * 9f / 16f else maxWidth
+        // Wide screens (tablets, landscape) letterbox the upright video in a 9:16 frame; small screens use the full
+        // width so the buttons sit beside the video instead of on top of it.
+        val w = if (maxWidth >= 600.dp && maxWidth > maxHeight) maxHeight * 9f / 16f else maxWidth
         val small = maxHeight < 560.dp
         Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { onTap() }, onDoubleTap = { if (!s.liked) onLike() }) }) {
             if (s.poster != null) AsyncImage(s.poster, null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
