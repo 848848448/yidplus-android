@@ -520,11 +520,11 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                     Action(Icons.Filled.MoreVert, "More", Color.White, small = small) { menu = true }
                     DropdownMenu(menu, { menu = false }) {
                         if (small) {
-                            DropdownMenuItem(text = { Text(if (isSaved) "Saved ✓ (4)" else "Save (4)") }, onClick = { onSave(); menu = false })
-                            DropdownMenuItem(text = { Text(if (Prefs.muted) "Sound on (2)" else "Sound off (2)") }, onClick = { Prefs.setMute(!Prefs.muted); menu = false })
+                            DropdownMenuItem(text = { Text((if (isSaved) "Saved ✓" else "Save") + keyHint(4)) }, onClick = { onSave(); menu = false })
+                            DropdownMenuItem(text = { Text((if (Prefs.muted) "Sound on" else "Sound off") + keyHint(2)) }, onClick = { Prefs.setMute(!Prefs.muted); menu = false })
                         }
                         for (sp in listOf(0.5f, 1f, 1.5f, 2f)) DropdownMenuItem(text = { Text((if (sp == speed) "✓ " else "   ") + "Speed ${sp}×") }, onClick = { onSpeed(sp); menu = false })
-                        DropdownMenuItem(text = { Text("@${s.creator.ifBlank { "yidplus" }}'s videos (8)") }, onClick = { menu = false; onCreator() })
+                        DropdownMenuItem(text = { Text("@${s.creator.ifBlank { "yidplus" }}'s videos" + keyHint(8)) }, onClick = { menu = false; onCreator() })
                         if (s.fromSrc) DropdownMenuItem(text = { Text("Not interested in this video") }, onClick = { menu = false; onNotInterested() })
                         if (s.fromSrc) DropdownMenuItem(text = { Text("Hide ${s.creator}") }, onClick = { onHide(); menu = false })
                         if (onDelete != null) DropdownMenuItem(text = { Text("Delete my video", color = MaterialTheme.colorScheme.error) }, onClick = { menu = false; askDelete = true })
@@ -622,3 +622,6 @@ suspend fun qaDedupe(ctx: android.content.Context) {
     for (a in pr.indices) for (b in 0 until a) if (java.lang.Long.bitCount(pr[a].first xor pr[b].first) <= 6 && kotlin.math.abs(pr[a].second - pr[b].second) <= 1) { left++; break }
     android.util.Log.i("YidDedupe", "checked ${first.size} videos: removed ${f.removedDupes} re-posted duplicates; left: same id ${first.size - keys}, same file ${first.size - urls}, same picture+length $left")
 }
+
+/** " (4)": the keypad's number for a menu item, shown only on a keypad phone (a touch phone gets the plain label). */
+internal fun keyHint(n: Int): String = if (Keys.keypad) " ($n)" else ""
