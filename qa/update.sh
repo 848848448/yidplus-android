@@ -74,6 +74,13 @@ sleep 2; shot 02-allow-updates
 tap "Open settings" 5 && { sleep 4; shot 03-android-settings; }
 adb shell appops set $PKG REQUEST_INSTALL_PACKAGES allow
 adb shell input keyevent 4
+sleep 3
+# 2.0.0 does not carry on by itself after "allow installs" (Android restarts the app); a person then taps
+# Settings > Check for updates, which is this same action.
+if ! timeout 20 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -q packageinstaller; then
+  adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.CHECK_UPDATE >/dev/null 2>&1; log "Settings > Check for updates"; sleep 4
+  tap "Update" 8 || true
+fi
 sleep 1.5; shot 04-downloading
 confirm_install || { shot 05-android-install-prompt; log "Android install prompt never confirmed"; }
 NOW=$(ver); log "version after update: $NOW"
