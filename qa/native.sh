@@ -41,6 +41,9 @@ adb shell dumpsys package $PKG | grep -E "versionName|versionCode" | head -2 | t
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 size 480x640 240
 adb logcat -c
+source qa/signedin.sh
+# Quick run (only on a test branch that carries qa/QUICK): just the signed-in fixture screens.
+if [ -f qa/QUICK ]; then fx_block; fx_finish; fi
 
 # ---- Cold start (first ever start, nothing cached) ----
 adb shell am force-stop $PKG
@@ -281,6 +284,8 @@ view "https://yidplus.com/music"; sleep 4; shot 59-tablet-landscape-music
 tab Profile; sleep 3; shot 60-tablet-landscape-profile
 check tablet
 adb shell wm size reset; adb shell wm density reset
+
+fx_block
 
 # ---- Instant notifications: can this phone get a Firebase token? (Google APIs image: yes; plain image: no) ----
 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_PUSH_PROBE >/dev/null; sleep 15
