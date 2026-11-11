@@ -35,6 +35,20 @@ for n in re.findall(r'<node [^>]*>', x):
             a, c, d, e = map(int, b.groups()); print((a + d) // 2, (c + e) // 2); break
 EOF
 }
+anr_check() {
+  local xy; xy=$(find_xy "Wait")
+  if [ -n "$xy" ] || timeout 20 adb logcat -d -t 20000 2>/dev/null | grep -q "ANR in $PKG"; then
+    log "ANR seen during $1"
+    timeout 20 adb logcat -d -t 20000 2>/dev/null | grep -A 12 "ANR in" | head -40 >> "$OUT/anr.txt"
+    timeout 10 adb root >/dev/null 2>&1; sleep 2
+    for f in $(timeout 10 adb shell ls /data/anr 2>/dev/null | tr -d '\r'); do
+      timeout 20 adb shell cat /data/anr/$f 2>/dev/null | awk '/"main"/,/^$/' | head -60 >> "$OUT/anr.txt"
+    done
+    [ -n "$xy" ] && adb shell input tap $xy
+    ANR=1
+  fi
+}
+ANR=0
 tap() { local xy; for i in $(seq 1 ${2:-8}); do xy=$(find_xy "$1"); if [ -n "$xy" ]; then adb shell input tap $xy; log "tapped '$1' at $xy"; return 0; fi; sleep 2; done; log "did not find '$1'"; FAIL=1; return 1; }
 same() { cmp -s "$OUT/$1.png" "$OUT/$2.png"; }
 
@@ -54,8 +68,22 @@ read W H < <(adb shell wm size | tail -1 | sed 's/.*: //' | tr 'x' ' ' | tr -d '
 if [ "$ROT" = landscape ] && [ "$W" -lt "$H" ]; then T=$W; W=$H; H=$T; fi
 CX=$((W/2)); Y1=$((H*68/100)); Y2=$((H*30/100))
 
+# The released version first, for comparison (small screen leg only)
+if [ -n "${BASELINE_APK:-}" ] && [ -f "$BASELINE_APK" ]; then
+  log "baseline install: $(timeout 180 adb install -r "$BASELINE_APK" 2>&1 | tail -1)"
+  timeout 60 adb shell am start -W -n $PKG/.MainActivity >/dev/null
+  sleep 18; shot 00-released-version
+  anr_check released
+  adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 00-released-version-swiped
+  timeout 30 adb uninstall $PKG >/dev/null 2>&1
+  log "re-install test build: $(timeout 180 adb install -r "$APK" 2>&1 | tail -1)"
+  adb logcat -c
+fi
+
 timeout 60 adb shell am start -W -n $PKG/.MainActivity >/dev/null
 sleep 16; shot 01-home
+anr_check start
+[ "$ANR" = 1 ] && { sleep 3; shot 01b-home-after-wait; }
 check start
 
 # Touch scrolling
@@ -68,12 +96,14 @@ for i in 1 2 3 4 5 6 7 8; do adb shell input keyevent 20; sleep 0.4; done
 sleep 1; shot 03-home-dpad-down
 if same 02-home-touch-scrolled 03-home-dpad-down; then log "DPAD: nothing moved"; FAIL=1; else log "DPAD: moved"; fi
 
+anr_check dpad
 tap "$PKG:id/tab_chats"; sleep 12; shot 04-chats
 adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 05-chats-scrolled
 check chats
 
 tap "$PKG:id/tab_shorts"; sleep 14; shot 06-shorts
 check shorts
+anr_check shorts
 tap "$PKG:id/tab_music"; sleep 12; shot 07-music
 adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 08-music-scrolled
 check music
@@ -92,8 +122,10 @@ if grep -A3 "FATAL EXCEPTION" "$OUT/logcat.txt" | grep -q "Process: $PKG"; then
   log "CRASH found in logcat"; grep -A 25 "FATAL EXCEPTION" "$OUT/logcat.txt" | head -60 | tee -a "$OUT/qa.log"; FAIL=1
 fi
 grep -E "chromium|Console" "$OUT/logcat.txt" | tail -60 > "$OUT/webview-log.txt" || true
+grep -E "ANR in|Input dispatching timed out|FATAL|am_anr|Choreographer.*Skipped" "$OUT/logcat.txt" | head -40 > "$OUT/anr-lines.txt" || true
 rm -f "$OUT/logcat.txt"
 [ "$EMU_LOST" = 1 ] && log "note: emulator was lost during the test"
+[ "$ANR" = 1 ] && { log "app stopped answering at least once (see anr.txt)"; FAIL=1; }
 if [ "$FAIL" = 0 ]; then echo "PASS" > "$OUT/RESULT"; else echo "FAIL" > "$OUT/RESULT"; fi
 cat "$OUT/RESULT"
 exit 0

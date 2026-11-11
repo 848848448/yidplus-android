@@ -114,6 +114,7 @@
 
 
   // ---- App look: native top + bottom bars replace the site's own bars inside the app ----
+  var TOP = (function () { try { return window.top === window; } catch (e) { return false; } })();
   var css = '' +
     '.bottom-nav{display:none!important}' +
     '.yp-app-hide{display:none!important}' +
@@ -169,7 +170,7 @@
   var lastSec = '';
   function report() {
     try {
-      if (!B || !B.setSection || !document.body) return;
+      if (!TOP || !B || !B.setSection || !document.body) return;
       hideDupHeaders();
       var s = section(), k = JSON.stringify(s);
       if (k !== lastSec) { lastSec = k; B.setSection(k); }
@@ -222,18 +223,30 @@
     var se = document.scrollingElement; return (se && se.scrollHeight > se.clientHeight + 2) ? se : null;
   }
   function inView(r) { return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; }
+  function clickable(el) {
+    for (var d = 0; el && el !== document.body && el !== document.documentElement && d < 6; el = el.parentElement, d++) {
+      if (el.closest('.yp-app-hide,.bottom-nav')) return null;
+      if (el.matches(FOCUSABLE)) return el;
+      if (getComputedStyle(el).cursor === 'pointer') {
+        // the outermost element that is still the same pointer target
+        var p = el.parentElement;
+        while (p && p !== document.body && getComputedStyle(p).cursor === 'pointer' && !p.matches(FOCUSABLE) && p.getBoundingClientRect().height < innerHeight / 2) { el = p; p = p.parentElement; }
+        return el;
+      }
+    }
+    return null;
+  }
+  // Everything the D-pad can land on: sample the screen on a grid and keep the clickable thing under each point
   function candidates() {
-    var all = document.querySelectorAll(FOCUSABLE), out = [];
-    for (var i = 0; i < all.length; i++) {
-      var el = all[i]; if (el.disabled || el.getAttribute('tabindex') === '-1' && !el.hasAttribute('onclick')) continue;
-      if (el.closest('.yp-app-hide,.bottom-nav')) continue;
-      var r = el.getBoundingClientRect(); if (r.width < 4 || r.height < 4 || !inView(r)) continue;
-      // skip things covered by something else (closed menus, things behind dialogs)
-      var cx = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2));
-      var hit = document.elementFromPoint(cx, cy); if (!hit || !(hit === el || el.contains(hit) || hit.contains(el))) continue;
-      // the innermost clickable wins
-      if (el.querySelector(FOCUSABLE) && el.querySelector(FOCUSABLE) !== el) { var inner = el.querySelectorAll(FOCUSABLE), big = false; for (var j = 0; j < inner.length; j++) { var ir = inner[j].getBoundingClientRect(); if (ir.width * ir.height > r.width * r.height * 0.6) big = true; } if (big) continue; }
-      out.push({ el: el, r: r });
+    var out = [], seenEl = [], step = Math.max(14, Math.round(Math.min(innerWidth, innerHeight) / 22));
+    for (var y = step / 2; y < innerHeight; y += step) {
+      for (var x = step / 2; x < innerWidth; x += step) {
+        var hit = document.elementFromPoint(x, y), el = hit && clickable(hit);
+        if (!el || seenEl.indexOf(el) >= 0 || el.disabled) continue;
+        seenEl.push(el);
+        var r = el.getBoundingClientRect(); if (r.width < 4 || r.height < 4) continue;
+        out.push({ el: el, r: r });
+      }
     }
     return out;
   }
@@ -242,6 +255,7 @@
     var fcx = (fr.left + fr.right) / 2, fcy = (fr.top + fr.bottom) / 2, best = null, bs = 1e9, list = candidates();
     for (var i = 0; i < list.length; i++) {
       var c = list[i], r = c.r; if (c.el === from || (from && (from.contains(c.el)))) continue;
+      if (!from && editing(c.el)) continue;
       var cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2, main, cross;
       if (dir === 'down') { if (r.top < fr.bottom - 2 && cy <= fcy + 2) continue; main = Math.max(0, r.top - fr.bottom); cross = Math.abs(cx - fcx); }
       else if (dir === 'up') { if (r.bottom > fr.top + 2 && cy >= fcy - 2) continue; main = Math.max(0, fr.top - r.bottom); cross = Math.abs(cx - fcx); }
@@ -252,11 +266,13 @@
     }
     return best;
   }
+  window.__ypKeys = { candidates: candidates, pick: pick };
   var kfocus = null;
   function setFocus(el) {
     if (kfocus && kfocus !== el) kfocus.classList.remove('yp-kfocus');
     kfocus = el;
     if (!el.matches('a[href],button,input,select,textarea,summary,[contenteditable="true"]') && !el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+    if (document.activeElement && document.activeElement !== el && document.activeElement.blur) document.activeElement.blur();
     try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
     el.classList.add('yp-kfocus');
     var r = el.getBoundingClientRect();
@@ -264,7 +280,7 @@
   }
   function current() { var a = document.activeElement; if (a && a !== document.body && a !== document.documentElement && visible(a)) return a; return null; }
   document.addEventListener('touchstart', function () { document.documentElement.classList.remove('yp-keys'); if (kfocus) kfocus.classList.remove('yp-kfocus'); }, { capture: true, passive: true });
-  document.addEventListener('keydown', function (e) {
+  if (TOP) document.addEventListener('keydown', function (e) {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     var k = e.key, cur = current(), onShorts = /^\/(yidplus-)?shorts/.test(path());
     if (/^[1-5]$/.test(k) && !editing(cur)) {
@@ -272,7 +288,7 @@
       return;
     }
     if (!/^Arrow(Up|Down|Left|Right)$/.test(k)) {
-      if ((k === 'Enter' || k === ' ') && cur && !editing(cur) && !cur.matches('a[href],button,input,select,textarea,summary') && cur.hasAttribute('onclick')) { e.preventDefault(); cur.click(); }
+      if ((k === 'Enter' || k === ' ') && cur && !editing(cur) && !cur.matches('a[href],button,input,select,textarea,summary')) { e.preventDefault(); cur.click(); }
       return;
     }
     if (editing(cur) && (k === 'ArrowLeft' || k === 'ArrowRight' || cur.tagName === 'TEXTAREA' || cur.isContentEditable || cur.tagName === 'SELECT')) return;
@@ -280,17 +296,21 @@
     document.documentElement.classList.add('yp-keys');
     var dir = k.slice(5).toLowerCase(), next = pick(dir, cur);
     if (dir === 'up' || dir === 'down') {
-      var sc = (cur && scrollerOf(cur)) || mainScroller(), step = sc ? Math.max(60, Math.round((sc === document.scrollingElement ? innerHeight : sc.clientHeight) * 0.6)) : 0;
-      if (next) {
-        var r = next.getBoundingClientRect(), gap = dir === 'down' ? r.top - (cur ? cur.getBoundingClientRect().bottom : 0) : (cur ? cur.getBoundingClientRect().top : innerHeight) - r.bottom;
-        if (gap <= step || !sc) { e.preventDefault(); setFocus(next); return; }
-      }
+      e.preventDefault();
+      if (next) { setFocus(next); return; }
+      var sc = (cur && scrollerOf(cur)) || mainScroller();
       if (sc) {
-        var before = sc.scrollTop; sc.scrollTop += dir === 'down' ? step : -step;
-        if (sc.scrollTop !== before) { e.preventDefault(); if (kfocus) kfocus.classList.remove('yp-kfocus'); if (cur) cur.blur(); return; }
+        var step = Math.max(60, Math.round((sc === document.scrollingElement ? innerHeight : sc.clientHeight) * 0.6)), before = sc.scrollTop;
+        sc.scrollTop += dir === 'down' ? step : -step;
+        if (sc.scrollTop !== before) {
+          var again = pick(dir, cur);
+          if (again) setFocus(again);
+          return;
+        }
       }
-      if (dir === 'down' && B && B.focusNav) { e.preventDefault(); if (cur) cur.blur(); B.focusNav(); return; }
-      if (dir === 'up' && B && B.focusTop) { e.preventDefault(); if (cur) cur.blur(); B.focusTop(); }
+      if (cur) cur.blur();
+      if (dir === 'down' && B && B.focusNav) B.focusNav();
+      else if (dir === 'up' && B && B.focusTop) B.focusTop();
       return;
     }
     if (next) { e.preventDefault(); setFocus(next); }

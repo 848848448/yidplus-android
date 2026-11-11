@@ -859,6 +859,7 @@ class MainActivity : AppCompatActivity() {
     // ---- Updates ----------------------------------------------------------------------
 
     private fun maybeCheckForUpdate(force: Boolean, userAsked: Boolean = false) {
+        if (BuildConfig.VERSION_NAME.startsWith("0.0.") && !userAsked) return // CI test builds never offer updates
         val prefs = Updater.prefs(this)
         val last = prefs.getLong("lastUiCheck", 0L)
         if (!force && System.currentTimeMillis() - last < CHECK_EVERY_MS && !isColdStart()) return
