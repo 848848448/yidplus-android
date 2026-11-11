@@ -1,4 +1,4 @@
-# Helper NW (2.0.2): YID PLUS AI chat, Statuses, Saved Items, History — signed in with the QA fixture account.
+# Helper NW (YID PLUS 2.0.2): YID PLUS AI chat, Statuses, Saved Items, History — signed in with the QA fixture account.
 # Sourced by qa/signedin.sh fx_block (helpers from qa/native.sh: log shot key check). Pages open through the QA_OPEN intent
 # (MainActivity → ui/SavedHistory.kt qaOpenNew) because the coordinator wires the real entry points at merge.
 nw_open() { timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_OPEN --es page "$1" >/dev/null 2>&1; sleep "${2:-4}"; log "nw open $1"; }
