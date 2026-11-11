@@ -24,6 +24,20 @@ EOF
 anr() { local w; w=$(find_xy "Wait"); [ -n "$w" ] && { adb shell input tap $w; log "dismissed an emulator 'isn't responding' box"; sleep 2; }; }
 tap() { local xy; for i in $(seq 1 ${2:-20}); do anr; xy=$(find_xy "$1"); if [ -n "$xy" ]; then adb shell input tap $xy; log "tapped '$1' at $xy"; return 0; fi; sleep 2; done; log "did not find '$1'"; return 1; }
 
+# Waits for Android's own "Update this app?" prompt (not the app's in-app Update button), confirms it, and waits for the new version
+confirm_install() {
+  local xy i
+  for i in $(seq 1 100); do
+    if timeout 20 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus|mFocusedApp' | grep -q packageinstaller; then
+      xy=$(find_xy "android:id/button1"); [ -z "$xy" ] && xy=$(find_xy "Update"); [ -z "$xy" ] && xy=$(find_xy "Install")
+      if [ -n "$xy" ]; then shot 05-android-install-prompt; adb shell input tap $xy; log "confirmed Android's install prompt at $xy"; sleep 6; fi
+    fi
+    [ "$(ver)" = "$WANT" ] && return 0
+    sleep 3
+  done
+  return 1
+}
+
 adb wait-for-device
 adb shell input keyevent 82
 log "install old: $(adb install -r "$OLD" 2>&1 | tail -1)"
@@ -53,10 +67,7 @@ tap "Open settings" 5 && { sleep 4; shot 03-android-settings; }
 adb shell appops set $PKG REQUEST_INSTALL_PACKAGES allow
 adb shell input keyevent 4
 sleep 1.5; shot 04-downloading
-for i in $(seq 1 30); do xy=$(find_xy "Update"); [ -n "$xy" ] && break; sleep 2; done
-shot 05-android-install-prompt
-tap "Update" 5 || tap "android:id/button1" 5 || true
-for i in $(seq 1 30); do [ "$(ver)" = "$WANT" ] && break; sleep 2; done
+confirm_install || { shot 05-android-install-prompt; log "Android install prompt never confirmed"; }
 NOW=$(ver); log "version after update: $NOW"
 sleep 3; shot 06-after-update
 adb shell am start -W -n $PKG/.MainActivity >/dev/null
