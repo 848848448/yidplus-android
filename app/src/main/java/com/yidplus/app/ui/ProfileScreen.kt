@@ -148,9 +148,9 @@ fun ProfileScreen() {
                         SettingsTopCard { Nav.open(SettingsEditProfile()) }
                         SettingsCard {
                             // TODO(coordinator): SavedItemsPage / HistoryPage come from feat-new2 (ui/SavedHistory.kt); wire with Nav.open(SavedItemsPage()) / Nav.open(HistoryPage()).
-                            SettingRow(Icons.Filled.Bookmark, "Saved Items", "Messages, posts and Shorts you saved") { toast(c, "Saved Items opens in the next update") /* TODO: Nav.open(SavedItemsPage()) */ }
+                            SettingRow(Icons.Filled.Bookmark, "Saved Items", "Messages, posts and Shorts you saved") { Nav.open(SavedItemsPage()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.History, "History", "What you watched and opened") { toast(c, "History opens in the next update") /* TODO: Nav.open(HistoryPage()) */ }
+                            SettingRow(Icons.Filled.History, "History", "What you watched and opened") { Nav.open(HistoryPage()) }
                         }
                     }
                     ReadingCard()

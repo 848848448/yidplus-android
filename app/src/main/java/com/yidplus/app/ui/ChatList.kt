@@ -173,6 +173,8 @@ fun ChatsScreen() {
                 else -> {
                     val shown = remember(list, tab) { list.filter { matchTab(it, tab) } }
                     LazyColumn(Modifier.fillMaxSize(), state = rememberLazyListState(), contentPadding = PaddingValues(bottom = if (me != null) 88.dp else 8.dp)) {
+                        if (me != null && tab == "all" && q.isBlank()) item(key = "nw-status") { StatusStrip() }
+                        if (me != null && (tab == "all" || tab == "private") && q.isBlank()) item(key = "nw-ai") { AiChatRow { Nav.open(AiChatPage()) } }
                         if (shown.isEmpty()) item {
                             if (me == null) ChEmpty(Icons.Filled.Forum, "No public groups right now")
                             else ChEmpty(Icons.Filled.Forum, if (tab == "all") "No chats yet. Start one!" else "Nothing here", action = if (tab == "all") "New message" else null) { Nav.open(ChNewChat()) }

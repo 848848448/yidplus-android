@@ -2,6 +2,7 @@ package com.yidplus.app.ui
 
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -16,6 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -121,21 +125,33 @@ private val YidShapes = Shapes(
 )
 
 @Composable
-fun isDark(): Boolean = when (Prefs.theme) { 1 -> false; 2 -> true; else -> isSystemInDarkTheme() }
+fun isDark(): Boolean = LookPrefs.preset.dark || when (Prefs.theme) { 1 -> false; 2 -> true; else -> isSystemInDarkTheme() }
 
-/** The brand bar's colour: the site's green by day, a deep green-grey at night (like WhatsApp's dark header). */
+/** The brand bar's colour: the site's green by day (or the chosen colour theme), a deep green-grey at night (like WhatsApp's dark header). */
 @Composable
-fun topBarColor(): Color = if (isDark()) Color(0xFF1A2723) else Green
+fun topBarColor(): Color = if (isDark()) Color(0xFF1A2723) else if (LookPrefs.colorTheme == 0) Green else LookPrefs.preset.accent
+
+private fun themed(b: ColorScheme, p: ColorPreset, dark: Boolean): ColorScheme = if (p.name == "Emerald Teal") b else b.copy(
+    primary = if (dark) p.accentLight else p.accent, onPrimary = if (dark) Color(0xFF0A0A0F) else Color.White,
+    primaryContainer = (if (dark) p.accent else p.accentLight).copy(alpha = if (dark) 0.35f else 0.22f).compositeOver(b.surface),
+    onPrimaryContainer = if (dark) Color.White else p.accent, surfaceTint = if (dark) p.accentLight else p.accent, inversePrimary = p.accent,
+    background = if (p.dark) p.bg else b.background, surface = if (p.dark) p.bg2 else b.surface)
+
+private fun contrast(s: ColorScheme): ColorScheme = s.copy(onSurfaceVariant = s.onSurface, outline = s.onSurface.copy(alpha = 0.7f), outlineVariant = s.onSurface.copy(alpha = 0.4f))
 
 @Composable
 fun YidTheme(content: @Composable () -> Unit) {
-    UiPrefs.init(LocalContext.current)
+    val ctx = LocalContext.current
+    UiPrefs.init(ctx); LookPrefs.init(ctx)
     val dark = isDark()
-    val scheme = if (dark) Dark else Light
-    val scale = UiPrefs.scale
-    val type = remember(scale) { yidTypography(scale) }
-    MaterialTheme(colorScheme = scheme, typography = type, shapes = YidShapes) {
-        // Text and icons drawn straight on the page (not inside a Surface) take the page's own ink, so dark mode is right everywhere.
-        CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
+    val scheme = themed(if (dark) Dark else Light, LookPrefs.preset, dark).let { if (LookPrefs.highContrast) contrast(it) else it }
+    val type = remember { yidTypography(1f) }
+    val d = LocalDensity.current
+    // Text size S/M/L scales every text in the app (also sizes written as .sp in screens), like the site's Text Size.
+    CompositionLocalProvider(LocalDensity provides Density(d.density, d.fontScale * UiPrefs.scale)) {
+        MaterialTheme(colorScheme = scheme, typography = type, shapes = YidShapes) {
+            // Text and icons drawn straight on the page (not inside a Surface) take the page's own ink, so dark mode is right everywhere.
+            CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
+        }
     }
 }
