@@ -20,12 +20,12 @@ nw_open ai_row 6; shot NW-01-chatlist-status-ai; nw_texts chatlist; check nw-row
 nw_tap "YID PLUS AI"; sleep 3; shot NW-02-ai-chat; check nw-ai
 nw_tap "Message YID PLUS AI" || true
 adb shell input text "Hello%sAI,%swhat%scan%syou%sdo?"; sleep 1; shot NW-03-ai-typed
-key 66; sleep 3; shot NW-04-ai-asked; check nw-ai-ask
+key 66; sleep 3; nw_hidekb; sleep 1; shot NW-04-ai-asked; check nw-ai-ask
 # 3. Clear the AI chat (trash icon → confirm)
 nw_hidekb
 nw_tap "Clear chat"; sleep 1; shot NW-05-ai-clear-confirm
-nw_tap "Clear"; sleep 2; shot NW-06-ai-cleared-welcome; check nw-ai-clear
-nw_tap "Give me an idea"; sleep 3; shot NW-07-ai-chip-asked
+nw_tap "Clear"; sleep 2; nw_hidekb; shot NW-06-ai-cleared-welcome; check nw-ai-clear
+nw_hidekb; nw_tap "Give me an idea"; sleep 3; shot NW-07-ai-chip-asked
 nw_hidekb; key 4; sleep 1; key 4; sleep 1
 # 4. Status viewer: someone else's (sends the site's view call), D-pad Right / Left, tap right half, reply, heart
 nw_open status 5; shot NW-08-status-viewer; nw_texts viewer; check nw-status
@@ -38,12 +38,14 @@ nw_hidekb; key 4; sleep 2
 # 5. My status: views, viewers sheet
 nw_open status_me 5; shot NW-13-my-status
 nw_tap "14 views" || nw_tap "6 views" || true; sleep 2; shot NW-14-my-viewers; key 4; sleep 1
-nw_tap "More" && { sleep 1; shot NW-15-my-status-menu; nw_tap "Delete"; sleep 2; shot NW-16-my-status-deleted; }
+key 4; sleep 2
+# reopen fresh so the viewer has not auto-advanced, then More → Delete straight away
+nw_open status_me 3; nw_tap "More" && { sleep 1; shot NW-15-my-status-menu; nw_tap "Delete"; sleep 2; shot NW-16-my-status-deleted; }; check nw-status-delete
 key 4; sleep 2
 # 6. Post a text status (typed, colour changed, privacy chosen, posted)
 nw_open post_status 4; shot NW-17-post-status
 adb shell input text "Gut%sShabbos%sfrom%sthe%sapp"; sleep 1
-nw_tap "Change colour"; nw_tap "Change colour"; nw_tap "Followers"; sleep 1; shot NW-18-post-status-typed
+nw_tap "Change colour"; nw_tap "Change colour"; nw_tap "Followers"; sleep 1; shot NW-18-post-status-typed; nw_hidekb; sleep 1; shot NW-18b-post-status-colours
 nw_hidekb; nw_tap "Post status"; sleep 3; shot NW-19-after-post; check nw-post
 # 7. Saved items: list, unsave (bookmark), UNDO (saves again), open a short (plays, adds to history)
 nw_open saved 6; shot NW-20-saved; nw_texts saved; check nw-saved
