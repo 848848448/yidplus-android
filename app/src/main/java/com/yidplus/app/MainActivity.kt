@@ -23,6 +23,7 @@ import android.os.SystemClock
 import android.util.Base64
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
 import android.webkit.PermissionRequest
@@ -614,6 +615,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyBars(top: Int, bottom: Int) {
         lastTop = top; lastBottom = bottom
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = top
         window.navigationBarColor = bottom
         val c = WindowCompat.getInsetsController(window, window.decorView)
