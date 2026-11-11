@@ -271,10 +271,22 @@ fun Problem(message: String, offline: Boolean, onRetry: () -> Unit, modifier: Mo
         }
         Spacer(Modifier.size(14.dp))
         Text(if (offline) "You're offline" else "Couldn't load this", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-        Text(if (offline) "Check your internet. This page loads by itself when you're back online." else message,
+        Text(if (offline) "Check your internet. This page loads by itself when you're back online." else plainProblem(message),
             Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.size(16.dp))
         PrimaryButton("Try again", onRetry, Modifier.firstFocus())
+    }
+}
+
+/** A server's own words made human: database, quota or stack text never reaches the screen. */
+fun plainProblem(msg: String?): String {
+    val m = msg?.trim().orEmpty()
+    return when {
+        m.isEmpty() -> "Something went wrong"
+        m.contains("D1_ERROR", true) || m.contains("read limit", true) || m.contains("exceeded", true) || m.contains("rate limit", true) ->
+            "yidplus.com isn't answering right now. Please try again in a little while."
+        m.contains("SQLITE", true) || m.contains("Exception") || m.contains("stack", true) || m.contains("Error:") || m.length > 140 -> "yidplus.com had a problem. Please try again."
+        else -> m
     }
 }
 

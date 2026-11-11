@@ -256,27 +256,32 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
     Column(modifier.fillMaxWidth()
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Black.copy(alpha = .45f), Color.Transparent)))) {
             Row(Modifier.fillMaxWidth().padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.Filled.Search, "Search Shorts", { Nav.open(SoSearchPage(4)) }, tint = Color.White, size = if (smallScreen) 36.dp else 40.dp)
-                androidx.compose.foundation.lazy.LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
+                IconBtn(Icons.Filled.Search, "Search Shorts", { Nav.open(SoSearchPage(4)) }, tint = Color.White, size = if (smallScreen) 34.dp else 40.dp)
+                // The feeds always fit at 480 px (For You · Following · Uploads · Saved); on a small screen the topics
+                // button rides at the end of the same row instead of taking room from the names.
+                androidx.compose.foundation.lazy.LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically) {
                     items(tabs.size) { ti ->
                         val t = tabs[ti]
-                        Column(Modifier.tap(RoundedCornerShape(14.dp)) { Feeds.tab = t; Feeds.who = null }.padding(horizontal = if (smallScreen) 6.dp else 8.dp, vertical = 4.dp),
+                        Column(Modifier.tap(RoundedCornerShape(14.dp)) { Feeds.tab = t; Feeds.who = null }.padding(horizontal = if (smallScreen) 5.dp else 8.dp, vertical = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(t.label, color = if (t == tab) Color.White else Color.White.copy(alpha = .65f), fontWeight = if (t == tab) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = if (smallScreen) 14.sp else 15.sp, maxLines = 1)
+                            Text(t.label, color = if (t == tab) Color.White else Color.White.copy(alpha = .7f), fontWeight = if (t == tab) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = if (smallScreen) 13.sp else 15.sp, maxLines = 1, softWrap = false,
+                                style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)))
                             Box(Modifier.padding(top = 2.dp).size(width = 18.dp, height = 2.dp).background(if (t == tab) Color.White else Color.Transparent, RoundedCornerShape(1.dp)))
                         }
                     }
-                }
-                if (tab == ShortsTab.ForYou && smallScreen && who == null) Box {
-                    var topicsOpen by remember { mutableStateOf(false) }
-                    IconBtn(Icons.Filled.Tune, "Topics", { topicsOpen = true }, tint = if (topic == "All") Color.White else Gold, size = 40.dp)
-                    DropdownMenu(topicsOpen, { topicsOpen = false }) {
-                        for ((v, label) in SO_SHORT_TOPICS) DropdownMenuItem(text = { Text((if (v == topic) "✓ " else "   ") + label) }, onClick = { SoShortTopics.topic = v; topicsOpen = false })
+                    if (tab == ShortsTab.ForYou && smallScreen && who == null) item {
+                        Box {
+                            var topicsOpen by remember { mutableStateOf(false) }
+                            IconBtn(Icons.Filled.Tune, "Topics", { topicsOpen = true }, tint = if (topic == "All") Color.White else Gold, size = 34.dp)
+                            DropdownMenu(topicsOpen, { topicsOpen = false }) {
+                                for ((v, label) in SO_SHORT_TOPICS) DropdownMenuItem(text = { Text((if (v == topic) "✓ " else "   ") + label) }, onClick = { SoShortTopics.topic = v; topicsOpen = false })
+                            }
+                        }
                     }
                 }
-                IconBtn(Icons.Filled.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = 40.dp)
+                IconBtn(Icons.Filled.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = if (smallScreen) 36.dp else 40.dp)
             }
             if (who != null) Row(Modifier.padding(start = 12.dp, bottom = 4.dp).tap(RoundedCornerShape(16.dp)) { Feeds.who = null }
                 .background(Color.White.copy(alpha = .2f), RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
