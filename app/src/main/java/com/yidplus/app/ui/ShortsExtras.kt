@@ -198,7 +198,8 @@ class SoUploadShortPage : PageScreen() {
                 if (len > 100L * 1024 * 1024) toast(c, "That video is over 100 MB") else { file = u; sizeMb = if (len > 0) len / 1048576f else 0f }
             }
         }
-        LaunchedEffect(Unit) { if (Session.me != null && file == null) runCatching { pick.launch("video/*") } }
+        LaunchedEffect(Unit) { if (Session.me != null && file == null && SoQaPick.uri == null) runCatching { pick.launch("video/*") } }
+        LaunchedEffect(SoQaPick.uri) { SoQaPick.uri?.let { u -> file = u; sizeMb = runCatching { java.io.File(u.path!!).length() / 1048576f }.getOrDefault(0f); SoQaPick.uri = null } }
         fun send() {
             val f = file ?: run { pick.launch("video/*"); return }
             if (progress != null) return

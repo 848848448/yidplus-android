@@ -71,6 +71,7 @@ fun AppRoot(onExit: () -> Unit) {
         val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Gallery || (top is PageScreen && top.immersive) || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
         val holder = rememberSaveableStateHolder()
         NavBadgesFeed()
+        SoQaPickReceiver()
 
         // The status bar takes the colour of the brand bar under it (black on full-screen video), with white icons.
         val view = androidx.compose.ui.platform.LocalView.current

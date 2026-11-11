@@ -102,7 +102,8 @@ fun soIsVideo(url: String): Boolean = Regex("""\.(mp4|webm|mov|m4v|mkv|3gp)(\?|$
 /** Streams a picked file to the site as multipart (never the whole video in memory), with progress. */
 suspend fun soUpload(ctx: Context, path: String, uri: Uri, fields: Map<String, String>, onProgress: (Float) -> Unit): JSONObject = withContext(Dispatchers.IO) {
     val cr = ctx.contentResolver
-    val mime = cr.getType(uri) ?: "video/mp4"
+    val ext0 = (uri.lastPathSegment ?: "").substringAfterLast('.', "").lowercase()
+    val mime = cr.getType(uri) ?: android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext0) ?: "video/mp4"
     var name = "upload." + (android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "mp4")
     var len = -1L
     runCatching {
@@ -113,7 +114,14 @@ suspend fun soUpload(ctx: Context, path: String, uri: Uri, fields: Map<String, S
             }
         }
     }
+    if (len < 0 && uri.scheme == "file") len = runCatching { java.io.File(uri.path!!).length() }.getOrDefault(-1L)
     val total = len
+    // QA (the fixture account is on): never send a file to the live site; log what would be sent, like every other write.
+    if (Fixture.on) {
+        android.util.Log.i("YidFx", "POST $path multipart/form-data " + fields.keys.joinToString(",") { "$it=" + (fields[it] ?: "").take(60) } + ",file=$name ($mime, $total bytes)")
+        onProgress(1f)
+        return@withContext JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
+    }
     val body = object : RequestBody() {
         override fun contentType() = mime.toMediaTypeOrNull()
         override fun contentLength() = total
@@ -140,6 +148,40 @@ suspend fun soUpload(ctx: Context, path: String, uri: Uri, fields: Map<String, S
             throw Api.ApiError(res.code, j?.optString("error")?.takeIf { it.isNotBlank() } ?: "Upload failed (${res.code})", j)
         onProgress(1f)
         j
+    }
+}
+
+/** QA only (the fixture account is on). The emulator's file picker can't always be driven by the test, so
+ *  `adb shell am broadcast -a com.yidplus.app.QA_PICK --es kind image|video [--es open newpost|upload]` makes a small file
+ *  inside the app and hands it to the open New post / Upload a Short page, as if it was picked; the upload request itself
+ *  is then proved in the YidFx log. Mounted once in AppRoot. */
+object SoQaPick { var uri by mutableStateOf<Uri?>(null) }
+
+@Composable
+fun SoQaPickReceiver() {
+    val c = androidx.compose.ui.platform.LocalContext.current
+    DisposableEffect(Fixture.on) {
+        if (!Fixture.on) return@DisposableEffect onDispose { }
+        val r = object : android.content.BroadcastReceiver() {
+            override fun onReceive(x: Context?, i: android.content.Intent?) {
+                when (i?.getStringExtra("open")) { "newpost" -> Nav.open(SoNewPostPage()); "upload" -> Nav.open(SoUploadShortPage()) }
+                val kind = i?.getStringExtra("kind") ?: return
+                runCatching {
+                    val vid = kind == "video"
+                    val f = java.io.File(c.cacheDir, if (vid) "qa-pick.mp4" else "qa-pick.png")
+                    if (vid) f.writeBytes(ByteArray(48 * 1024) { (it % 251).toByte() })
+                    else {
+                        val b = android.graphics.Bitmap.createBitmap(320, 240, android.graphics.Bitmap.Config.ARGB_8888)
+                        android.graphics.Canvas(b).drawColor(0xFF25D366.toInt())
+                        f.outputStream().use { o -> b.compress(android.graphics.Bitmap.CompressFormat.PNG, 90, o) }
+                    }
+                    SoQaPick.uri = Uri.fromFile(f)
+                    android.util.Log.i("YidFx", "LK-QA picked ${f.name} ${f.length()} bytes")
+                }
+            }
+        }
+        androidx.core.content.ContextCompat.registerReceiver(c, r, android.content.IntentFilter("com.yidplus.app.QA_PICK"), androidx.core.content.ContextCompat.RECEIVER_EXPORTED)
+        onDispose { runCatching { c.unregisterReceiver(r) } }
     }
 }
 
