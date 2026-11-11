@@ -198,7 +198,8 @@ class SoUploadShortPage : PageScreen() {
                 if (len > 100L * 1024 * 1024) toast(c, "That video is over 100 MB") else { file = u; sizeMb = if (len > 0) len / 1048576f else 0f }
             }
         }
-        LaunchedEffect(Unit) { if (Session.me != null && file == null) runCatching { pick.launch("video/*") } }
+        LaunchedEffect(Unit) { if (Session.me != null && file == null && SoQaPick.uri == null) runCatching { pick.launch("video/*") } }
+        LaunchedEffect(SoQaPick.uri) { SoQaPick.uri?.let { u -> file = u; sizeMb = runCatching { java.io.File(u.path!!).length() / 1048576f }.getOrDefault(0f); SoQaPick.uri = null } }
         fun send() {
             val f = file ?: run { pick.launch("video/*"); return }
             if (progress != null) return
@@ -329,13 +330,10 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
             } catch (e: Exception) { toast(c, Api.friendly(e)); text = t }
         }
     }
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(Modifier.fillMaxWidth().heightIn(min = 200.dp).navigationBarsPadding().imePadding().padding(bottom = 8.dp)) {
-            Text(if (list.size == 1) "1 comment" else "${list.size} comments", Modifier.align(Alignment.CenterHorizontally).padding(top = 2.dp, bottom = 8.dp),
-                style = MaterialTheme.typography.titleMedium)
-            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-            Box(Modifier.weight(1f, fill = false).heightIn(max = 380.dp)) {
-                if (loading && list.isEmpty()) Loading(Modifier.fillMaxWidth().height(120.dp))
+    SoCommentsPanel(if (list.isEmpty()) "Comments" else if (list.size == 1) "1 comment" else "${list.size} comments", onDismiss) {
+        run {
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                if (loading && list.isEmpty()) SoSkeleton(rows = 3, avatar = 36.dp)
                 else if (list.isEmpty()) SoEmpty(Icons.Filled.ChatBubbleOutline, "No comments yet. Be the first.")
                 else LazyColumn {
                     items(list, key = { it.id }) { cm ->
@@ -359,7 +357,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                 Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("Sign in to comment", Modifier.weight(1f)); PrimaryButton("Sign in", { onDismiss(); Nav.go(Tab.Profile) })
                 }
-            } else Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(text, { if (it.length <= 300) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
                     textStyle = TextStyle(textDirection = TextDirection.Content), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { post() }))
                 IconBtn(Icons.AutoMirrored.Filled.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)

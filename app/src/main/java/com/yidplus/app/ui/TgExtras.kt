@@ -1,5 +1,8 @@
 package com.yidplus.app.ui
 
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+
 import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.core.RepeatMode
@@ -122,7 +125,7 @@ fun SoTgReactionRow(id: Long, reacts: SoTgReacts, modifier: Modifier = Modifier)
                 }
                 DropdownMenu(pick, { pick = false }) {
                     Row(Modifier.padding(horizontal = 6.dp)) {
-                        for (e in SO_TG_QUICK) Box(Modifier.size(42.dp).tap(CircleShape) { pick = false; scope.launch { reacts.react(c, id, e) } }
+                        for ((qi, e) in SO_TG_QUICK.withIndex()) Box(Modifier.size(42.dp).semantics { contentDescription = "Quick reaction ${qi + 1}" }.tap(CircleShape) { pick = false; scope.launch { reacts.react(c, id, e) } }
                             .background(if (e == my) Green.copy(alpha = 0.16f) else Color.Transparent, CircleShape), contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
                     }
                 }

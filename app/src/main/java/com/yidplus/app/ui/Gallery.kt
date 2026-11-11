@@ -94,6 +94,17 @@ fun GalleryScreen(items: List<GItem>, start: Int) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     LaunchedEffect(pager.currentPage) { zoomed = false; dragY = 0f }
+    // QA only (the fixture account is on): `adb shell am broadcast -a com.yidplus.app.QA_GESTURE --es g pinch|dtap|pinchin`
+    // plays a real two-finger MotionEvent sequence through this window, so the gesture code itself is proved in CI.
+    val qaView = androidx.compose.ui.platform.LocalView.current
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        if (!com.yidplus.app.data.Fixture.on) return@DisposableEffect onDispose { }
+        val r = object : android.content.BroadcastReceiver() {
+            override fun onReceive(ctx: android.content.Context?, i: android.content.Intent?) { qaGesture(qaView.rootView, i?.getStringExtra("g") ?: "pinch") }
+        }
+        androidx.core.content.ContextCompat.registerReceiver(c, r, android.content.IntentFilter("com.yidplus.app.QA_GESTURE"), androidx.core.content.ContextCompat.RECEIVER_EXPORTED)
+        onDispose { runCatching { c.unregisterReceiver(r) } }
+    }
     val fade = (1f - abs(dragY) / 900f).coerceIn(0.3f, 1f)
     Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = fade)).focusRequester(focus).focusable()
         .onPreviewKeyEvent { e ->
@@ -120,6 +131,33 @@ fun GalleryScreen(items: List<GItem>, start: Int) {
         if (items.size > 1) Text("${pager.currentPage + 1} / ${items.size}", color = Color.White, style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 14.dp).background(Color.Black.copy(alpha = .45f), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 3.dp))
     }
+}
+
+/** QA: a real two-finger pinch (out or in) or a double-tap at the middle of [v], as the touch screen would send it. */
+private fun qaGesture(v: android.view.View, g: String) {
+    val h = android.os.Handler(android.os.Looper.getMainLooper())
+    val t0 = android.os.SystemClock.uptimeMillis()
+    val cx = v.width / 2f; val cy = v.height / 2f
+    fun props(n: Int) = Array(n) { k -> android.view.MotionEvent.PointerProperties().apply { id = k; toolType = android.view.MotionEvent.TOOL_TYPE_FINGER } }
+    fun coords(n: Int, d: Float) = Array(n) { k -> android.view.MotionEvent.PointerCoords().apply { x = if (n == 1) cx else if (k == 0) cx - d else cx + d; y = cy; pressure = 1f; size = 1f } }
+    fun send(at: Long, action: Int, n: Int, d: Float) = h.postAtTime({
+        val e = android.view.MotionEvent.obtain(t0, android.os.SystemClock.uptimeMillis(), action, n, props(n), coords(n, d), 0, 0, 1f, 1f, 0, 0,
+            android.view.InputDevice.SOURCE_TOUCHSCREEN, 0)
+        v.dispatchTouchEvent(e); e.recycle()
+    }, t0 + at)
+    val ptr1 = 1 shl android.view.MotionEvent.ACTION_POINTER_INDEX_SHIFT
+    if (g == "dtap") {
+        send(0, android.view.MotionEvent.ACTION_DOWN, 1, 0f); send(60, android.view.MotionEvent.ACTION_UP, 1, 0f)
+        send(160, android.view.MotionEvent.ACTION_DOWN, 1, 0f); send(220, android.view.MotionEvent.ACTION_UP, 1, 0f)
+        Log.i("YidGallery", "qa double-tap sent"); return
+    }
+    val from = if (g == "pinchin") 170f else 40f; val to = if (g == "pinchin") 40f else 170f
+    send(0, android.view.MotionEvent.ACTION_DOWN, 1, from)
+    send(20, android.view.MotionEvent.ACTION_POINTER_DOWN or ptr1, 2, from)
+    for (k in 1..12) send(20L + k * 20L, android.view.MotionEvent.ACTION_MOVE, 2, from + (to - from) * k / 12f)
+    send(300, android.view.MotionEvent.ACTION_POINTER_UP or ptr1, 2, to)
+    send(320, android.view.MotionEvent.ACTION_UP, 1, to)
+    Log.i("YidGallery", "qa $g sent")
 }
 
 /** Vertical drag (one finger, not zoomed) moves the item with the finger; let go past ~120dp and the viewer closes. */
@@ -181,11 +219,12 @@ private fun ZoomPhoto(url: String, onZoom: (Boolean) -> Unit, onDrag: (Float) ->
         .pointerInput(Unit) {
             awaitEachGesture {
                 awaitFirstDown(requireUnconsumed = false)
-                var pinched = false
+                var pinched = false; var two = false
                 while (true) {
                     val ev = awaitPointerEvent()
                     val fingers = ev.changes.count { it.pressed }
                     if (fingers == 0) break
+                    if (fingers > 1 && !two) { two = true; Log.i("YidGallery", "two fingers down") }
                     if (fingers > 1 || scale > 1.01f) {
                         val z = ev.calculateZoom(); val p = ev.calculatePan(); val cen = ev.calculateCentroid(useCurrent = true)
                         if (fingers > 1) onZoom(true)

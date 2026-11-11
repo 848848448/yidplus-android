@@ -358,17 +358,15 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
         loading = false
     }
     LaunchedEffect(p.id) { load() }
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(Modifier.fillMaxWidth().heightIn(min = 220.dp).navigationBarsPadding().imePadding().padding(bottom = 8.dp)) {
-            Text(if (list.isEmpty()) "Comments" else "${list.size} comments", Modifier.align(Alignment.CenterHorizontally).padding(6.dp), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            HorizontalDivider(thickness = 0.5.dp)
-            Box(Modifier.weight(1f, fill = false).heightIn(max = 380.dp)) {
+    SoCommentsPanel(if (list.isEmpty()) "Comments" else if (list.size == 1) "1 comment" else "${list.size} comments", onDismiss) {
+        run {
+            Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (loading && list.isEmpty()) SoSkeleton(rows = 3, avatar = 34.dp)
                 else if (list.isEmpty()) SoEmpty(Icons.Filled.ChatBubbleOutline, "No comments yet. Be the first.")
                 else LazyColumn {
                     items(list, key = { it.str("id") }) { cm ->
                         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-                            SoThumb(null, cm.str("nickname"), 34.dp)
+                            SoThumb(Api.abs(cm.strOrNull("photo_url")), cm.str("nickname"), 36.dp)
                             Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
                                 Row { Text(cm.str("nickname"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                                     Text("  " + ago(cm.strOrNull("created_at")), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -390,7 +388,7 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
             }
             if (Session.me == null) Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Sign in to comment", Modifier.weight(1f)); PrimaryButton("Sign in", { onDismiss(); Nav.go(Tab.Profile) })
-            } else Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(text, { if (it.length <= 500) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
                     shape = RoundedCornerShape(22.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                 IconBtn(Icons.AutoMirrored.Filled.Send, "Send", {
@@ -414,9 +412,16 @@ class SoNewPostPage : PageScreen() {
         var file by remember { mutableStateOf<Uri?>(null) }
         var progress by remember { mutableStateOf<Float?>(null) }
         val pick = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { u -> if (u != null) file = u }
+        LaunchedEffect(SoQaPick.uri) { SoQaPick.uri?.let { file = it; SoQaPick.uri = null } }
         fun send() {
             if (progress != null) return
             if (text.isBlank() && file == null) { toast(c, "Write something or add a photo / video"); return }
+            file?.let { f ->
+                // The same limits the site's post box enforces (home.js checkFileSize): say so before the upload, not after.
+                val vid = (c.contentResolver.getType(f) ?: "").startsWith("video") || (f.lastPathSegment ?: "").lowercase().let { n -> n.endsWith(".mp4") || n.endsWith(".mov") || n.endsWith(".webm") || n.endsWith(".3gp") }
+                val len = runCatching { if (f.scheme == "file") java.io.File(f.path!!).length() else c.contentResolver.openAssetFileDescriptor(f, "r")?.use { it.length } ?: -1L }.getOrDefault(-1L)
+                if (len > (if (vid) 60L else 12L) * 1024 * 1024) { toast(c, if (vid) "That video is over 60 MB" else "That photo is over 12 MB"); return }
+            }
             progress = 0f
             scope.launch {
                 try {
@@ -441,7 +446,7 @@ class SoNewPostPage : PageScreen() {
                 file?.let { f ->
                     Spacer(Modifier.height(12.dp))
                     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)).padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        val isVid = (c.contentResolver.getType(f) ?: "").startsWith("video")
+                        val isVid = (c.contentResolver.getType(f) ?: "").startsWith("video") || (f.lastPathSegment ?: "").lowercase().endsWith(".mp4")
                         if (isVid) Icon(Icons.Filled.Movie, null, Modifier.size(48.dp), tint = Green)
                         else AsyncImage(f, null, contentScale = ContentScale.Crop, modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)))
                         Text(if (isVid) "Video added" else "Photo added", Modifier.weight(1f).padding(horizontal = 10.dp), fontSize = 15.sp)
