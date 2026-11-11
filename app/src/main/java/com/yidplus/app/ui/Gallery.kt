@@ -57,6 +57,17 @@ import coil.request.ImageRequest
 import com.yidplus.app.data.Media
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import android.util.Log
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 
 /** One photo or video in a full-screen gallery. */
 data class GItem(val url: String, val video: Boolean, val poster: String? = null, val title: String = "")
@@ -93,7 +104,11 @@ fun GalleryScreen(items: List<GItem>, start: Int) {
                 else -> false
             }
         }) {
-        HorizontalPager(pager, Modifier.fillMaxSize(), userScrollEnabled = !zoomed, key = { items[it].url }, beyondViewportPageCount = 1) { page ->
+        // A short flick is enough for the next photo (like WhatsApp), with a small dark gap between photos while it slides.
+        val fling = PagerDefaults.flingBehavior(state = pager, snapPositionalThreshold = 0.22f,
+            snapAnimationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow))
+        HorizontalPager(pager, Modifier.fillMaxSize(), userScrollEnabled = !zoomed, key = { items[it].url }, beyondViewportPageCount = 1,
+            pageSpacing = 12.dp, flingBehavior = fling) { page ->
             val item = items[page]
             Box(Modifier.fillMaxSize().graphicsLayer(translationY = if (page == pager.currentPage) dragY else 0f)) {
                 if (item.video) VideoPage(item, active = page == pager.currentPage && !pager.isScrollInProgress, onDrag = { dy -> dragY = dy })
@@ -131,28 +146,56 @@ private fun Modifier.dragToClose(enabled: () -> Boolean, onDrag: (Float) -> Unit
 @Composable
 private fun ZoomPhoto(url: String, onZoom: (Boolean) -> Unit, onDrag: (Float) -> Unit) {
     val c = ctx()
+    val scope = rememberCoroutineScope()
     var scale by remember { mutableFloatStateOf(1f) }
     var ox by remember { mutableFloatStateOf(0f) }
     var oy by remember { mutableFloatStateOf(0f) }
-    fun set(s: Float) { scale = s; if (s <= 1f) { ox = 0f; oy = 0f }; onZoom(s > 1.01f) }
-    Box(Modifier.fillMaxSize()
-        .pointerInput(Unit) { detectTapGestures(onDoubleTap = { if (scale > 1f) set(1f) else set(2.5f) }) }
-        // Two fingers = zoom; one finger while zoomed = move the photo. One finger at normal size is left to the
-        // pager (left/right) and to drag-to-close (down).
+    var box by remember { mutableStateOf(IntSize.Zero) }
+    // Never let the photo be pushed off the screen: at most its own zoomed edge reaches the screen's edge.
+    fun clamp() {
+        val mx = box.width * (scale - 1f) / 2f; val my = box.height * (scale - 1f) / 2f
+        ox = ox.coerceIn(-mx, mx); oy = oy.coerceIn(-my, my)
+    }
+    // Zoom to [s] keeping the point under the fingers (or the double-tap) where it is, like WhatsApp.
+    fun zoomTo(s: Float, at: Offset) {
+        val ns = s.coerceIn(1f, 5f)
+        val cx = at.x - box.width / 2f; val cy = at.y - box.height / 2f
+        ox = cx - (cx - ox) * ns / scale; oy = cy - (cy - oy) * ns / scale
+        scale = ns
+        if (scale <= 1.01f) { scale = 1f; ox = 0f; oy = 0f }
+        clamp(); onZoom(scale > 1.01f)
+    }
+    Box(Modifier.fillMaxSize().onSizeChanged { box = it }
+        // Double-tap: zoom in to 2.5x on that spot, double-tap again to go back (animated).
+        .pointerInput(Unit) {
+            detectTapGestures(onDoubleTap = { at ->
+                val from = scale; val to = if (scale > 1.2f) 1f else 2.5f
+                scope.launch {
+                    animate(from, to, animationSpec = tween(220)) { v, _ -> zoomTo(v, at) }
+                    Log.i("YidGallery", "double-tap zoom " + "%.2f".format(scale))
+                }
+            })
+        }
+        // Two fingers = pinch zoom around the fingers; one finger while zoomed = move the photo. One finger at normal
+        // size is left to the pager (left/right = next photo) and to drag-to-close (down).
         .pointerInput(Unit) {
             awaitEachGesture {
                 awaitFirstDown(requireUnconsumed = false)
+                var pinched = false
                 while (true) {
                     val ev = awaitPointerEvent()
-                    if (ev.changes.none { it.pressed }) break
                     val fingers = ev.changes.count { it.pressed }
+                    if (fingers == 0) break
                     if (fingers > 1 || scale > 1.01f) {
-                        val z = ev.calculateZoom(); val p = ev.calculatePan()
-                        set((scale * z).coerceIn(1f, 5f))
-                        if (scale > 1f) { ox += p.x; oy += p.y }
-                        ev.changes.forEach { it.consume() }
+                        val z = ev.calculateZoom(); val p = ev.calculatePan(); val cen = ev.calculateCentroid(useCurrent = true)
+                        if (fingers > 1) onZoom(true)
+                        if (z != 1f && cen != Offset.Unspecified) { zoomTo(scale * z, cen); pinched = true }
+                        if (scale > 1.01f) { ox += p.x; oy += p.y; clamp() }
+                        ev.changes.forEach { if (it.positionChanged()) it.consume() }
                     }
                 }
+                if (pinched) Log.i("YidGallery", "pinch zoom " + "%.2f".format(scale))
+                onZoom(scale > 1.01f)
             }
         }
         .dragToClose({ scale <= 1.01f }, onDrag)) {

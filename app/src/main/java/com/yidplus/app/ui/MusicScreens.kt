@@ -140,9 +140,10 @@ fun MusicScreen() {
     val list = res.data
     LaunchedEffect(list) { if (list != null) Perf.shown("Music") }
     var q by rememberSaveable { mutableStateOf("") }
+    var pulling by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize()) {
         TopBar("Music", sub = list?.let { "${it.size} songs" })
-        PullToRefreshBox(isRefreshing = res.loading && list != null, onRefresh = { scope.launch { res.load(true) } }, modifier = Modifier.weight(1f)) {
+        PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(true); pulling = false } }, modifier = Modifier.weight(1f)) {
             when {
                 list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
                 list == null -> Loading()

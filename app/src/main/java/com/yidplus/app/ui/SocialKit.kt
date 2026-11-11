@@ -154,7 +154,11 @@ fun JSONObject.soCheck(): JSONObject { val e = strOrNull("error"); if (e != null
 fun SoSkeleton(rows: Int = 7, avatar: Dp = 48.dp, modifier: Modifier = Modifier) {
     val t = rememberInfiniteTransition(label = "sk")
     val a by t.animateFloat(0.35f, 0.8f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "ska")
-    val col = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+    val col = MaterialTheme.colorScheme.onSurface.copy(alpha = if (isDark()) 0.12f else 0.08f)
+    // Only for a first-ever load, and only after a quarter second (a quick answer never flashes grey rows).
+    var show by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { delay(250); show = true }
+    if (!show) { Box(modifier.fillMaxWidth()); return }
     Column(modifier.fillMaxWidth().alpha(a)) {
         repeat(rows) {
             Row(Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -185,16 +189,22 @@ fun SoEmpty(icon: ImageVector, text: String, modifier: Modifier = Modifier, acti
 /** A row of pill chips (topics, filters); the chosen one is filled green. Every chip is focusable for the keypad. */
 @Composable
 fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, dark: Boolean = false) {
-    LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        itemsIndexed(options) { i, o ->
-            val on = i == selected
-            val bg = if (on) Green else if (dark) Color.White.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant
-            val fg = if (on) Color.White else if (dark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-            Box(Modifier.heightIn(min = 34.dp).tap(RoundedCornerShape(17.dp)) { onSelect(i) }.background(bg, RoundedCornerShape(17.dp)).padding(horizontal = 14.dp, vertical = 7.dp),
-                contentAlignment = Alignment.Center) {
-                Text(o, color = fg, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
-            }
+    @Composable fun Chip(i: Int, o: String, m: Modifier) {
+        val on = i == selected
+        val bg = if (on) Green else if (dark) Color.White.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant
+        val fg = if (on) Color.White else if (dark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+        Box(m.heightIn(min = 34.dp).tap(RoundedCornerShape(17.dp)) { onSelect(i) }.background(bg, RoundedCornerShape(17.dp)).padding(horizontal = 10.dp, vertical = 7.dp),
+            contentAlignment = Alignment.Center) {
+            Text(o, color = fg, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1, softWrap = false)
         }
+    }
+    // Up to four short filters share the width (they always fit at 480 px, nothing cut at the edge); more scroll
+    // sideways with room at both ends, so no chip is ever cut mid-word.
+    val total = options.sumOf { it.length }
+    if (options.size <= 4 && total <= 30) Row(modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        options.forEachIndexed { i, o -> Chip(i, o, Modifier.weight(1f)) }
+    } else LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        itemsIndexed(options) { i, o -> Chip(i, o, Modifier.padding(horizontal = 2.dp)) }
     }
 }
 
@@ -206,7 +216,7 @@ fun SoDivider(start: Dp = 80.dp) { HorizontalDivider(Modifier.padding(start = st
 @Composable
 fun SoBadge(n: Int, modifier: Modifier = Modifier) {
     if (n <= 0) return
-    Box(modifier.defaultMinSize(minWidth = 20.dp, minHeight = 20.dp).clip(CircleShape).background(Color(0xFF25A36F)).padding(horizontal = 5.dp), contentAlignment = Alignment.Center) {
+    Box(modifier.defaultMinSize(minWidth = 20.dp, minHeight = 20.dp).clip(CircleShape).background(BadgeGreen).padding(horizontal = 5.dp), contentAlignment = Alignment.Center) {
         Text(if (n > 99) "99+" else n.toString(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, lineHeight = 12.sp)
     }
 }
@@ -224,19 +234,15 @@ fun SoPill(text: String, filled: Boolean, onClick: () -> Unit, modifier: Modifie
     }
 }
 
-/** Square/round picture with a soft frame while it loads, and the name's first letter when there is none. */
+/** Square/round picture: the photo first, else the name's first real letter on its colour (the same as Avatar everywhere). */
 @Composable
 fun SoThumb(url: String?, name: String, size: Dp, round: Boolean = true) {
     val shape = if (round) CircleShape else RoundedCornerShape(10.dp)
-    Box(Modifier.size(size).clip(shape).background(soColorFor(name)), contentAlignment = Alignment.Center) {
-        Text(soInitials(name), color = Color.White, fontWeight = FontWeight.Bold, fontSize = (size.value * 0.38f).sp)
+    val l = nameInitials(name)
+    Box(Modifier.size(size).clip(shape).background(avatarColor(name.ifBlank { "Y" })), contentAlignment = Alignment.Center) {
+        Text(l, color = Color.White, fontWeight = FontWeight.SemiBold, maxLines = 1, fontSize = (size.value * (if (l.length > 1) 0.38f else 0.46f)).sp)
         if (!url.isNullOrBlank()) AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
     }
 }
-private val soPalette = listOf(0xFF1F6F5C, 0xFF2E7D9A, 0xFF7B5EA7, 0xFFC0675A, 0xFF4F8A3C, 0xFFB7892B, 0xFF3F5DA8, 0xFF9C4F7E)
-fun soColorFor(name: String): Color = Color(soPalette[(name.hashCode() and 0x7fffffff) % soPalette.size])
-fun soInitials(name: String): String {
-    val w = name.trim().removePrefix("@").split(Regex("\\s+")).filter { it.isNotBlank() }
-    val s = when { w.isEmpty() -> "Y"; w.size == 1 -> w[0].take(1); else -> w[0].take(1) + w[1].take(1) }
-    return s.uppercase()
-}
+fun soColorFor(name: String): Color = avatarColor(name)
+fun soInitials(name: String): String = nameInitials(name)
