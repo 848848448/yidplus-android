@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YID PLUS</string>
+    <string name="channel_updates">App updates</string>
+    <string name="offline_title">You\'re offline</string>
+    <string name="offline_text">Check your internet connection. YID PLUS reloads by itself when you\'re back online.</string>
+    <string name="load_failed_title">Couldn\'t load YID PLUS</string>
+    <string name="load_failed_text">The site didn\'t answer. Try again in a moment.</string>
+    <string name="retry">Try again</string>
+    <string name="update_available">Update available</string>
+    <string name="update_tap">YID PLUS %1$s is ready. Tap to update.</string>
+    <string name="update_version_line">You have %1$s · New: %2$s</string>
+    <string name="update_size">%.1f MB</string>
+    <string name="update_now">Update</string>
+    <string name="later">Later</string>
+    <string name="cancel">Cancel</string>
+    <string name="downloading_update">Downloading… %1$d%%</string>
+    <string name="update_failed">The update couldn\'t download. Try again later.</string>
+    <string name="update_install_failed">The update couldn\'t be installed.</string>
+    <string name="update_check_failed">Couldn\'t check for updates right now.</string>
+    <string name="up_to_date">YID PLUS is up to date (%1$s)</string>
+    <string name="allow_title">Allow updates</string>
+    <string name="allow_text">To install updates, Android needs you to allow YID PLUS to install apps. You only do this once: turn on \"Allow from this source\", then come back.</string>
+    <string name="open_settings">Open settings</string>
+    <string name="updated_title">YID PLUS updated</string>
+    <string name="updated_text">Now on version %1$s. Tap to open.</string>
+    <string name="downloading">Downloading %1$s</string>
+    <string name="download_failed">Couldn\'t start the download</string>
+    <string name="file_saved">File saved</string>
+    <string name="storage_needed">Allow storage to save downloads, then tap again</string>
+    <string name="no_app_for_link">No app can open this link</string>
+    <string name="google_failed">Google sign-in couldn\'t finish. Please try again.</string>
+    <string name="shortcut_update">Check for updates</string>
+    <string name="shortcut_shorts">Shorts</string>
+    <string name="shortcut_chats">Chats</string>
+</resources>

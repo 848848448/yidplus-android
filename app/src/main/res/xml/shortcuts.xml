@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="shorts" android:enabled="true" android:icon="@drawable/ic_shortcut_shorts" android:shortcutShortLabel="@string/shortcut_shorts">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.yidplus.app" android:targetClass="com.yidplus.app.MainActivity" android:data="https://yidplus.com/shorts" />
+    </shortcut>
+    <shortcut android:shortcutId="chats" android:enabled="true" android:icon="@drawable/ic_shortcut_chats" android:shortcutShortLabel="@string/shortcut_chats">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.yidplus.app" android:targetClass="com.yidplus.app.MainActivity" android:data="https://yidplus.com/chat" />
+    </shortcut>
+    <shortcut android:shortcutId="update" android:enabled="true" android:icon="@drawable/ic_shortcut_update" android:shortcutShortLabel="@string/shortcut_update">
+        <intent android:action="com.yidplus.app.CHECK_UPDATE" android:targetPackage="com.yidplus.app" android:targetClass="com.yidplus.app.MainActivity" />
+    </shortcut>
+</shortcuts>
