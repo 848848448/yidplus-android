@@ -1,0 +1,226 @@
+{
+ "/api/chat/rooms?qa=nt": {
+  "ok": true,
+  "rooms": [
+   {
+    "id": "nt-g3",
+    "type": "group",
+    "name": "Python לערנען",
+    "nick": "",
+    "photo_url": null,
+    "emoji": "",
+    "preview": "Shimel'a: ווער קען העלפן?",
+    "unread": 1,
+    "last_time": "2026-11-11T19:20:00.000Z",
+    "members": 14,
+    "other_user_id": null
+   },
+   {
+    "id": "nt-dm1",
+    "type": "private",
+    "name": null,
+    "nick": "Yanky Weiss",
+    "photo_url": "/api/media/avatars%2F40da7cf5-4cb2-47d8-b652-eb4f5ec9c376.png?v=1784164780024",
+    "emoji": "",
+    "preview": "[voice_text]",
+    "unread": 2,
+    "last_time": "2026-11-11T19:31:00.000Z",
+    "members": 2,
+    "other_user_id": "u-yanky"
+   },
+   {
+    "id": "nt-g1",
+    "type": "group",
+    "name": "Family 👨‍👩‍👧‍👦",
+    "nick": "",
+    "photo_url": "/api/media/user-avatars/392d8eda-e0dd-44ea-a51e-f55ead12fb0c_1785879385829.png",
+    "emoji": "",
+    "preview": "Mommy: מיר עסן 7 אזייגער",
+    "unread": 6,
+    "last_time": "2026-11-11T19:40:00.000Z",
+    "members": 9,
+    "other_user_id": null
+   }
+  ]
+ },
+ "/api/chat?room_id=nt-dm1": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "nd1",
+    "room_id": "nt-dm1",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "ביסטו שוין אינדערהיים?",
+    "created_at": "2026-11-11T19:10:00.000Z",
+    "read": 1,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "nd2",
+    "room_id": "nt-dm1",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "sender_photo": "/api/media/avatars%2F40da7cf5-4cb2-47d8-b652-eb4f5ec9c376.png?v=1784164780024",
+    "type": "text",
+    "text": "יא, איך בין שוין דא 🙂",
+    "created_at": "2026-11-11T19:30:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "nd3",
+    "room_id": "nt-dm1",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "sender_photo": "/api/media/avatars%2F40da7cf5-4cb2-47d8-b652-eb4f5ec9c376.png?v=1784164780024",
+    "type": "voice_text",
+    "text": "0:12|20,40,60,30,50,70,40,20",
+    "created_at": "2026-11-11T19:31:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   }
+  ]
+ },
+ "/api/chat?room_id=nt-g1": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "ng0",
+    "room_id": "nt-g1",
+    "sender_id": "u-tatty",
+    "sender_nick": "Tatty",
+    "sender_photo": null,
+    "type": "text",
+    "text": "גוט מארגן",
+    "created_at": "2026-11-11T08:00:00.000Z",
+    "read": 1,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng1",
+    "room_id": "nt-g1",
+    "sender_id": "system",
+    "sender_nick": "",
+    "sender_photo": null,
+    "type": "system",
+    "text": "Mommy added Shaya",
+    "created_at": "2026-11-11T19:00:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng2",
+    "room_id": "nt-g1",
+    "sender_id": "u-mommy",
+    "sender_nick": "Mommy",
+    "sender_photo": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "type": "text",
+    "text": "מיר עסן 7 אזייגער",
+    "created_at": "2026-11-11T19:05:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng3",
+    "room_id": "nt-g1",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "created_at": "2026-11-11T19:10:00.000Z",
+    "read": 0,
+    "media_url": "/api/media/tgchan/ZemelVIN.jpeg",
+    "media_key": "tgchan/b.jpg"
+   },
+   {
+    "id": "ng4",
+    "room_id": "nt-g1",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "sticker",
+    "text": "https://yidplus.com/images/apple-touch-icon.png",
+    "created_at": "2026-11-11T19:15:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng5",
+    "room_id": "nt-g1",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "איך קום",
+    "created_at": "2026-11-11T19:20:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng6",
+    "room_id": "nt-g1",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "text",
+    "text": "",
+    "created_at": "2026-11-11T19:25:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null,
+    "deleted": 1
+   },
+   {
+    "id": "ng7",
+    "room_id": "nt-g1",
+    "sender_id": "u-mommy",
+    "sender_nick": "Mommy",
+    "sender_photo": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "type": "call",
+    "text": "📞 Missed voice call",
+    "created_at": "2026-11-11T19:30:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng8",
+    "room_id": "nt-g1",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "file",
+    "text": "menu.pdf",
+    "created_at": "2026-11-11T19:35:00.000Z",
+    "read": 0,
+    "media_url": "/api/media/chat%2Ffiles%2F1_menu.pdf",
+    "media_key": "chat/files/1_menu.pdf"
+   },
+   {
+    "id": "ng9",
+    "room_id": "nt-g1",
+    "sender_id": "u-mommy",
+    "sender_nick": "Mommy",
+    "sender_photo": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "type": "text",
+    "text": "ברענג די קינדער 🍰",
+    "created_at": "2026-11-11T19:40:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   }
+  ]
+ }
+}
