@@ -52,22 +52,26 @@ chopen r-g4 group "Yeshiva" "" 6; shot CH-11-not-joined-group; chtap "Join group
 # Link cards, forwarded, deleted, view once, music; swipe to reply; long-press actions; send
 chopen r-links private "Berel Links" ",\"other_user_id\":\"u-berel\"" 7; shot CH-12-links-cards
 adb shell input swipe 240 220 240 560 300; sleep 2; shot CH-12b-links-up; adb shell input swipe 240 220 240 560 300; sleep 2; shot CH-12c-links-top
-key 4; sleep 1; chopen r-links private "Berel Links" ",\"other_user_id\":\"u-berel\"" 7
+key 4; sleep 1
+# The typing flows run on the phone size: at 480x640 the on-screen keyboard leaves no room at all (kosher 480x640 phones type on their keypad).
+size 1080x2400 420
+chopen r-links private "Berel Links" ",\"other_user_id\":\"u-berel\"" 7
 sleep 2; p=$(chpos "See you at 8 tonight"); log "bubble at: $p"
 if [ -n "$p" ]; then set -- $p; adb shell input swipe $(( $1 - 40 )) $2 $(( $1 + 200 )) $2 400; sleep 1; shot CH-13-swipe-reply; chhas "Reply to"; fi
-adb shell input text "Swipe%sreply%sOK"; sleep 1; chtap "Send"; sleep 1; shot CH-13b-swipe-reply-sent; chfx "reply_to_id"
-chlong "See you at 8 tonight"; shot CH-14-long-press-menu; chtap "Reply"; sleep 1; adb shell input text "Menu%sreply"; chtap "Send"; sleep 1; chfx "Menu reply"
+adb shell input text "Swipe%sreply%sOK"; sleep 1; key 111; sleep 1; chtap "Send"; sleep 1; shot CH-13b-swipe-reply-sent; chfx "reply_to_id"
+chlong "See you at 8 tonight"; shot CH-14-long-press-menu; chtap "Reply"; sleep 1; adb shell input text "Menu%sreply"; sleep 1; key 111; sleep 1; chtap "Send"; sleep 1; chfx "Menu reply"
 chlong "See you at 8 tonight"; chtap "👍"; sleep 2; chfx "/api/chat/reactions"
 chlong "See you at 8 tonight"; chtap "Forward"; sleep 3; shot CH-15-forward; chtap "Yossi Klein"; sleep 3; chfx "forwarded"; key 4; sleep 1
 chlong "See you at 8 tonight"; chtap "Pin"; sleep 2; chfx "pinned_message_id"; shot CH-16-pinned
-chlong "Swipe reply OK"; adb shell input swipe 240 520 240 200 300; sleep 1; chtap "Delete"; sleep 1; chtap "Yes"; sleep 2; chfx "DELETE /api/chat?id="
-adb shell input text "Hello%sfrom%sthe%sapp"; sleep 1; chtap "Send"; sleep 1; shot CH-17-sent-text; chfx "Hello from the app"
+chlong "Swipe reply OK"; chtap "Delete"; sleep 1; chtap "Yes"; sleep 2; chfx "DELETE /api/chat?id="
+adb shell input text "Hello%sfrom%sthe%sapp"; sleep 1; key 111; sleep 1; chtap "Send"; sleep 1; shot CH-17-sent-text; chfx "Hello from the app"
 p=$(chpos "/api/media/user-avatars/392d8eda"); [ -z "$p" ] && p=$(chpos "Photo")
 if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; sleep 3; shot CH-18-photo-viewer; key 4; sleep 1; fi
 # Photo from the gallery picker, and a voice note
 adb push "$OUT/CH-01-chat-list.png" /sdcard/Pictures/ch_test.png >/dev/null 2>&1; adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Pictures/ch_test.png >/dev/null 2>&1
-chtap "Attach"; sleep 2; shot CH-19-attach-sheet; chtap "Gallery"; sleep 4; shot CH-19b-picker; chtap "ch_test.png"; sleep 5; shot CH-19c-photo-sent; chfx "type=media"
+key 111; sleep 1; chtap "Attach"; sleep 2; shot CH-19-attach-sheet; chtap "Gallery"; sleep 4; shot CH-19b-picker; chtap "ch_test.png"; sleep 5; shot CH-19c-photo-sent; chfx "type=media"
 chtap "Record voice message"; sleep 4; shot CH-20-recording; chtap "Send voice message"; sleep 4; chfx "type=voice"; key 4; sleep 1
+size 480x640 240
 adb shell cmd uimode night yes; sleep 3; chopen r-links private "Berel Links" ",\"other_user_id\":\"u-berel\"" 5; shot CH-21-links-dark; key 4; sleep 1
 view "https://yidplus.com/chat"; sleep 3; shot CH-22-list-dark; adb shell cmd uimode night no; sleep 2
 log "CH perf: $(timeout 20 adb logcat -d -s YidPerf 2>/dev/null | grep -E 'Chat' | tail -6 | tr '\n' ' ')"
