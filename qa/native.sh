@@ -121,6 +121,31 @@ for i in 1 2 3 4 5 6; do key 19; done
 timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.CHECK_UPDATE >/dev/null; sleep 2.5; shot 26-check-updates
 check profile
 
+# ==== [feat-settings] Settings / profile / account / admin screens (helper C) — keep this block together ====
+# QA runs signed out, so the signed-in screens are photographed with a sample profile (the qa_page "demo" extra;
+# nothing is sent to the site). Real data (your own profile, devices, blocked list, admin stats) needs a sign-in.
+qa_page() { timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page "$1" >/dev/null 2>&1; sleep "${2:-3}"; log "qa_page $1"; }
+qa_page demo; shot set40-settings-signed-in
+for i in 1 2 3 4 5 6 7 8 9 10 11 12; do key 20; done; focus "DOWN x12 in settings"; shot set40b-settings-scrolled
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do key 19; done; key 23; sleep 2; focus "OK on first row"; shot set40c-dpad-opened; key 4; sleep 1
+qa_page demo:EditProfile; shot set41-edit-profile; key 4
+qa_page demo:Privacy; shot set42-privacy; key 4
+qa_page demo:Security; shot set43-security; key 4
+qa_page demo:NotifPrefs; shot set44-notification-prefs; key 4
+qa_page demo:Blocked; shot set45-blocked; key 4
+qa_page demo:FollowRequests; shot set46-follow-requests; key 4
+qa_page demo:Feedback; shot set47-feedback; key 4
+qa_page demo:About; shot set48-about; key 4
+qa_page demo:Admin 4; shot set49-admin; for i in 1 2 3 4 5 6; do key 20; done; shot set49b-admin-features; key 4
+adb shell cmd uimode night yes; sleep 3
+qa_page demo; shot set50-settings-dark
+qa_page demo:EditProfile; shot set51-edit-profile-dark; key 4
+qa_page demo:Admin 4; shot set52-admin-dark; key 4
+adb shell cmd uimode night no; sleep 3
+qa_page off 2; tab Profile; sleep 2; shot set53-settings-signed-out-again
+check "settings screens (feat-settings)"
+# ==== [/feat-settings] ====
+
 # ---- Dark mode ----
 adb shell cmd uimode night yes; sleep 3
 tab Home; sleep 4; shot 27-home-dark
