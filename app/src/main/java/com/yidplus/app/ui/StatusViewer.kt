@@ -16,7 +16,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -238,7 +238,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
     }
     BackHandler(enabled = sheet || menu) { sheet = false; menu = false }
 
-    val density = LocalDensity.current
+    val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     Box(Modifier.fillMaxSize()
         .onPreviewKeyEvent { e ->
             if (e.type != KeyEventType.KeyDown || typing || sheet) false
@@ -255,8 +255,17 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                     onTap = { o -> if (o.x < size.width / 3f) prev() else next() })
             }
             .pointerInput(ui, si) {
-                var dy = 0f
-                detectVerticalDragGestures(onDragStart = { dy = 0f }, onDragEnd = { if (dy > with(density) { 120.dp.toPx() }) Nav.back() }) { _, d -> dy += d }
+                // Drag down = close; swipe sideways = the next / previous person's statuses (WhatsApp).
+                var dx = 0f; var dy = 0f
+                detectDragGestures(onDragStart = { dx = 0f; dy = 0f }, onDragEnd = {
+                    val far = 80.dp.toPx()
+                    if (dy > 120.dp.toPx() && dy > kotlin.math.abs(dx)) Nav.back()
+                    else if (kotlin.math.abs(dx) > far && kotlin.math.abs(dx) > kotlin.math.abs(dy)) {
+                        val toNext = if (rtl) dx > 0 else dx < 0
+                        if (toNext) { if (ui < users.size - 1) { uiRaw = ui + 1; siRaw = 0; progress = 0f } else Nav.back() }
+                        else if (ui > 0) { uiRaw = ui - 1; siRaw = 0; progress = 0f }
+                    }
+                }) { ch, d -> ch.consume(); dx += d.x; dy += d.y }
             }, contentAlignment = Alignment.Center) {
             when {
                 slide.media != null && slide.video -> StVideo(slide.media, paused, onDur = { durMs = it.coerceIn(1500L, 60_000L) }, onReady = { ready = true })
