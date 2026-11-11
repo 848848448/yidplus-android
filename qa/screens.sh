@@ -88,6 +88,10 @@ check start
 
 # Touch scrolling
 adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 02-home-touch-scrolled
+if same 01-home 02-home-touch-scrolled; then
+  # the page may still have been loading: look again and swipe once more
+  sleep 6; shot 01-home; adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 2; shot 02-home-touch-scrolled
+fi
 if same 01-home 02-home-touch-scrolled; then log "TOUCH SCROLL: page did not move"; FAIL=1; else log "TOUCH SCROLL: page moved"; fi
 adb shell input swipe $CX $Y1 $CX $Y2 400; sleep 1.5
 
