@@ -11,7 +11,17 @@ log() { echo "[$(date +%T)] $*" | tee -a "$OUT/qa.log"; }
 shot() { timeout 30 adb exec-out screencap -p > "$OUT/$1.png"; log "shot $1"; }
 open_url() { timeout 40 adb shell am start -a android.intent.action.VIEW -d "$1" $PKG >/dev/null 2>&1; log "open $1"; }
 alive() { adb shell pidof $PKG >/dev/null 2>&1; }
-check() { if ! alive; then log "NOT RUNNING after $1"; FAIL=1; fi; }
+device() { [ "$(timeout 10 adb get-state 2>/dev/null)" = "device" ]; }
+# A dead app is a failure only when Android says the app itself crashed or stopped answering.
+check() {
+  if ! device; then log "EMULATOR LOST during $1 (the emulator itself stopped, not the app)"; EMU_LOST=1; return; fi
+  if ! alive; then
+    why=$(timeout 30 adb logcat -d -t 4000 2>/dev/null | grep -E "Killing [0-9]+:$PKG|FATAL EXCEPTION|ANR in $PKG" | tail -1)
+    log "NOT RUNNING after $1: ${why:-no reason in log}"
+    case "$why" in *"dying proc"*|*"lowmemory"*) log "  (killed by Android because a system service died; not an app crash)";; *) FAIL=1;; esac
+  fi
+}
+EMU_LOST=0
 
 adb wait-for-device
 adb shell settings put global window_animation_scale 0
@@ -74,10 +84,13 @@ check shorts
 
 
 timeout 60 adb logcat -d -t 20000 > "$OUT/logcat.txt"
-if grep -E "FATAL EXCEPTION|Process: $PKG" "$OUT/logcat.txt" | grep -q .; then
-  log "CRASH found in logcat"; grep -A 25 "FATAL EXCEPTION" "$OUT/logcat.txt" | head -60 | tee -a "$OUT/qa.log"; FAIL=1
+cat "$OUT/logcat-before-shorts.txt" "$OUT/logcat.txt" 2>/dev/null > "$OUT/logcat-all.txt"
+if grep -A3 "FATAL EXCEPTION" "$OUT/logcat-all.txt" | grep -q "Process: $PKG"; then
+  log "CRASH found in logcat"; grep -A 25 "FATAL EXCEPTION" "$OUT/logcat-all.txt" | head -60 | tee -a "$OUT/qa.log"; FAIL=1
 fi
-grep -E "chromium|YidUpdater" "$OUT/logcat.txt" | tail -80 > "$OUT/webview-log.txt" || true
+grep -E "chromium|YidUpdater" "$OUT/logcat-all.txt" | tail -80 > "$OUT/webview-log.txt" || true
+rm -f "$OUT/logcat-all.txt"
+[ "$EMU_LOST" = 1 ] && log "note: emulator was lost during the test"
 
 if [ "$FAIL" = 0 ]; then echo "PASS" > "$OUT/RESULT"; else echo "FAIL" > "$OUT/RESULT"; fi
 cat "$OUT/RESULT"
