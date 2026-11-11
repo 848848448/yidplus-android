@@ -21,6 +21,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Base64
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -36,7 +37,9 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.app.Dialog
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -55,6 +58,8 @@ import androidx.webkit.JavaScriptReplyProxy
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -87,6 +92,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progress: LinearProgressIndicator
     private lateinit var offline: View
     private lateinit var fullscreen: FrameLayout
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var nav: BottomNavigationView
+    private lateinit var titleView: TextView
+    private var section = JSONObject()
+    private var navFromCode = false
+    private var authDialog: Dialog? = null
 
     private val main = Handler(Looper.getMainLooper())
     private val io = Executors.newCachedThreadPool()
@@ -198,6 +209,10 @@ class MainActivity : AppCompatActivity() {
         progress = findViewById(R.id.progress)
         offline = findViewById(R.id.offline)
         fullscreen = findViewById(R.id.fullscreen)
+        toolbar = findViewById(R.id.toolbar)
+        nav = findViewById(R.id.nav)
+        titleView = findViewById(R.id.title)
+        setupBars()
 
         defaultBarColor = ContextCompat.getColor(this, R.color.bar_default)
         WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -211,6 +226,7 @@ class MainActivity : AppCompatActivity() {
         refresh.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(this, R.color.refresh_bg))
         refresh.webScrollY = { web.scrollY }
         refresh.setOnRefreshListener { reload() }
+        refresh.isEnabled = false // the refresh button in the top bar replaces pull-to-refresh (it fought scrolling on some phones)
 
         findViewById<MaterialButton>(R.id.retry).setOnClickListener { reload() }
 
@@ -267,10 +283,15 @@ class MainActivity : AppCompatActivity() {
 
         web.addJavascriptInterface(WebBridge(
             onPullable = { refresh.pageAllowsPull = it },
-            onBars = { top, bottom -> main.post { if (customView == null) applyBars(top ?: defaultBarColor, bottom ?: top ?: defaultBarColor) } },
+            onBars = { _, _ -> },
+            onSection = { json -> main.post { onSection(json) } },
+            onFocusNav = { main.post { focusNav() } },
+            onFocusTop = { main.post { focusTop() } },
+            onTab = { n -> main.post { if (n in 1..5) goTab(n - 1) } },
         ), "YidplusAppBridge")
 
-        val script = assets.open("app.js").bufferedReader().use { it.readText() }
+        val script = assets.open("compat.js").bufferedReader().use { it.readText() } + "\n" +
+            assets.open("app.js").bufferedReader().use { it.readText() }
         val docStart = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
         if (docStart) WebViewCompat.addDocumentStartJavaScript(web, script, BRIDGE_ORIGINS)
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
@@ -292,6 +313,8 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageCommitVisible(view: WebView, url: String?) {
                 if (!mainFrameFailed) { pageShown = true; offline.visibility = View.GONE }
+                // Old web engines can't run the script at document start: run it as early as they let us
+                if (!docStart && url != null && Uri.parse(url).host in APP_HOSTS) view.evaluateJavascript(script, null)
             }
 
             override fun onPageFinished(view: WebView, url: String?) {
@@ -463,9 +486,20 @@ class MainActivity : AppCompatActivity() {
             val target = "/native-login-complete?challenge=$challenge"
             val url = Uri.parse("https://yidplus.com/api/auth/google-login?return_to=" + Uri.encode(target))
             val colors = CustomTabColorSchemeParams.Builder().setToolbarColor(ContextCompat.getColor(this, R.color.brand)).build()
+            // Always name the browser: yidplus.com links open this app, so an unnamed link would come straight back here
+            val tabsPkg = try { androidx.browser.customtabs.CustomTabsClient.getPackageName(this, emptyList<String>()) } catch (e: Exception) { null }
+            val browser = tabsPkg?.takeIf { it != packageName }
+                ?: packageManager.queryIntentActivities(Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com")).addCategory(Intent.CATEGORY_BROWSABLE), 0)
+                    .map { it.activityInfo.packageName }.firstOrNull { it != packageName }
+            if (browser == null) { googleInApp(url); return }
             try {
-                CustomTabsIntent.Builder().setDefaultColorSchemeParams(colors).setShowTitle(true).build().launchUrl(this, url)
-            } catch (e: ActivityNotFoundException) { openExternal(url) }
+                val tab = CustomTabsIntent.Builder().setDefaultColorSchemeParams(colors).setShowTitle(true).build()
+                tab.intent.setPackage(browser)
+                tab.launchUrl(this, url)
+            } catch (e: Exception) {
+                try { startActivity(Intent(Intent.ACTION_VIEW, url).addCategory(Intent.CATEGORY_BROWSABLE).setPackage(browser)) }
+                catch (e2: Exception) { googleInApp(url) }
+            }
         } catch (e: Exception) { toast(getString(R.string.google_failed)) }
     }
 
@@ -614,9 +648,162 @@ class MainActivity : AppCompatActivity() {
         customCallback = null
         WindowCompat.getInsetsController(window, window.decorView).show(WindowInsetsCompat.Type.systemBars())
         if (resources.configuration.smallestScreenWidthDp < 600) requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        onSection(section.toString())
     }
 
-    private fun applyBars(top: Int, bottom: Int) {
+
+    // ---- Native top bar and bottom bar ------------------------------------------------------
+
+    private val tabIds = intArrayOf(R.id.tab_home, R.id.tab_chats, R.id.tab_shorts, R.id.tab_music, R.id.tab_me)
+    private val tabNames = arrayOf("home", "chats", "shorts", "music", "me")
+
+    private fun setupBars() {
+        toolbar.inflateMenu(R.menu.top_bar)
+        toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.action_refresh -> { reload(); true }
+                R.id.action_update -> { maybeCheckForUpdate(force = true, userAsked = true); true }
+                else -> false
+            }
+        }
+        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        findViewById<View>(R.id.brand).setOnClickListener { goTab(0) }
+        nav.setOnItemSelectedListener { item ->
+            if (!navFromCode) { val i = tabIds.indexOf(item.itemId); if (i >= 0) goTab(i, fromNav = true) }
+            true
+        }
+        nav.setOnItemReselectedListener { item -> val i = tabIds.indexOf(item.itemId); if (i >= 0) goTab(i, fromNav = true) }
+        // Keypad phones: every bottom-bar button can take focus and shows it
+        nav.post {
+            for (id in tabIds) nav.findViewById<View>(id)?.let { v -> v.isFocusable = true; v.nextFocusUpId = R.id.web }
+        }
+        // A plain colour while a page loads; the page never paints the system bars any more
+        applyBars(0, 0)
+    }
+
+    /** Opens a section. On the main page this switches screens in place; elsewhere it loads the page. */
+    private fun goTab(i: Int, fromNav: Boolean = false) {
+        if (customView != null) exitFullscreen()
+        if (offline.visibility == View.VISIBLE) offline.visibility = View.GONE
+        selectTab(i)
+        val name = tabNames[i]
+        val url = when (name) {
+            "home" -> "https://yidplus.com/?goto=home"
+            "chats" -> "https://yidplus.com/yidplus-chat.html"
+            "shorts" -> "https://yidplus.com/yidplus-shorts.html"
+            "music" -> "https://yidplus.com/yidplus-music.html"
+            else -> if (section.optBoolean("signedIn")) "https://yidplus.com/?goto=settings" else "https://yidplus.com/?signin=1"
+        }
+        val host = web.url?.let { Uri.parse(it).host }
+        if (pageShown && host in APP_HOSTS) {
+            web.evaluateJavascript("(function(){if(window.__ypGo){window.__ypGo('$name');return 1}return 0})()") { r ->
+                if (r != "1") web.loadUrl(url)
+            }
+        } else web.loadUrl(url)
+        if (fromNav) web.requestFocus()
+    }
+
+    private fun selectTab(i: Int) {
+        if (i < 0) return
+        navFromCode = true
+        try { if (nav.selectedItemId != tabIds[i]) nav.selectedItemId = tabIds[i] } finally { navFromCode = false }
+    }
+
+    private fun onSection(json: String) {
+        val s = try { JSONObject(json) } catch (e: Exception) { return }
+        section = s
+        val tab = s.optString("tab")
+        val i = tabNames.indexOf(tab)
+        if (i >= 0) selectTab(i)
+        nav.menu.findItem(R.id.tab_me)?.title = getString(if (s.optBoolean("signedIn")) R.string.tab_me else R.string.tab_sign_in)
+        val shorts = tab == "shorts" && !s.optBoolean("inner")
+        toolbar.visibility = if (shorts || customView != null) View.GONE else View.VISIBLE
+        titleView.text = s.optString("title").ifBlank { getString(R.string.app_name) }
+        val inner = s.optBoolean("inner")
+        if (inner) {
+            toolbar.setNavigationIcon(R.drawable.ic_back)
+            toolbar.navigationContentDescription = getString(R.string.back)
+            findViewById<ImageView>(R.id.brand_logo).visibility = View.GONE
+        } else {
+            toolbar.navigationIcon = null
+            findViewById<ImageView>(R.id.brand_logo).visibility = View.VISIBLE
+        }
+        applyBars(0, 0)
+    }
+
+    private fun focusNav() {
+        val id = if (nav.selectedItemId != 0) nav.selectedItemId else tabIds[0]
+        (nav.findViewById<View>(id) ?: nav).requestFocus()
+    }
+
+    private fun focusTop() {
+        if (toolbar.visibility != View.VISIBLE) return
+        // the refresh button (or the back arrow on inner pages)
+        val target = (0 until toolbar.childCount).map { toolbar.getChildAt(it) }.lastOrNull { it.isFocusable || it is ViewGroup }
+        (target ?: toolbar).requestFocus()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // From the top bar, D-pad down goes back into the page; from the page, the digits 1-5 are handled by the page script.
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+            val f = currentFocus
+            if (f != null && f !== web && isInside(f, toolbar)) { web.requestFocus(); return true }
+        }
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode in KeyEvent.KEYCODE_1..KeyEvent.KEYCODE_5) {
+            val f = currentFocus
+            if (f == null || isInside(f, nav) || isInside(f, toolbar)) { goTab(event.keyCode - KeyEvent.KEYCODE_1); return true }
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
+    private fun isInside(v: View, parent: View): Boolean {
+        var p: View? = v
+        while (p != null) { if (p === parent) return true; p = p.parent as? View }
+        return false
+    }
+
+    // ---- Google sign-in on phones with no browser (keypad phones, phones without Google) ----
+
+    private fun googleInApp(url: Uri) {
+        authDialog?.dismiss()
+        val d = Dialog(this, android.R.style.Theme_DeviceDefault_NoActionBar)
+        val w = WebView(this)
+        w.settings.javaScriptEnabled = true
+        w.settings.domStorageEnabled = true
+        // Google turns away embedded web views by their user agent; present as the phone's browser
+        w.settings.userAgentString = web.settings.userAgentString.replace("; wv)", ")").replace(Regex("Version/[0-9.]+ "), "").replace(Regex(" YidPlusApp/\\S+"), "")
+        CookieManager.getInstance().setAcceptThirdPartyCookies(w, true)
+        w.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                val u = request.url
+                if (u.scheme == "yidplus" && u.host == "auth") { d.dismiss(); finishGoogle(u); return true }
+                if (u.scheme == "intent") {
+                    try { val i = Intent.parseUri(u.toString(), Intent.URI_INTENT_SCHEME); val du = i.data
+                        if (du != null && du.scheme == "yidplus" && du.host == "auth") { d.dismiss(); finishGoogle(du); return true } } catch (e: Exception) {}
+                    return true
+                }
+                return !(u.scheme == "https" || u.scheme == "http")
+            }
+        }
+        d.setContentView(w)
+        d.setOnDismissListener { w.destroy(); if (authDialog === d) authDialog = null }
+        d.setOnKeyListener { _, code, ev ->
+            if (code == KeyEvent.KEYCODE_BACK && ev.action == KeyEvent.ACTION_UP) { if (w.canGoBack()) w.goBack() else d.dismiss(); true } else false
+        }
+        authDialog = d
+        d.show()
+        toast(getString(R.string.google_in_app))
+        w.loadUrl(url.toString())
+    }
+
+    private fun applyBars(@Suppress("UNUSED_PARAMETER") pageTop: Int, @Suppress("UNUSED_PARAMETER") pageBottom: Int) {
+        val fullscreenVideo = customView != null
+        val top = when {
+            fullscreenVideo -> Color.BLACK
+            ::toolbar.isInitialized && toolbar.visibility == View.VISIBLE -> ContextCompat.getColor(this, R.color.top_bar)
+            else -> Color.BLACK
+        }
+        val bottom = if (fullscreenVideo) Color.BLACK else ContextCompat.getColor(this, R.color.bottom_bar)
         lastTop = top; lastBottom = bottom
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

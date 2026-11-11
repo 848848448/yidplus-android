@@ -30,4 +30,18 @@
         <item name="backgroundTint">@color/brand</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
+    <style name="ThemeOverlay.YidPlus.TopBar" parent="ThemeOverlay.Material3.Dark.ActionBar">
+        <item name="colorControlNormal">#FFFFFF</item>
+        <item name="actionBarItemBackground">@drawable/toolbar_btn_bg</item>
+        <item name="selectableItemBackgroundBorderless">@drawable/toolbar_btn_bg</item>
+    </style>
+    <style name="YidPlus.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">#2ED4AF37</item>
+        <item name="android:width">52dp</item>
+        <item name="android:height">26dp</item>
+    </style>
+    <style name="YidPlus.NavText" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">@dimen/nav_label</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

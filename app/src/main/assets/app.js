@@ -46,9 +46,8 @@
       if (k !== lastBars) { lastBars = k; B.setBars(t, b); }
     } catch (_) {}
   }
-  document.addEventListener('DOMContentLoaded', bars);
-  window.addEventListener('load', bars);
-  setInterval(bars, 700);
+  // native bars own the colours now (kept for old app builds)
+
 
   // ---- Native share sheet (WebView has no navigator.share) ----
   if (N) {
@@ -112,6 +111,190 @@
     var revoke = URL.revokeObjectURL.bind(URL);
     URL.revokeObjectURL = function (u) { setTimeout(function () { revoke(u); }, 60000); };
   } catch (_) {}
+
+
+  // ---- App look: native top + bottom bars replace the site's own bars inside the app ----
+  var css = '' +
+    '.bottom-nav{display:none!important}' +
+    '.yp-app-hide{display:none!important}' +
+    '.scroll-area{padding-bottom:12px!important}' +
+    'html.yp-keys :focus,html.yp-keys .yp-kfocus{outline:3px solid #D4AF37!important;outline-offset:-3px!important;border-radius:6px}' +
+    '#yp-android-chip,.pwa-install-banner,.pwa-ib{display:none!important}';
+  function addCss() {
+    if (document.getElementById('yp-app-css')) return;
+    var host = document.head || document.documentElement; if (!host) return;
+    var s = document.createElement('style'); s.id = 'yp-app-css'; s.textContent = css; host.appendChild(s);
+  }
+  addCss(); document.addEventListener('DOMContentLoaded', addCss);
+
+  var path = function () { return location.pathname.replace(/\.html$/, ''); };
+  function visible(el) { if (!el) return false; var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden'; }
+  function activeScreen() {
+    var list = document.querySelectorAll('.screen.active,.chat-page:not(.hidden)');
+    for (var i = list.length - 1; i >= 0; i--) if (visible(list[i])) return list[i];
+    return null;
+  }
+  var TITLES = { home: 'YID PLUS', explore: 'Channels', settings: 'Settings', profile: 'Profile', channel: 'Channel', auth: 'Sign in',
+    chats: 'Chats', chatroom: 'Chat', chatinfo: 'Info', 'topics-list': 'Topics', music: 'Music', shorts: 'Shorts' };
+  var ROOTS = { page: 1, home: 1, explore: 1, settings: 1, auth: 1, chats: 1, music: 1, shorts: 1 };
+  function section() {
+    var p = path(), scr = activeScreen(), id = scr && scr.id ? scr.id.replace(/^screen-/, '') : '';
+    var tab;
+    if (/^\/(yidplus-)?chat/.test(p)) tab = 'chats';
+    else if (/^\/(yidplus-)?music/.test(p)) tab = 'music';
+    else if (/^\/(yidplus-)?shorts/.test(p)) { tab = 'shorts'; id = 'shorts'; }
+    else if (p === '/' || p === '/index') tab = (id === 'settings' || id === 'profile' || id === 'auth') ? 'me' : 'home';
+    else tab = '';
+    if (!id) id = tab || 'page';
+    var title = TITLES[id] || '';
+    if (scr && !ROOTS[id]) {
+      var h = scr.querySelector('.topbar-title,.topbar-name,.ch-name,.chat-title,h1,h2');
+      if (h && h.textContent.trim()) title = h.textContent.trim().slice(0, 40);
+    }
+    if (!title) title = (document.title || 'YID PLUS').replace(/\s*[|·–-]\s*YID ?PLUS.*$/i, '').slice(0, 40);
+    var signedIn = !!(window.STATE && STATE.user && STATE.user.id);
+    return { tab: tab, id: id, title: title, inner: !ROOTS[id], signedIn: signedIn };
+  }
+  // The site's title-only header doubles the native top bar: hide just those
+  function hideDupHeaders() {
+    var bars = document.querySelectorAll('.topbar');
+    for (var i = 0; i < bars.length; i++) {
+      var b = bars[i]; if (b.__ypChecked) continue;
+      var kids = b.children, onlyTitle = kids.length > 0;
+      for (var k = 0; k < kids.length; k++) if (!/topbar-logo/.test(kids[k].className) || kids[k].querySelector('button,a,input')) onlyTitle = false;
+      if (onlyTitle) b.classList.add('yp-app-hide');
+      b.__ypChecked = true;
+    }
+  }
+  var lastSec = '';
+  function report() {
+    try {
+      if (!B || !B.setSection || !document.body) return;
+      hideDupHeaders();
+      var s = section(), k = JSON.stringify(s);
+      if (k !== lastSec) { lastSec = k; B.setSection(k); }
+    } catch (_) {}
+  }
+  document.addEventListener('DOMContentLoaded', report);
+  window.addEventListener('load', report);
+  window.addEventListener('popstate', function () { setTimeout(report, 50); });
+  document.addEventListener('click', function () { setTimeout(report, 80); setTimeout(report, 450); }, true);
+  setInterval(report, 600);
+
+  // The native bottom bar calls this
+  window.__ypGo = function (tab) {
+    var onIndex = path() === '/' || path() === '/index';
+    var signedIn = !!(window.STATE && STATE.user && STATE.user.id);
+    function nav(screen, url) {
+      if (onIndex && typeof window.navTo === 'function' && document.getElementById('screen-' + screen)) { window.navTo(screen); setTimeout(report, 60); }
+      else location.href = url;
+    }
+    if (tab === 'home') nav('home', '/?goto=home');
+    else if (tab === 'chats') location.href = '/yidplus-chat.html';
+    else if (tab === 'shorts') location.href = '/yidplus-shorts.html';
+    else if (tab === 'music') location.href = '/yidplus-music.html';
+    else if (tab === 'me') {
+      if (signedIn) nav('settings', '/?goto=settings');
+      else if (typeof window._guestGoSignIn === 'function') window._guestGoSignIn();
+      else location.href = '/?signin=1';
+    }
+  };
+
+  // ---- Keypad phones: D-pad scrolls and moves between buttons, OK clicks, 1-5 pick a tab ----
+  var FOCUSABLE = 'a[href],button,input,select,textarea,[onclick],[tabindex],[role="button"],[contenteditable="true"],summary,label[for]';
+  function editing(el) { return el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) && !/^(button|checkbox|radio|submit|range)$/i.test(el.type || ''); }
+  function scrollerOf(el) {
+    for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      var o = getComputedStyle(el).overflowY;
+      if ((o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight + 2) return el;
+    }
+    return null;
+  }
+  function mainScroller() {
+    var scr = activeScreen() || document.body, best = null, area = 0, list = scr.querySelectorAll('*');
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i], o = getComputedStyle(el).overflowY;
+      if (!(o === 'auto' || o === 'scroll') || el.scrollHeight <= el.clientHeight + 2) continue;
+      var r = el.getBoundingClientRect(), a = r.width * r.height;
+      if (a > area && r.width > innerWidth / 2) { area = a; best = el; }
+    }
+    if (best) return best;
+    var se = document.scrollingElement; return (se && se.scrollHeight > se.clientHeight + 2) ? se : null;
+  }
+  function inView(r) { return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; }
+  function candidates() {
+    var all = document.querySelectorAll(FOCUSABLE), out = [];
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i]; if (el.disabled || el.getAttribute('tabindex') === '-1' && !el.hasAttribute('onclick')) continue;
+      if (el.closest('.yp-app-hide,.bottom-nav')) continue;
+      var r = el.getBoundingClientRect(); if (r.width < 4 || r.height < 4 || !inView(r)) continue;
+      // skip things covered by something else (closed menus, things behind dialogs)
+      var cx = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2));
+      var hit = document.elementFromPoint(cx, cy); if (!hit || !(hit === el || el.contains(hit) || hit.contains(el))) continue;
+      // the innermost clickable wins
+      if (el.querySelector(FOCUSABLE) && el.querySelector(FOCUSABLE) !== el) { var inner = el.querySelectorAll(FOCUSABLE), big = false; for (var j = 0; j < inner.length; j++) { var ir = inner[j].getBoundingClientRect(); if (ir.width * ir.height > r.width * r.height * 0.6) big = true; } if (big) continue; }
+      out.push({ el: el, r: r });
+    }
+    return out;
+  }
+  function pick(dir, from) {
+    var fr = from ? from.getBoundingClientRect() : { left: innerWidth / 2, right: innerWidth / 2, top: dir === 'down' ? -1 : innerHeight + 1, bottom: dir === 'down' ? -1 : innerHeight + 1, width: 0, height: 0 };
+    var fcx = (fr.left + fr.right) / 2, fcy = (fr.top + fr.bottom) / 2, best = null, bs = 1e9, list = candidates();
+    for (var i = 0; i < list.length; i++) {
+      var c = list[i], r = c.r; if (c.el === from || (from && (from.contains(c.el)))) continue;
+      var cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2, main, cross;
+      if (dir === 'down') { if (r.top < fr.bottom - 2 && cy <= fcy + 2) continue; main = Math.max(0, r.top - fr.bottom); cross = Math.abs(cx - fcx); }
+      else if (dir === 'up') { if (r.bottom > fr.top + 2 && cy >= fcy - 2) continue; main = Math.max(0, fr.top - r.bottom); cross = Math.abs(cx - fcx); }
+      else if (dir === 'right') { if (cx <= fcx + 2 || r.bottom < fr.top || r.top > fr.bottom) continue; main = Math.max(0, r.left - fr.right); cross = Math.abs(cy - fcy); }
+      else { if (cx >= fcx - 2 || r.bottom < fr.top || r.top > fr.bottom) continue; main = Math.max(0, fr.left - r.right); cross = Math.abs(cy - fcy); }
+      var score = main + cross * (dir === 'up' || dir === 'down' ? 0.3 : 2);
+      if (score < bs) { bs = score; best = c.el; }
+    }
+    return best;
+  }
+  var kfocus = null;
+  function setFocus(el) {
+    if (kfocus && kfocus !== el) kfocus.classList.remove('yp-kfocus');
+    kfocus = el;
+    if (!el.matches('a[href],button,input,select,textarea,summary,[contenteditable="true"]') && !el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+    try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+    el.classList.add('yp-kfocus');
+    var r = el.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > innerHeight) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { el.scrollIntoView(false); } }
+  }
+  function current() { var a = document.activeElement; if (a && a !== document.body && a !== document.documentElement && visible(a)) return a; return null; }
+  document.addEventListener('touchstart', function () { document.documentElement.classList.remove('yp-keys'); if (kfocus) kfocus.classList.remove('yp-kfocus'); }, { capture: true, passive: true });
+  document.addEventListener('keydown', function (e) {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    var k = e.key, cur = current(), onShorts = /^\/(yidplus-)?shorts/.test(path());
+    if (/^[1-5]$/.test(k) && !editing(cur)) {
+      if (B && B.tab) { B.tab(Number(k)); e.preventDefault(); }
+      return;
+    }
+    if (!/^Arrow(Up|Down|Left|Right)$/.test(k)) {
+      if ((k === 'Enter' || k === ' ') && cur && !editing(cur) && !cur.matches('a[href],button,input,select,textarea,summary') && cur.hasAttribute('onclick')) { e.preventDefault(); cur.click(); }
+      return;
+    }
+    if (editing(cur) && (k === 'ArrowLeft' || k === 'ArrowRight' || cur.tagName === 'TEXTAREA' || cur.isContentEditable || cur.tagName === 'SELECT')) return;
+    if (onShorts && !document.querySelector('.cmt-drawer.open,.cmt-drawer.show,[role="dialog"][open]')) return; // Shorts uses up/down for the next video
+    document.documentElement.classList.add('yp-keys');
+    var dir = k.slice(5).toLowerCase(), next = pick(dir, cur);
+    if (dir === 'up' || dir === 'down') {
+      var sc = (cur && scrollerOf(cur)) || mainScroller(), step = sc ? Math.max(60, Math.round((sc === document.scrollingElement ? innerHeight : sc.clientHeight) * 0.6)) : 0;
+      if (next) {
+        var r = next.getBoundingClientRect(), gap = dir === 'down' ? r.top - (cur ? cur.getBoundingClientRect().bottom : 0) : (cur ? cur.getBoundingClientRect().top : innerHeight) - r.bottom;
+        if (gap <= step || !sc) { e.preventDefault(); setFocus(next); return; }
+      }
+      if (sc) {
+        var before = sc.scrollTop; sc.scrollTop += dir === 'down' ? step : -step;
+        if (sc.scrollTop !== before) { e.preventDefault(); if (kfocus) kfocus.classList.remove('yp-kfocus'); if (cur) cur.blur(); return; }
+      }
+      if (dir === 'down' && B && B.focusNav) { e.preventDefault(); if (cur) cur.blur(); B.focusNav(); return; }
+      if (dir === 'up' && B && B.focusTop) { e.preventDefault(); if (cur) cur.blur(); B.focusTop(); }
+      return;
+    }
+    if (next) { e.preventDefault(); setFocus(next); }
+  }, true);
 
   // ---- Small app API the site can use ----
   window.YidPlusApp = {
