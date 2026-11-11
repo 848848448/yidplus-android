@@ -48,6 +48,8 @@ NOW=$(ver); log "version after tapping the notification: $NOW"
 timeout 60 adb shell am start -W -n $PKG/.MainActivity >/dev/null; sleep 12; shot 06-new-version-running
 adb logcat -d > "$OUT/logcat.txt"
 CR=0; grep -A3 "FATAL EXCEPTION" "$OUT/logcat.txt" | grep -q "Process: $PKG" && CR=1
+[ "$CR" = 1 ] && grep -A 40 "FATAL EXCEPTION" "$OUT/logcat.txt" | head -60 | tee -a "$OUT/notify.log"
+grep -E "YidUpdate|Updater|PackageInstaller" "$OUT/logcat.txt" | tail -30 >> "$OUT/notify.log"
 rm -f "$OUT/logcat.txt"
 if [ "$NOTIF" = 1 ] && [ "$NOW" = "$WANT" ] && [ "$CR" = 0 ]; then echo "PASS notification shown, tapped, updated to $NOW" > "$OUT/RESULT"; else echo "FAIL notif=$NOTIF now=$NOW crash=$CR" > "$OUT/RESULT"; fi
 cat "$OUT/RESULT"

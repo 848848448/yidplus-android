@@ -21,7 +21,8 @@ for n in re.findall(r'<node [^>]*>', x):
             a, c, d, e = map(int, b.groups()); print((a + d) // 2, (c + e) // 2); break
 EOF
 }
-tap() { local xy; for i in $(seq 1 ${2:-20}); do xy=$(find_xy "$1"); if [ -n "$xy" ]; then adb shell input tap $xy; log "tapped '$1' at $xy"; return 0; fi; sleep 2; done; log "did not find '$1'"; return 1; }
+anr() { local w; w=$(find_xy "Wait"); [ -n "$w" ] && { adb shell input tap $w; log "dismissed an emulator 'isn't responding' box"; sleep 2; }; }
+tap() { local xy; for i in $(seq 1 ${2:-20}); do anr; xy=$(find_xy "$1"); if [ -n "$xy" ]; then adb shell input tap $xy; log "tapped '$1' at $xy"; return 0; fi; sleep 2; done; log "did not find '$1'"; return 1; }
 
 adb wait-for-device
 adb shell input keyevent 82
@@ -45,7 +46,7 @@ else
 adb shell am start -W -n $PKG/.MainActivity >/dev/null
 for i in $(seq 1 20); do xy=$(find_xy "Update available"); [ -n "$xy" ] && break; sleep 2; done
 sleep 1; shot 01-update-available
-tap "Update" 5 || true
+tap "Update" 15 || true
 fi
 sleep 2; shot 02-allow-updates
 tap "Open settings" 5 && { sleep 4; shot 03-android-settings; }
