@@ -1,0 +1,53 @@
+name: Test in-app update
+
+# Installs an older released version on an emulator, opens it, and goes through
+# "Update available" -> download -> Android's install prompt -> new version running.
+on:
+  workflow_dispatch:
+    inputs:
+      from_version:
+        description: 'Older released version to start from, e.g. 1.0.0'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  update-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get the old APK and the latest version info
+        run: |
+          mkdir -p dist
+          curl -fsSL -o dist/old.apk "https://github.com/${{ github.repository }}/releases/download/v${{ github.event.inputs.from_version }}/YIDPLUS.apk"
+          curl -fsSL -o dist/latest.json "https://github.com/${{ github.repository }}/releases/latest/download/version.json"
+          cat dist/latest.json
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Emulator update test
+        timeout-minutes: 25
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash qa/update.sh dist/old.apk "$(jq -r .versionName dist/latest.json)"
+      - name: Publish evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          test -d qa/out || exit 0
+          cd qa/out && git init -q && git checkout -q -b qa-update-evidence && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "update test ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-update-evidence
+      - name: Result
+        run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT

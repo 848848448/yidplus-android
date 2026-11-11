@@ -93,6 +93,8 @@ class MainActivity : AppCompatActivity() {
     @Volatile private var pageShown = false
     private var mainFrameFailed = false
     private var defaultBarColor = Color.WHITE
+    private var lastTop = Color.WHITE
+    private var lastBottom = Color.WHITE
 
     // Fullscreen video
     private var customView: View? = null
@@ -179,6 +181,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         started = SystemClock.uptimeMillis()
         splash.setKeepOnScreenCondition { !pageShown && SystemClock.uptimeMillis() - started < 2500 }
+        // The splash library re-applies the theme's bar colours when it leaves; put the page's back.
+        splash.setOnExitAnimationListener { provider ->
+            provider.remove()
+            main.post { applyBars(lastTop, lastBottom) }
+            main.postDelayed({ applyBars(lastTop, lastBottom) }, 300)
+        }
 
         if (resources.configuration.smallestScreenWidthDp < 600) requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -190,6 +198,7 @@ class MainActivity : AppCompatActivity() {
         fullscreen = findViewById(R.id.fullscreen)
 
         defaultBarColor = ContextCompat.getColor(this, R.color.bar_default)
+        WindowCompat.setDecorFitsSystemWindows(window, true)
         applyBars(defaultBarColor, defaultBarColor)
 
         prefsNative().let { verifier = it.getString("authVerifier", null); authStarted = it.getLong("authStarted", 0L) }
@@ -604,6 +613,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun applyBars(top: Int, bottom: Int) {
+        lastTop = top; lastBottom = bottom
         window.statusBarColor = top
         window.navigationBarColor = bottom
         val c = WindowCompat.getInsetsController(window, window.decorView)
