@@ -246,7 +246,7 @@ class ShortFeed(private val src: Boolean) {
             } else {
                 if (items.isEmpty() && stage == 0) {
                     val cached = withContext(Dispatchers.IO) { Disk.read("shorts-first") }
-                    if (cached != null) { ShortTopics.learn(cached); items.addAll(Clip.srcPage(cached).filter(::fresh)) }
+                    if (cached != null) { SoShortTopics.learn(cached); items.addAll(Clip.srcPage(cached).filter(::fresh)) }
                 }
                 val path = when (stage) {
                     0 -> "/api/src-shorts?n=8"
@@ -256,7 +256,7 @@ class ShortFeed(private val src: Boolean) {
                 if (path == null) { end = true; return }
                 val j = Api.get(path)
                 if (j.optBoolean("off")) { Feeds.srcOff = true; end = true; items.clear(); return }
-                ShortTopics.learn(j)
+                SoShortTopics.learn(j)
                 Feeds.srcOff = false
                 if (stage == 0) withContext(Dispatchers.IO) { Disk.write("shorts-first", j) }
                 cursor = j.strOrNull("next")
@@ -308,9 +308,9 @@ fun ShortsScreen() {
         else -> feed.items
     }
     val who = Feeds.who
-    val topic = ShortTopics.topic
+    val topic = SoShortTopics.topic
     val items: List<Clip> = if (who == null && (topic == "All" || tab != ShortsTab.ForYou)) base
-        else base.filter { (who == null || it.creatorId == who) && (tab != ShortsTab.ForYou || ShortTopics.matches(it)) }
+        else base.filter { (who == null || it.creatorId == who) && (tab != ShortsTab.ForYou || SoShortTopics.matches(it)) }
     val smallScreen = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 560
     LaunchedEffect(tab, Net.online) { if (feed.items.isEmpty() || feed.offline) feed.loadMore() }
     LaunchedEffect(Nav.shortsDeepLink) {
@@ -418,9 +418,9 @@ fun ShortsScreen() {
             Key.Three -> { commentsFor = cur; true }
             Key.Four -> { cur?.let { toggleSave(it) }; true }
             Key.Six -> { cur?.let { share(c, it.shareUrl) }; true }
-            Key.Seven -> { Nav.open(UploadShortPage()); true }
-            Key.Eight -> { cur?.let { Nav.open(CreatorPage(it.creatorId, it.creator, it.avatar, it.verified, it.fromSrc)) }; true }
-            Key.Nine -> { Nav.open(SiteSearchPage(4)); true }
+            Key.Seven -> { Nav.open(SoUploadShortPage()); true }
+            Key.Eight -> { cur?.let { Nav.open(SoCreatorPage(it.creatorId, it.creator, it.avatar, it.verified, it.fromSrc)) }; true }
+            Key.Nine -> { Nav.open(SoSearchPage(4)); true }
             else -> if (e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_STAR || e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_POUND) {
                 Feeds.tab = tabs[(tabs.indexOf(tab) + 1) % tabs.size]; true
             } else false
@@ -441,12 +441,12 @@ fun ShortsScreen() {
                     onTap = { togglePause() }, onLike = { like(s) }, onComments = { commentsFor = s }, onSave = { toggleSave(s) },
                     speed = speed, onSpeed = { speed = it; player.setPlaybackParameters(PlaybackParameters(it)) },
                     onHide = { Feeds.hidden.add(s.creatorId); Feeds.persist(c); Feeds.forYou.items.removeAll { it.creatorId == s.creatorId }; toast(c, "You won't see ${s.creator} again") },
-                    onCreator = { Nav.open(CreatorPage(s.creatorId, s.creator, s.avatar, s.verified, s.fromSrc)) },
+                    onCreator = { Nav.open(SoCreatorPage(s.creatorId, s.creator, s.avatar, s.verified, s.fromSrc)) },
                     onNotInterested = { Feeds.markSeen(s.video); Feeds.forYou.items.removeAll { it.key == s.key }; toast(c, "Got it. You'll see fewer like this") },
-                    onDelete = if (!s.fromSrc && (Session.me?.id == s.creatorId || SoUser.isAdmin)) ({ deleteUpload(c, s) }) else null)
+                    onDelete = if (!s.fromSrc && (Session.me?.id == s.creatorId || SoUser.isAdmin)) ({ soDeleteUpload(c, s) }) else null)
             }
         }
-        ShortsTopBar(tabs, tab, who, topic, smallScreen, Modifier.align(Alignment.TopCenter))
+        SoShortsTopBar(tabs, tab, who, topic, smallScreen, Modifier.align(Alignment.TopCenter))
         AnimatedVisibility(showHint, Modifier.align(Alignment.Center), enter = fadeIn(), exit = fadeOut()) {
             Column(Modifier.padding(24.dp).background(Color.Black.copy(alpha = .85f), RoundedCornerShape(16.dp)).padding(16.dp)) {
                 Text("Keypad keys", color = Gold, fontWeight = FontWeight.Bold)
@@ -456,7 +456,7 @@ fun ShortsScreen() {
             }
         }
     }
-    commentsFor?.let { s -> CommentsSheet(s, onDismiss = { commentsFor = null; scope.launch { delay(100); runCatching { focus.requestFocus() } } },
+    commentsFor?.let { s -> SoShortCommentsSheet(s, onDismiss = { commentsFor = null; scope.launch { delay(100); runCatching { focus.requestFocus() } } },
         onCount = { n -> val u = s.copy(comments = n); if (s.fromSrc) Feeds.forYou.update(u) else Feeds.uploads.update(u) }) }
 }
 
