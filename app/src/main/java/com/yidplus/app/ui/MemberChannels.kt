@@ -71,6 +71,32 @@ data class SoSiteChannel(val ownerId: String, val name: String, val photo: Strin
     }
 }
 
+/** One member channel in a list: photo, name + verified, last post time, followers · bio (like the site's Channels list). */
+@Composable
+fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("sc:" + ch.ownerId)
+        .then(if (first) Modifier.firstFocus() else Modifier)
+        .tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "sc:" + ch.ownerId; Nav.open(SoUserChannelPage(ch.ownerId, ch.name)) }
+        .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        SoThumb(ch.photo, ch.name, 50.dp)
+        Column(Modifier.weight(1f).padding(start = 14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Name (left-aligned even in Yiddish) + verified mark together; the time keeps its place at the end.
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    Text(ch.name, Modifier.weight(1f, fill = false), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
+                        color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (ch.verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(17.dp))
+                }
+                if (ch.lastPostAt != null) Text(ago(ch.lastPostAt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
+            }
+            val bio = ch.bio.replace('\n', ' ').trim()
+            Text((if (ch.followers == 1) "1 follower" else "${soNum(ch.followers)} followers") + if (bio.isNotEmpty()) " · $bio" else "",
+                Modifier.padding(top = 3.dp), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
+                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
 /** The members' channels directory: most followed first, or the most recently active. */
 @Composable
 fun SoSiteChannelsList(query: String, sort: Int) {
@@ -92,27 +118,7 @@ fun SoSiteChannelsList(query: String, sort: Int) {
         shown.isEmpty() -> SoEmpty(Icons.Filled.Search, if (q.isNotEmpty()) "No channels for \u201c$q\u201d" else "No channels yet")
         else -> LazyColumn(Modifier.fillMaxSize()) {
             items(shown, key = { it.ownerId }) { ch ->
-                Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("sc:" + ch.ownerId)
-                    .then(if (ch == shown.first()) Modifier.firstFocus() else Modifier)
-                    .tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "sc:" + ch.ownerId; Nav.open(SoUserChannelPage(ch.ownerId, ch.name)) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    SoThumb(ch.photo, ch.name, 50.dp)
-                    Column(Modifier.weight(1f).padding(start = 14.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            // Name (left-aligned even in Yiddish) + verified mark together; the time keeps its place at the end.
-                            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                                Text(ch.name, Modifier.weight(1f, fill = false), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
-                                    color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                if (ch.verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(17.dp))
-                            }
-                            if (ch.lastPostAt != null) Text(ago(ch.lastPostAt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
-                        }
-                        val bio = ch.bio.replace('\n', ' ').trim()
-                        Text((if (ch.followers == 1) "1 follower" else "${soNum(ch.followers)} followers") + if (bio.isNotEmpty()) " · $bio" else "",
-                            Modifier.padding(top = 3.dp), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
+                SoSiteChannelRow(ch, ch == shown.first())
                 SoDivider(80.dp)
             }
         }

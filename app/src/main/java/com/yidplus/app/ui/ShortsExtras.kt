@@ -114,6 +114,27 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
         }
         val clips = if (fromSrc) Feeds.forYou.items.filter { it.creatorId == creatorId } else own
         val following = creatorId in Feeds.follows
+        // A member who uploads: Follow them on the site, exactly like the site's profile (home.js followUser / unfollowUser).
+        val scope = rememberCoroutineScope()
+        val me = Session.me
+        var mFollow by remember { mutableStateOf<Boolean?>(null) }
+        var mPending by remember { mutableStateOf(false) }
+        var mPrivate by remember { mutableStateOf(false) }
+        LaunchedEffect(creatorId, me?.id) {
+            if (!fromSrc && me != null && me.id != creatorId) runCatching { Api.get("/api/follows?user_id=" + soEnc(creatorId)) }.onSuccess { j ->
+                mFollow = j.optBoolean("is_following"); mPending = j.optBoolean("has_pending_request"); mPrivate = j.optBoolean("is_private") }
+        }
+        fun memberFollow() {
+            if (me == null) { toast(c, "Sign in to follow"); Nav.go(Tab.Profile); return }
+            val was = mFollow == true || mPending
+            scope.launch {
+                try {
+                    if (was) { Api.delete("/api/follows?user_id=" + soEnc(creatorId)); mFollow = false; mPending = false; toast(c, "Unfollowed") }
+                    else { val r = Api.post("/api/follows", JSONObject().put("user_id", creatorId))
+                        if (r.optBoolean("requested")) { mPending = true; toast(c, "Follow request sent") } else { mFollow = true; toast(c, "Following!") } }
+                } catch (e: Exception) { toast(c, Api.friendly(e)) }
+            }
+        }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             TopBar(name.ifBlank { "Creator" }, onBack = { Nav.back() })
             Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -129,7 +150,11 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                     if (following) Feeds.follows.remove(creatorId) else Feeds.follows.add(creatorId); Feeds.persist(c)
                     toast(c, if (following) "Unfollowed $name" else "Following $name")
                 }, Modifier.firstFocus())
-                else SoPill("Channel", true, { Nav.open(SoUserChannelPage(creatorId, name)) }, Modifier.firstFocus())
+                else Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (me?.id != creatorId) SoPill(when { mFollow == true -> "Following ✓"; mPending -> "Requested"; mPrivate -> "Request"; else -> "Follow" },
+                        mFollow != true && !mPending, { memberFollow() }, Modifier.firstFocus())
+                    SoPill("Channel", false, { Nav.open(SoUserChannelPage(creatorId, name)) })
+                }
             }
             when {
                 loading -> SoSkeleton(rows = 3)

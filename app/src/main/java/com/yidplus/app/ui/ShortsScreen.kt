@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -565,9 +566,11 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 
 @Composable
 private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, onClick: () -> Unit) {
-    Column(Modifier.tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    // A fixed-width cell, so "Comment" / "1.2K" never runs off the rail and every icon sits on one line.
+    Column(Modifier.widthIn(min = 58.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 26.dp else 30.dp))
-        Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+        Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall.copy(shadow = androidx.compose.ui.graphics.Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)),
+            maxLines = 1, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
 }
 
