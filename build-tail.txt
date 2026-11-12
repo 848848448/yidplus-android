@@ -1,0 +1,80 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.9/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs
+> Task :app:buildKotlinToolingMetadata
+
+> Task :app:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:extractReleaseNativeSymbolTables
+> Task :app:generateReleaseBuildConfig
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:generateReleaseResValues
+> Task :app:checkReleaseAarMetadata
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:parseReleaseLocalResources
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:javaPreCompileRelease
+> Task :app:mergeReleaseArtProfile
+> Task :app:extractProguardFiles
+> Task :app:mergeReleaseStartupProfile
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:processReleaseManifestForPackage
+> Task :app:compressReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:processApplicationManifestReleaseForBundle
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:validateSigningRelease
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:processReleaseResources
+> Task :app:bundleReleaseResources
+> Task :app:compileReleaseKotlin
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/AdminScreens.kt:122:45 'val Icons.Filled.Send: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Send.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/AdminSections.kt:233:45 'val Icons.Filled.VolumeOff: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeOff.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/AdminSections.kt:252:49 'val Icons.Filled.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Logout.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/ChatData.kt:493:17 Condition is always 'true'.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/ChatPages.kt:89:49 'val Icons.Filled.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Chat.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/ChatUi.kt:309:54 'val Icons.Filled.OpenInNew: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.OpenInNew.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/HomeScreens.kt:86:38 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/HomeScreens.kt:249:150 'val Icons.Filled.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Logout.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/MemberChannels.kt:256:87 'val Icons.Filled.Article: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Article.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/ProfileScreen.kt:168:53 'val Icons.Filled.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Chat.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/SettingsExtras.kt:110:33 'val Icons.Filled.HelpOutline: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.HelpOutline.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/SettingsScreens.kt:453:41 'val Icons.Filled.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Chat.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/SiteHeader.kt:105:167 'val Icons.Filled.Login: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Login.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/SiteHeader.kt:183:46 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/SiteHeader.kt:228:180 'val Icons.Filled.Article: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Article.
+w: file:///home/runner/work/yidplus-android/yidplus-android/app/src/main/java/com/yidplus/app/ui/TgExtras.kt:206:88 'val Icons.Filled.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Logout.
+
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:mergeReleaseGeneratedProguardFiles
+> Task :app:processReleaseJavaRes
+> Task :app:expandReleaseArtProfileWildcards
+> Task :app:mergeReleaseJavaResource
+> Task :app:minifyReleaseWithR8
+> Task :app:compileReleaseArtProfile
+> Task :app:shrinkReleaseRes
+> Task :app:optimizeReleaseResources
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1794464345485.json
+
+BUILD SUCCESSFUL in 3m 58s
+47 actionable tasks: 47 executed
