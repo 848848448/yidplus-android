@@ -362,7 +362,8 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
         if (t.length > max) { toast(c, "Comment too long ($max max)"); return }
         text = ""
         // the comment shows at once, "posting…", like the site; it is replaced by the server's copy
-        val tmp = Comment("tmp" + System.currentTimeMillis(), Session.me?.id ?: "", Session.me?.nickname ?: "you", Session.me?.photo, t, null, true)
+        val nowIso = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date())
+        val tmp = Comment("tmp" + System.currentTimeMillis(), Session.me?.id ?: "", Session.me?.nickname ?: "you", Session.me?.photo, t, nowIso, true)
         pending.add(tmp.id); list.add(0, tmp)
         scope.launch { runCatching { cState.animateScrollToItem(0) } }
         scope.launch {
@@ -412,9 +413,23 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                     Text("Sign in to comment", Modifier.weight(1f)); PrimaryButton("Sign in", { onDismiss(); Nav.go(Tab.Profile) })
                 }
             } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(text, { if (it.length <= (if (s.fromSrc) 300 else 200)) text = it }, Modifier.weight(1f), placeholder = { Text("Add a comment") }, maxLines = 3,
-                    textStyle = TextStyle(textDirection = TextDirection.Content), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { post() }))
-                IconBtn(Sym.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)
+                // WhatsApp-style compact pill (44 dp) so the list keeps its rows at 480x640
+                val max = if (s.fromSrc) 300 else 200
+                val pill = RoundedCornerShape(22.dp)
+                Box(Modifier.weight(1f).heightIn(min = 44.dp).clip(pill).background(if (isDark()) Color(0xFF202C33) else Color(0xFFF0F2F5)).padding(horizontal = 16.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.CenterStart) {
+                    if (text.isEmpty()) Text("Add a comment", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp, maxLines = 1)
+                    androidx.compose.foundation.text.BasicTextField(text, { if (it.length <= max) text = it }, Modifier.fillMaxWidth().semantics { contentDescription = "Add a comment" },
+                        maxLines = 3, cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+                        textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface, textDirection = TextDirection.Content),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { post() }))
+                }
+                if (text.length > max - 40) Text("${max - text.length}", Modifier.padding(start = 6.dp), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.width(6.dp))
+                Box(Modifier.size(44.dp).clip(CircleShape).background(if (text.isBlank()) MaterialTheme.colorScheme.surfaceVariant else Green).tap(CircleShape) { post() }
+                    .semantics { contentDescription = "Post" }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Send, null, tint = if (text.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else Color.White, modifier = Modifier.size(22.dp))
+                }
             }
         }
     }
