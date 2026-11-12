@@ -1,0 +1,174 @@
+[06:34:55] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[06:34:58] screen 480x640 @ 240 dpi
+[06:34:58] ---- Signed in (QA fixture account) ----
+[06:35:02] fixture true
+[06:35:11] shot F01-home-signedin
+[06:35:11] open https://yidplus.com/chat
+[06:35:16] shot F02-chats-list
+[06:35:18] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[06:35:25] shot F03-chat-dm
+[06:35:27] shot F03b-chat-dm-up
+[06:35:31] open https://yidplus.com/chat
+[06:35:45] shot F04-chat-group
+[06:35:46] shot F04b-group-up
+[06:35:48] shot F04c-group-top
+[06:35:52] shot F05-message-actions
+[06:36:01] shot F06-notifications
+[06:36:04] tab Home
+[06:36:07] shot F07-home-header
+[06:36:07] open https://yidplus.com/shorts
+[06:36:16] shot F08-shorts-signedin
+[06:36:16] tab Profile
+[06:36:19] shot F09-profile-signedin
+[06:36:30] shot F09b-profile-scrolled
+[06:36:44] open https://yidplus.com/chat
+[06:36:48] shot F10-chats-dark
+[06:36:54] shot F11-chat-dark
+[06:37:01] screen 1080x2400 @ 420 dpi
+[06:37:10] open https://yidplus.com/chat
+[06:37:14] shot F12-phone-chats
+[06:37:20] shot F13-phone-chat
+[06:37:24] screen 480x640 @ 240 dpi
+[06:37:24] ---- qa/fx-ad.sh ----
+[06:37:31] ---- AD 2.1: admin home ----
+[06:37:36] ad page Admin
+[06:37:36] shot AD-50-home-search-categories
+[06:37:39] adfind tapped after 0 swipes
+[06:37:40] shot AD-51-home-overview-open
+[06:37:54] shot AD-51b-home-at-a-glance
+[06:38:05] adfind tapped after 0 swipes
+[06:38:11] shot AD-52-home-search
+[06:38:13] ---- AD 2.1: Overview ----
+[06:38:18] ad panel god-mode
+[06:38:18] shot AD-53-god-mode
+[06:38:24] ad panel calls
+[06:38:24] shot AD-54-calls
+[06:38:28] adt '102'
+[06:38:32] adt '318'
+[06:38:34] PROOF end call: POST /api/admin/calls {"action":"end","call_id":"c1"}
+[06:38:41] ad panel now
+[06:38:41] shot AD-55-now
+[06:38:47] ad panel analytics
+[06:38:47] shot AD-56-analytics
+[06:38:53] ad panel growth
+[06:38:53] shot AD-57-growth
+[06:39:00] ad panel leaderboard
+[06:39:00] shot AD-58-leaderboard
+[06:39:06] ad panel health
+[06:39:06] shot AD-59-storage
+[06:39:07] ---- AD 2.1: People ----
+[06:39:12] ad panel access-control
+[06:39:13] shot AD-60-access
+[06:39:19] ad panel invite-codes
+[06:39:19] shot AD-61-invites
+[06:39:25] ad panel warnings
+[06:39:25] shot AD-62-warnings
+[06:39:32] ad panel sessions
+[06:39:32] shot AD-63-sessions
+[06:39:38] ad panel banned-devices
+[06:39:38] shot AD-64-banned
+[06:39:44] ad panel badges
+[06:39:44] shot AD-65-badges
+[06:39:51] ad panel ad-exempt
+[06:39:51] shot AD-66-ad-free
+[06:39:58] ad page AdminUser
+[06:40:05] shot AD-67-user-actions-account
+[06:40:09] shot AD-67b-user-devices-history
+[06:40:10] adt: '198.51.100.7 · fp9a8b7c6d' not on screen; screen has: Back|@Yanky|Member|Edit details|Nickname, email, phone, password|&#128273; New password|Set a temporary password|Lists|&#128100; Followers|96|➡️ Following|41|
+[06:40:12] shot AD-67e-ban-device-confirm
+[06:40:13] adt: 'Ban device' not on screen; screen has: Back|@Yanky|Member|Edit details|Nickname, email, phone, password|&#128273; New password|Set a temporary password|Lists|&#128100; Followers|96|➡️ Following|41|
+[06:40:15] PROOF ban device: (no request logged for 'POST /api/admin/device-bans')
+[06:40:22] shot AD-67c-user-notes
+[06:40:29] ad page AdminUser
+[06:40:47] adfind tapped after 4 swipes
+[06:40:48] shot AD-67d-user-edit-details
+[06:40:49] ---- AD 2.1: Moderation ----
+[06:40:55] ad panel reports
+[06:40:55] shot AD-68-reports
+[06:40:58] adt '45'
+[06:41:00] shot AD-69-report-resolve-confirm
+[06:41:03] adt '349'
+[06:41:05] PROOF resolve report: PUT /api/reports {"id":"r1","resolved":true}
+[06:41:12] ad panel feedback
+[06:41:12] shot AD-70-feedback
+[06:41:18] ad panel support-chats
+[06:41:18] shot AD-71-support
+[06:41:24] ad panel support-thread
+[06:41:24] shot AD-72-support-thread
+[06:41:31] ad panel chat-watch
+[06:41:31] shot AD-73-chats
+[06:41:37] ad panel room-read
+[06:41:37] shot AD-74-room-read
+[06:41:43] ad panel shorts-mod
+[06:41:44] shot AD-75-shorts-mod
+[06:41:50] ad panel statuses-mod
+[06:41:50] shot AD-76-statuses-mod
+[06:41:56] ad panel music-mod
+[06:41:56] shot AD-76b-music-mod
+[06:42:00] adt '114'
+[06:42:01] shot AD-76c-music-remove-confirm
+[06:42:05] adt '294'
+[06:42:07] PROOF remove track: DELETE /api/music?id=m1 < 0 bytes>
+[06:42:08] ---- AD 2.1: Content ----
+[06:42:13] ad panel announcements
+[06:42:13] shot AD-77-announcements
+[06:42:15] adtap text
+[06:42:23] adt '144'
+[06:42:28] adt '346'
+[06:42:30] PROOF announcement: POST /api/admin/announcements {"text":"Shalom_all"}
+[06:42:36] ad panel broadcast
+[06:42:36] shot AD-78-broadcast-schedule
+[06:42:42] ad panel email-blast
+[06:42:42] shot AD-79-email-blast
+[06:42:49] ad panel ai
+[06:42:49] shot AD-80-ai
+[06:42:55] ad panel email-templates
+[06:42:55] shot AD-81-email-settings
+[06:43:02] ad panel featured
+[06:43:02] shot AD-82-featured
+[06:43:05] adt '308'
+[06:43:07] PROOF feature post: POST /api/admin/feature {"post_id":"p2","featured":true}
+[06:43:13] ad panel telegram
+[06:43:14] shot AD-83-telegram
+[06:43:18] shot AD-84-telegram-more
+[06:43:19] ---- AD 2.1: System ----
+[06:43:24] ad panel features
+[06:43:24] shot AD-85-automod
+[06:43:30] ad panel app-settings
+[06:43:31] shot AD-86-app
+[06:43:37] ad panel maintenance
+[06:43:37] shot AD-87-maintenance
+[06:43:43] ad panel antispam
+[06:43:43] shot AD-88-antispam
+[06:43:50] ad panel ads
+[06:43:50] shot AD-89-ads
+[06:43:56] ad panel security
+[06:43:56] shot AD-90-attacks
+[06:44:02] ad panel diagnostics
+[06:44:02] shot AD-91-health-check
+[06:44:09] ad panel code-errors
+[06:44:09] shot AD-92-code-errors
+[06:44:15] ad panel app-config
+[06:44:15] shot AD-93-config
+[06:44:22] ad panel ip-logs
+[06:44:22] shot AD-94-ip-logs
+[06:44:28] ad panel audit-logs
+[06:44:28] shot AD-95-audit-logs
+[06:44:34] ad panel export
+[06:44:34] shot AD-96-export
+[06:44:41] ad panel nuclear
+[06:44:41] shot AD-97-nuclear
+[06:44:47] ad panel admin-settings
+[06:44:47] shot AD-98-admin-settings
+[06:44:53] ad page Admin
+[06:45:56] video AD-flow-dpad 294230 bytes
+[06:46:01] ad panel security
+[06:46:09] ad panel telegram
+[06:46:20] ad panel reports
+[06:46:23] adt '45'
+[06:46:33] ad panel music-mod
+[06:46:36] video AD-flow-panels 802982 bytes
+[06:46:36] fixture writes the app would have sent: 7
+[06:46:40] fixture false
