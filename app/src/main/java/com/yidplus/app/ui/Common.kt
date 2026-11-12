@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import kotlinx.coroutines.launch
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -54,6 +56,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -381,3 +385,86 @@ val urlRegex = Regex("""https?://[^\s<>"']+""")
 
 @Composable
 fun ctx(): Context = LocalContext.current
+
+
+/**
+ * The app's floating action button (WhatsApp-2024 look): 56 dp rounded square in the brand colour, a white Material
+ * Symbol, D-pad focusable with the same gold ring as everything else. Put it in a Box with Modifier.align(BottomEnd)
+ * and give the list under it `contentPadding = PaddingValues(bottom = Dim.fab + 24.dp)` so no row hides behind it.
+ */
+@Composable
+fun Fab(icon: ImageVector, label: String, onClick: () -> Unit, modifier: Modifier = Modifier, extended: Boolean = false) {
+    val shape = RoundedCornerShape(16.dp)
+    androidx.compose.material3.Surface(
+        modifier = modifier.padding(16.dp).heightIn(min = Dim.fab).then(if (extended) Modifier else Modifier.width(Dim.fab)).tap(shape, onClick = onClick)
+            .semantics { contentDescription = label },
+        shape = shape, color = if (isDark()) MaterialTheme.colorScheme.primary else topBarColor().takeIf { !LookPrefs.lightBar } ?: MaterialTheme.colorScheme.primary,
+        contentColor = if (isDark()) MaterialTheme.colorScheme.onPrimary else Color.White, shadowElevation = 6.dp
+    ) {
+        Row(Modifier.heightIn(min = Dim.fab).padding(horizontal = if (extended) 16.dp else 0.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center) {
+            Icon(icon, null, Modifier.size(Dim.icon))
+            if (extended) Text(label, Modifier.padding(start = 10.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+/** One confirm dialog for the whole app (the site's safe-dialogs.js): title, one line, a red action when it destroys something. */
+@Composable
+fun ConfirmDialog(title: String, text: String?, confirm: String, onConfirm: () -> Unit, onDismiss: () -> Unit, destructive: Boolean = false, dismiss: String = "Cancel") {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = text?.let { { Text(it) } },
+        confirmButton = {
+            androidx.compose.material3.TextButton(onClick = { onDismiss(); onConfirm() }, modifier = Modifier.firstFocus()) {
+                Text(confirm, color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            }
+        },
+        dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(dismiss) } }
+    )
+}
+
+/** One row of an [ActionSheet]: a Material Symbol, the words, and red when it deletes or leaves. */
+data class SheetAction(val icon: ImageVector, val label: String, val destructive: Boolean = false, val onClick: () -> Unit)
+
+/**
+ * The app's long-press / ⋮ menu as a bottom sheet (WhatsApp-on-Android style): 56 dp rows, icon + label, first row
+ * focused for the D-pad, Back closes it. Use for chat-row, message and post menus so every area looks the same.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun ActionSheet(actions: List<SheetAction>, onDismiss: () -> Unit, title: String? = null) {
+    androidx.compose.material3.ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+            if (!title.isNullOrBlank()) Text(title, Modifier.padding(horizontal = 20.dp, vertical = 8.dp), style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            actions.forEachIndexed { i, a ->
+                val ink = if (a.destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).then(if (i == 0) Modifier.firstFocus() else Modifier)
+                    .tap(RoundedCornerShape(0.dp)) { onDismiss(); a.onClick() }.padding(horizontal = 20.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(a.icon, null, Modifier.size(Dim.icon), tint = if (a.destructive) ink else MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(a.label, Modifier.padding(start = 20.dp), style = MaterialTheme.typography.bodyLarge, color = ink)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * App-wide snackbar (WhatsApp's "Chat archived · UNDO"): `Snack.show("Chat archived", "Undo") { … }` from anywhere.
+ * AppRoot draws it above the bottom bar. Plain info can stay a toast.
+ */
+object Snack {
+    val host = androidx.compose.material3.SnackbarHostState()
+    private val scope = kotlinx.coroutines.MainScope()
+    fun show(text: String, action: String? = null, onAction: (() -> Unit)? = null) {
+        scope.launch {
+            host.currentSnackbarData?.dismiss()
+            val r = host.showSnackbar(text, actionLabel = action, withDismissAction = false,
+                duration = if (action != null) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short)
+            if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) onAction?.invoke()
+        }
+    }
+}
