@@ -22,7 +22,7 @@ csopen() { # csopen ID TYPE NAME-JSON-ESCAPED [extra json]
   timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
 csfx() { timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400 | sed 's/^/  YidFx: /' | tee -a "$OUT/qa.log" >/dev/null; }
 cskb() { log "keyboard shown after $1: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }
-csdbl() { local p; p=$(cspos "$1"); [ -z "$p" ] && { log "csdbl: '$1' not found"; return 0; }; set -- $p; adb shell input tap $1 $2; adb shell input tap $1 $2; sleep 2; log "double-tap $*"; }
+csdbl() { local p; p=$(cspos "$1"); [ -z "$p" ] && { log "csdbl: '$1' not found"; return 0; }; set -- $p; adb shell "input tap $1 $2 & sleep 0.12; input tap $1 $2"; sleep 2; log "double-tap $*"; }
 csmic() { cspos "Record voice message"; }
 csfind() { local n=0; while [ $n -lt ${2:-6} ]; do [ -n "$(cspos "$1")" ] && return 0; adb shell input swipe 240 260 240 470 400; sleep 1; n=$((n+1)); done; log "csfind: '$1' not found"; }
 csfindup() { local n=0; while [ $n -lt ${2:-6} ]; do [ -n "$(cspos "$1")" ] && return 0; adb shell input swipe 240 470 240 260 400; sleep 1; n=$((n+1)); done; log "csfindup: '$1' not found"; }
@@ -39,10 +39,10 @@ csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
 for n in 1 2 3 4 5; do adb shell input swipe 240 200 240 600 250; sleep 0.6; done; sleep 3; shot CS-03-older-page-loaded; csfind "עלטערע מעסעדזש 1" 4; cshas "עלטערע מעסעדזש 1"
 # 4: polls (percentages hidden until I vote; quiz with correct/wrong marks; Close Poll for the creator)
-csroom 4; csfind "פלאפל"; shot CS-04-polls; csfindup "+ Suggest an option" 2; cshas "+ Suggest an option"
+key 4; sleep 1; csroom 4; csfind "פלאפל"; shot CS-04-polls; csfindup "+ Suggest an option" 2; cshas "+ Suggest an option"
 cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted; csfindup "Close Poll" 3; shot CS-05b-quiz-close-poll; cshas "Close Poll"
 # 9: voice: play, speed, seek
-csroom 4; csfind "0:12" 4; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
+key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
 # 1: voice note recording — tap = hands-free (pause, stop to listen, send)
 key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked; cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
@@ -65,8 +65,8 @@ cstap "More"; sleep 1; cstap "Message options"; sleep 1; cstap "1 hour"; shot CS
 cstap "Message"; sleep 1; adb shell input text "QA%sdisappear"; sleep 1; cstap "Send"; sleep 3; csfx "disappear_seconds"; key 4; sleep 1
 # 2/11: attach sheet, emoji panel with recent + stickers (custom), poll create
 csroom 4; cstap "Attach"; sleep 1; shot CS-16-attach-sheet; cstap "Poll"; sleep 3; shot CS-17-poll-new
-cstap "Ask a question"; adb shell input text "QA%spoll"; cstap "Option 1"; adb shell input text "A"; cstap "Option 2"; adb shell input text "B"; key 4; sleep 1
-cstap "Quiz Mode"; sleep 1; shot CS-17b-poll-settings; cstap "Create Poll"; sleep 3; csfx "/api/polls"; key 4; sleep 1
+cstap "Ask a question"; adb shell input text "QA%spoll"; key 4; sleep 1; cstap "Option 1"; adb shell input text "A"; key 4; sleep 1; cstap "Option 2"; adb shell input text "B"; key 4; sleep 1
+csfindup "Quiz Mode" 4; cstap "Quiz Mode"; sleep 1; shot CS-17b-poll-settings; cstap "Create Poll"; sleep 3; csfx "/api/polls"; key 4; sleep 1
 csroom 4; cstap "Emoji"; sleep 2; shot CS-18-emoji-recent; cstap "Stickers"; sleep 3; shot CS-18b-stickers; key 4; sleep 1; key 4; sleep 1
 # 12: pinned list, group call banner, copy invite (r-g1: I am group admin there)
 cschopen() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-g1\",\"type\":\"group\",\"nick\":\"G1\"}'" >/dev/null 2>&1; sleep 6; log "open chat r-g1"; }

@@ -100,10 +100,10 @@ data class CsPollNew(val room: Room) : PageScreen() {
                 busy = false
             }
         }
-        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+        Column(Modifier.fillMaxSize().imePadding().background(MaterialTheme.colorScheme.surface)) {
             ChBar("New poll", sub = room.name, onBack = { Nav.back() }) { ChIcon(Sym.Send, "Create Poll", { send() }) }
             if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp)) {
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 8.dp)) {
                 val ts = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content)
                 OutlinedTextField(question, { if (it.length <= 200) question = it }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Ask a question") }, textStyle = ts)
                 OutlinedTextField(desc, { if (it.length <= 300) desc = it }, Modifier.fillMaxWidth().padding(top = 6.dp), label = { Text("Description (optional)") }, textStyle = ts)

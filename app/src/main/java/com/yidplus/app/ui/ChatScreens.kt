@@ -21,7 +21,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -395,13 +394,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         val i = itemsNow().indexOfFirst { it is ChItem.M && it.m.id == a }
         if (i >= 0) {
             didAnchorG = true
-            if (i > 2) {
-                state.scrollToItem(i)
-                // reverse layout puts item i at the bottom; move it up so the unread messages below the line are in view
-                val li = state.layoutInfo; val sz = li.visibleItemsInfo.firstOrNull { it.index == i }?.size ?: 0
-                val room0 = (li.viewportEndOffset - li.viewportStartOffset) - sz - 80
-                if (room0 > 0) state.scrollBy(-room0.toFloat())
-            }
+            // reverse layout: item i sits on the bottom edge, its "N unread messages" line right above it (the rest is one swipe down)
+            if (i > 2) state.scrollToItem(i)
         }
     }
     // A group call running in this room (the site's banner "Call in progress · N on the call — tap to join").
@@ -489,9 +483,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     // Gap 7: while the "newest" button shows, the list gets room under it so no message hides behind it.
                     val showDown by remember { derivedStateOf { state.firstVisibleItemIndex > 2 } }
                     // New messages that came in while scrolled up: a count on the "newest" button (WhatsApp's green badge).
-                    var baseCount by remember(room.id) { mutableStateOf(-1) }
-                    LaunchedEffect(showDown) { baseCount = if (showDown) msgs.size else -1 }
-                    val newBelow = if (baseCount >= 0) (msgs.size - baseCount).coerceAtLeast(0) else 0
+                    // counted from the newest message when the button appeared, so older pages loading above never count
+                    var baseId by remember(room.id) { mutableStateOf<String?>(null) }
+                    LaunchedEffect(showDown) { baseId = if (showDown) msgs.lastOrNull()?.id else null }
+                    val newBelow = baseId?.let { b -> val i = msgs.indexOfLast { it.id == b }; if (i >= 0) msgs.size - 1 - i else 0 } ?: 0
                     LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(top = 6.dp, bottom = if (showDown) 60.dp else 8.dp)) {
                         items(rows, key = { it.key }) { it0 ->
                             when (it0) {
@@ -503,7 +498,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                                     ChBubble(m, mine = m.senderId == me?.id, group = room.type != "private", first = it0.first, reacts = reacts[m.id],
                                         reply = m.replyToId?.let { rid -> msgs.firstOrNull { it.id == rid } }, highlight = hl || flash == m.id, privateChat = room.type == "private",
                                         modifier = if (it0 === firstReal) Modifier.firstFocus() else Modifier,
-                                        onMedia = { url -> openGallery(gallery.ifEmpty { listOf(GItem(url, m.isVideo, null, m.nick)) }, url) }, onLong = { if (!m.pending && !m.isCentred) { if (m.failed || Keys.keypad) actionFor = m else { selecting = true; selected.clear(); selected.add(m.id) } } },
+                                        onMedia = { url -> openGallery(gallery.ifEmpty { listOf(GItem(url, m.isVideo, null, m.nick)) }, url) }, onLong = { if (!m.pending && !m.isCentred) { if (m.failed) actionFor = m else { selecting = true; selected.clear(); selected.add(m.id) } } },
                                         onSwipeReply = if (canWrite && !m.pending && !m.isCentred && !m.deleted) ({ replyTo = m; editing = null; runCatching { inputFocus.requestFocus() }; kb?.show() }) else null,
                                         onJoin = { code -> scope.launch { runCatching { ChatApi.join(null, code) }.onSuccess { id -> toast(c, "Joined"); roomsRes.load(true); Nav.open(Screen.Chat(ChatApi.info(id)?.room ?: ChatApi.roomOf(id, "group", "Group"))) }.onFailure { toast(c, Api.friendly(it)) } } },
                                         onReact = { e -> if (me != null) reactTo(m, e) }, onReplyTap = { rid -> jumpTo(rid) },
@@ -526,7 +521,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (loadingOlder) LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter), color = ChatLook.bar)
                     // WhatsApp's floating date while scrolled back: the day of the top visible message.
                     val topDay by remember(rows) { derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index?.let { i -> (rows.getOrNull(i) as? ChItem.M)?.m?.createdAt?.let { chatDay(it) } } ?: "" } }
-                    if (showDown && topDay.isNotEmpty()) Text(topDay, Modifier.align(Alignment.TopCenter).padding(top = 8.dp).clip(RoundedCornerShape(8.dp)).background(ChatLook.theirs().copy(alpha = .95f))
+                    if (showDown && state.isScrollInProgress && topDay.isNotEmpty()) Text(topDay, Modifier.align(Alignment.TopCenter).padding(top = 8.dp).clip(RoundedCornerShape(8.dp)).background(ChatLook.theirs().copy(alpha = .95f))
                         .padding(horizontal = 12.dp, vertical = 4.dp), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = ChatLook.sub())
                 }
             }

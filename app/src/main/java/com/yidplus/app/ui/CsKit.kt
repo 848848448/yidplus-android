@@ -226,13 +226,13 @@ internal fun CsAttachSheet(onPick: (String) -> Unit) {
         Triple("contact", "Contact", Sym.ContactPhone to Color(0xFF1E88E5)), Triple("poll", "Poll", Sym.Poll to Color(0xFF00897B)),
         Triple("options", "Schedule", Sym.Schedule to Color(0xFF546E7A)))
     Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
-        Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Column(Modifier.fillMaxWidth().heightIn(max = 260.dp).verticalScroll(rememberScrollState()).padding(vertical = 6.dp)) {
             opts.chunked(4).forEach { row ->
                 Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                     row.forEach { (k, label, ic) ->
-                        Column(Modifier.width(76.dp).then(if (k == "gallery") Modifier.firstFocus(always = true) else Modifier).tap(RoundedCornerShape(12.dp)) { onPick(k) }.padding(vertical = 6.dp),
+                        Column(Modifier.width(76.dp).then(if (k == "gallery") Modifier.firstFocus(always = true) else Modifier).tap(RoundedCornerShape(12.dp)) { onPick(k) }.padding(vertical = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally) {
-                            Box(Modifier.size(50.dp).clip(CircleShape).background(ic.second), contentAlignment = Alignment.Center) { Icon(ic.first, null, tint = Color.White, modifier = Modifier.size(26.dp)) }
+                            Box(Modifier.size(46.dp).clip(CircleShape).background(ic.second), contentAlignment = Alignment.Center) { Icon(ic.first, null, tint = Color.White, modifier = Modifier.size(24.dp)) }
                             Text(label, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
