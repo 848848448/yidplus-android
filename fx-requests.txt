@@ -1,0 +1,20 @@
+--------- beginning of main
+--------- beginning of kernel
+--------- beginning of system
+11-12 00:02:20.527 21494 21528 I YidFx   : POST /api/ai/chat {"message":"Hello AI, what can you do?"}
+11-12 00:02:31.764 21494 21528 I YidFx   : DELETE /api/ai/chat < 0 bytes>
+11-12 00:02:40.443 21494 21528 I YidFx   : POST /api/ai/chat {"message":"Give me an idea"}
+11-12 00:02:49.810 21494 21527 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-12 00:02:54.841 21494 21528 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-12 00:02:56.760 21494 21528 I YidFx   : PUT /api/statuses {"view":true,"id":"st-d-1"}
+11-12 00:03:13.260 21494 21527 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-deal"}
+11-12 00:03:13.264 21494 21528 I YidFx   : POST /api/chat {"room_id":"fx-2617615577136","type":"text","text":"❤️ (reacted to your status)"}
+11-12 00:03:22.570 21494 21527 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-deal"}
+11-12 00:03:22.570 21494 21527 I YidFx   : POST /api/chat {"room_id":"fx-2626925673146","type":"text","text":"↩️ Amazing"}
+11-12 00:03:40.811 21494 21538 I YidFx   : PUT /api/statuses {"viewers":true,"id":"st-me-2"}
+11-12 00:03:59.187 21494 21528 I YidFx   : PUT /api/statuses {"action":"delete","id":"st-me-1"}
+11-12 00:04:28.629 21494 21528 I YidFx   : POST /api/statuses {"type":"text","text":"Gut Shabbos from the app","bg":"linear-gradient(135deg,#1b4332,#40916c)","privacy":"followers"}
+11-12 00:04:42.473 21494 21528 I YidFx   : DELETE /api/saves?item_type=short&item_id=77e14f2a-e196-4ff3-915d-21ffa29f468c < 0 bytes>
+11-12 00:04:46.727 21494 21528 I YidFx   : POST /api/saves {"item_type":"short","item_id":"77e14f2a-e196-4ff3-915d-21ffa29f468c"}
+11-12 00:04:50.486 21494 21528 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
+11-12 00:05:12.788 21494 21536 I YidFx   : DELETE /api/history < 0 bytes>

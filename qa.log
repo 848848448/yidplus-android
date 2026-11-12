@@ -1,0 +1,679 @@
+[23:20:17] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[23:20:21] screen 480x640 @ 240 dpi
+Starting: Intent { cmp=com.yidplus.app/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.yidplus.app/.MainActivity
+TotalTime: 1422
+WaitTime: 1423
+Complete
+[23:20:25] shot 00-splash
+[23:20:32] shot 01-start
+[23:20:32] bottom bar = the site's own (read from yidplus.com/api/settings): 
+[23:20:32] tab Home
+[23:20:37] shot 01-home
+[23:20:40] FOCUS after DOWN:  text="" content-desc="" bounds="[194,459][297,531]"
+[23:20:40] shot 02-home-dpad
+[23:20:44] FOCUS after DOWN DOWN:  text="" content-desc="" bounds="[194,459][297,531]"
+[23:20:44] shot 03-home-dpad-3
+[23:20:53] FOCUS after OK (open channel):  text="" content-desc="" bounds="[339,51][405,123]"
+[23:20:53] shot 04-channel
+[23:20:57] FOCUS after DOWN DOWN in channel:  text="" content-desc="" bounds="[363,469][477,565]"
+[23:20:57] shot 05-channel-dpad
+[23:21:04] shot 06-channel-media
+[23:21:07] FOCUS after BACK:  text="" content-desc="" bounds="[163,393][317,465]"
+[23:21:11] FOCUS after BACK to list:  (no text)  nothing focused
+[23:21:11] shot 07-back-to-home
+[23:21:27] shot 06a-gallery-open
+[23:21:27] gallery opened: no counter
+[23:21:32] shot 06b-gallery-swiped
+[23:21:32] after swipe left: no counter
+[23:21:35] shot 06c-gallery-zoomed
+[23:21:39] zoomed + swipe (should stay): no counter
+[23:21:46] keypad RIGHT: no counter
+[23:21:51] shot 06d-gallery-closed
+[23:21:51] after drag down: closed
+[23:21:51] GALLERY SKIP: the live channel had no posts yet (site still fetching); the gallery is tested with fixture photos in qa/fx-lk.sh
+[23:21:51] open https://yidplus.com/chat
+[23:21:58] shot 08-chats
+[23:21:59] FOCUS after chats opened:  (no text)  nothing focused
+[23:22:07] shot 09-chat-room
+[23:22:09] FOCUS after OK (open chat):  text="" content-desc="Search chats" bounds="[405,51][477,123]"
+[23:22:11] shot 10-chats-back
+[23:22:11] open https://yidplus.com/chat
+[23:22:16] shot A0-chats-list
+[23:22:19] shot A1-chats-search
+[23:22:27] shot A2-chats-search-results
+[23:22:30] shot A2b-search-closed-by-back
+[23:22:30] open https://yidplus.com/chat
+[23:22:44] shot A3-chat-room-bubbles
+[23:22:45] FOCUS after OK on the first chat:  text="" content-desc="" bounds="[163,393][317,465]"
+[23:22:48] shot A4-chat-menu
+[23:22:56] shot A5-chat-info
+[23:23:00] shot A5b-back-in-chat
+[23:23:03] shot A6-message-actions
+[23:23:09] shot A7-back-to-list
+[23:23:15] shot A8-notification-chat
+[23:23:17] shot A8b-notification-expanded
+[23:23:17] expand button: 397 319 469 391 
+[23:23:19] stacked messages shown:       1 text="I'll be there at 8" 
+[23:23:19] notification Reply button: 108 394 195 466 
+[23:23:23] shot A9-notification-reply-box
+[23:23:24] reply box: 
+[23:23:29] open https://yidplus.com/shorts
+[23:23:39] shot 11-shorts-hint
+[23:23:47] shot 12-shorts-playing
+[23:23:56] shot 13-shorts-next
+[23:23:56] DOWN = next video
+[23:24:10] shot 13b-shorts-swiped
+[23:24:10] 3 light swipes up = 3 videos on
+[23:25:06] dedupe: checked 200 videos: removed 21 re-posted duplicates; left: same id 0, same file 0, same picture+length 0
+[23:25:06] DEDUPE PASS
+[23:25:08] shot 14-shorts-paused
+[23:25:13] shot 15-shorts-liked
+[23:25:13] key 1 = like
+[23:25:20] shot 16-shorts-comments
+[23:25:20] key 3 = comments
+[23:25:34] shot 17-shorts-uploads
+[23:25:34] * * = Uploads tab
+[23:25:44] FOCUS after BACK from Shorts:  text="" content-desc="" bounds="[163,393][317,465]"
+[23:25:44] shot 18-after-shorts-back
+[23:25:44] tab Home
+[23:25:48] shot B01-channels-telegram
+[23:25:51] tapui 'Members'
+[23:25:57] shot B02-channels-members
+[23:26:00] tapui 'Recent'
+[23:26:03] shot B03-channels-recent
+[23:26:07] tapui 'Members'
+[23:26:16] shot B04-member-channel
+[23:26:18] FOCUS after tap a member channel:  (no text)  nothing focused
+[23:26:19] tapui: 'Shorts \([0-9]+\)' not on screen
+[23:26:20] shot B05-member-channel-shorts
+[23:26:20] tab Home
+[23:26:26] tapui 'Telegram'
+[23:26:35] shot B06-tg-channel-joinbar
+[23:26:37] tapui: 'More' not on screen
+[23:26:38] shot B07-tg-channel-menu
+[23:26:39] tapui: 'Channel info' not on screen
+[23:26:43] shot B08-tg-channel-info
+[23:26:43] tab Home
+[23:26:49] tapui 'Search'
+[23:26:51] shot B09-channels-search
+[23:26:55] shot B10-channels-search-typed
+[23:26:58] tapui 'Search all of YID PLUS'
+[23:27:03] shot B11-global-search
+[23:27:07] tapui 'Telegram'
+[23:27:09] shot B12-global-search-telegram
+[23:27:13] tab Home
+[23:27:19] tapui 'Profile'
+[23:27:20] shot B13-avatar-menu
+[23:27:22] tab Home
+[23:27:23] open https://yidplus.com/shorts
+[23:27:40] shot B14-shorts-creator-page
+[23:27:40] key 8 = creator page
+[23:27:40] open https://yidplus.com/shorts
+[23:27:49] shot B15-shorts-search
+[23:27:49] key 9 = search
+[23:27:53] open https://yidplus.com/shorts
+[23:28:02] shot B16-shorts-upload
+[23:28:02] key 7 = upload (signed out: sign-in prompt)
+[23:28:06] open https://yidplus.com/music
+[23:28:10] shot 19a-music-off-on-site
+[23:28:11] FOCUS after open /music while the site has Music off:  text="" content-desc="" bounds="[163,393][317,465]"
+[23:28:13] open https://yidplus.com/music
+[23:28:19] shot 19-music
+[23:28:22] FOCUS after DOWN in music:  text="" content-desc="" bounds="[195,469][285,565]"
+[23:28:30] shot 20-music-playing
+[23:28:30] OK = play
+[23:28:33] shot 21-music-player
+[23:28:34] FOCUS after player opened:  text="" content-desc="" bounds="[192,523][288,568]"
+[23:28:37] shot 22-music-notification
+[23:28:41] tab Profile
+[23:28:44] shot 23-profile-signin
+[23:28:45] FOCUS after profile opened:  text="" content-desc="" bounds="[24,263][456,335]"
+[23:28:50] FOCUS after DOWN DOWN in sign-in form:  text="" content-desc="" bounds="[24,393][456,465]"
+[23:28:50] shot 24-profile-dpad
+[23:29:02] FOCUS after DOWN x8 (settings):  text="" content-desc="" bounds="[0,344][480,465]"
+[23:29:02] shot 25-settings
+[23:29:13] shot 26-check-updates
+[23:29:16] qa_page demo
+[23:29:16] shot set40-settings-signed-in
+[23:29:33] FOCUS after DOWN x12 in settings:  text="" content-desc="" bounds="[309,459][444,531]"
+[23:29:33] shot set40b-settings-scrolled
+[23:29:58] FOCUS after OK on first row:  text="" content-desc="" bounds="[244,385][444,457]"
+[23:29:58] shot set40c-dpad-opened
+[23:30:03] qa_page demo:EditProfile
+[23:30:03] shot set41-edit-profile
+[23:30:08] qa_page demo:Privacy
+[23:30:08] shot set42-privacy
+[23:30:12] qa_page demo:Security
+[23:30:12] shot set43-security
+[23:30:17] qa_page demo:NotifPrefs
+[23:30:17] shot set44-notification-prefs
+[23:30:21] qa_page demo:Blocked
+[23:30:21] shot set45-blocked
+[23:30:25] qa_page demo:FollowRequests
+[23:30:25] shot set46-follow-requests
+[23:30:30] qa_page demo:Feedback
+[23:30:30] shot set47-feedback
+[23:30:34] qa_page demo:About
+[23:30:34] shot set48-about
+[23:30:39] qa_page demo:Admin
+[23:30:39] shot set49-admin
+[23:30:47] shot set49b-admin-features
+[23:30:55] qa_page demo
+[23:30:55] shot set50-settings-dark
+[23:30:58] qa_page demo:EditProfile
+[23:30:58] shot set51-edit-profile-dark
+[23:31:03] qa_page demo:Admin
+[23:31:03] shot set52-admin-dark
+[23:31:09] qa_page off
+[23:31:09] tab Profile
+[23:31:12] shot set53-settings-signed-out-again
+[23:31:15] tab Home
+[23:31:19] shot 27-home-dark
+[23:31:19] open https://yidplus.com/chat
+[23:31:23] shot 28-chats-dark
+[23:31:23] tab Profile
+[23:31:26] shot 29-profile-dark
+[23:31:40] shot 30-offline-home
+[23:31:40] open https://yidplus.com/music
+[23:31:43] shot 31-offline-music
+[23:31:55] tab Home
+[23:32:00] shot 32-back-online
+Success
+[23:32:53] tab Home
+[23:33:29] screen 1080x2400 @ 420 dpi
+[23:33:38] shot 40-phone-home
+[23:33:45] shot 41-phone-channel
+[23:33:47] open https://yidplus.com/chat
+[23:33:51] shot 42-phone-chats
+[23:33:51] open https://yidplus.com/shorts
+[23:34:08] shot 43-phone-shorts
+[23:34:08] open https://yidplus.com/music
+[23:34:12] shot 44-phone-music
+[23:34:12] tab Profile
+[23:34:15] shot 45-phone-profile
+[23:34:17] screen 2400x1080 @ 420 dpi
+[23:34:25] shot 46-phone-landscape-home
+[23:34:25] open https://yidplus.com/shorts
+[23:34:39] shot 47-phone-landscape-shorts
+[23:34:42] screen 1600x2560 @ 320 dpi
+[23:34:56] shot 50-tablet-portrait-home
+[23:35:06] shot 51-tablet-portrait-channel
+[23:35:06] open https://yidplus.com/chat
+[23:35:10] shot 55-tablet-portrait-chats
+[23:35:10] open https://yidplus.com/shorts
+[23:35:28] shot 56-tablet-portrait-shorts
+[23:35:28] open https://yidplus.com/music
+[23:35:32] shot 57-tablet-portrait-music
+[23:35:34] screen 2560x1600 @ 320 dpi
+[23:35:42] shot 58-tablet-landscape-home
+[23:35:57] shot 52-tablet-landscape-channel
+[23:35:57] open https://yidplus.com/chat
+[23:36:03] shot 53-tablet-landscape-chats
+[23:36:03] open https://yidplus.com/shorts
+[23:36:23] shot 54-tablet-landscape-shorts
+[23:36:23] open https://yidplus.com/music
+[23:36:27] shot 59-tablet-landscape-music
+[23:36:27] tab Profile
+[23:36:30] shot 60-tablet-landscape-profile
+[23:36:31] ---- Signed in (QA fixture account) ----
+[23:36:35] fixture true
+[23:36:45] shot F01-home-signedin
+[23:36:45] open https://yidplus.com/chat
+[23:36:50] shot F02-chats-list
+[23:36:52] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="Channels"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="YK"  text="Yossi Klein"  text="7:26 PM"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="7:19 PM"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="7:24 PM"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="6:52 PM"  text="&#127908; Voice message 0:12"  text="YP" 
+[23:36:59] shot F03-chat-dm
+[23:37:01] shot F03b-chat-dm-up
+[23:37:05] open https://yidplus.com/chat
+[23:37:19] shot F04-chat-group
+[23:37:22] shot F04b-group-up
+[23:37:24] shot F04c-group-top
+[23:37:27] shot F05-message-actions
+[23:37:37] shot F06-notifications
+[23:37:39] tab Home
+[23:37:43] shot F07-home-header
+[23:37:43] open https://yidplus.com/shorts
+[23:37:53] shot F08-shorts-signedin
+[23:37:53] tab Profile
+[23:37:56] shot F09-profile-signedin
+[23:38:08] shot F09b-profile-scrolled
+[23:38:21] open https://yidplus.com/chat
+[23:38:25] shot F10-chats-dark
+[23:38:32] shot F11-chat-dark
+[23:38:38] screen 1080x2400 @ 420 dpi
+[23:38:47] open https://yidplus.com/chat
+[23:38:51] shot F12-phone-chats
+[23:38:57] shot F13-phone-chat
+[23:39:01] screen 480x640 @ 240 dpi
+[23:39:01] ---- qa/fx-ad.sh ----
+[23:39:08] ---- AD: Settings (signed in) ----
+[23:39:08] tab Profile
+[23:39:12] shot AD-01-settings-top
+[23:39:15] shot AD-02-settings-reading
+[23:39:17] shot AD-03-settings-appearance-color
+[23:39:19] shot AD-04-settings-stats-account
+[23:39:21] shot AD-05-settings-verify-share
+[23:39:25] shot AD-06-settings-bottom
+[23:39:25] tab Profile
+[23:40:00] adfind: 'Ocean Blue' not found
+[23:40:02] adt: 'L' not on screen
+[23:40:04] shot AD-07-ocean-blue-large-text
+[23:40:05] adt: 'M' not on screen
+[23:40:07] adt: 'Emerald Teal' not on screen
+[23:40:13] ad page EditProfile
+[23:40:13] shot AD-07b-edit-profile
+[23:40:20] adfind tapped after 1 swipes
+[23:40:27] adt '378'
+[23:40:30] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[23:40:34] ad page Privacy
+[23:40:34] shot AD-08-privacy
+[23:40:38] adt '96'
+[23:40:40] PROOF private account: PUT /api/profile {"is_private":1}
+[23:40:47] adfind tapped after 1 swipes
+[23:40:49] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[23:40:54] ad page NotifPrefs
+[23:40:57] adt '96'
+[23:41:00] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[23:41:00] shot AD-09-notif-prefs
+[23:41:05] ad page ChatSettings
+[23:41:08] adt '161'
+[23:41:09] shot AD-10-chat-settings
+[23:41:11] ---- AD: Notifications page ----
+[23:41:16] shot AD-11-notifications
+[23:41:19] adt '357'
+[23:41:21] PROOF mark all read: POST /api/notifications {"read":"all"}
+[23:41:21] shot AD-13-notifications-all-read
+[23:41:40] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[23:41:40] shot AD-12-notification-opened
+[23:41:43] ---- AD: Admin (native) ----
+[23:41:49] ad page Admin
+[23:41:49] shot AD-20-admin-dashboard
+[23:41:51] shot AD-21-admin-manage
+[23:41:53] shot AD-22-admin-features
+[23:41:55] adt: 'Music' not on screen
+[23:41:57] PROOF feature switch: (no request logged for 'PUT /api/settings')
+[23:41:57] shot AD-23-admin-music-switched
+[23:41:59] adt: 'Music' not on screen
+[23:42:03] shot AD-24-admin-web-sections
+[23:42:09] ad page AdminUsers
+[23:42:09] shot AD-25-admin-users
+[23:42:11] adtap text
+[23:42:16] shot AD-26-admin-users-search
+[23:42:22] ad page AdminUser
+[23:42:22] shot AD-27-admin-user
+[23:42:26] adt '96'
+[23:42:28] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[23:43:00] adfind: 'Mute' not found
+[23:43:03] adt: '24 hours' not on screen
+[23:43:05] PROOF mute user: (no request logged for 'POST /api/admin/mute')
+[23:43:37] adfind: 'Block' not found
+[23:43:39] shot AD-28-admin-block-confirm
+[23:43:41] adt: 'Block' not on screen
+[23:43:43] PROOF block user: (no request logged for '"blocked":true')
+[23:43:46] adfind tapped after 0 swipes
+[23:43:52] adt '383'
+[23:43:54] PROOF promote: PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+[23:43:54] shot AD-29-admin-user-after
+[23:44:00] ad page AdminReports
+[23:44:00] shot AD-30-admin-reports
+[23:44:04] adt '221'
+[23:44:06] PROOF dismiss report: DELETE /api/reports?id=r1 < 0 bytes>
+[23:44:09] adt '129'
+[23:44:15] adt '352'
+[23:44:17] PROOF ban from report: PUT /api/admin/users {"id":"u-mendy","blocked":true}
+[23:44:23] ad page AdminVerify
+[23:44:23] shot AD-31-admin-verify
+[23:44:27] adt '256'
+[23:44:29] PROOF approve verify: PUT /api/verify-request {"id":"v1","action":"approve"}
+[23:44:36] ad page AdminChannels
+[23:44:36] shot AD-32-admin-channels
+[23:44:40] adt '313'
+[23:44:42] PROOF verify channel: PUT /api/admin/users {"id":"u-chan1","verified":true}
+[23:44:49] ad page AdminTelegram
+[23:44:49] shot AD-33-admin-telegram
+[23:44:51] adtap text
+[23:44:59] adt '180'
+[23:45:01] PROOF add telegram channel: POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+[23:45:07] ad page AdminBroadcast
+[23:45:07] shot AD-34-admin-broadcast
+[23:45:09] adtap text
+[23:45:18] adt '192'
+[23:45:20] shot AD-35-broadcast-confirm
+[23:45:23] adt '374'
+[23:45:26] PROOF broadcast: POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+[23:45:32] ad page AdminBadWords
+[23:45:33] shot AD-36-admin-word-filter
+[23:45:35] adtap text
+[23:45:43] adt '395'
+[23:45:45] PROOF add bad word: POST /api/admin/bad-words {"word":"testbadword"}
+[23:45:48] adt '42'
+[23:45:50] PROOF remove bad word: DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+[23:45:56] ad page AdminWeb
+[23:45:57] shot AD-37-admin-web-pin
+[23:46:06] adt: 'Unlock' not on screen
+[23:46:13] PROOF admin pin: POST /api/admin/verify-pin {"pin":"1234"}
+[23:46:13] shot AD-38-admin-web-after-pin
+[23:46:15] ---- AD: dark mode ----
+[23:46:18] tab Profile
+[23:46:21] shot AD-40-settings-dark
+[23:46:26] ad page Admin
+[23:46:26] shot AD-41-admin-dark
+[23:46:31] shot AD-42-notifications-dark
+AdminWeb: --------- beginning of system
+AdminWeb: --------- beginning of crash
+AdminWeb: --------- beginning of main
+AdminWeb: --------- beginning of kernel
+AdminWeb: 11-11 23:45:59.698 14240 14240 I YidAdminWeb: webview 83.0.4103.106
+AdminWeb: 11-11 23:46:01.363 14240 14240 I YidAdminWeb: LOG An <img> element was lazyloaded with loading=lazy, but had no dimensions specified. Specifying dimensions improves performance. See https://crbug.com/954323 @:67
+[23:46:36] ---- qa/fx-ch.sh ----
+[23:46:42] open https://yidplus.com/chat
+[23:46:50] shot CH-01-chat-list
+[23:46:52] CH list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="3"  text="Channels"  text="Settings" 
+[23:46:54] shot CH-02-chips-scrolled
+[23:46:56] shot CH-02b-list-scrolled
+[23:47:01] chtap '372 357 456 441'
+[23:47:03] shot CH-03-fab-menu
+[23:47:07] chtap '248 244 367 274'
+[23:47:13] chtap '48 165 182 179'
+[23:47:16] shot CH-03b-new-group
+[23:47:19] chtap '405 51 477 123'
+  YidFx: 11-11 23:47:17.966 16248 16292 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[23:47:27] open https://yidplus.com/chat
+[23:47:34] chtap '372 357 456 441'
+[23:47:39] chtap '248 172 352 202'
+[23:47:43] shot CH-03c-new-chat
+[23:47:45] chtap: 'Dovid New' not on screen
+[23:47:52] open https://yidplus.com/chat
+[23:47:59] chtap '339 51 405 123'
+[23:48:02] keyboard shown after typing in search: mInputShown=true
+[23:48:06] keyboard shown after Back from search: mInputShown=true
+[23:48:06] shot CH-04-search-closed
+[23:48:12] open chat r-g1
+[23:48:12] shot CH-05-group-bottom
+  node: text="Yanky is typing…" class="android.widget.TextView" content-desc="" bounds="[141,90][287,123]" 
+[23:48:14] CH ok: 'typing' on screen
+  YidFx: 11-11 23:48:06.457 16248 16335 I YidFx   : POST /api/chat/read {"room_id":"r-g1"}
+[23:48:15] shot CH-05b-group-up
+[23:48:17] shot CH-05c-group-top
+[23:48:20] open chat r-g1
+[23:48:20] shot CH-06-group-reopen-instant
+[23:48:30] open chat r-g2
+[23:48:30] shot CH-07-group-photo-header
+[23:48:32] CH MISSING: 'Group voice call' not on screen
+[23:48:39] open chat r-dm4
+[23:48:39] shot CH-07b-dm-missed-call
+[23:48:41] CH MISSING: 'Missed voice call' not on screen
+[23:48:49] open chat r-dm1
+[23:48:49] shot CH-08-dm-online-ticks-reacts
+[23:48:58] open chat r-dm2
+[23:48:58] shot CH-09-dm-last-seen-voice
+[23:49:06] open chat r-spy
+[23:49:06] shot CH-10-admin-spectating
+  node: text="&#128065; Viewing as Admin" class="android.widget.TextView" content-desc="" bounds="[141,87][329,120]" 
+[23:49:08] CH ok: 'Viewing as Admin' on screen
+[23:49:09] CH ok: 'Join group' not shown
+[23:49:17] open chat r-g4
+[23:49:17] shot CH-11-not-joined-group
+[23:49:21] chtap '188 162 292 185'
+  YidFx: 11-11 23:49:19.519 16248 16336 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+[23:49:32] open chat r-links
+[23:49:32] shot CH-12-links-cards
+[23:49:35] shot CH-12b-links-up
+[23:49:38] shot CH-12c-links-top
+[23:49:47] open chat r-links
+[23:49:51] bubble at: 
+[23:49:54] chtap: 'Send' not on screen
+[23:49:55] shot CH-13b-swipe-reply-sent
+[23:49:58] chlong: 'See you at 8 tonight' not found
+[23:49:58] shot CH-14-long-press-menu
+[23:49:59] chtap: 'Reply' not on screen
+[23:50:02] chtap: 'Send' not on screen
+[23:50:06] chlong: 'See you at 8 tonight' not found
+[23:50:07] chtap: '👍' not on screen
+[23:50:12] chlong: 'See you at 8 tonight' not found
+[23:50:14] chtap: 'Forward' not on screen
+[23:50:17] shot CH-15-forward
+[23:50:20] chtap '120 213 373 218'
+[23:50:28] chlong: 'See you at 8 tonight' not found
+[23:50:30] chtap: 'Pin' not on screen
+[23:50:32] shot CH-16-pinned
+[23:50:34] chlong: 'Swipe reply OK' not found
+[23:50:38] chtap: 'Delete' not on screen
+[23:50:40] chtap: 'Yes' not on screen
+[23:50:45] chtap: 'Send' not on screen
+[23:50:46] shot CH-17-sent-text
+[23:50:53] chtap '264 141 330 213'
+[23:50:55] shot CH-19-attach-sheet
+[23:50:57] chtap: 'Gallery' not on screen
+[23:51:01] shot CH-19b-picker
+[23:51:02] chtap: 'ch_test.png' not on screen
+[23:51:07] shot CH-19c-photo-sent
+[23:51:11] chtap '420 156 456 192'
+[23:51:15] shot CH-20-recording
+[23:51:19] chtap '417 156 453 192'
+[23:51:33] open chat r-links
+[23:51:33] shot CH-21-links-dark
+[23:51:35] open https://yidplus.com/chat
+[23:51:39] shot CH-22-list-dark
+[23:51:41] CH perf: 11-11 23:49:00.436 16248 16248 I YidPerf : Chat content 10 ms after open (cache) 11-11 23:49:11.870 16248 16248 I YidPerf : Chat content 16 ms after open 11-11 23:49:25.874 16248 16248 I YidPerf : Chat content 45 ms after open 11-11 23:49:45.880 16248 16248 I YidPerf : Chat content 4923 ms after open 11-11 23:50:18.703 16248 16248 I YidPerf : Chat content 16 ms after open (cache) 11-11 23:51:28.585 16248 16248 I YidPerf : Chat content 10 ms after open (cache) 
+[23:51:41] CH all writes: 31
+[23:51:41] ---- qa/fx-lk.sh ----
+[23:51:50] picker files: -rw------- 1 u0_a163 u0_a163 33138 2026-11-11 23:51 lkqa.mp4 -rw------- 1 u0_a163 u0_a163 67066 2026-11-11 23:51 lkqa.png 
+[23:51:50] tab Home
+[23:51:56] shot LK-01-channels
+[23:51:59] lk_tapui 'Members'
+[23:52:04] shot LK-02-channels-members
+[23:52:08] lk_tapui 'Joined'
+[23:52:11] shot LK-03-channels-joined
+[23:52:14] lk_tapui 'Telegram'
+[23:52:25] shot LK-04-tg-channel
+[23:52:28] shot LK-05-tg-channel-scrolled
+[23:52:28] lk step react-tg
+[23:52:31] lk_tapui 'React'
+[23:52:36] lk_tapui 'Quick reaction 1'
+[23:52:38] shot LK-05c-tg-reacted
+[23:52:38] lk step share-tg
+[23:52:41] lk_tapui 'Share post'
+[23:52:44] shot LK-05d-tg-share-sheet
+[23:52:47] lk step join-tg
+[23:52:54] lk_tapui: 'Join channel' not on screen
+[23:52:57] shot LK-05e-tg-joined
+[23:53:04] shot LK-05b-tg-channel-reopen-cached
+[23:53:07] tab Home
+[23:53:14] lk_tapui 'Members'
+[23:53:25] shot LK-06-my-channel
+[23:53:27] lk step like-post
+[23:53:31] lk_tapui 'Like'
+[23:53:33] shot LK-07-my-channel-liked
+[23:53:33] lk step comment-post
+[23:53:36] lk_tapui 'Comment'
+[23:53:40] shot LK-08-post-comments
+[23:53:43] lk step send-comment
+[23:53:47] lk_tapui 'Send'
+[23:53:49] shot LK-09-comment-sent
+[23:53:53] tab Home
+[23:54:00] lk_tapui 'Members'
+[23:54:11] shot LK-09b-my-channel-scrolled
+[23:54:18] lk_tapui 'Photo'
+[23:54:21] shot LK-22-gallery-open
+[23:54:21] touch devices: add device 2: /dev/input/event11	 name: "virtio_input_multi_touch_10";add device 3: /dev/input/event8	 name: "virtio_input_multi_touch_7";add device 4: /dev/input/event5	 name: "virtio_input_multi_touch_4";add device 5: /dev/input/event12	 name: "virtio_input_multi_touch_11";
+[23:54:23] shot LK-23-gallery-pinched
+[23:54:23] gallery log: pinch zoom 4.25 
+[23:54:25] shot LK-23b-gallery-zoomed-panned
+[23:54:27] shot LK-24-gallery-double-tap-reset
+[23:54:27] gallery log: pinch zoom 4.25 double-tap zoom 1.00 
+[23:54:29] shot LK-25-gallery-double-tap-zoom
+[23:54:29] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 
+[23:54:32] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[23:54:32] pinch-out at 240,330 on /dev/input/event11 (max 32767 x 32767)
+[23:54:34] shot LK-25b-gallery-raw-pinch
+[23:54:34] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[23:54:35] double-tap at 240,330
+[23:54:38] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[23:54:40] shot LK-26-gallery-swiped-next
+[23:54:47] tab Home
+[23:54:54] lk_tapui 'Members'
+[23:55:02] lk step new-post
+[23:55:06] lk_tapui 'New post'
+[23:55:10] shot LK-10-new-post
+[23:55:14] lk_tapui 'Post'
+[23:55:17] shot LK-11-new-post-sent
+[23:55:20] tab Home
+[23:55:26] lk_tapui 'Members'
+[23:55:35] lk step new-photo-post
+[23:55:38] lk_tapui 'New post'
+[23:55:49] lk_tapui 'Photo'
+[23:55:53] shot LK-11b-photo-picker
+[23:56:00] lk_tapui: 'lkqa.png' not on screen
+[23:56:03] picker open, file row not found: back
+[23:56:09] qa pick image
+[23:56:09] shot LK-11c-photo-picked
+[23:56:12] lk_tapui 'Post'
+[23:56:17] shot LK-11d-photo-post-sent
+[23:56:23] tab Shorts
+[23:56:33] shot LK-12-shorts
+[23:56:33] lk step like-short
+[23:56:37] lk_tapui 'Like'
+[23:56:40] shot LK-13-short-liked
+[23:56:40] lk step comment-short
+[23:56:44] lk_tapui 'Comment'
+[23:56:49] shot LK-14-short-comments
+[23:56:56] lk_tapui 'Post'
+[23:56:58] shot LK-14b-short-comment-sent
+[23:57:01] lk step swipe-short
+[23:57:06] shot LK-15-short-swiped
+[23:57:11] shot LK-16-short-swiped2
+[23:57:15] lk_tapui 'Uploads'
+[23:57:21] shot LK-16b-shorts-uploads
+[23:57:21] lk step like-upload
+[23:57:24] lk_tapui 'Like'
+[23:57:26] lk step save-upload
+[23:57:34] lk_tapui: 'Save' not on screen
+[23:57:36] shot LK-16c-upload-liked-saved
+[23:57:36] lk step follow-creator
+[23:57:40] lk_tapui 'More'
+[23:57:44] lk_tapui '@[^"]*videos[^"]*'
+[23:57:48] shot LK-16d-creator
+[23:57:52] lk_tapui 'Follow'
+[23:57:54] shot LK-16e-creator-followed
+[23:57:58] lk step comment-upload
+[23:58:02] lk_tapui 'Comment'
+[23:58:12] lk_tapui 'Post'
+[23:58:14] shot LK-16f-upload-comments
+[23:58:16] lk step upload-short
+[23:58:20] lk_tapui 'Upload a Short'
+[23:58:24] shot LK-17-upload-picker
+[23:58:31] lk_tapui: 'lkqa.mp4' not on screen
+[23:58:34] picker open, file row not found: back
+[23:58:40] qa pick video
+[23:58:40] shot LK-17b-upload-picked
+[23:58:47] lk_tapui: 'Upload' not on screen
+[23:58:47] Upload button: fixed position
+[23:58:53] shot LK-17c-upload-sent
+[23:59:00] fixture false
+[23:59:09] tab Chats
+[23:59:13] shot LK-18-guest-chats
+[23:59:13] tab Home
+[23:59:17] shot LK-19-guest-channels
+[23:59:21] fixture true
+[23:59:33] tab Home
+[23:59:37] shot LK-20-channels-dark
+[23:59:40] lk_tapui 'Members'
+[23:59:43] shot LK-20b-members-dark
+[23:59:47] lk_tapui 'Telegram'
+[23:59:48] tab Home
+[23:59:54] lk_tapui 'Members'
+[00:00:04] shot LK-21-my-channel-dark
+[00:00:09] ---- qa/fx-nt.sh ----
+[00:00:16] ---- NT chat notifications ----
+[00:00:33] NT 1-posted: chat notifications=3 summary=1 titles: android.title=String (YID PLUS) android.title=String (Family 👨‍👩‍👧‍👦: Mommy) android.title=String (Yanky Weiss) android.title=String (Python לערנען‎: Yossi Klein) android.title=String (Configure physical keyboard) android.title=String (Serial console enabled) 
+[00:00:38] shot NT-01-shade-collapsed
+[00:00:42] NT tapped content-desc="Expand"
+[00:00:44] shot NT-02-shade-expanded
+[00:00:48] NT tapped content-desc="Expand"
+[00:00:50] shot NT-02b-second-expanded
+[00:00:51] NT: no text="Reply" on screen
+[00:00:51] NT 2-after-reply: chat notifications=3 summary=1 titles: android.title=String (YID PLUS) android.title=String (Family 👨‍👩‍👧‍👦: Mommy) android.title=String (Yanky Weiss) android.title=String (Python לערנען‎: Yossi Klein) android.title=String (Configure physical keyboard) android.title=String (Serial console enabled) 
+[00:00:59] NT: no text="Reply" on screen
+[00:01:01] NT: no text="Retry" on screen
+[00:01:01] NT 3-after-retry: chat notifications=3 summary=1 titles: android.title=String (YID PLUS) android.title=String (Family 👨‍👩‍👧‍👦: Mommy) android.title=String (Yanky Weiss) android.title=String (Python לערנען‎: Yossi Klein) android.title=String (Configure physical keyboard) android.title=String (Serial console enabled) 
+[00:01:08] NT: no text="Mark as read" on screen
+[00:01:08] NT 4-after-read: chat notifications=3 summary=1 titles: android.title=String (YID PLUS) android.title=String (Family 👨‍👩‍👧‍👦: Mommy) android.title=String (Yanky Weiss) android.title=String (Python לערנען‎: Yossi Klein) android.title=String (Configure physical keyboard) android.title=String (Serial console enabled) 
+[00:01:33] NT 5-after-poll-again: chat notifications=3 summary=1 titles: android.title=String (YID PLUS) android.title=String (Family 👨‍👩‍👧‍👦: Mommy) android.title=String (Yanky Weiss) android.title=String (Python לערנען‎: Yossi Klein) android.title=String (Configure physical keyboard) android.title=String (Serial console enabled) 
+[00:01:38] shot NT-08-after-poll-again
+[00:01:42] NT tapped text="Yanky Weiss"
+[00:01:48] shot NT-09-tap-opens-chat
+[00:01:48] NT 6-after-open: chat notifications=0 summary=0 titles: android.title=String (Configure physical keyboard) android.title=String (Serial console enabled) 
+[00:01:48] NT YidNotify log lines: 21
+[00:01:55] ---- qa/fx-nw.sh ----
+[00:02:07] nw open ai_row
+[00:02:07] shot NW-01-chatlist-status-ai
+[00:02:09] nw texts chatlist:  content-desc="Back"  text="Chats"  text="מ"  content-desc="Add status"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  content-desc="Pinned"  text="Ask me anything"  text="Y"  text="Yanky"  text="12:40"  text="Yanky: גוט שבת!"  text="ח"  text="חברים גרופע"  text="12:40" 
+[00:02:12] nw tapped 'YID PLUS AI'
+[00:02:15] shot NW-02-ai-chat
+[00:02:18] nw tapped 'Message YID PLUS AI'
+[00:02:20] shot NW-03-ai-typed
+[00:02:25] shot NW-04-ai-asked
+[00:02:29] nw tapped 'Clear chat'
+[00:02:30] shot NW-05-ai-clear-confirm
+[00:02:33] nw tapped 'Clear'
+[00:02:35] shot NW-06-ai-cleared-welcome
+[00:02:37] nw_tap: 'Give me an idea' not on screen
+[00:02:42] nw tapped 'Give me an idea'
+[00:02:45] shot NW-07-ai-chip-asked
+[00:02:54] nw open status
+[00:02:54] shot NW-08-status-viewer
+[00:02:56] nw texts viewer:  text="8:30 at the shul, bring a friend!"  content-desc="Close"  text="Y"  text="Yanky"  text="6h ago"  text="Reply…"  content-desc="Like status" 
+[00:03:00] shot NW-09-status-next
+[00:03:10] shot NW-10-status-next-user
+[00:03:14] nw tapped 'Like status'
+[00:03:17] shot NW-11-status-liked
+[00:03:22] nw tapped 'Reply…'
+[00:03:25] shot NW-12-status-replied
+[00:03:37] nw open status_me
+[00:03:37] shot NW-13-my-status
+[00:03:38] nw_tap: '14 views' not on screen
+[00:03:42] nw tapped '6 views'
+[00:03:44] shot NW-14-my-viewers
+[00:03:53] nw open status_me
+[00:03:56] nw tapped 'More'
+[00:03:57] shot NW-15-my-status-menu
+[00:04:00] nw tapped 'Delete'
+[00:04:02] shot NW-16-my-status-deleted
+[00:04:10] nw open post_status
+[00:04:10] shot NW-17-post-status
+[00:04:15] nw tapped 'Change colour'
+[00:04:18] nw tapped 'Change colour'
+[00:04:19] shot NW-18-post-status-typed
+[00:04:25] nw tapped 'Followers'
+[00:04:27] shot NW-18b-post-status-colours
+[00:04:30] nw tapped 'Post status'
+[00:04:33] shot NW-19-after-post
+[00:04:39] nw open saved
+[00:04:39] shot NW-20-saved
+[00:04:40] nw texts saved:  content-desc="Back"  text="Saved items"  text="3 items"  text="אביסל חינוך פאראן דאגי אויך &#128021;&#129325;"  text="Short · @Shimel’a · 8h"  content-desc="Remove from saved"  text="@DealPoint"  text="Short · 1d"  content-desc="Remove from saved"  text="מזמור לדוד"  text="Song · Yid Plus Music · 3d"  content-desc="Remove from saved" 
+[00:04:44] nw tapped 'Remove from saved'
+[00:04:45] shot NW-21-unsaved-undo
+[00:04:48] nw tapped 'UNDO'
+[00:04:50] shot NW-22-undo
+[00:04:56] shot NW-23-saved-short-playing
+[00:05:06] nw open history
+[00:05:06] shot NW-24-history
+[00:05:10] nw tapped 'Clear all'
+[00:05:11] shot NW-25-history-confirm
+[00:05:14] nw tapped 'Clear'
+[00:05:16] shot NW-26-history-cleared
+[00:05:26] nw open ai_row
+[00:05:26] shot NW-27-dark-chatlist
+[00:05:30] nw tapped 'YID PLUS AI'
+[00:05:33] shot NW-28-dark-ai
+[00:05:45] nw open saved
+[00:05:45] shot NW-29-dark-saved
+[00:05:50] nw writes so far: 17
+[00:05:50] fixture writes the app would have sent: 17
+[00:05:54] fixture false
+push: 11-12 00:06:01.131 23011 23011 I YidplusPush: probe: token ok (142 chars)

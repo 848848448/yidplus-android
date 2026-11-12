@@ -1,0 +1,27 @@
+first start: TotalTime: 1422
+first start: WaitTime: 1423
+cold start 1 (before profile compile): TotalTime: 462
+cold start 2 (before profile compile): TotalTime: 482
+cold start 3 (before profile compile): TotalTime: 422
+cold start 1 (baseline profile compiled): TotalTime: 426
+cold start 2 (baseline profile compiled): TotalTime: 409
+cold start 3 (baseline profile compiled): TotalTime: 407
+Total frames rendered: 3
+Janky frames: 1 (33.33%)
+50th percentile: 5ms
+90th percentile: 89ms
+95th percentile: 89ms
+99th percentile: 89ms
+Number Slow UI thread: 0
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 1
+50th gpu percentile: 2ms
+90th gpu percentile: 4950ms
+95th gpu percentile: 4950ms
+99th gpu percentile: 4950ms
+push: 11-12 00:06:01.131 23011 23011 I YidplusPush: probe: token ok (142 chars)
+11-12 00:01:40.729 21009 21009 I YidPerf : Chats content 240 ms after open
+11-12 00:01:56.692 21494 21494 I YidPerf : Chats content 465 ms after process start
+11-12 00:02:10.854 21494 21494 I YidPerf : AiChat content 8 ms after open
+11-12 00:05:28.467 21494 21494 I YidPerf : AiChat content 20 ms after open (cache)
+11-12 00:05:56.224 23011 23011 I YidPerf : Chats content 588 ms after process start
