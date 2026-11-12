@@ -162,7 +162,9 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
         var menu by remember { mutableStateOf(false) }
         var report by remember { mutableStateOf(false) }
         var block by remember { mutableStateOf(false) }
-        var busy by remember { mutableStateOf(false) }
+        var localFollow by remember(userId) { mutableStateOf<Boolean?>(null) }
+    var localPending by remember(userId) { mutableStateOf(false) }
+    var busy by remember { mutableStateOf(false) }
         var pulling by remember { mutableStateOf(false) }
         val videos = remember { mutableStateListOf<JSONObject>() }
         val music = remember { mutableStateListOf<Track>() }
@@ -192,8 +194,11 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
         }
         val nick = p?.str("nickname")?.ifBlank { null } ?: name.ifBlank { "User" }
         val photo = Api.abs(p?.strOrNull("photo_url"))
-        val following = f?.optBoolean("is_following") == true
-        val pending = f?.optBoolean("has_pending_request") == true
+        // What the last tap did wins until the server's own answer agrees (a slow or cached read must not flip the button back).
+        val srvFollowing = f?.optBoolean("is_following") == true
+        val following = localFollow ?: srvFollowing
+        val pending = !following && (localPending || f?.optBoolean("has_pending_request") == true)
+        val followDelta = if (localFollow != null && localFollow != srvFollowing) (if (localFollow == true) 1 else -1) else 0
         val isPrivate = f?.optBoolean("is_private") == true
         val iBlocked = p?.optBoolean("i_blocked") == true
         fun follow() {
@@ -201,15 +206,16 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
             if (busy) return; busy = true
             scope.launch {
                 try {
-                    if (following) { Api.delete("/api/follows?user_id=" + soEnc(userId)); toast(c, "Unfollowed") }
-                    else if (!pending) { val r = Api.post("/api/follows", JSONObject().put("user_id", userId)).soCheck(); toast(c, if (r.optBoolean("requested")) "Follow request sent" else "Following!") }
+                    if (following) { Api.delete("/api/follows?user_id=" + soEnc(userId)); localFollow = false; toast(c, "Unfollowed") }
+                    else if (!pending) { val r = Api.post("/api/follows", JSONObject().put("user_id", userId)).soCheck()
+                        if (r.optBoolean("requested")) { localPending = true; toast(c, "Follow request sent") } else { localFollow = true; toast(c, "Following!") } }
                     load()
                 } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { busy = false }
             }
         }
         val link = Api.BASE + "/?channel=" + soEnc(userId)
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            TopBar("@$nick", onBack = { Nav.back() }) {
+            TopBar("@\u2068$nick\u2069", onBack = { Nav.back() }) {
                 IconBtn(Sym.Share, "Share", { share(c, "@$nick on YID PLUS\n$link") }, tint = LocalContentColor.current)
                 Box {
                     IconBtn(Sym.MoreVert, "More", { menu = true }, tint = LocalContentColor.current)
@@ -248,7 +254,7 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                                 if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(19.dp))
                                 if (isPrivate) Icon(Sym.Lock, "Private", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
-                            Text("@$nick", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("@\u2068$nick\u2069", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             val role = j.str("role")
                             if (role.isNotBlank() && role != "member") Text(role.replace('_', ' ').replaceFirstChar { it.uppercase() }, Modifier.padding(top = 4.dp)
                                 .background(Green.copy(alpha = .14f), RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 2.dp), fontSize = 12.sp, color = Green, fontWeight = FontWeight.SemiBold)
@@ -263,7 +269,7 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                                     Text(" Website", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium) }
                             }
                             Row(Modifier.padding(top = 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                HmStat(f?.optInt("followers") ?: 0, "Followers") { Nav.open(HmFollowListPage(userId, nick, true)) }
+                                HmStat(((f?.optInt("followers") ?: 0) + followDelta).coerceAtLeast(0), "Followers") { Nav.open(HmFollowListPage(userId, nick, true)) }
                                 HmStat(f?.optInt("following") ?: 0, "Following") { Nav.open(HmFollowListPage(userId, nick, false)) }
                                 HmStat(stats.optInt("shorts", videos.size), "Videos") { tab = 0 }
                                 HmStat(stats.optInt("music", music.size), "Music") { tab = 1 }
@@ -362,7 +368,7 @@ data class HmFollowListPage(val userId: String, val nick: String, val followers:
                             verticalAlignment = Alignment.CenterVertically) {
                             SoThumb(Api.abs(u.strOrNull("photo_url")), name, 48.dp)
                             Row(Modifier.weight(1f).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text("@$name", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+                                Text("@\u2068$name\u2069", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                                     style = TextStyle(textDirection = TextDirection.Content))
                                 if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }

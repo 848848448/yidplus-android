@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.activity.compose.BackHandler
 import android.content.Context
@@ -82,10 +84,17 @@ fun HomeScreen() {
     val views = listOf("Telegram", "Joined", "Members", "Recent")
     var hdrShown by remember { mutableStateOf(true) }
     LaunchedEffect(view) { hdrShown = true }
+    // Coming back to the tab (or opening it from elsewhere) always shows the search pill and the chips.
+    LaunchedEffect(Nav.tab) { hdrShown = true }
     val hdrConn = remember { object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+        // Any finger move toward the top brings the pill and chips back (even on a short list that cannot scroll, or at its top
+        // where pull-to-refresh takes the drag); only a real scroll down hides them.
+        override fun onPreScroll(available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): androidx.compose.ui.geometry.Offset {
+            if (available.y > 6f) hdrShown = true
+            return androidx.compose.ui.geometry.Offset.Zero
+        }
         override fun onPostScroll(consumed: androidx.compose.ui.geometry.Offset, available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): androidx.compose.ui.geometry.Offset {
-            // Hide after a real scroll down; show on any scroll up or when the list is pulled past its top.
-            if (consumed.y < -8f) hdrShown = false else if (consumed.y > 8f || available.y > 8f) hdrShown = true
+            if (consumed.y < -8f) hdrShown = false
             return androidx.compose.ui.geometry.Offset.Zero
         } } }
 
@@ -118,7 +127,10 @@ fun HomeScreen() {
             Icon(Sym.TravelExplore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             Text("Search all of YID PLUS", Modifier.padding(start = 12.dp), color = MaterialTheme.colorScheme.primary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
         }
-        Box(Modifier.weight(1f).nestedScroll(hdrConn)) {
+        Box(Modifier.weight(1f).nestedScroll(hdrConn).onPreviewKeyEvent { e ->
+            // D-pad: a press of Up brings the pill and chips back, so focus can always reach them.
+            if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && e.key == androidx.compose.ui.input.key.Key.DirectionUp) hdrShown = true
+            false }) {
             if (view == 4) HmFeed(onSeeChannels = { view = 2; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", 2).apply() } })
             else if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
             else PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
