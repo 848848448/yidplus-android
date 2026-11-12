@@ -289,7 +289,10 @@ object ChatNotify {
         if (group) style.setConversationTitle(r.name)
         var lastSender: Person? = null; var lastSenderIcon: Bitmap? = null
         var others = 0; var lastFailed: String? = null; var lastT = 0L
-        for (i in 0 until msgs.length()) {
+        // A small screen (Qin F21, 480x640 = 427 dp tall) shows the newest 4 lines, so the expanded chat with its
+        // Reply / Mark as read row fits under the quick settings without scrolling.
+        val cap = if (c.resources.configuration.screenHeightDp in 1..559) 4 else MAX_STACK
+        for (i in maxOf(0, msgs.length() - cap) until msgs.length()) {
             val m = msgs.optJSONObject(i) ?: continue
             val mine = m.optBoolean("mine")
             val t = m.optLong("t", System.currentTimeMillis()); if (t > lastT) lastT = t
@@ -398,6 +401,7 @@ object ChatNotify {
     /** QA only: forget every notification record (the caller then runs a first, silent check). */
     fun qaReset(c: Context) {
         store(c).edit().clear().commit(); seenStore(c).edit().clear().commit()
+        c.getSharedPreferences("qa-nt", Context.MODE_PRIVATE).edit().clear().commit()
         c.getSharedPreferences("notify-state", Context.MODE_PRIVATE).edit().clear().commit()
         NotificationManagerCompat.from(c).cancelAll()
     }
