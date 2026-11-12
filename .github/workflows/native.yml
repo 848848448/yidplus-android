@@ -65,11 +65,16 @@ jobs:
   qa:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 100
+    timeout-minutes: 70
     strategy:
       fail-fast: false
       matrix:
-        target: [default, google_apis]
+        include:
+          - { target: default, part: base, fx: '' }
+          - { target: google_apis, part: base, fx: '' }
+          - { target: default, part: fx1, fx: 'qa/fx-ad.sh qa/fx-ch.sh' }
+          - { target: default, part: fx2, fx: 'qa/fx-lk.sh qa/fx-nw.sh' }
+          - { target: default, part: fx3, fx: 'qa/fx-nt.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -81,7 +86,10 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
       - name: Emulator test (Android 11, no Google services, 480x640 + phone + tablet, D-pad)
-        timeout-minutes: 85
+        timeout-minutes: 55
+        env:
+          QA_SKIP_FX: ${{ matrix.part == 'base' && '1' || '' }}
+          QA_FX: ${{ matrix.fx }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -99,6 +107,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           test -d qa/out || exit 0
-          cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-${{ matrix.target }} && git add -A
+          cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native QA run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-${{ matrix.target }}
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }}
