@@ -1,0 +1,224 @@
+[09:07:47] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[09:07:51] screen 480x640 @ 240 dpi
+Starting: Intent { cmp=com.yidplus.app/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.yidplus.app/.MainActivity
+TotalTime: 1175
+WaitTime: 1184
+Complete
+[09:07:54] shot 00-splash
+[09:08:01] shot 01-start
+[09:08:02] bottom bar = the site's own (read from yidplus.com/api/settings): 
+[09:08:02] tab Home
+[09:08:07] shot 01-home
+[09:08:10] FOCUS after DOWN:  text="" content-desc="" bounds="[194,459][297,531]"
+[09:08:10] shot 02-home-dpad
+[09:08:14] FOCUS after DOWN DOWN:  text="" content-desc="" bounds="[194,459][297,531]"
+[09:08:14] shot 03-home-dpad-3
+[09:08:23] FOCUS after OK (open channel):  text="" content-desc="" bounds="[339,51][405,123]"
+[09:08:23] shot 04-channel
+[09:08:27] FOCUS after DOWN DOWN in channel:  text="" content-desc="" bounds="[363,495][477,567]"
+[09:08:27] shot 05-channel-dpad
+[09:08:33] shot 06-channel-media
+[09:08:37] FOCUS after BACK:  text="" content-desc="" bounds="[163,421][317,493]"
+[09:08:41] FOCUS after BACK to list:  (no text)  nothing focused
+[09:08:41] shot 07-back-to-home
+[09:08:57] shot 06a-gallery-open
+[09:08:57] gallery opened: no counter
+[09:09:02] shot 06b-gallery-swiped
+[09:09:02] after swipe left: no counter
+[09:09:05] shot 06c-gallery-zoomed
+[09:09:09] zoomed + swipe (should stay): no counter
+[09:09:16] keypad RIGHT: no counter
+[09:09:21] shot 06d-gallery-closed
+[09:09:21] after drag down: closed
+[09:09:21] GALLERY SKIP: the live channel had no posts yet (site still fetching); the gallery is tested with fixture photos in qa/fx-lk.sh
+[09:09:22] open https://yidplus.com/chat
+[09:09:28] shot 08-chats
+[09:09:29] FOCUS after chats opened:  (no text)  nothing focused
+[09:09:38] shot 09-chat-room
+[09:09:39] FOCUS after OK (open chat):  text="" content-desc="" bounds="[323,144][456,216]"
+[09:09:41] shot 10-chats-back
+[09:09:42] open https://yidplus.com/chat
+[09:09:47] shot A0-chats-list
+[09:09:49] shot A1-chats-search
+[09:09:57] shot A2-chats-search-results
+[09:10:01] shot A2b-search-closed-by-back
+[09:10:01] open https://yidplus.com/chat
+[09:10:14] shot A3-chat-room-bubbles
+[09:10:16] FOCUS after OK on the first chat:  text="" content-desc="" bounds="[163,421][317,493]"
+[09:10:18] shot A4-chat-menu
+[09:10:26] shot A5-chat-info
+[09:10:30] shot A5b-back-in-chat
+[09:10:34] shot A6-message-actions
+[09:10:40] shot A7-back-to-list
+[09:10:46] shot A8-notification-chat
+[09:10:48] shot A8b-notification-expanded
+[09:10:48] expand button: 397 319 469 391 
+[09:10:49] stacked messages shown:       1 text="I'll be there at 8" 
+[09:10:49] notification Reply button: 108 394 195 466 
+[09:10:53] shot A9-notification-reply-box
+[09:10:55] reply box: 
+[09:11:00] open https://yidplus.com/shorts
+[09:11:10] shot 11-shorts-hint
+[09:11:18] shot 12-shorts-playing
+[09:11:27] shot 13-shorts-next
+[09:11:27] DOWN = next video
+[09:11:42] shot 13b-shorts-swiped
+[09:11:42] 3 light swipes up = 3 videos on
+[09:12:09] dedupe: checked 200 videos: removed 11 re-posted duplicates; left: same id 0, same file 0, same picture+length 0
+[09:12:09] DEDUPE PASS
+[09:12:11] shot 14-shorts-paused
+[09:12:16] shot 15-shorts-liked
+[09:12:16] key 1 = like
+[09:12:22] shot 16-shorts-comments
+[09:12:22] key 3 = comments
+[09:12:37] shot 17-shorts-uploads
+[09:12:37] * * = Uploads tab
+[09:12:47] FOCUS after BACK from Shorts:  text="" content-desc="" bounds="[163,421][317,493]"
+[09:12:47] shot 18-after-shorts-back
+[09:12:47] tab Home
+[09:12:51] shot B01-channels-telegram
+[09:12:54] tapui 'Members'
+[09:12:59] shot B02-channels-members
+[09:13:03] tapui 'Recent'
+[09:13:06] shot B03-channels-recent
+[09:13:09] tapui 'Members'
+[09:13:19] shot B04-member-channel
+[09:13:21] FOCUS after tap a member channel:  (no text)  nothing focused
+[09:13:22] tapui: 'Shorts \([0-9]+\)' not on screen
+[09:13:23] shot B05-member-channel-shorts
+[09:13:23] tab Home
+[09:13:29] tapui 'Telegram'
+[09:13:38] shot B06-tg-channel-joinbar
+[09:13:40] tapui: 'More' not on screen
+[09:13:41] shot B07-tg-channel-menu
+[09:13:42] tapui: 'Channel info' not on screen
+[09:13:47] shot B08-tg-channel-info
+[09:13:47] tab Home
+[09:13:52] tapui 'Search'
+[09:13:54] shot B09-channels-search
+[09:13:58] shot B10-channels-search-typed
+[09:14:01] tapui 'Search all of YID PLUS'
+[09:14:06] shot B11-global-search
+[09:14:10] tapui 'Telegram'
+[09:14:12] shot B12-global-search-telegram
+[09:14:17] tab Home
+[09:14:22] tapui 'Profile'
+[09:14:23] shot B13-avatar-menu
+[09:14:26] tab Home
+[09:14:27] open https://yidplus.com/shorts
+[09:14:44] shot B14-shorts-creator-page
+[09:14:44] key 8 = creator page
+[09:14:44] open https://yidplus.com/shorts
+[09:14:52] shot B15-shorts-search
+[09:14:52] key 9 = search
+[09:14:57] open https://yidplus.com/shorts
+[09:15:06] shot B16-shorts-upload
+[09:15:06] key 7 = upload (signed out: sign-in prompt)
+[09:15:09] open https://yidplus.com/music
+[09:15:13] shot 19a-music-off-on-site
+[09:15:15] FOCUS after open /music while the site has Music off:  text="" content-desc="" bounds="[163,421][317,493]"
+[09:15:17] open https://yidplus.com/music
+[09:15:23] shot 19-music
+[09:15:25] FOCUS after DOWN in music:  text="" content-desc="" bounds="[195,495][285,567]"
+[09:15:33] shot 20-music-playing
+[09:15:33] OK = play
+[09:15:36] shot 21-music-player
+[09:15:38] FOCUS after player opened:  text="" content-desc="" bounds="[192,523][288,568]"
+[09:15:41] shot 22-music-notification
+[09:15:45] tab Profile
+[09:15:48] shot 23-profile-signin
+[09:15:49] FOCUS after profile opened:  text="" content-desc="" bounds="[24,263][456,335]"
+[09:15:53] FOCUS after DOWN DOWN in sign-in form:  text="" content-desc="" bounds="[24,421][456,493]"
+[09:15:53] shot 24-profile-dpad
+[09:16:06] FOCUS after DOWN x8 (settings):  text="" content-desc="" bounds="[0,372][480,493]"
+[09:16:06] shot 25-settings
+[09:16:17] shot 26-check-updates
+[09:16:20] qa_page demo
+[09:16:20] shot set40-settings-signed-in
+[09:16:37] FOCUS after DOWN x12 in settings:  text="" content-desc="" bounds="[309,459][444,531]"
+[09:16:37] shot set40b-settings-scrolled
+[09:17:03] FOCUS after OK on first row:  text="" content-desc="" bounds="[244,385][444,457]"
+[09:17:03] shot set40c-dpad-opened
+[09:17:08] qa_page demo:EditProfile
+[09:17:08] shot set41-edit-profile
+[09:17:12] qa_page demo:Privacy
+[09:17:13] shot set42-privacy
+[09:17:17] qa_page demo:Security
+[09:17:17] shot set43-security
+[09:17:21] qa_page demo:NotifPrefs
+[09:17:21] shot set44-notification-prefs
+[09:17:26] qa_page demo:Blocked
+[09:17:26] shot set45-blocked
+[09:17:30] qa_page demo:FollowRequests
+[09:17:30] shot set46-follow-requests
+[09:17:34] qa_page demo:Feedback
+[09:17:35] shot set47-feedback
+[09:17:39] qa_page demo:About
+[09:17:39] shot set48-about
+[09:17:44] qa_page demo:Admin
+[09:17:44] shot set49-admin
+[09:17:52] shot set49b-admin-features
+[09:18:00] qa_page demo
+[09:18:00] shot set50-settings-dark
+[09:18:03] qa_page demo:EditProfile
+[09:18:03] shot set51-edit-profile-dark
+[09:18:08] qa_page demo:Admin
+[09:18:08] shot set52-admin-dark
+[09:18:15] qa_page off
+[09:18:15] tab Profile
+[09:18:17] shot set53-settings-signed-out-again
+[09:18:20] tab Home
+[09:18:24] shot 27-home-dark
+[09:18:24] open https://yidplus.com/chat
+[09:18:28] shot 28-chats-dark
+[09:18:28] tab Profile
+[09:18:31] shot 29-profile-dark
+[09:18:45] shot 30-offline-home
+[09:18:45] open https://yidplus.com/music
+[09:18:48] shot 31-offline-music
+[09:19:00] tab Home
+[09:19:05] shot 32-back-online
+Success
+[09:20:00] tab Home
+[09:20:37] screen 1080x2400 @ 420 dpi
+[09:20:46] shot 40-phone-home
+[09:20:53] shot 41-phone-channel
+[09:20:55] open https://yidplus.com/chat
+[09:20:59] shot 42-phone-chats
+[09:20:59] open https://yidplus.com/shorts
+[09:21:23] shot 43-phone-shorts
+[09:21:23] open https://yidplus.com/music
+[09:21:27] shot 44-phone-music
+[09:21:27] tab Profile
+[09:21:30] shot 45-phone-profile
+[09:21:33] screen 2400x1080 @ 420 dpi
+[09:21:40] shot 46-phone-landscape-home
+[09:21:41] open https://yidplus.com/shorts
+[09:21:56] shot 47-phone-landscape-shorts
+[09:21:59] screen 1600x2560 @ 320 dpi
+[09:22:18] shot 50-tablet-portrait-home
+[09:22:27] shot 51-tablet-portrait-channel
+[09:22:27] open https://yidplus.com/chat
+[09:22:32] shot 55-tablet-portrait-chats
+[09:22:32] open https://yidplus.com/shorts
+[09:22:54] shot 56-tablet-portrait-shorts
+[09:22:55] open https://yidplus.com/music
+[09:22:59] shot 57-tablet-portrait-music
+[09:23:01] screen 2560x1600 @ 320 dpi
+[09:23:09] shot 58-tablet-landscape-home
+[09:23:24] shot 52-tablet-landscape-channel
+[09:23:24] open https://yidplus.com/chat
+[09:23:30] shot 53-tablet-landscape-chats
+[09:23:30] open https://yidplus.com/shorts
+[09:23:49] shot 54-tablet-landscape-shorts
+[09:23:49] open https://yidplus.com/music
+[09:23:53] shot 59-tablet-landscape-music
+[09:23:53] tab Profile
+[09:23:56] shot 60-tablet-landscape-profile
+[09:23:57] signed-in fixture block skipped (QA_SKIP_FX=1; run in full on the feature branch)
+push: 11-12 09:23:59.468 11866 11866 I YidplusPush: probe: token ok (142 chars)
