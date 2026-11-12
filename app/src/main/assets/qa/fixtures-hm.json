@@ -1,0 +1,234 @@
+{
+ "/api/link-preview?url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FYiddish": {
+  "ok": true,
+  "title": "Yiddish - Wikipedia",
+  "description": "Yiddish is a West Germanic language historically spoken by Ashkenazi Jews.",
+  "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Yiddish_language_map.png/320px-Yiddish_language_map.png"
+ },
+ "/api/users/search?q=moshe": {
+  "ok": true,
+  "users": [
+   {
+    "id": "fxu1",
+    "nickname": "Moshe Fx",
+    "photo_url": null,
+    "verified": 1
+   },
+   {
+    "id": "fxu2",
+    "nickname": "משה גרין",
+    "photo_url": null
+   }
+  ]
+ },
+ "/api/profile?user_id=fxu1": {
+  "ok": true,
+  "profile": {
+   "id": "fxu1",
+   "nickname": "Moshe Fx",
+   "photo_url": null,
+   "bio": "א חסידישער זינגער פון וויליאמסבורג 🎤",
+   "location": "Brooklyn",
+   "website": "yidplus.com",
+   "role": "member",
+   "verified": 1,
+   "i_blocked": false,
+   "stats": {
+    "shorts": 2,
+    "music": 1
+   }
+  }
+ },
+ "/api/follows?user_id=fxu1": {
+  "ok": true,
+  "is_following": false,
+  "has_pending_request": false,
+  "is_private": false,
+  "followers": 128,
+  "following": 41
+ },
+ "/api/statuses?user_id=fxu1": {
+  "ok": true,
+  "statuses": []
+ },
+ "/api/shorts?owner_id=fxu1": {
+  "ok": true,
+  "shorts": [
+   {
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "owner_id": "fxu1",
+    "nick": "Moshe Fx",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 172,
+    "comments": 0,
+    "created_at": "2026-08-23T09:31:26.393Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "6630b5bb-e297-417b-bc25-fdd9d23836d9",
+    "owner_id": "fxu1",
+    "nick": "Moshe Fx",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 66,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:13.056Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664752750_9f8a7c54-32f9-41fa-807a-a2c2a7d801db.mp4",
+    "liked": false,
+    "saved": false
+   }
+  ]
+ },
+ "/api/music?owner_id=fxu1": {
+  "ok": true,
+  "tracks": []
+ },
+ "/api/follows?followers=1&user_id=fxu1": {
+  "ok": true,
+  "users": [
+   {
+    "id": "fxu2",
+    "nickname": "משה גרין",
+    "photo_url": null
+   },
+   {
+    "id": "demo-me",
+    "nickname": "משה'לע",
+    "photo_url": null
+   },
+   {
+    "id": "fxu3",
+    "nickname": "Yanky B",
+    "photo_url": null
+   }
+  ]
+ },
+ "/api/telegram-ingest?username=fxshiurim&limit=15": {
+  "ok": true,
+  "posts": [
+   {
+    "tg_msg_id": 110,
+    "text": "ברוך הבא! דאס איז א פעט ווארט, און א לינק צו דער וועבזייטל. סוד: עס קומט באלד א נייע ווערסיע",
+    "media_type": "",
+    "media_url": null,
+    "posted_at": "2026-11-12T03:40:00.000Z",
+    "views": 95,
+    "author_name": "",
+    "entities": [
+     {
+      "_": "messageEntityBold",
+      "offset": 20,
+      "length": 9
+     },
+     {
+      "_": "messageEntityTextUrl",
+      "offset": 37,
+      "length": 4,
+      "url": "https://yidplus.com/shorts"
+     },
+     {
+      "_": "messageEntitySpoiler",
+      "offset": 65,
+      "length": 27
+     }
+    ]
+   },
+   {
+    "tg_msg_id": 109,
+    "text": "א שיינע ארטיקל: https://en.wikipedia.org/wiki/Yiddish",
+    "media_type": "",
+    "media_url": null,
+    "posted_at": "2026-11-12T03:10:00.000Z",
+    "views": 120,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 108,
+    "text": "בילדער פון דער חתונה",
+    "media_type": "photo",
+    "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "grouped_id": "7771",
+    "posted_at": "2026-11-12T02:30:02.000Z",
+    "views": 200,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 107,
+    "text": "",
+    "media_type": "photo",
+    "media_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "grouped_id": "7771",
+    "posted_at": "2026-11-12T02:30:01.000Z",
+    "views": 200,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 106,
+    "text": "",
+    "media_type": "photo",
+    "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "grouped_id": "7771",
+    "posted_at": "2026-11-12T02:30:00.000Z",
+    "views": 200,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 105,
+    "text": "היינט: א נייע ווערסיע פון YID PLUS איז ארויס 🎉\nדערהייַנטיקט אייער אפ.",
+    "media_type": "",
+    "media_url": null,
+    "posted_at": "2026-11-11T20:55:00.000Z",
+    "views": 312,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 104,
+    "text": "א בילד פון דער שמחה",
+    "media_type": "photo",
+    "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "posted_at": "2026-11-11T17:20:00.000Z",
+    "views": 540,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 103,
+    "text": "",
+    "media_type": "photo",
+    "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "posted_at": "2026-11-11T17:19:00.000Z",
+    "views": 530,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 102,
+    "text": "ווידעא פון נעכטן",
+    "media_type": "video",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "media_duration": 34,
+    "posted_at": "2026-11-10T21:00:00.000Z",
+    "views": 801,
+    "author_name": ""
+   },
+   {
+    "tg_msg_id": 101,
+    "text": "https://yidplus.com – אלע נייעס אויף איין ארט",
+    "media_type": "",
+    "media_url": null,
+    "posted_at": "2026-11-09T09:00:00.000Z",
+    "views": 1020,
+    "author_name": ""
+   }
+  ]
+ },
+ "/api/telegram-reactions?username=fxshiurim": {
+  "ok": true,
+  "reactions": {}
+ }
+}
