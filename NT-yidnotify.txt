@@ -1,0 +1,66 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of kernel
+11-12 08:37:26.662  2591  2591 I YidNotify: fast check on for 30 min
+11-12 08:37:53.821  2591  2591 I YidNotify: fast check on for 30 min
+11-12 08:39:03.110  3269  3306 I YidNotify: check done: 13 rooms, 0 shown
+11-12 08:39:29.392  3428  3471 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:39:29.392  3428  3471 I YidNotify: qa reset done
+11-12 08:39:33.222  3428  3428 I YidNotify: fast check on for 30 min
+11-12 08:39:40.152  3428  3471 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-12 08:39:40.258  3428  3471 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-12 08:39:40.319  3428  3471 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-12 08:39:40.319  3428  3471 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-12 08:39:40.319  3428  3471 I YidNotify: qa poll done
+11-12 08:40:18.275  3428  3471 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:41:18.326  3428  3471 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:41:42.278  3428  3471 I YidNotify: reply room=nt-g1 sent=true
+11-12 08:41:42.476  3428  3471 I YidNotify: fast check on for 15 min
+11-12 08:41:51.822  3428  3469 I YidNotify: qa failnext done
+11-12 08:42:16.411  3428  3469 I YidNotify: reply room=nt-g3 sent=false (IOException: QA: simulated network failure)
+11-12 08:42:16.458  3428  3469 I YidNotify: fast check on for 15 min
+11-12 08:42:18.339  3428  3469 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:42:44.524  3428  4256 I YidNotify: reply room=nt-g3 sent=true
+11-12 08:42:44.537  3428  4256 I YidNotify: fast check on for 15 min
+11-12 08:43:18.474  3428  3462 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:43:33.261  3428  4934 I YidNotify: mark read room=nt-dm1 site=true
+11-12 08:43:42.345  3428  4934 I YidNotify: check done: 3 rooms, 0 shown (chats only)
+11-12 08:43:42.345  3428  4934 I YidNotify: qa poll done
+11-12 08:43:52.368  3428  4934 I YidNotify: qa forget done
+11-12 08:43:53.391  3428  4934 I YidNotify: room nt-g3: nothing new to alert
+11-12 08:43:53.392  3428  4934 I YidNotify: room nt-dm1: already seen up to 2026-11-11T19:31:00.000Z
+11-12 08:43:53.392  3428  4934 I YidNotify: room nt-g1: already seen up to 2026-11-11T19:40:00.000Z
+11-12 08:43:53.392  3428  4934 I YidNotify: check done: 3 rooms, 0 shown (chats only)
+11-12 08:43:53.392  3428  4934 I YidNotify: qa poll done
+11-12 08:44:18.540  3428  3471 I YidNotify: room r-dm1: already seen up to 2026-11-11T19:26:00.000Z
+11-12 08:44:18.540  3428  3471 I YidNotify: room r-g1: already seen up to 2026-11-11T19:19:00.000Z
+11-12 08:44:18.540  3428  3471 I YidNotify: room r-links: already seen up to 2026-11-11T19:24:00.000Z
+11-12 08:44:18.540  3428  3471 I YidNotify: room r-c1: already seen up to 2026-11-11T18:25:00.000Z
+11-12 08:44:18.541  3428  3471 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:44:38.649  3428  3428 I YidNotify: fast check on for 30 min
+11-12 08:44:49.948  5298  5342 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:44:49.948  5298  5342 I YidNotify: qa reset done
+11-12 08:44:53.884  5298  5298 I YidNotify: fast check on for 30 min
+11-12 08:45:00.702  5298  5342 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-12 08:45:00.712  5298  5342 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-12 08:45:00.723  5298  5342 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-12 08:45:00.723  5298  5342 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-12 08:45:00.723  5298  5342 I YidNotify: qa poll done
+11-12 08:45:38.933  5298  5341 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:46:01.873  5298  5342 I YidNotify: reply room=nt-g1 sent=true
+11-12 08:46:01.947  5298  5342 I YidNotify: fast check on for 15 min
+11-12 08:46:17.342  5298  5342 I YidNotify: mark read room=nt-dm1 site=true
+11-12 08:46:26.505  5298  5342 I YidNotify: check done: 3 rooms, 0 shown (chats only)
+11-12 08:46:26.505  5298  5342 I YidNotify: qa poll done
+11-12 08:46:36.528  5298  5342 I YidNotify: qa forget done
+11-12 08:46:37.557  5298  5342 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-12 08:46:37.557  5298  5342 I YidNotify: room nt-dm1: already seen up to 2026-11-11T19:31:00.000Z
+11-12 08:46:37.557  5298  5342 I YidNotify: room nt-g1: already seen up to 2026-11-11T19:40:00.000Z
+11-12 08:46:37.558  5298  5342 I YidNotify: check done: 3 rooms, 1 shown (chats only)
+11-12 08:46:37.558  5298  5342 I YidNotify: qa poll done
+11-12 08:46:38.967  5298  5342 I YidNotify: room r-dm1: already seen up to 2026-11-11T19:26:00.000Z
+11-12 08:46:38.967  5298  5342 I YidNotify: room r-g1: already seen up to 2026-11-11T19:19:00.000Z
+11-12 08:46:38.967  5298  5342 I YidNotify: room r-links: already seen up to 2026-11-11T19:24:00.000Z
+11-12 08:46:38.969  5298  5342 I YidNotify: room r-c1: already seen up to 2026-11-11T18:25:00.000Z
+11-12 08:46:38.971  5298  5342 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 08:47:08.221  5298  5298 I YidNotify: fast check on for 30 min
