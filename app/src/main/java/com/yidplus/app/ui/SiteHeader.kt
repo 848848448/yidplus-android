@@ -277,7 +277,7 @@ private fun HitRow(h: SoHit, c: Context, q: String = "") {
             is SoHit.Chat -> SoThumb(h.room.photo, h.room.name, 48.dp)
         }
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(hmMark(title, q), Modifier.weight(1f, fill = false), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content))
                 if ((h is SoHit.Member && h.verified) || (h is SoHit.User && h.verified)) Icon(Sym.Verified, null, tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(16.dp))

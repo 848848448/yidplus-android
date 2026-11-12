@@ -44,6 +44,9 @@ hm_find() {
   log "hm_find: '$want' not found after scrolling"
 }
 # hm_longui: long-press the first thing whose text or content-desc is exactly $1.
+# Press Back (at most 3 times) until $1 is on screen again.
+hm_back_to() { local n; for n in 1 2 3; do timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
+  timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n' | grep -qE "(text|content-desc)=\"$1\"" && return 0; key 4; sleep 2; done; log "hm_back_to: '$1' not reached"; }
 # Scroll the current list back to its top (shows the Channels tab's pill + chips again).
 hm_top() { hm_swipe 200 560 1; hm_swipe 200 560 1; hm_swipe 200 560 1; }
 hm_longui() {
@@ -94,7 +97,7 @@ hm_tapui "Search all of YID PLUS"; sleep 6; hm_hidekb; sleep 1; shot HM-07-searc
 hm_tapchip "Users"; sleep 5; hm_hidekb; shot HM-08-search-users
 hm_tapui "Moshe Fx"; sleep 6; shot HM-09-profile
 hm_mark profile-follow; hm_find "Follow"; sleep 4; shot HM-10-profile-followed
-hm_find "Message"; sleep 5; shot HM-11-profile-message; hm_hidekb; key 4; sleep 3
+hm_find "Message"; sleep 5; shot HM-11-profile-message; hm_hidekb; key 4; sleep 2; hm_back_to "Following"
 hm_find "Followers"; sleep 5; shot HM-12-followers-list; key 4; sleep 2
 hm_tapui "More"; sleep 1; shot HM-13-profile-menu
 hm_tapui "Report this user"; sleep 2
