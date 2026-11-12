@@ -13,7 +13,9 @@ sh_tapui() {
   set -- $bb; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; SH_OK=1; log "sh_tapui '$want'"
 }
 sh_texts() { timeout 30 adb shell uiautomator dump /sdcard/sh.xml >/dev/null 2>&1; log "texts ($1): $(timeout 20 adb shell cat /sdcard/sh.xml 2>/dev/null | grep -oE '(text|content-desc)="[^"]+"' | head -${2:-40} | tr '\n' ' ')"; }
-sh_dev() { timeout 10 adb shell getevent -pl 2>/dev/null | tr -d '\r' | awk '/add device/{d=$4} /ABS_MT_POSITION_X/{print d; exit}'; }
+# the emulator has ~11 virtio touch devices (one per possible display); only virtio_input_multi_touch_1 is on the main screen
+sh_dev() { local d; d=$(timeout 10 adb shell getevent -pl 2>/dev/null | tr -d '\r' | awk '/add device/{d=$4} /name:/{ if ($0 ~ /"virtio_input_multi_touch_1"/) {print d; exit} }')
+  [ -z "$d" ] && d=$(timeout 10 adb shell getevent -pl 2>/dev/null | tr -d '\r' | awk '/add device/{d=$4} /ABS_MT_POSITION_X/{print d; exit}'); echo "$d"; }
 sh_max() { timeout 10 adb shell getevent -pl "$1" 2>/dev/null | tr -d '\r' | grep "$2" | grep -oE 'max [0-9]+' | head -1 | awk '{print $2}'; }
 # a real double-tap (both touches inside 0.3 s)
 sh_dtap() {
@@ -25,7 +27,7 @@ sh_dtap() {
     c="$c sendevent $d 3 47 0; sendevent $d 3 57 $k; sendevent $d 3 53 $x; sendevent $d 3 54 $y; sendevent $d 3 58 60; sendevent $d 1 330 1; sendevent $d 0 0 0; sleep 0.03;"
     c="$c sendevent $d 3 57 -1; sendevent $d 1 330 0; sendevent $d 0 0 0;"
   done
-  timeout 20 adb shell "$c"; log "double-tap at $1,$2"
+  timeout 20 adb shell "$c"; log "double-tap at $1,$2 on $d"
 }
 # Back only while "$1" is still on screen (never one Back too many: that leaves the app)
 sh_back_while() { local n; for n in 1 2 3; do timeout 30 adb shell uiautomator dump /sdcard/sh.xml >/dev/null 2>&1
