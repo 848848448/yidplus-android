@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.semantics.selected
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -222,7 +223,7 @@ fun Badge(n: Int, muted: Boolean = false) {
     if (n <= 0) return
     Box(Modifier.heightIn(min = 20.dp).widthIn(min = 20.dp).clip(CircleShape).background(if (muted) MaterialTheme.colorScheme.outline else BadgeGreen)
         .padding(horizontal = 5.dp, vertical = 1.dp), contentAlignment = Alignment.Center) {
-        Text(if (n > 99) "99+" else n.toString(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Text(if (n > 99) "99+" else n.toString(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1)
     }
 }
 
@@ -520,4 +521,52 @@ fun CollapsingHeader(state: androidx.compose.foundation.lazy.LazyListState, cont
     androidx.compose.animation.AnimatedVisibility(visible = rememberHeaderVisible(state),
         enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
         exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()) { content() }
+}
+
+/**
+ * WhatsApp-2024 filter chips under the search field (All · Unread · Favourites · Groups …): 32 dp rounded chips that
+ * scroll sideways with end padding, the selected one light green with dark-green text, the rest grey. D-pad focusable.
+ */
+@Composable
+fun FilterChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, counts: List<Int?> = emptyList()) {
+    val dark = isDark()
+    androidx.compose.foundation.lazy.LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 24.dp, top = 2.dp, bottom = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(options.size) { i ->
+            val on = i == selected
+            val shape = RoundedCornerShape(50)
+            val bg = if (on) (if (dark) Color(0xFF103529) else Color(0xFFD8FDD2)) else (if (dark) Color(0xFF202C33) else Color(0xFFF0F2F5))
+            val ink = if (on) (if (dark) Color(0xFFD8FDD2) else Color(0xFF15603E)) else MaterialTheme.colorScheme.onSurfaceVariant
+            Row(Modifier.heightIn(min = 32.dp).clip(shape).background(bg).tap(shape) { onSelect(i) }
+                .semantics { contentDescription = options[i]; this.selected = on }.padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(options[i], color = ink, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
+                val n = counts.getOrNull(i)
+                if (n != null && n > 0) Text(" " + (if (n > 99) "99+" else n.toString()), color = ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+/**
+ * The open search (WhatsApp-2024): the bar turns into one field: back arrow, the query, a clear ✕, on the page's own
+ * surface (not green). Focus + keyboard come up at once; Back closes it (put a BackHandler on the screen too).
+ */
+@Composable
+fun SearchBarField(query: String, onQuery: (String) -> Unit, hint: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val fr = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { fr.requestFocus() } }
+    androidx.compose.material3.Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp, modifier = modifier) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconBtn(Sym.ArrowBack, "Close search", onBack, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 48.dp)
+            androidx.compose.foundation.text.BasicTextField(query, onQuery, Modifier.weight(1f).padding(horizontal = 6.dp).focusRequester(fr),
+                singleLine = true, textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface, fontSize = 17.sp,
+                    textDirection = androidx.compose.ui.text.style.TextDirection.Content),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+                decorationBox = { inner -> Box(contentAlignment = Alignment.CenterStart) {
+                    if (query.isEmpty()) Text(hint, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 17.sp, maxLines = 1)
+                    inner() } })
+            if (query.isNotEmpty()) IconBtn(Sym.Close, "Clear", { onQuery("") }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
 }
