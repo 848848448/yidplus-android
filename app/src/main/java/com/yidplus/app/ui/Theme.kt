@@ -35,7 +35,7 @@ val GreenDeep = Color(0xFF14221F)
 val Gold = Color(0xFFD4AF37)
 val GoldSoft = Color(0xFFF3E2A6)
 /** Unread badges, online dots, "sent" ticks. A lighter green than the bar so it reads on both. */
-val BadgeGreen = Color(0xFF25A36F)
+val BadgeGreen = Color(0xFF25D366)  // WhatsApp 2024 unread badge
 
 private val Light = lightColorScheme(
     primary = Green, onPrimary = Color.White,

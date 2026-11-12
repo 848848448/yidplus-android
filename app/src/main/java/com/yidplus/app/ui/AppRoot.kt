@@ -1,5 +1,9 @@
 package com.yidplus.app.ui
 
+import androidx.compose.runtime.remember
+
+import androidx.compose.ui.graphics.graphicsLayer
+
 import androidx.compose.foundation.layout.isImeVisible
 
 import androidx.activity.compose.BackHandler
@@ -103,7 +107,13 @@ fun AppRoot(onExit: () -> Unit) {
                                 Tab.Profile -> ProfileScreen()
                             }
                         }
-                        if (top != null) Box(Modifier.fillMaxSize().background(if (immersive) Color.Black else MaterialTheme.colorScheme.background)) {
+                        // WhatsApp-style entry: the opened screen slides in a little from the side and fades up (180 ms).
+                        // It runs through YidMotion, so Reduce motion (or the phone's "remove animations") makes it instant.
+                        val enter = remember { androidx.compose.animation.core.Animatable(0f) }
+                        val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+                        LaunchedEffect(Nav.stack.size, top) { if (top != null && !immersive) { enter.snapTo(1f); enter.animateTo(0f, androidx.compose.animation.core.tween(180)) } else enter.snapTo(0f) }
+                        if (top != null) Box(Modifier.fillMaxSize().graphicsLayer { translationX = enter.value * 56.dp.toPx() * (if (rtl) -1f else 1f); alpha = 1f - enter.value * 0.5f }
+                            .background(if (immersive) Color.Black else MaterialTheme.colorScheme.background)) {
                             androidx.compose.runtime.key(Nav.stack.size, top) {
                                 when (top) {
                                     is Screen.Channel -> ChannelScreen(top.ch)
@@ -128,7 +138,11 @@ fun AppRoot(onExit: () -> Unit) {
                 }
             }
             UpdateDialogs()
-            androidx.compose.material3.SnackbarHost(Snack.host, Modifier.align(Alignment.BottomCenter).padding(bottom = if (top == null && !wide) 72.dp else 16.dp))
+            androidx.compose.material3.SnackbarHost(Snack.host, Modifier.align(Alignment.BottomCenter).padding(bottom = if (top == null && !wide) 72.dp else 16.dp)) { data ->
+                // WhatsApp's snackbar: dark, 8 dp corners, the action in WhatsApp green
+                androidx.compose.material3.Snackbar(data, shape = RoundedCornerShape(8.dp), containerColor = Color(0xFF323739), contentColor = Color.White,
+                    actionColor = Color(0xFF25D366), modifier = Modifier.padding(horizontal = 8.dp))
+            }
         }
         }
     }
