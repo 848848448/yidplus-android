@@ -109,7 +109,7 @@ adq Admin 5; shot AD-50-home-glance; adfind "Overview"; sleep 1; shot AD-51-home
 adtop; adtap "Search admin…" 240 330; adtype "att"; adhidekb; sleep 1; shot AD-52-home-search; key 4
 log "---- AD 2.1: Overview ----"
 adx god-mode; shot AD-53-god-mode; key 4
-adx calls; shot AD-54-calls; adt "Yanky → Leah"; sleep 1; adt "OK"; sleep 2; proof "end call" "\"action\":\"end\""; key 4
+adx calls; shot AD-54-calls; adt "Yanky → Leah"; sleep 1; adt "Yes"; sleep 2; proof "end call" "\"action\":\"end\""; key 4
 adx now; shot AD-55-now; key 4
 adx analytics; shot AD-56-analytics; key 4
 adx growth; shot AD-57-growth; key 4
@@ -123,9 +123,9 @@ adx sessions; shot AD-63-sessions; key 4
 adx banned-devices; shot AD-64-banned; key 4
 adx badges; shot AD-65-badges; key 4
 adx ad-exempt; shot AD-66-ad-free; key 4
-adq AdminUser 6; adfind "Devices & IPs"; shot AD-67-user-more; key 4
+adq AdminUser 6; adfind "Edit details"; shot AD-67-user-more; adswipe; adswipe; shot AD-67b-user-devices-notes; key 4
 log "---- AD 2.1: Moderation ----"
-adx reports; shot AD-68-reports; adt "Moshe K"; sleep 1; shot AD-69-report-actions; adt "✓ Resolve"; sleep 2; proof "resolve report" "PUT /api/reports"; key 4
+adx reports; shot AD-68-reports; adt "Resolve"; sleep 2; shot AD-69-report-resolved; proof "resolve report" "PUT /api/reports"; key 4
 adx feedback; shot AD-70-feedback; key 4
 adx support-chats; shot AD-71-support; key 4
 adx support-thread; shot AD-72-support-thread; key 4
@@ -133,6 +133,7 @@ adx chat-watch; shot AD-73-chats; key 4
 adx room-read; shot AD-74-room-read; key 4
 adx shorts-mod; shot AD-75-shorts-mod; key 4
 adx statuses-mod; shot AD-76-statuses-mod; key 4
+adx music-mod; shot AD-76b-music-mod; adt "🗑"; sleep 1; adt "Yes"; sleep 2; proof "remove track" "DELETE /api/music"; key 4
 log "---- AD 2.1: Content ----"
 adx announcements; shot AD-77-announcements; adtap "Type announcement..." 240 200; adtype "Shalom_all"; adhidekb; adt "Post announcement"; sleep 1; adt "OK"; sleep 2; proof "announcement" "POST /api/admin/announcements"; key 4
 adx broadcast; shot AD-78-broadcast-schedule; key 4

@@ -60,6 +60,7 @@ val adPanels: Map<String, List<AdPanelDef>> = mapOf(
         AdPanelDef("support-chats", "Support", "Help chats from members", Sym.SupportAgent, ALL) { AdSupportPage() },
         AdPanelDef("chat-watch", "Chats", "Read, hide or delete rooms", Sym.Forum, ALL) { AdChatsPage() },
         AdPanelDef("shorts-mod", "Shorts", "Remove videos", Sym.Movie, ALL) { AdShortsModPage() },
+        AdPanelDef("music-mod", "Music", "The music library: remove tracks", Sym.MusicNote, ALL) { AdMusicModPage() },
         AdPanelDef("statuses-mod", "Statuses", "Remove statuses", Sym.Animation, SUPER) { AdStatusesModPage() },
         AdPanelDef("bad-words", "Word filter", "Words and phrases blurred for everyone", Sym.Block, OWNER) { AdminBadWordsPage() },
     ),
