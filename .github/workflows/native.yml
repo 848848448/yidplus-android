@@ -70,7 +70,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: quick, fx: 'qa/fx-ds.sh' }
+          - { target: default, part: base, fx: '' }
+          - { target: google_apis, part: base, fx: '' }
+          - { target: default, part: fx1, fx: 'qa/fx-ad.sh qa/fx-ch.sh' }
+          - { target: default, part: fx2, fx: 'qa/fx-lk.sh qa/fx-nw.sh' }
+          - { target: default, part: fx3, fx: 'qa/fx-nt.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
