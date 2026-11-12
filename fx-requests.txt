@@ -1,0 +1,46 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of kernel
+11-12 01:08:49.477  2578  2611 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 01:10:14.496  3293  3329 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 01:13:57.942  3457  3498 I YidFx   : PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+11-12 01:14:08.611  3457  5272 I YidFx   : PUT /api/profile {"is_private":1}
+11-12 01:14:17.758  3457  5272 I YidFx   : PUT /api/profile {"read_receipts":0}
+11-12 01:14:28.597  3457  4996 I YidFx   : PUT /api/profile {"notif_likes":0}
+11-12 01:14:50.503  3457  4996 I YidFx   : POST /api/notifications {"read":"all"}
+11-12 01:15:08.569  5586  5619 I YidFx   : POST /api/notifications {"read":"n1"}
+11-12 01:15:35.663  5586  5619 I YidFx   : PUT /api/settings {"key":"feat_music","value":"on"}
+11-12 01:15:41.274  5586  5620 I YidFx   : PUT /api/settings {"key":"feat_music","value":"off"}
+11-12 01:16:08.509  5586  5620 I YidFx   : PUT /api/admin/users {"id":"u-yanky","verified":true}
+11-12 01:16:34.298  5586  5618 I YidFx   : POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+11-12 01:17:03.758  5586  5618 I YidFx   : PUT /api/admin/users {"id":"u-yanky","blocked":true}
+11-12 01:17:14.821  5586  5620 I YidFx   : PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+11-12 01:17:26.803  5586  6568 I YidFx   : DELETE /api/reports?id=r1 < 0 bytes>
+11-12 01:17:37.846  5586  6567 I YidFx   : PUT /api/admin/users {"id":"u-mendy","blocked":true}
+11-12 01:17:49.780  5586  6567 I YidFx   : PUT /api/verify-request {"id":"v1","action":"approve"}
+11-12 01:18:02.702  5586  5620 I YidFx   : PUT /api/admin/users {"id":"u-chan1","verified":true}
+11-12 01:18:21.843  5586  6568 I YidFx   : POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+11-12 01:18:45.782  5586  5620 I YidFx   : POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+11-12 01:19:05.008  5586  6568 I YidFx   : POST /api/admin/bad-words {"word":"testbadword"}
+11-12 01:19:10.609  5586  6568 I YidFx   : DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+11-12 01:19:23.516  5586  5620 I YidFx   : POST /api/admin/verify-pin {"pin":"1234"}
+11-12 01:20:47.904  7525  7558 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+11-12 01:20:48.002  7525  7569 I YidFx   : POST /api/chat/read {"room_id":"fx-799246795176"}
+11-12 01:21:53.043  8089  8130 I YidFx   : POST /api/chat/read {"room_id":"r-g1"}
+11-12 01:22:11.495  8089  8131 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 01:22:21.361  8089  8130 I YidFx   : POST /api/chat/read {"room_id":"r-dm4"}
+11-12 01:22:30.295  8089  8131 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 01:22:38.649  8089  8122 I YidFx   : POST /api/chat/read {"room_id":"r-dm2"}
+11-12 01:23:06.084  8089  8121 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+11-12 01:23:12.409  8089  8130 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
+11-12 01:23:30.116  8089  8131 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
+11-12 01:23:44.376  8089  8131 I YidFx   : POST /api/chat/typing {"room_id":"r-links"}
+11-12 01:23:49.935  8089  8131 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+11-12 01:24:04.036  8089  8121 I YidFx   : POST /api/chat/typing {"room_id":"r-links"}
+11-12 01:24:09.335  8089  8131 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+11-12 01:24:19.918  8089  8131 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+11-12 01:24:38.379  8089  8122 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+11-12 01:24:43.520  8089  8121 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
+11-12 01:24:53.216  8089  8121 I YidFx   : PUT /api/chat/rooms {"room_id":"r-links","pinned_message_id":"l9"}
+11-12 01:25:16.449  8089  8131 I YidFx   : DELETE /api/chat?id=l9 < 0 bytes>
+11-12 01:25:27.660  8089  8131 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
