@@ -135,13 +135,14 @@ fun SoTgReactionRow(id: Long, reacts: SoTgReacts, modifier: Modifier = Modifier)
 }
 
 /** Joins / leaves a Telegram channel here on YID PLUS (the site's Join bar). Returns the new state, or null. */
-suspend fun soTgToggleJoin(ctx: Context, username: String): Pair<Boolean, Int>? {
+suspend fun soTgToggleJoin(ctx: Context, username: String, wasJoined: Boolean? = null): Pair<Boolean, Int>? {
     if (Session.me == null) { toast(ctx, "Sign in to join channels"); Nav.go(Tab.Profile); return null }
     return try {
         val r = Api.post("/api/telegram-join", JSONObject().put("username", username)).soCheck()
-        val joined = r.optBoolean("joined"); toast(ctx, if (joined) "Joined ✓" else "Left the channel")
+        // The site answers {joined}; when an answer has no "joined" (an old server), the tap still flips it.
+        val joined = if (r.has("joined") || wasJoined == null) r.optBoolean("joined") else !wasJoined; toast(ctx, if (joined) "Joined ✓" else "Left the channel")
         SoRefresh.tick++
-        joined to r.optInt("members")
+        joined to (if (r.has("members")) r.optInt("members") else -1)
     } catch (e: Exception) { toast(ctx, Api.friendly(e)); null }
 }
 
@@ -202,7 +203,7 @@ data class SoTgInfoPage(val ch: TgChannel) : PageScreen() {
                         Spacer(Modifier.height(14.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SoPill(if (joined) "Leave" else "Join", !joined, {
-                                if (!busy) scope.launch { busy = true; soTgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; busy = false } },
+                                if (!busy) scope.launch { busy = true; soTgToggleJoin(c, ch.username, joined)?.let { (j, n) -> members = if (n >= 0) n else (members + (if (j) 1 else -1)).coerceAtLeast(0); joined = j }; busy = false } },
                                 Modifier.firstFocus(), icon = if (joined) Sym.Logout else Sym.Add)
                             SoPill("Share", false, { share(c, ch.title + "\n" + soTgLink(ch.username)) }, icon = Sym.Share)
                             SoPill("Copy link", false, { soCopy(c, soTgLink(ch.username)) }, icon = Sym.Link)

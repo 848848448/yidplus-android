@@ -62,6 +62,7 @@ hm_tapui "More"; sleep 1; hm_tapui "Block this user"; sleep 2; shot HM-15-block-
 hm_mark profile-block; hm_tapui "Block"; sleep 3; shot HM-16-profile-blocked
 key 4; sleep 2; key 4; sleep 2
 # Recent searches (the empty search box now lists "moshe").
+tab Home; sleep 3
 hm_tapui "Search"; sleep 2; hm_tapui "Search all of YID PLUS"; sleep 3; shot HM-17-recent-searches
 key 4; sleep 1; key 4; sleep 2
 
@@ -71,6 +72,10 @@ hm_tapui "Members"; sleep 5
 timeout 10 adb shell input tap 240 250; sleep 6; shot HM-18-member-channel
 hm_tapui "Channel options"; sleep 1; shot HM-19-member-channel-menu
 key 4; sleep 1
+hm_tapui "Followers"; sleep 5; shot HM-25-my-followers
+hm_mark follower-remove; hm_tapui "Remove"; sleep 1; shot HM-26-remove-follower-confirm
+hm_tapui "Remove"; sleep 3; shot HM-27-follower-removed
+key 4; sleep 3
 hm_swipe 560 260; shot HM-20-member-channel-scrolled
 key 4; sleep 2
 
@@ -82,4 +87,27 @@ timeout 10 adb shell input swipe 240 200 240 200 1000; sleep 2; shot HM-24-notif
 hm_mark notif-markread; hm_tapui "Mark as read"; sleep 2
 hm_mark notifs-readall; hm_tapui "Mark all read"; sleep 3; shot HM-23-notifications-read
 key 4; sleep 2
+
+# 5. Two short screen videos (480x640, H.264): the Telegram channel by touch AND D-pad, then the Feed + search → profile → Follow.
+hm_rec_start() { timeout -k 3 40 adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit 28 "/sdcard/$1.mp4" >/dev/null 2>&1 & HM_REC=$!; HM_RECN="$1"; sleep 1; log "hm rec $1"; }
+hm_rec_stop() { wait "$HM_REC" 2>/dev/null; sleep 1; timeout 60 adb pull "/sdcard/$HM_RECN.mp4" "$OUT/$HM_RECN.mp4" >/dev/null 2>&1; timeout 10 adb shell rm -f "/sdcard/$HM_RECN.mp4" >/dev/null 2>&1; log "hm video $HM_RECN.mp4 $(stat -c %s "$OUT/$HM_RECN.mp4" 2>/dev/null)"; }
+tab Home; sleep 3; hm_tapui "Telegram"; sleep 2
+hm_rec_start HM-video-telegram
+hm_tapui "'?שיעורים יומיים"; sleep 4
+key 19; key 19; key 19; sleep 1; key 20; sleep 1
+key 82; sleep 2; key 4; sleep 1
+hm_swipe 220 560 1; hm_swipe 220 560 1; hm_swipe 560 220 1
+hm_tapui "Post options"; sleep 2; key 4; sleep 1
+key 4; sleep 2
+timeout 10 adb shell input swipe 240 250 240 250 900; sleep 2; key 4
+hm_rec_stop
+hm_rec_start HM-video-feed-profile
+hm_tapui "Feed"; sleep 4
+hm_swipe 560 220 1; hm_swipe 560 200 1; hm_swipe 200 600 1
+hm_tapui "Search"; sleep 1; timeout 10 adb shell input text "moshe"; sleep 1
+hm_tapui "Search all of YID PLUS"; sleep 3; hm_tapui "Users"; sleep 3
+hm_tapui "Moshe Fx"; sleep 4; hm_tapui "Followers"; sleep 3; key 4
+hm_rec_stop
+key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
+tab Home; sleep 2; hm_tapui "Telegram"; sleep 1
 check hm-done

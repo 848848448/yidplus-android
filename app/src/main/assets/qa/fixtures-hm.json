@@ -3,7 +3,7 @@
   "ok": true,
   "title": "Yiddish - Wikipedia",
   "description": "Yiddish is a West Germanic language historically spoken by Ashkenazi Jews.",
-  "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Yiddish_language_map.png/320px-Yiddish_language_map.png"
+  "image": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549"
  },
  "/api/users/search?q=moshe": {
   "ok": true,
@@ -492,6 +492,33 @@
     "views": 410,
     "created_at": "2026-11-12T03:30:00.000Z",
     "liked": true
+   }
+  ]
+ },
+ "/api/follows?followers=1&user_id=demo-me": {
+  "ok": true,
+  "users": [
+   {
+    "id": "fxu1",
+    "nickname": "Moshe Fx",
+    "photo_url": null,
+    "verified": 1
+   },
+   {
+    "id": "fxu3",
+    "nickname": "Yanky B",
+    "photo_url": null
+   }
+  ]
+ },
+ "/api/follows?following=1&user_id=demo-me": {
+  "ok": true,
+  "users": [
+   {
+    "id": "fxu1",
+    "nickname": "Moshe Fx",
+    "photo_url": null,
+    "verified": 1
    }
   ]
  }
