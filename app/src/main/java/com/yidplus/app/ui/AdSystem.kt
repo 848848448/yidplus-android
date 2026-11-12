@@ -47,7 +47,7 @@ class AdAppSettingsPage : PageScreen() {
             if (title == null && j.has("settings")) title = s.s("app_title").ifBlank { "YID PLUS" }
             fun toggle(k: String, on: Boolean, ok: String) = adminDo(c, scope, ok, { tick++ }) { adSaveSetting(k, if (on) "true" else "false") }
             adCard("🏷 Site name") {
-                AdField(title ?: "", { title = it }, "App title", Modifier.firstFocus())
+                AdField(title ?: "", { title = it }, "App title")
                 AdButton("Save") { val t = (title ?: "").trim(); if (t.isEmpty()) toast(c, "⚠ Title cannot be empty.") else adminDo(c, scope, "✅ Saved", { tick++ }) { adSaveSetting("app_title", t) } }
                 if (s.s("logo_url").isNotBlank()) AdRow("Logo", sub = "Change the logo on the website (upload is website only for now)", photo = s.s("logo_url"), letter = "Y")
             }
@@ -98,7 +98,7 @@ class AdAdsPage : PageScreen() {
         val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { media = it }
         AdPanel("Ads", sub = "Ads shown on the site and in the app", res = res) { j ->
             adCard("➕ New ad") {
-                AdField(title, { title = it }, "Ad title (optional)", Modifier.firstFocus()); AdField(link, { link = it }, "Link URL (optional)"); AdField(email, { email = it }, "Email address (optional)")
+                AdField(title, { title = it }, "Ad title (optional)"); AdField(link, { link = it }, "Link URL (optional)"); AdField(email, { email = it }, "Email address (optional)")
                 Row(Modifier.fillMaxWidth()) {
                     Box(Modifier.weight(1f)) { AdField(interval, { interval = it.filter(Char::isDigit) }, "Show every (minutes)", number = true) }
                     Box(Modifier.weight(1f)) { AdField(countdown, { countdown = it.filter(Char::isDigit) }, "Countdown (seconds)", number = true) }
@@ -109,17 +109,8 @@ class AdAdsPage : PageScreen() {
                     if (title.isBlank() && media == null) { toast(c, "⚠ Add a title or image/video."); return@AdButton }
                     scope.launch {
                         runCatching {
-                            val mb = MultipartBody.Builder().setType(MultipartBody.FORM)
-                                .addFormDataPart("title", title.trim()).addFormDataPart("link_url", link).addFormDataPart("email_url", email)
-                                .addFormDataPart("interval_minutes", interval.ifBlank { "60" }).addFormDataPart("countdown_seconds", countdown.ifBlank { "5" })
-                                .addFormDataPart("pages", pagesOpt[page].first).addFormDataPart("exempt_users", "[]")
-                            media?.let { u ->
-                                val type = c.contentResolver.getType(u) ?: "application/octet-stream"
-                                val bytes = withContext(Dispatchers.IO) { c.contentResolver.openInputStream(u)!!.use { it.readBytes() } }
-                                mb.addFormDataPart("media", if (type.startsWith("video")) "ad.mp4" else "ad.jpg", bytes.toRequestBody(type.toMediaType()))
-                            }
-                            val body = mb.build(); val buf = Buffer(); body.writeTo(buf)
-                            Api.upload("/api/admin/ads", buf.readByteArray(), body.contentType().toString())
+                            adMultipart(c, "/api/admin/ads", listOf("title" to title.trim(), "link_url" to link, "email_url" to email, "interval_minutes" to interval.ifBlank { "60" },
+                                "countdown_seconds" to countdown.ifBlank { "5" }, "pages" to pagesOpt[page].first, "exempt_users" to "[]"), "media", media)
                         }.onSuccess { toast(c, "✅ Ad created!"); title = ""; link = ""; email = ""; interval = "60"; countdown = "5"; media = null; tick++ }
                             .onFailure { toast(c, "❌ " + Api.friendly(it)) }
                     }
