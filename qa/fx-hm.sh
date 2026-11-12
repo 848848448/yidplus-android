@@ -14,17 +14,37 @@ hm_tapui() {
 }
 # A chip in a sideways-scrolling chip row: find the row by its first chip ("All"), swipe it left until the chip shows, tap it.
 hm_tapchip() {
-  local want="$1" row="" y n
+  local want="$1" row="" y1 y2 n x hit
   for n in 1 2 3 4; do
     timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
-    local x; x=$(timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n')
-    if echo "$x" | grep -qE "(text|content-desc)=\"$want\""; then hm_tapui "$want"; return 0; fi
+    x=$(timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n')
     row=$(echo "$x" | grep -E '(text|content-desc)="All"' | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
     [ -z "$row" ] && { log "hm_tapchip: no chip row"; return 0; }
-    set -- $row; y=$(( ($2 + $4) / 2 ))
-    timeout 10 adb shell input swipe 420 $y 80 $y 500; sleep 1.5
+    set -- $row; y1=$2; y2=$4
+    # Only a node on the chip row's own line counts (a "Users" group header further down is not the chip).
+    hit=$(echo "$x" | grep -E "(text|content-desc)=\"$want\"" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | paste -d' ' - - - - | awk -v a=$y1 -v b=$y2 '{c=($2+$4)/2; if (c>=a-4 && c<=b+4) {print; exit}}')
+    if [ -n "$hit" ]; then set -- $hit; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "hm_tapchip '$want'"; return 0; fi
+    timeout 10 adb shell input swipe 420 $(( (y1 + y2) / 2 )) 80 $(( (y1 + y2) / 2 )) 500; sleep 1.5
   done
   log "hm_tapchip: '$want' not found"
+}
+# hm_find: like hm_tapui, but scrolls the page up (content moves up) up to 3 times until the thing shows.
+hm_find() {
+  local want="$1" n
+  for n in 0 1 2 3; do
+    timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
+    if timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n' | grep -qE "(text|content-desc)=\"$want\""; then hm_tapui "$want"; return 0; fi
+    timeout 10 adb shell input swipe 240 420 240 260 400; sleep 1.5
+  done
+  log "hm_find: '$want' not found after scrolling"
+}
+# hm_longui: long-press the first thing whose text or content-desc is exactly $1.
+hm_longui() {
+  local want="$1" bb
+  timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
+  bb=$(timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n' | grep -E "(text|content-desc)=\"$want\"" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+  if [ -z "$bb" ]; then log "hm_longui: '$want' not on screen"; return 0; fi
+  set -- $bb; timeout 10 adb shell input swipe $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )) $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )) 1000; sleep 2; log "hm_longui '$want'"
 }
 # Hide the on-screen keyboard only when it is really up (a plain Back would leave the screen otherwise).
 hm_hidekb() { if timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -q 'mInputShown=true'; then key 4; sleep 1; log "hm keyboard hidden"; fi; }
@@ -46,9 +66,9 @@ hm_tapui "Telegram"; sleep 2
 # 1. A Telegram channel: Telegram order (newest at the bottom), formatting, link card, album grid, day chips, live check, Join.
 tab Home; sleep 4
 hm_tapui "Telegram"; sleep 3
-timeout 10 adb shell input swipe 240 250 240 250 1000; sleep 2; shot HM-38-tg-row-longpress-menu
+hm_longui "יידישע נייעס"; shot HM-38-tg-row-longpress-menu
 hm_mark tg-row-markread; hm_tapui "Mark as read"; sleep 2; shot HM-39-tg-row-read
-hm_tapui "'?שיעורים יומיים"; sleep 8; shot HM-01-tg-newest-at-bottom
+hm_find "'?שיעורים יומיים"; sleep 8; shot HM-01-tg-newest-at-bottom
 hm_tapui "Post options"; sleep 1; shot HM-36-tg-post-menu; key 4; sleep 1
 hm_tapui "Search in channel"; sleep 1; timeout 10 adb shell input text "wikipedia"; sleep 2; shot HM-37-tg-search-in-channel
 hm_hidekb; hm_tapui "Search in channel"; sleep 2
@@ -66,9 +86,9 @@ timeout 10 adb shell input text "moshe"; sleep 3
 hm_tapui "Search all of YID PLUS"; sleep 6; hm_hidekb; sleep 1; shot HM-07-search-all
 hm_tapchip "Users"; sleep 5; hm_hidekb; shot HM-08-search-users
 hm_tapui "Moshe Fx"; sleep 6; shot HM-09-profile
-hm_mark profile-follow; hm_tapui "Follow"; sleep 4; shot HM-10-profile-followed
-hm_tapui "Message"; sleep 5; shot HM-11-profile-message; key 4; sleep 2
-hm_tapui "Followers"; sleep 5; shot HM-12-followers-list; key 4; sleep 2
+hm_mark profile-follow; hm_find "Follow"; sleep 4; shot HM-10-profile-followed
+hm_find "Message"; sleep 5; shot HM-11-profile-message; key 4; sleep 2
+hm_find "Followers"; sleep 5; shot HM-12-followers-list; key 4; sleep 2
 hm_tapui "More"; sleep 1; shot HM-13-profile-menu
 hm_tapui "Report this user"; sleep 2
 hm_tapui "Spam"; sleep 1; shot HM-14-report-dialog
@@ -85,10 +105,10 @@ key 4; sleep 1; key 4; sleep 2
 # 3. Member channel: Message, ⋮ menu, Profile, tabs.
 tab Home; sleep 3
 hm_tapui "Members"; sleep 5
-timeout 10 adb shell input tap 240 250; sleep 6; shot HM-18-member-channel
+hm_tapui "משה'לע"; sleep 6; shot HM-18-member-channel
 hm_tapui "Channel options"; sleep 1; shot HM-19-member-channel-menu
 key 4; sleep 1
-hm_tapui "Followers"; sleep 5; shot HM-25-my-followers
+hm_find "Followers"; sleep 5; shot HM-25-my-followers
 hm_mark follower-remove; hm_tapui "Remove"; sleep 1; shot HM-26-remove-follower-confirm
 hm_tapui "Remove"; sleep 3; shot HM-27-follower-removed
 key 4; sleep 3
@@ -109,20 +129,20 @@ hm_rec_start() { timeout -k 3 40 adb shell screenrecord --size 480x640 --bit-rat
 hm_rec_stop() { wait "$HM_REC" 2>/dev/null; sleep 1; timeout 60 adb pull "/sdcard/$HM_RECN.mp4" "$OUT/$HM_RECN.mp4" >/dev/null 2>&1; timeout 10 adb shell rm -f "/sdcard/$HM_RECN.mp4" >/dev/null 2>&1; log "hm video $HM_RECN.mp4 $(stat -c %s "$OUT/$HM_RECN.mp4" 2>/dev/null)"; }
 tab Home; sleep 3; hm_tapui "Telegram"; sleep 2
 hm_rec_start HM-video-telegram
-hm_tapui "'?שיעורים יומיים"; sleep 4
+hm_find "'?שיעורים יומיים"; sleep 4
 key 19; key 19; key 19; sleep 1; key 20; sleep 1
 key 82; sleep 2; key 4; sleep 1
 hm_swipe 220 560 1; hm_swipe 220 560 1; hm_swipe 560 220 1
 hm_tapui "Post options"; sleep 2; key 4; sleep 1
 key 4; sleep 2
-timeout 10 adb shell input swipe 240 250 240 250 900; sleep 2; key 4
+hm_longui "יידישע נייעס"; key 4
 hm_rec_stop
 hm_rec_start HM-video-feed-profile
 tab Home; sleep 2; hm_tapui "Feed"; sleep 4
 hm_swipe 430 200 1; hm_swipe 430 200 1; hm_swipe 150 450 1
 hm_tapui "Search"; sleep 1; timeout 10 adb shell input text "moshe"; sleep 1
 hm_tapui "Search all of YID PLUS"; sleep 3; hm_hidekb; hm_tapchip "Users"; sleep 3; hm_hidekb
-hm_tapui "Moshe Fx"; sleep 4; hm_tapui "Followers"; sleep 3; key 4
+hm_tapui "Moshe Fx"; sleep 4; hm_find "Followers"; sleep 3; key 4
 hm_rec_stop
 key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
 tab Home; sleep 2; hm_tapui "Telegram"; sleep 1

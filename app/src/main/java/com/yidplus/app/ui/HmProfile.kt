@@ -232,7 +232,7 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                 item(key = "head") {
                     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
                         val banner = Api.abs(j.strOrNull("banner_url"))
-                        Box(Modifier.fillMaxWidth().height(96.dp).background(Brush.linearGradient(listOf(Green, Color(0xFF2E7D9A))))) {
+                        Box(Modifier.fillMaxWidth().height(if (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 700) 60.dp else 96.dp).background(Brush.linearGradient(listOf(Green, Color(0xFF2E7D9A))))) {
                             if (banner != null) AsyncImage(banner, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                         }
                         Row(Modifier.padding(horizontal = 16.dp).offset(y = (-32).dp), verticalAlignment = Alignment.Bottom) {

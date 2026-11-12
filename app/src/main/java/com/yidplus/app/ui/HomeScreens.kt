@@ -1,5 +1,6 @@
 package com.yidplus.app.ui
 
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.activity.compose.BackHandler
 import android.content.Context
 import android.net.Uri
@@ -79,6 +80,14 @@ fun HomeScreen() {
     val list = res.data
     LaunchedEffect(list) { if (list != null) { Perf.shown("Home"); Badges.channels = list.filter { it.joined }.sumOf { it.unread } } }
     val views = listOf("Telegram", "Joined", "Members", "Recent")
+    var hdrShown by remember { mutableStateOf(true) }
+    LaunchedEffect(view) { hdrShown = true }
+    val hdrConn = remember { object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+        override fun onPostScroll(consumed: androidx.compose.ui.geometry.Offset, available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): androidx.compose.ui.geometry.Offset {
+            // Hide after a real scroll down; show on any scroll up or when the list is pulled past its top.
+            if (consumed.y < -8f) hdrShown = false else if (consumed.y > 8f || available.y > 8f) hdrShown = true
+            return androidx.compose.ui.geometry.Offset.Zero
+        } } }
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (searching) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
@@ -96,15 +105,20 @@ fun HomeScreen() {
             SoHeaderActions(onSearch = { searching = true }, showSearch = false)
         }
         // WhatsApp-2024: the search pill at the top of the tab (it opens the search in place; Back closes it).
+        // The pill and the chips slide away while the list scrolls down and come back on the way up, so a 480x640 screen shows more rows.
+        androidx.compose.animation.AnimatedVisibility(visible = hdrShown || searching,
+            enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()) { Column {
         if (!searching) SearchPill("Search", { searching = true })
         // "Feed" (the site's Home page) is shown first but saved as view 4, so the saved Telegram/Joined/Members/Recent numbers stay the same.
         SoChips(listOf("Feed") + views, if (view == 4) 0 else view + 1, { d -> val v = if (d == 0) 4 else d - 1; view = v; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", v).apply() } })
+        } }
         if (searching && q.trim().length >= 2) Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(SoSearchPage(q0 = q.trim())) }
             .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Sym.TravelExplore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             Text("Search all of YID PLUS", Modifier.padding(start = 12.dp), color = MaterialTheme.colorScheme.primary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
         }
-        Box(Modifier.weight(1f)) {
+        Box(Modifier.weight(1f).nestedScroll(hdrConn)) {
             if (view == 4) HmFeed(onSeeChannels = { view = 2; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", 2).apply() } })
             else if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
             else PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
