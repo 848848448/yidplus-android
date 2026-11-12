@@ -73,7 +73,9 @@ fun HomeScreen() {
     var q by rememberSaveable { mutableStateOf("") }
     var view by rememberSaveable { mutableIntStateOf(runCatching { Api.app.getSharedPreferences("social", 0).getInt("chView", 0) }.getOrDefault(0)) }
     var adding by remember { mutableStateOf(false) }
-    BackHandler(enabled = searching) { searching = false; q = "" }
+    var pulling by remember { mutableStateOf(false) }
+    val kb = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    BackHandler(enabled = searching) { kb?.hide(); searching = false; q = "" }
     val list = res.data
     LaunchedEffect(list) { if (list != null) { Perf.shown("Home"); Badges.channels = list.filter { it.joined }.sumOf { it.unread } } }
     val views = listOf("Telegram", "Joined", "Members", "Recent")
@@ -81,7 +83,7 @@ fun HomeScreen() {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (searching) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.Filled.ArrowBack, "Close search", { searching = false; q = "" })
+                IconBtn(Icons.Filled.ArrowBack, "Close search", { kb?.hide(); searching = false; q = "" })
                 TextField(q, { q = it.take(80) }, Modifier.weight(1f).firstFocus(always = true), singleLine = true,
                     placeholder = { Text("Search channels") }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -101,7 +103,7 @@ fun HomeScreen() {
         }
         Box(Modifier.weight(1f)) {
             if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
-            else PullToRefreshBox(isRefreshing = res.loading && list != null, onRefresh = { scope.launch { res.load(force = true) } }, modifier = Modifier.fillMaxSize()) {
+            else PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
                 when {
                     list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
                     list == null -> SoSkeleton()
@@ -133,23 +135,32 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
     val c = ctx(); val scope = rememberCoroutineScope()
     val selected = Nav.homeDetail?.ch?.username == ch.username
     var joined by remember(ch.username, ch.joined) { mutableStateOf(ch.joined) }
-    Row(modifier.fillMaxWidth().heightIn(min = 72.dp).background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+    // Like the site's channel list / WhatsApp's Updates: photo, name and time on one line, the last post under it,
+    // then the unread number (joined) or a small Join button. Members count when there is no post yet.
+    Row(modifier.fillMaxWidth().heightIn(min = 68.dp).background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
         .restoreFocus("ch:" + ch.username).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "ch:" + ch.username; Nav.open(Screen.Channel(ch.copy(joined = joined))) }
-        .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        .padding(horizontal = 16.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
         SoThumb(ch.photo, ch.title, 50.dp)
         Column(Modifier.weight(1f).padding(start = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(ch.title, Modifier.weight(1f).padding(end = 8.dp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(textDirection = TextDirection.Content))
-                if (joined && ch.lastAt != null) Text(ago(ch.lastAt), fontSize = 12.sp, color = if (ch.unread > 0) Color(0xFF25A36F) else MaterialTheme.colorScheme.onSurfaceVariant)
+                // Left-aligned even for a Yiddish name (like WhatsApp), so the name never runs into the time.
+                Text(ch.title, Modifier.weight(1f).padding(end = 8.dp), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
+                    color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (ch.lastAt != null) Text(ago(ch.lastAt), style = MaterialTheme.typography.bodySmall, maxLines = 1,
+                    color = if (joined && ch.unread > 0) BadgeGreen else MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                val prev = if (!joined) soMembers(ch.members) else ch.lastText.replace('\n', ' ').ifBlank {
-                    when (ch.lastMedia) { "photo" -> "📷 Photo"; "video" -> "🎬 Video"; "audio" -> "🎵 Audio"; "" -> soMembers(ch.members); else -> "📎 File" } }
-                Text(prev, Modifier.weight(1f), fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = TextStyle(textDirection = TextDirection.Content))
+            Row(Modifier.padding(top = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                val media = when (ch.lastMedia) { "photo" -> "📷 Photo"; "video", "animation" -> "🎬 Video"; "audio" -> "🎵 Audio"; "voice" -> "🎤 Voice message"; "" -> ""; else -> "📎 File" }
+                val text = ch.lastText.replace('\n', ' ').trim()
+                val prev = when { text.isNotEmpty() && media.isNotEmpty() -> media.substringBefore(' ') + " " + text; text.isNotEmpty() -> text; media.isNotEmpty() -> media; else -> soMembers(ch.members) }
+                Text(prev, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (joined) SoBadge(ch.unread, Modifier.padding(start = 8.dp))
-                else SoPill("Join", true, { scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } }, Modifier.padding(start = 8.dp).soTouchOnly())
+                // A small outlined Join (like Telegram's), so the row keeps WhatsApp's height.
+                else Box(Modifier.padding(start = 8.dp).heightIn(min = 28.dp).soTouchOnly().tap(RoundedCornerShape(14.dp)) { scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } }
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 3.dp), contentAlignment = Alignment.Center) {
+                    Text("Join", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+                }
             }
         }
     }
@@ -167,6 +178,8 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
     val buffer = remember(ch.username) { ArrayList<TgPost>() }
     val reacts = remember(ch.username) { SoTgReacts(ch.username) }
     var loading by remember { mutableStateOf(false) }
+    var loadingMore by remember { mutableStateOf(false) }
+    var pulling by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var offline by remember { mutableStateOf(false) }
     var end by remember { mutableStateOf(false) }
@@ -210,10 +223,10 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
     suspend fun more() {
         if (loading || end || posts.isEmpty()) return
         if (buffer.isNotEmpty()) { val n = buffer.take(PAGE); buffer.subList(0, n.size).clear(); addNew(posts, n); return }
-        loading = true
+        loading = true; loadingMore = true
         try { val got = fetch(posts.last().id); if (got.isEmpty()) end = true; val tmp = ArrayList(posts); addNew(tmp, got); val added = tmp.drop(posts.size)
             buffer.addAll(added.drop(PAGE)); posts.addAll(added.take(PAGE)) }
-        catch (e: Exception) { error = Api.friendly(e) } finally { loading = false }
+        catch (e: Exception) { error = Api.friendly(e) } finally { loading = false; loadingMore = false }
     }
     LaunchedEffect(ch.username) {
         val cached = withContext(Dispatchers.IO) { Disk.read(Store.key(cacheKey))?.optJSONArray("posts").objects().map { TgPost.from(ch.username, it) } }
@@ -244,7 +257,8 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
         LaunchedEffect(state, posts.size) {
             snapshotFlow { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }.collect { if (it >= posts.size - 5) more() }
         }
-        PullToRefreshBox(isRefreshing = loading && posts.isNotEmpty(), onRefresh = { scope.launch { refresh() } }, modifier = Modifier.weight(1f)) {
+        // Only a pull you made shows the refresh circle; opening the channel refreshes quietly behind the saved posts.
+        PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; refresh(); pulling = false } }, modifier = Modifier.weight(1f)) {
             when {
                 posts.isEmpty() && error != null -> Problem(error!!, offline, { scope.launch { refresh() } })
                 posts.isEmpty() && (loading || !end) -> PostSkeleton()
@@ -253,7 +267,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
                     items(posts, key = { it.id }) { p -> PostCard(p, ch, reacts, if (p == posts.first()) Modifier.firstFocus() else Modifier,
                         onMedia = { url -> openGallery(posts.filter { it.isPhoto || it.isVideo }.mapNotNull { q -> q.media?.let { GItem(it, q.isVideo, if (q.isVideo) q.thumb else null, q.title) } }, url) },
                         onDeleted = { posts.removeAll { it.id == p.id } }) }
-                    if (loading) item { Loading(Modifier.fillMaxWidth().padding(16.dp)) }
+                    if (loadingMore) item { Loading(Modifier.fillMaxWidth().padding(vertical = 8.dp), skeleton = true) }
                 }
             }
         }

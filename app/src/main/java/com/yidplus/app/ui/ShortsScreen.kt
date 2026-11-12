@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -374,6 +376,11 @@ fun ShortsScreen() {
             if (tab == ShortsTab.ForYou || tab == ShortsTab.Uploads) { if (page >= items.size - 4) feed.loadMore() }
             Perf.shown("Shorts")
             Feeds.markSeen(s.video)
+            // Like the site (shorts.js): a member's upload you watch counts a view and goes into your History.
+            if (!s.fromSrc && Session.me != null) launch {
+                runCatching { Api.put("/api/shorts", JSONObject().put("id", s.key).put("view", true)) }
+                runCatching { Api.post("/api/history", JSONObject().put("item_type", "short").put("item_id", s.key)) }
+            }
         }
     }
     LaunchedEffect(Unit) { delay(80); runCatching { focus.requestFocus() } }
@@ -398,6 +405,13 @@ fun ShortsScreen() {
         val i = Feeds.saved.indexOfFirst { it.key == s.key }
         if (i >= 0) { Feeds.saved.removeAt(i); toast(c, "Removed from Saved") } else { Feeds.saved.add(0, s); toast(c, "Saved") }
         Feeds.persist(c)
+        // A member's upload is also saved on your account, exactly like the site's bookmark (shorts.js /saves), so it shows in Saved Items.
+        if (!s.fromSrc && Session.me != null) scope.launch {
+            runCatching {
+                if (i >= 0) Api.delete("/api/saves?item_type=short&item_id=" + java.net.URLEncoder.encode(s.key, "UTF-8"))
+                else Api.post("/api/saves", JSONObject().put("item_type", "short").put("item_id", s.key))
+            }
+        }
     }
     fun togglePause() { paused = !paused; player.playWhenReady = !paused }
     fun go(d: Int) { val t = (pager.currentPage + d).coerceIn(0, maxOf(0, items.size - 1)); scope.launch { pager.animateScrollToPage(t) } }
@@ -435,7 +449,11 @@ fun ShortsScreen() {
             items.isEmpty() && (feed.loading || (tab != ShortsTab.Saved && tab != ShortsTab.Following)) -> Loading()
             items.isEmpty() -> Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else "Follow creators (tap + on their picture) to see them here.",
                 Modifier.align(Alignment.Center).padding(32.dp), color = Color.White)
-            else -> VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { items.getOrNull(it)?.key ?: it }) { page ->
+            // A quick short flick moves to the next Short (like TikTok / WhatsApp), and it settles without a bounce.
+            else -> VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { items.getOrNull(it)?.key ?: it },
+                flingBehavior = PagerDefaults.flingBehavior(state = pager, snapPositionalThreshold = 0.2f,
+                    snapAnimationSpec = androidx.compose.animation.core.spring(dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                        stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow))) { page ->
                 val s = items[page]
                 ShortPage(s, current = page == pager.settledPage, player = player, paused = paused,
                     onTap = { togglePause() }, onLike = { like(s) }, onComments = { commentsFor = s }, onSave = { toggleSave(s) },
@@ -489,8 +507,8 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
                 }
-                Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, onLike)
-                Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, onComments)
+                Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, "Like", onLike)
+                Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, "Comment", onComments)
                 val isSaved = Feeds.saved.any { it.key == s.key }
                 if (!small) Action(if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onClick = onSave)
                 Action(Icons.Filled.Share, "Share", Color.White, small = small) { share(c, s.shareUrl) }
@@ -503,11 +521,11 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                     Action(Icons.Filled.MoreVert, "More", Color.White, small = small) { menu = true }
                     DropdownMenu(menu, { menu = false }) {
                         if (small) {
-                            DropdownMenuItem(text = { Text(if (isSaved) "Saved ✓ (4)" else "Save (4)") }, onClick = { onSave(); menu = false })
-                            DropdownMenuItem(text = { Text(if (Prefs.muted) "Sound on (2)" else "Sound off (2)") }, onClick = { Prefs.setMute(!Prefs.muted); menu = false })
+                            DropdownMenuItem(text = { Text((if (isSaved) "Saved ✓" else "Save") + keyHint(4)) }, onClick = { onSave(); menu = false })
+                            DropdownMenuItem(text = { Text((if (Prefs.muted) "Sound on" else "Sound off") + keyHint(2)) }, onClick = { Prefs.setMute(!Prefs.muted); menu = false })
                         }
                         for (sp in listOf(0.5f, 1f, 1.5f, 2f)) DropdownMenuItem(text = { Text((if (sp == speed) "✓ " else "   ") + "Speed ${sp}×") }, onClick = { onSpeed(sp); menu = false })
-                        DropdownMenuItem(text = { Text("@${s.creator.ifBlank { "yidplus" }}'s videos (8)") }, onClick = { menu = false; onCreator() })
+                        DropdownMenuItem(text = { Text("@${s.creator.ifBlank { "yidplus" }}'s videos" + keyHint(8)) }, onClick = { menu = false; onCreator() })
                         if (s.fromSrc) DropdownMenuItem(text = { Text("Not interested in this video") }, onClick = { menu = false; onNotInterested() })
                         if (s.fromSrc) DropdownMenuItem(text = { Text("Hide ${s.creator}") }, onClick = { onHide(); menu = false })
                         if (onDelete != null) DropdownMenuItem(text = { Text("Delete my video", color = MaterialTheme.colorScheme.error) }, onClick = { menu = false; askDelete = true })
@@ -547,10 +565,12 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 }
 
 @Composable
-private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, onClick: () -> Unit) {
-    Column(Modifier.tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, label, tint = tint, modifier = Modifier.size(if (small) 26.dp else 30.dp))
-        Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, onClick: () -> Unit) {
+    // A fixed-width cell, so "Comment" / "1.2K" never runs off the rail and every icon sits on one line.
+    Column(Modifier.widthIn(min = 58.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 26.dp else 30.dp))
+        Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall.copy(shadow = androidx.compose.ui.graphics.Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)),
+            maxLines = 1, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
 }
 
@@ -605,3 +625,6 @@ suspend fun qaDedupe(ctx: android.content.Context) {
     for (a in pr.indices) for (b in 0 until a) if (java.lang.Long.bitCount(pr[a].first xor pr[b].first) <= 6 && kotlin.math.abs(pr[a].second - pr[b].second) <= 1) { left++; break }
     android.util.Log.i("YidDedupe", "checked ${first.size} videos: removed ${f.removedDupes} re-posted duplicates; left: same id ${first.size - keys}, same file ${first.size - urls}, same picture+length $left")
 }
+
+/** " (4)": the keypad's number for a menu item, shown only on a keypad phone (a touch phone gets the plain label). */
+internal fun keyHint(n: Int): String = if (Keys.keypad) " ($n)" else ""

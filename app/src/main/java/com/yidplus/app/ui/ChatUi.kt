@@ -61,6 +61,11 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
@@ -149,7 +154,7 @@ internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint:
 internal fun ChAvatar(url: String?, name: String, id: String, size: Dp = 52.dp, online: Boolean = false) {
     Box(Modifier.size(size)) {
         Box(Modifier.fillMaxSize().clip(CircleShape).background(ChatLook.nameColor(id.ifBlank { name })), contentAlignment = Alignment.Center) {
-            val ini = name.trim().split(Regex("""\s+""")).filter { it.isNotBlank() }.take(2).joinToString("") { it.take(1) }.uppercase().ifBlank { "?" }
+            val ini = remember(name) { chInitials(name) }
             Text(ini, color = Color.White, fontWeight = FontWeight.Bold, fontSize = (size.value * 0.36f).sp, maxLines = 1)
             if (!url.isNullOrBlank()) AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         }
@@ -283,163 +288,6 @@ internal fun chNowIso(): String = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm
 
 /** A message bubble: 16 sp text, the time (and ✓✓ for mine) inside the bubble, a tail on the first of a run, reply quote, reactions under it.
  *  Touch: tap opens media/links, long-press opens the actions. Keypad: OK opens the actions (with "Open" first for media). */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean, reacts: ChReact?, reply: ChatMsg?, highlight: Boolean, privateChat: Boolean, modifier: Modifier,
-                   onMedia: (String) -> Unit, onLong: () -> Unit, onReact: (String) -> Unit, onReplyTap: (String) -> Unit) {
-    val c = ctx()
-    if (m.isSystem) {
-        Box(modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 24.dp), contentAlignment = Alignment.Center) {
-            Text(m.text, fontSize = 13.sp, color = ChatLook.sub(), textAlign = TextAlign.Center, style = TextStyle(textDirection = TextDirection.Content),
-                modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(ChatLook.theirs().copy(alpha = .9f)).padding(horizontal = 10.dp, vertical = 4.dp))
-        }
-        return
-    }
-    val bg = if (mine) ChatLook.mine() else ChatLook.theirs()
-    val fg = ChatLook.ink()
-    val link = remember(m.text) { urlRegex.find(m.text)?.value }
-    val maxW = (LocalConfiguration.current.screenWidthDp * 0.82f).dp.coerceAtMost(440.dp)
-    val tail = 4.dp; val r = 14.dp
-    val shape = if (mine) RoundedCornerShape(r, if (first) tail else r, r, r) else RoundedCornerShape(if (first) tail else r, r, r, r)
-    val src = remember { MutableInteractionSource() }
-    val focused by src.collectIsFocusedAsState()
-    fun open() {
-        when {
-            m.viewOnce && !mine && m.media != null -> onMedia(m.media)
-            m.isVideo || m.isImage -> (m.media ?: m.local)?.let(onMedia)
-            m.isAudio -> m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) }
-            m.media != null -> openUrl(c, m.media)
-            link != null -> openUrl(c, link)
-            else -> onLong()
-        }
-    }
-    Column(Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, top = if (first) 5.dp else 1.dp, bottom = 1.dp), horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
-        Row(verticalAlignment = Alignment.Top) {
-            if (!mine && group) { if (first) ChAvatar(m.photo, m.nick, m.senderId, 30.dp) else Spacer(Modifier.width(30.dp)); Spacer(Modifier.width(6.dp)) }
-            Column(modifier.widthIn(min = 64.dp, max = maxW).clip(shape).background(if (highlight) Color(0xFFFFF59D) else bg)
-                .then(if (focused && Keys.keypad) Modifier.border(2.dp, Gold, shape) else Modifier)
-                .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onClick = { if (Keys.keypad) onLong() else open() }, onLongClick = onLong)
-                .padding(horizontal = 4.dp, vertical = 4.dp)) {
-                if (!mine && group && first) Text(m.nick, Modifier.padding(horizontal = 6.dp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.nameColor(m.senderId), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (m.text.endsWith(" ↩ Forwarded")) Text("↪ Forwarded", Modifier.padding(horizontal = 6.dp), fontSize = 12.sp, color = ChatLook.sub(), fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
-                if (reply != null || m.replyToId != null) {
-                    Row(Modifier.padding(2.dp).fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Color.Black.copy(alpha = .05f)).tap(RoundedCornerShape(8.dp)) { m.replyToId?.let(onReplyTap) }) {
-                        Box(Modifier.width(4.dp).heightIn(min = 40.dp).background(ChatLook.nameColor(reply?.senderId ?: "")))
-                        Column(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
-                            Text(reply?.nick ?: "Message", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.nameColor(reply?.senderId ?: ""), maxLines = 1)
-                            Text(reply?.preview ?: "Original message", fontSize = 13.sp, color = ChatLook.sub(), maxLines = 2, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-                        }
-                    }
-                }
-                when {
-                    m.viewOnce && !mine && m.media != null -> Row(Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Visibility, null, tint = ChatLook.bar); Text("  View once · tap to open", color = fg, fontSize = 15.sp)
-                    }
-                    m.isSticker -> AsyncImage(m.stickerUrl, null, Modifier.size(140.dp))
-                    m.isImage -> AsyncImage(m.media ?: m.local, null, contentScale = ContentScale.Fit, modifier = Modifier.widthIn(min = 160.dp, max = maxW).heightIn(min = 90.dp, max = 300.dp).clip(RoundedCornerShape(10.dp)))
-                    m.isVideo -> ChVideoThumb(m.media ?: m.local!!, maxW)
-                    m.isAudio -> ChVoice(m, fg)
-                    m.isPoll -> ChPoll(m.text)
-                    m.isFile -> Row(Modifier.padding(6.dp).widthIn(max = maxW), verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(42.dp).clip(RoundedCornerShape(8.dp)).background(ChatLook.bar.copy(alpha = .15f)), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Description, null, tint = ChatLook.bar) }
-                        Column(Modifier.padding(start = 8.dp)) {
-                            Text(m.fileName, color = fg, fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Medium)
-                            Text(m.fileName.substringAfterLast('.', "file").uppercase().take(5) + " · tap to open", color = ChatLook.sub(), fontSize = 12.sp)
-                        }
-                    }
-                }
-                val cap = m.caption.removeSuffix(" ↩ Forwarded")
-                val bigEmoji = cap.length <= 8 && cap.isNotBlank() && cap.none { it.isLetterOrDigit() } && m.media == null
-                if (cap.isNotBlank()) Text(cap, Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = if (link != null && cap.trim() == link) Color(0xFF1E88E5) else fg,
-                    fontSize = if (bigEmoji) 34.sp else 16.sp, lineHeight = if (bigEmoji) 40.sp else 21.sp, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
-                Row(Modifier.align(Alignment.End).padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (m.edited) Text("edited  ", fontSize = 11.sp, color = ChatLook.sub())
-                    Text(if (m.pending) "Sending…" else if (m.failed) "Not sent · tap" else clock(m.createdAt), fontSize = 11.sp, color = if (m.failed) Color(0xFFD32F2F) else ChatLook.sub())
-                    if (mine && !m.pending && !m.failed) {
-                        val seen = if (privateChat) m.read else m.seen > 0
-                        Icon(if (seen || (!privateChat && m.seen > 0)) Icons.Filled.DoneAll else Icons.Filled.Done, if (seen) "Read" else "Sent", Modifier.padding(start = 3.dp).size(16.dp), tint = if (seen) ChatLook.tick else ChatLook.sub())
-                        if (!privateChat && m.seen > 0) Text(" ${m.seen}", fontSize = 11.sp, color = ChatLook.sub())
-                    }
-                }
-            }
-        }
-        val rc = reacts?.counts?.filterValues { it > 0 }
-        if (!rc.isNullOrEmpty()) Row(Modifier.padding(start = if (!mine && group) 40.dp else 4.dp, top = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            rc.entries.sortedByDescending { it.value }.take(5).forEach { (e, n) ->
-                val my = reacts?.mine == e
-                Text("$e $n", fontSize = 13.sp, color = fg, modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(if (my) ChatLook.bar.copy(alpha = .22f) else ChatLook.theirs())
-                    .border(0.5.dp, ChatLook.sub().copy(alpha = .3f), RoundedCornerShape(12.dp)).tap(RoundedCornerShape(12.dp)) { onReact(e) }.padding(horizontal = 8.dp, vertical = 2.dp))
-            }
-        }
-    }
-}
-
-/** Video message: a real frame from the video with a play button (never a black box). */
-@Composable
-private fun ChVideoThumb(url: String, maxW: Dp) {
-    val c = ctx()
-    var bmp by remember(url) { mutableStateOf(ChatVideoThumbs.cached(url)) }
-    LaunchedEffect(url) { if (bmp == null) bmp = ChatVideoThumbs.load(c, url) }
-    Box(Modifier.width(maxW.coerceAtMost(260.dp)).height(180.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF263238)), contentAlignment = Alignment.Center) {
-        bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
-        Box(Modifier.size(54.dp).clip(CircleShape).background(Color.Black.copy(alpha = .5f)), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.PlayArrow, "Play video", tint = Color.White, modifier = Modifier.size(34.dp))
-        }
-        if (bmp == null) Text("Video", Modifier.align(Alignment.BottomStart).padding(8.dp), color = Color.White, fontSize = 12.sp)
-    }
-}
-
-/** Voice note / audio: play-pause, a waveform that fills as it plays, the length. */
-@Composable
-private fun ChVoice(m: ChatMsg, fg: Color) {
-    val c = ctx()
-    val me = ChatVoicePlayer.playing == m.id
-    LaunchedEffect(me) { while (me) { ChatVoicePlayer.tick(); delay(200) } }
-    val peaks = remember(m.text) { m.text.substringAfter('|', "").split(',').mapNotNull { it.trim().toIntOrNull() }.ifEmpty { List(32) { i -> 20 + (i * 37 % 60) } } }
-    Row(Modifier.padding(4.dp).width(230.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(42.dp).clip(CircleShape).background(ChatLook.bar).tap(CircleShape) { m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) } }, contentAlignment = Alignment.Center) {
-            Icon(if (me && !ChatVoicePlayer.paused) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (me) "Pause" else "Play", tint = Color.White)
-        }
-        Column(Modifier.weight(1f).padding(start = 8.dp)) {
-            Row(Modifier.height(26.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                val n = peaks.size.coerceAtMost(32); val done = if (me) (ChatVoicePlayer.progress * n).toInt() else 0
-                for (i in 0 until n) Box(Modifier.weight(1f).height((4 + peaks[i * peaks.size / n] * 22 / 100).dp).clip(RoundedCornerShape(2.dp)).background(if (i < done) ChatLook.bar else ChatLook.sub().copy(alpha = .45f)))
-            }
-            Text(if (m.isVoice) (m.voiceDur.ifBlank { "Voice message" }) else m.fileName, fontSize = 12.sp, color = ChatLook.sub(), maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-        if (m.isVoice) Icon(Icons.Filled.Mic, null, Modifier.padding(start = 4.dp).size(18.dp), tint = ChatLook.bar)
-    }
-}
-
-/** A poll message (the site stores the poll id in the message text): options with live percentages; tap to vote. */
-@Composable
-private fun ChPoll(id: String) {
-    val c = ctx(); val scope = rememberCoroutineScope()
-    var poll by remember(id) { mutableStateOf<JSONObject?>(null) }
-    suspend fun load() { runCatching { poll = withContext(Dispatchers.IO) { Api.get("/api/polls?id=" + chEnc(id)).optJSONObject("poll") } } }
-    LaunchedEffect(id) { load() }
-    val p = poll
-    Column(Modifier.padding(6.dp).widthIn(min = 220.dp, max = 300.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Filled.Poll, null, Modifier.size(16.dp), tint = ChatLook.bar); Text(" POLL", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ChatLook.bar) }
-        if (p == null) { Text("Loading poll…", fontSize = 14.sp, color = ChatLook.sub()); return@Column }
-        Text(p.chStr("question"), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.ink(), style = TextStyle(textDirection = TextDirection.Content))
-        val closed = p.optBoolean("closed")
-        chObjs(p.optJSONArray("options")).forEach { o ->
-            val pct = o.optInt("pct"); val my = o.optBoolean("my_vote")
-            Column(Modifier.fillMaxWidth().padding(top = 6.dp).tap { if (!closed && Session.me != null) scope.launch {
-                runCatching { Api.put("/api/polls", JSONObject().put("id", id).put("vote", JSONArray().put(o.opt("id")))) }.onFailure { toast(c, Api.friendly(it)) }; load() } }.padding(4.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(if (my) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked, null, Modifier.size(18.dp), tint = if (my) ChatLook.bar else ChatLook.sub())
-                    Text("  " + o.chStr("text"), Modifier.weight(1f), fontSize = 15.sp, color = ChatLook.ink(), style = TextStyle(textDirection = TextDirection.Content))
-                    Text("$pct%", fontSize = 13.sp, color = ChatLook.sub())
-                }
-                LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(top = 3.dp).height(5.dp).clip(RoundedCornerShape(3.dp)), color = ChatLook.bar, trackColor = ChatLook.sub().copy(alpha = .2f))
-            }
-        }
-        Text(if (closed) "Poll closed" else "Tap an option to vote", fontSize = 12.sp, color = ChatLook.sub(), modifier = Modifier.padding(top = 4.dp))
-    }
-}
-
 /** Long-press (or keypad OK) on a message: quick reactions, then Reply / Copy / Edit / Forward / Pin / Save / Share / Report / Delete — the site's menu. */
 @Composable
 internal fun ChActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boolean, canDelete: Boolean, canWrite: Boolean, signedIn: Boolean, myReact: String?, onClose: () -> Unit, onAct: (String) -> Unit) {
@@ -530,4 +378,13 @@ internal fun ChAttachSheet(onPick: (String) -> Unit, onClose: () -> Unit) {
             }
         }
     }
+}
+
+/** Avatar letters: the first real LETTER of the name (skips ' " ״ ׳ - . and emoji); two for Latin names ("Yossi Klein" → YK), one for Yiddish/Hebrew. */
+internal fun chInitials(name: String): String {
+    val words = name.trim().split(Regex("""\s+""")).mapNotNull { w -> w.firstOrNull { it.isLetterOrDigit() } }
+    if (words.isEmpty()) return "#"
+    val a = words[0]
+    val latin = a.code < 0x0250
+    return (if (latin && words.size > 1 && words[1].code < 0x0250) "$a${words[1]}" else "$a").uppercase()
 }

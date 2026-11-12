@@ -119,69 +119,12 @@ fun soRoute(ctx: Context, link: String) {
     com.yidplus.app.MainActivity.route(ctx, u)
 }
 
-private fun notifIcon(t: String): Pair<ImageVector, Color> = when (t) {
-    "like" -> Icons.Filled.Favorite to Color(0xFFE53958)
-    "follow", "follow_request" -> Icons.Filled.PersonAdd to Color(0xFF2E7D9A)
-    "comment", "reply" -> Icons.Filled.ChatBubble to Color(0xFF1F6F5C)
-    "mention" -> Icons.Filled.AlternateEmail to Color(0xFF7B5EA7)
-    "channel_post" -> Icons.Filled.Campaign to Color(0xFFB7892B)
-    else -> Icons.Filled.Notifications to Color(0xFF607D8B)
-}
-
-/** The bell's list: what happened (likes, follows, comments, mentions, channel posts), newest first. */
+/** The bell's list: what happened (likes, follows, comments, mentions, channel posts), newest first. The page itself is NotifsPageBody (NotifsUi.kt). */
 class SoNotifsPage : PageScreen() {
     override val perfName = "Notifications"
     override fun equals(other: Any?) = other is SoNotifsPage
     override fun hashCode() = 7
-    @Composable override fun Content() {
-        val c = ctx()
-        val scope = rememberCoroutineScope()
-        val res = remember(Session.me?.id) { Store.res("/api/notifications") { j -> j.optJSONArray("notifications").objects().map(Notif::from) } }
-        val readNow = remember { mutableStateListOf<String>() }
-        LaunchedEffect(res) {
-            res.load(force = true); Perf.shown("Notifications")
-            // Opening the list reads everything, like the site's bell.
-            if (res.data?.any { !it.read } == true) runCatching { Api.post("/api/notifications", JSONObject().put("read", "all")); SoNotifCount.unread = 0 }
-        }
-        var confirm by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            TopBar("Notifications", onBack = { Nav.back() }) {
-                if (!res.data.isNullOrEmpty()) IconBtn(Icons.Filled.DeleteSweep, "Clear all", { confirm = true }, tint = LocalContentColor.current)
-            }
-            val list = res.data
-            when {
-                Session.me == null -> SoEmpty(Icons.Filled.Notifications, "Sign in to see your notifications", action = "Sign in", onAction = { Nav.go(Tab.Profile) })
-                list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
-                list == null -> SoSkeleton(rows = 8, avatar = 44.dp)
-                list.isEmpty() -> SoEmpty(Icons.Filled.NotificationsNone, "No notifications yet 🎉")
-                else -> LazyColumn(Modifier.fillMaxSize()) {
-                    items(list, key = { it.id }) { n ->
-                        val unread = !n.read && n.id !in readNow
-                        val (ic, col) = notifIcon(n.type)
-                        Row(Modifier.fillMaxWidth().heightIn(min = 64.dp)
-                            .background(if (unread) MaterialTheme.colorScheme.primary.copy(alpha = 0.07f) else Color.Transparent)
-                            .then(if (n == list.first()) Modifier.firstFocus() else Modifier)
-                            .tap(RoundedCornerShape(0.dp)) { readNow.add(n.id); soRoute(c, n.link) }
-                            .padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Box(Modifier.size(44.dp).clip(CircleShape).background(col.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
-                                Icon(ic, null, tint = col, modifier = Modifier.size(22.dp))
-                            }
-                            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                                Text(n.text.ifBlank { n.type.replace('_', ' ') }, fontSize = 15.sp, maxLines = 3, overflow = TextOverflow.Ellipsis,
-                                    fontWeight = if (unread) FontWeight.SemiBold else FontWeight.Normal, style = TextStyle(textDirection = TextDirection.Content))
-                                Text(ago(n.at), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            if (unread) Box(Modifier.size(9.dp).clip(CircleShape).background(Color(0xFF25A36F)))
-                        }
-                        SoDivider(72.dp)
-                    }
-                }
-            }
-        }
-        if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("Clear all notifications?") },
-            confirmButton = { TextButton({ confirm = false; scope.launch { runCatching { Api.delete("/api/notifications") }; res.data = emptyList(); SoNotifCount.unread = 0 } }) { Text("Clear") } },
-            dismissButton = { TextButton({ confirm = false }) { Text("Cancel") } })
-    }
+    @Composable override fun Content() { NotifsPageBody() }
 }
 
 /** One search answer, from any part of the site. */

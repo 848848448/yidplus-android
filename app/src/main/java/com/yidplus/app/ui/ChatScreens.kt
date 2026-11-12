@@ -64,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
@@ -115,7 +116,9 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val me = Session.me
     val scope = rememberCoroutineScope()
     val kb = LocalSoftwareKeyboardController.current
-    val msgs = remember(room.id) { mutableStateListOf<ChatMsg>() }
+    // Instant open (gap 1): the messages we already have are on screen in the very first frame; the network only refreshes them.
+    val msgs = remember(room.id) { mutableStateListOf<ChatMsg>().also { l -> ChatCache.get(room.id)?.let { l.addAll(it) } } }
+    val inputFocus = remember { androidx.compose.ui.focus.FocusRequester() }
     var reacts by remember(room.id) { mutableStateOf<Map<String, ChReact>>(emptyMap()) }
     var typing by remember(room.id) { mutableStateOf<List<String>>(emptyList()) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -139,30 +142,34 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     LaunchedEffect(roomsRes.data) { ChatApi.info(room.id)?.let { info = it } }
     val cacheKey = "chat|" + room.id
     val joinedOk = info?.joined != false
-    val canWrite = me != null && !room.guestView && (!room.readOnly || info?.canManage == true) && joinedOk
+    // An owner looking at someone else's private chat (the site's admin_spectating / view_private_dms): read-only, "Viewing as Admin", never a Join button.
+    val spectating = info?.spectating == true || (room.type == "private" && info?.joined == false)
+    var lastReadId by remember(room.id) { mutableStateOf<String?>(null) }
+    val canWrite = me != null && !room.guestView && (!room.readOnly || info?.canManage == true) && joinedOk && !spectating
     val isGroup = room.type == "group"
 
     suspend fun pull() {
         try {
-            val (_, list0) = withContext(Dispatchers.IO) {
+            val list = withContext(Dispatchers.IO) {
                 val (j, l) = ChatApi.messages(room.id)
-                Disk.write(Store.key(cacheKey), JSONObject().put("messages", j.optJSONArray("messages")?.let { a -> JSONArray().also { o -> val s = maxOf(0, a.length() - 60); for (i in s until a.length()) o.put(a.get(i)) } }))
-                j to l
+                ChatCache.put(room.id, j.optJSONArray("messages"), l)
+                l
             }
-            val list = list0.filter { it.type != "call" }
-            val pend = msgs.filter { it.pending || it.failed }.filter { p -> list.none { it.senderId == me?.id && it.text == p.text && it.type == p.type && (parseTime(it.createdAt) ?: 0) >= System.currentTimeMillis() - 180_000 } }
-            if (msgs.isEmpty() || list.lastOrNull()?.id != msgs.lastOrNull { !it.pending && !it.failed }?.id || list.size != msgs.count { !it.pending && !it.failed } || list != msgs.filter { !it.pending && !it.failed }) {
+            val loc: (ChatMsg) -> Boolean = { it.pending || it.failed || it.id.startsWith("tmp-") }
+            val pend = msgs.filter(loc).filter { p -> list.none { it.senderId == me?.id && it.text == p.text && it.type == p.type && (parseTime(it.createdAt) ?: 0) >= System.currentTimeMillis() - 180_000 } }
+            if (msgs.isEmpty() || list != msgs.filterNot(loc) || pend.size != msgs.count(loc)) {
                 msgs.clear(); msgs.addAll(list); msgs.addAll(pend)
             }
-            if (me != null && !room.guestView && joinedOk) runCatching { ChatApi.read(room.id) }
+            // The site posts /api/chat/read once when the room opens (members only; spectating leaves no trace) — and again here only when something new arrived.
+            val newest = list.lastOrNull()?.id
+            if (me != null && !room.guestView && joinedOk && !spectating && newest != lastReadId) { lastReadId = newest; runCatching { ChatApi.read(room.id) } }
             error = null; loaded = true
             Perf.shown("Chat")
         } catch (e: Exception) { if (msgs.isEmpty()) error = Api.friendly(e) }
     }
     suspend fun pullReacts() { if (me != null) runCatching { reacts = withContext(Dispatchers.IO) { ChatApi.reactions(room.id) } } }
     LaunchedEffect(room.id) {
-        val cached = withContext(Dispatchers.IO) { chObjs(Disk.read(Store.key(cacheKey))?.optJSONArray("messages")).map(ChatMsg::from).filter { it.type != "call" } }
-        if (cached.isNotEmpty() && msgs.isEmpty()) { msgs.addAll(cached); Perf.shown("Chat", fromCache = true) }
+        if (msgs.isNotEmpty()) Perf.shown("Chat", fromCache = true)
         if (info == null) launch { roomsRes.load() }
         runCatching { com.yidplus.app.NotifyWorker.cancelChat(c, room.id); com.yidplus.app.ChatNotify.clear(c, room.id) }
         var n = 0
@@ -196,7 +203,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             try {
                 val m = ChatApi.sendText(room.id, t, rt?.id)
                 val i = msgs.indexOfFirst { it.id == temp.id }
-                if (i >= 0) { if (m != null) msgs[i] = m.copy(photo = me.photo) else msgs.removeAt(i) }
+                // No message object in the answer: keep our copy as sent (✓) until the server's own copy shows up.
+                if (i >= 0) { if (m != null) msgs[i] = m.copy(photo = me.photo) else msgs[i] = temp.copy(pending = false) }
                 pull()
             } catch (e: Exception) {
                 val i = msgs.indexOfFirst { it.id == temp.id }; if (i >= 0) msgs[i] = temp.copy(pending = false, failed = true)
@@ -270,13 +278,16 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
 
     val pinned = info?.pinnedId?.let { p -> msgs.firstOrNull { it.id == p } }
     val subtitle = when {
+        spectating -> "👁 Viewing as Admin"
         typing.isNotEmpty() -> if (room.type == "private") "typing…" else typing.take(2).joinToString(", ") + if (typing.size == 1) " is typing…" else " are typing…"
-        room.type == "private" -> if (info?.online == true) "online" else "Private chat"
+        // The site: "online" when the other person is online, else "last seen recently" (it sends no exact last-seen time).
+        room.type == "private" -> if (info?.online == true) "online" else "last seen recently"
         room.type == "channel" -> if (room.members > 0) "${room.members} subscribers" else "Channel"
         else -> (info?.members?.size?.takeIf { it > 0 } ?: room.members).let { n -> if (n > 0) "$n members" + (info?.onlineCount?.takeIf { it > 0 }?.let { ", $it online" } ?: "") else "Group" }
     }
     val state = rememberLazyListState()
-    val rows = remember(msgs.toList()) { buildItems(groupJoinsC(msgs.asReversed())) }
+    // A text message with no words and no file is dropped, like the site drops contentless bubbles (never an empty green bubble).
+    val rows = remember(msgs.toList()) { buildItems(groupJoinsC(msgs.asReversed().filterNot { it.type == "text" && it.text.isBlank() && it.media == null && !it.deleted })) }
     val matches = remember(sq, rows) { if (sq.trim().length < 2) emptyList() else rows.withIndex().filter { (_, it) -> it is ChItem.M && it.m.text.contains(sq.trim(), true) && !it.m.isVoice }.map { it.index } }
     LaunchedEffect(matches, hit) { matches.getOrNull(hit)?.let { state.animateScrollToItem(it) } }
     LaunchedEffect(msgs.size) { if (msgs.isNotEmpty() && !searchOn && state.firstVisibleItemIndex < 3) state.scrollToItem(0) }
@@ -338,12 +349,14 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
                 msgs.isEmpty() && error != null -> Problem(error!!, !Net.online, { scope.launch { pull() } })
-                msgs.isEmpty() && !loaded -> Loading()
+                msgs.isEmpty() && !loaded -> ChBubbleSkeleton()
                 msgs.isEmpty() -> ChEmpty(Icons.Filled.WavingHand, "No messages yet. Say hi!", Modifier.align(Alignment.Center))
                 else -> {
                     val firstReal = rows.firstOrNull { it is ChItem.M && !it.m.isSystem }
                     val gallery = remember(rows) { msgs.filter { (it.isImage || it.isVideo) && it.media != null && !it.viewOnce }.map { q -> GItem(q.media!!, q.isVideo, null, q.nick) } }
-                    LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(vertical = 6.dp)) {
+                    // Gap 7: while the "newest" button shows, the list gets room under it so no message hides behind it.
+                    val showDown by remember { derivedStateOf { state.firstVisibleItemIndex > 2 } }
+                    LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(top = 6.dp, bottom = if (showDown) 60.dp else 8.dp)) {
                         items(rows, key = { it.key }) { it0 ->
                             when (it0) {
                                 is ChItem.Day -> ChDayChip(it0.label)
@@ -353,13 +366,15 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                                     ChBubble(m, mine = m.senderId == me?.id, group = room.type != "private", first = it0.first, reacts = reacts[m.id],
                                         reply = m.replyToId?.let { rid -> msgs.firstOrNull { it.id == rid } }, highlight = hl, privateChat = room.type == "private",
                                         modifier = if (it0 === firstReal) Modifier.firstFocus() else Modifier,
-                                        onMedia = { url -> openGallery(gallery, url) }, onLong = { if (!m.pending && !m.isSystem) actionFor = m },
+                                        onMedia = { url -> openGallery(gallery.ifEmpty { listOf(GItem(url, m.isVideo, null, m.nick)) }, url) }, onLong = { if (!m.pending && !m.isCentred) actionFor = m },
+                                        onSwipeReply = if (canWrite && !m.pending && !m.isCentred && !m.deleted) ({ replyTo = m; editing = null; runCatching { inputFocus.requestFocus() }; kb?.show() }) else null,
+                                        onJoin = { code -> scope.launch { runCatching { ChatApi.join(null, code) }.onSuccess { id -> toast(c, "Joined"); roomsRes.load(true); Nav.open(Screen.Chat(ChatApi.info(id)?.room ?: ChatApi.roomOf(id, "group", "Group"))) }.onFailure { toast(c, Api.friendly(it)) } } },
                                         onReact = { e -> if (me != null) reactTo(m, e) }, onReplyTap = { rid -> scrollTo(rid) })
                                 }
                             }
                         }
                     }
-                    if (state.firstVisibleItemIndex > 4) Box(Modifier.align(Alignment.BottomEnd).padding(12.dp).size(42.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface)
+                    if (showDown) Box(Modifier.align(Alignment.BottomEnd).padding(12.dp).size(42.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface)
                         .tap(CircleShape) { scope.launch { state.animateScrollToItem(0) } }, contentAlignment = Alignment.Center) {
                         Icon(Icons.Filled.KeyboardArrowDown, "Newest", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -392,12 +407,14 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     ChIcon(if (emojiOpen) Icons.Filled.Keyboard else Icons.Filled.EmojiEmotions, if (emojiOpen) "Keyboard" else "Emoji", {
                         emojiOpen = !emojiOpen; attachOpen = false; if (emojiOpen) kb?.hide() else kb?.show()
                     }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = 48.dp), placeholder = { Text("Message", fontSize = 16.sp) }, maxLines = 5,
+                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = 48.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = 16.sp) }, maxLines = 5,
                         textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { sendText() }))
+                    // Composer actions in plain sight, like WhatsApp: attach (photo, video, file, contact, poll…) and the camera; the round button is Send or the mic.
                     if (editing == null) ChIcon(Icons.Filled.AttachFile, "Attach", { attachOpen = !attachOpen; emojiOpen = false }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (editing == null && text.isBlank()) ChIcon(Icons.Filled.PhotoCamera, "Camera", { runCatching { camera.launch(null) }.onFailure { toast(c, "No camera app") } }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(2.dp))
                     val canSend = text.isNotBlank()
                     Box(Modifier.size(48.dp).clip(CircleShape).background(ChatLook.bar).tap(CircleShape) { if (canSend) sendText() else if (!sending) mic() }, contentAlignment = Alignment.Center) {
@@ -419,7 +436,11 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     }
                 }, onClose = { attachOpen = false })
             }
-            me != null && !joinedOk && !room.guestView -> Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(10.dp), horizontalArrangement = Arrangement.Center) {
+            spectating -> Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                Icon(Icons.Filled.Visibility, null, Modifier.size(18.dp), tint = Color(0xFFB8860B))
+                Text("  You are viewing this private chat as Admin", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+            }
+            me != null && !joinedOk && !room.guestView && room.type != "private" -> Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(10.dp), horizontalArrangement = Arrangement.Center) {
                 PrimaryButton(if (room.type == "channel") "Join channel" else "Join group", {
                     scope.launch { runCatching { ChatApi.join(room.id, null) }.onSuccess { toast(c, "Joined"); roomsRes.load(true); info = info?.copy(joined = true); pull() }.onFailure { toast(c, Api.friendly(it)) } }
                 }, Modifier.fillMaxWidth())
