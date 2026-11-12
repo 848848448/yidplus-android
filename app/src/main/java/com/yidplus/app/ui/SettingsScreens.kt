@@ -423,6 +423,11 @@ class SettingsPrivacy : PageScreen() {
         var pick by remember { mutableStateOf<String?>(null) }
         fun set(k: String, v: Any) = scope.launch { SettingsProfile.save(JSONObject().put(k, v))?.let { toast(c, it) } }
         SettingsPage("Privacy") {
+            SettingsCard {
+                SettingRow(Sym.Block, "Blocked users", "People you blocked can't message you or see your profile", modifier = Modifier.firstFocus()) { Nav.open(SettingsBlocked()) }
+                RowDivider(64.dp)
+                SettingRow(Sym.Pin, "App lock", if (StLock.enabled) "On · asks your PIN when the app opens" else "Off") { Nav.open(StAppLockPage()) }
+            }
             SettingsCard("Who can see me") {
                 SettingRow(Sym.Lock, "Private account", "People must ask to follow you before they see your posts and statuses", switch = SettingsProfile.on("is_private", false), modifier = Modifier.firstFocus()) {
                     set("is_private", if (SettingsProfile.on("is_private", false)) 0 else 1)

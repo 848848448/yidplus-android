@@ -107,6 +107,7 @@ fun ProfileScreen() {
                     "Forgot" -> StForgotPage("avrumy@example.com")
                     "Reset" -> StResetPage("fx-reset-token")
                     "AppLock" -> StAppLockPage()
+                    "SettingsSearch" -> StSettingsSearchPage()
                     else -> null
                 }
                 if (v == "off") SettingsProfile.demo = false
@@ -128,46 +129,15 @@ fun ProfileScreen() {
                     // The website's Settings page, in its order (js/theme.js buildSettingsPage).
                     if (!signedIn) Surface(color = MaterialTheme.colorScheme.surface) { LoginForm() } else {
                         StVerifyBanner()
+                        SearchPill("Search settings", { Nav.open(StSettingsSearchPage()) })
                         SettingsTopCard { Nav.open(SettingsEditProfile()) }
-                        SettingsCard {
-                            // TODO(coordinator): SavedItemsPage / HistoryPage come from feat-new2 (ui/SavedHistory.kt); wire with Nav.open(SavedItemsPage()) / Nav.open(HistoryPage()).
-                            SettingRow(Sym.Bookmark, "Saved Items", "Messages, posts and Shorts you saved") { Nav.open(SavedItemsPage()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.History, "History", "What you watched and opened") { Nav.open(HistoryPage()) }
-                        }
                     }
-                    ReadingCard()
+                    // 2.1 ST: WhatsApp's order: profile row, then the account rows, then look & feel, then help/about.
+                    if (signedIn) { StMainRows(); StPeopleRows() }
                     AppearanceCard()
                     ColorThemeCard()
-                    if (signedIn) {
-                        StatsCard()
-                        SettingsCard("Account") {
-                            SettingRow(Sym.Edit, "Profile", "Name, photo, cover, bio, location, links") { Nav.open(SettingsEditProfile()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Visibility, "My profile page", "See your profile the way others see it") { stOpenUser(Session.me?.id ?: "demo-me", Session.me?.nickname ?: "", Session.me?.photo) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Group, "Followers and following", "See who follows you, remove a follower") { Nav.open(StFollowListPage(Session.me?.id ?: "demo-me", Session.me?.nickname ?: "", true)) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Lock, "Privacy", "Private account, active status, read receipts, who can message you") { Nav.open(SettingsPrivacy()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Security, "Security", "Password, two-factor authentication") { Nav.open(SettingsSecurity()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Chat, "Chat", "Wallpaper, muted chats, silent calls") { Nav.open(SettingsChat()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.NotificationsActive, "Notifications", "New messages, likes, followers, channel updates") { Nav.open(SettingsNotifPrefs()) }
-                            RowDivider(64.dp)
-                            val devs = SettingsProfile.res.data?.optJSONArray("sessions")?.length() ?: 0
-                            SettingRow(Sym.Devices, "Devices", if (devs > 0) "$devs active · sign out other devices" else "Where you're signed in") { Nav.open(SettingsSecurity()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Block, "Blocked users", null) { Nav.open(SettingsBlocked()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Pin, "App lock", if (StLock.enabled) "On · asks your PIN when the app opens" else "Off · lock the app with a 4-digit PIN") { Nav.open(StAppLockPage()) }
-                            RowDivider(64.dp)
-                            SettingRow(Sym.Notifications, "Activity", "Likes, comments, follows") { Nav.open(SoNotifsPage()) }
-                        }
-                        VerificationCard()
-                        ShareProfileCard()
-                    }
+                    ReadingCard()
+                    if (signedIn) { StatsCard(); VerificationCard(); ShareProfileCard() }
                     AppSettings()
                     if (signedIn && settingsIsAdmin) SettingsCard("Admin") {
                         SettingRow(Sym.AdminPanelSettings, "Admin panel", "Users, reports, channels, broadcasts, features, stats") { Nav.open(AdminPage()) }

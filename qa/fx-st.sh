@@ -17,6 +17,8 @@ stfind() {
   done
   log "stfind: '$1' not found; screen has: $(stseen)"
 }
+strec() { timeout 5 adb shell rm -f /sdcard/$1.mp4 >/dev/null 2>&1; (timeout 45 adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit ${2:-30} /sdcard/$1.mp4 >/dev/null 2>&1 &); sleep 1.5; log "rec start $1"; }
+strecend() { timeout 10 adb shell pkill -INT screenrecord >/dev/null 2>&1; sleep 3; timeout 60 adb pull /sdcard/$1.mp4 "$OUT/$1.mp4" >/dev/null 2>&1; log "video $1: $(stat -c %s "$OUT/$1.mp4" 2>/dev/null || echo missing) bytes"; }
 stproof() { local l; l=$(stlog "$2"); if [ -n "$l" ]; then log "PROOF $1: $l"; else log "PROOF $1: (no request logged for '$2')"; fi; }
 for k in animator_duration_scale transition_animation_scale window_animation_scale; do timeout 10 adb shell settings put global $k 0 >/dev/null 2>&1; done
 
@@ -68,5 +70,26 @@ stfind "Lock with a PIN"; sleep 1; stproof lock-off "LOCK off"; key 4; sleep 1
 stq Security 5; stswipe; stswipe; shot ST-60-recent-signins; stdump security; key 4; sleep 1
 # Saved: songs now open the music player
 sto saved 5; stfind "מזמור לדוד"; sleep 3; shot ST-61-saved-song; stproof saved-song "PLAY music"; key 4; sleep 1
+# Settings search (WhatsApp style) and Privacy with Blocked + App lock
+stq SettingsSearch 4; shot ST-62-settings-search-empty; timeout 10 adb shell input text "pass" >/dev/null 2>&1; sleep 1.5; shot ST-63-settings-search-pass; stdump settings-search; key 4; sleep 0.8; key 4; sleep 1
+stq Privacy 4; shot ST-64-privacy-blocked-applock; key 4; sleep 1
+log "---- ST videos ----"
+# 1) D-pad only: Settings top to bottom, open App lock and back, open Help & Support and pick an answer
+tab Profile; sleep 3; sttop
+strec ST-flow-dpad 30
+for n in 1 2 3 4 5 6 7 8 9 10 11 12; do key 20; sleep 0.6; done
+key 23; sleep 2; key 4; sleep 1.5
+stq Support 4; key 20; sleep 0.7; key 20; sleep 0.7; key 23; sleep 2; key 20; sleep 0.7; key 23; sleep 2
+strecend ST-flow-dpad
+key 4; sleep 1
+# 2) touch: compact settings, followers, export, PIN lock on and off
+tab Profile; sleep 3; sttop
+strec ST-flow-touch 30
+stswipe; stswipe; stfind "Followers and following"; sleep 2; key 4; sleep 1
+stfind "Download my data"; sleep 3
+stq AppLock 3; stfind "Lock with a PIN"; for d in 8 9 10 11; do key $d; sleep 0.3; done; sleep 0.8; for d in 8 9 10 11; do key $d; sleep 0.3; done; sleep 1.5
+stfind "Lock with a PIN"; sleep 1.5
+strecend ST-flow-touch
+key 4; sleep 1
 log "ST unfixtured GETs: $(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -o 'GET-unfixtured [^ ]*' | sort | uniq -c | sort -rn | head -40 | tr '\n' ';')"
 check "ST after set"
