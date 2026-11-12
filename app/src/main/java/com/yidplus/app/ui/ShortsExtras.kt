@@ -370,6 +370,8 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                 if (j.optBoolean("queued")) { list.remove(tmp); text = t; toast(c, "Comments are paused for a little while — please try again later"); return@launch }
                 ShRank.learn(s, 3.0)
                 load()
+                // the site's list can lag behind its own write (edge cache): keep ours on top until it shows up
+                if (list.none { it.mine && it.text == t }) { list.add(0, tmp.copy(id = j.optString("id").ifBlank { tmp.id + "s" })); onCount(list.size) }
             } catch (e: Exception) { list.remove(tmp); text = t; toast(c, if (Api.isOffline(e)) "Couldn’t post — check your connection" else Api.friendly(e)) }
             finally { pending.remove(tmp.id) }
         }

@@ -22,8 +22,8 @@ sh_dtap() {
   local x=$(( $1 * mx / 479 )) y=$(( $2 * my / 639 )) k
   # two touches ~120 ms apart (a finger's double-tap), all inside one adb shell so no round trip sits between them
   for k in 501 502; do
-    c="$c sendevent $d 3 47 0; sendevent $d 3 57 $k; sendevent $d 3 53 $x; sendevent $d 3 54 $y; sendevent $d 3 58 60; sendevent $d 1 330 1; sendevent $d 0 0 0; sleep 0.04;"
-    c="$c sendevent $d 3 57 -1; sendevent $d 1 330 0; sendevent $d 0 0 0; sleep 0.08;"
+    c="$c sendevent $d 3 47 0; sendevent $d 3 57 $k; sendevent $d 3 53 $x; sendevent $d 3 54 $y; sendevent $d 3 58 60; sendevent $d 1 330 1; sendevent $d 0 0 0;"
+    c="$c sendevent $d 3 57 -1; sendevent $d 1 330 0; sendevent $d 0 0 0;"
   done
   timeout 20 adb shell "$c"; log "double-tap at $1,$2"
 }
@@ -77,7 +77,7 @@ sh_mark scrub; (timeout 10 adb shell input swipe 30 450 330 450 3500 &) ; sleep 
 # 10. Following: who I follow (1 from the rail), the creators list, search, Videos, Back keeps the list, Follow more sheet
 sh_mark following; sh_tapui "Following feed"; sleep 6; shot SH-22-following-feed; sh_texts following
 sh_tapui "Follow more"; sleep 4; shot SH-23-follow-more-sheet
-sh_tapui "Search creators"; adb shell input text "Heimishe"; sleep 2; shot SH-24-creators-search; sh_ime_hide; shot SH-24b-creators-found
+sh_tapui "Search creators"; adb shell input text "Simcha"; sleep 2; shot SH-24-creators-search; sh_ime_hide; shot SH-24b-creators-found
 sh_tapui "\+ Follow"; sleep 2; shot SH-25-sheet-followed; sh_back_while "Creators to follow"; sleep 3; shot SH-26-following-after-sheet
 # unfollow both -> the list in the feed itself
 sh_mark following-list; sh_tapui "Following feed"; sleep 3

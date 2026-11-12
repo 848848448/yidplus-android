@@ -805,7 +805,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                     if (s.verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 3.dp).size(15.dp))
                     val a = ago(s.at)
                     if (a.isNotBlank()) Text(" · $a", color = Color.White.copy(alpha = .8f), fontSize = 13.sp, maxLines = 1)
-                    if (small && s.fromSrc) {
+                    if (small && s.fromSrc && Feeds.who == null) {
                         val fol = s.creatorId in Feeds.follows || ShDir.isFollowed(listOf(s.creatorId))
                         Text(if (fol) "Following" else "Follow", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
                             modifier = Modifier.padding(start = 8.dp).semantics { contentDescription = if (fol) "Unfollow" else "Follow" }.tap(RoundedCornerShape(8.dp), onClick = onFollow)

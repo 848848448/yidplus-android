@@ -73,7 +73,7 @@ fun ShChip(text: String, on: Boolean, onClick: () -> Unit, icon: ImageVector? = 
         if (lead != null) { lead(); Spacer(Modifier.width(6.dp)) }
         if (icon != null) { Icon(icon, null, tint = fg, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)) }
         Text(text, color = fg, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-            style = TextStyle(textDirection = TextDirection.Content), modifier = Modifier.widthIn(max = 180.dp))
+            style = TextStyle(textDirection = TextDirection.Content), modifier = Modifier.widthIn(max = if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 400) 120.dp else 180.dp))
         if (trailing != null) { Spacer(Modifier.width(4.dp)); Icon(trailing, null, tint = fg, modifier = Modifier.size(15.dp)) }
     }
 }
@@ -322,26 +322,30 @@ fun ShBlocked(until: String?) {
  */
 @Composable
 fun ShCommentsPanel(title: String, onDismiss: () -> Unit, body: @Composable ColumnScope.() -> Unit) {
-    androidx.activity.compose.BackHandler { onDismiss() }
-    var dragY by remember { mutableFloatStateOf(0f) }
-    Box(Modifier.fillMaxSize().imePadding()) {
-        Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .35f)).pointerInputTap(onDismiss))
-        // with the keyboard up the panel takes all the room left, so the newest comments stay in sight above the box
+    // A window of its own over the whole screen (also over the app's bottom bar), so at 480x640 the list gets the room;
+    // the video still shows above it, dimmed. Back, a tap above, or dragging the handle down closes it.
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
+        var dragY by remember { mutableFloatStateOf(0f) }
         val ime = WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
-        Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(if (ime) 1f else 0.8f).offset { IntOffset(0, dragY.coerceAtLeast(0f).toInt()) },
-            shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp), color = MaterialTheme.colorScheme.background, tonalElevation = 2.dp) {
-            Column(Modifier.fillMaxSize()) {
-                Column(Modifier.fillMaxWidth().pointerInput(Unit) {
-                    detectVerticalDragGestures(onDragEnd = { if (dragY > 120.dp.toPx()) onDismiss() else dragY = 0f }, onDragCancel = { dragY = 0f }) { _, d -> dragY += d }
-                }, horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.padding(top = 8.dp).size(width = 36.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.outlineVariant))
-                    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(title, Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground)
-                        IconBtn(Sym.Close, "Close comments", onDismiss, modifier = Modifier.firstFocus())
+        Box(Modifier.fillMaxSize().imePadding()) {
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .3f)).pointerInputTap(onDismiss))
+            Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(if (ime) 1f else 0.72f).navigationBarsPadding()
+                .offset { IntOffset(0, dragY.coerceAtLeast(0f).toInt()) },
+                shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp), color = MaterialTheme.colorScheme.background, tonalElevation = 2.dp) {
+                Column(Modifier.fillMaxSize()) {
+                    Column(Modifier.fillMaxWidth().pointerInput(Unit) {
+                        detectVerticalDragGestures(onDragEnd = { if (dragY > 120.dp.toPx()) onDismiss() else dragY = 0f }, onDragCancel = { dragY = 0f }) { _, d -> dragY += d }
+                    }, horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(Modifier.padding(top = 8.dp).size(width = 36.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.outlineVariant))
+                        Row(Modifier.fillMaxWidth().padding(start = 48.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(title, Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground)
+                            IconBtn(Sym.Close, "Close comments", onDismiss, modifier = Modifier.firstFocus())
+                        }
                     }
+                    body()
                 }
-                body()
             }
         }
     }
