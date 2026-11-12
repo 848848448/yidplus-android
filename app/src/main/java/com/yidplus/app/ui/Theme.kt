@@ -2,6 +2,7 @@ package com.yidplus.app.ui
 
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -16,6 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -93,7 +97,7 @@ object UiPrefs {
 private fun TextStyle.sized(size: Float, line: Float, w: FontWeight, s: Float, track: Float = 0f) =
     copy(fontSize = (size * s).sp, lineHeight = (line * s).sp, fontWeight = w, letterSpacing = track.sp)
 
-/** One type scale for every screen: 20 sp bar titles, 16 sp row titles, 14 sp subtitles, 12 sp times. */
+/** One type scale for every screen (bigger, like WhatsApp): 20 sp bar titles, 17 sp row titles, 16 sp body, 15 sp previews, 13 sp times. */
 fun yidTypography(s: Float): Typography {
     val b = Typography()
     return Typography(
@@ -104,14 +108,14 @@ fun yidTypography(s: Float): Typography {
         headlineMedium = b.headlineMedium.sized(24f, 32f, FontWeight.SemiBold, s),
         headlineSmall = b.headlineSmall.sized(22f, 28f, FontWeight.SemiBold, s),
         titleLarge = b.titleLarge.sized(20f, 26f, FontWeight.SemiBold, s),
-        titleMedium = b.titleMedium.sized(16f, 22f, FontWeight.SemiBold, s, 0.1f),
+        titleMedium = b.titleMedium.sized(17f, 23f, FontWeight.SemiBold, s, 0.1f),
         titleSmall = b.titleSmall.sized(14f, 20f, FontWeight.SemiBold, s, 0.1f),
         bodyLarge = b.bodyLarge.sized(16f, 22f, FontWeight.Normal, s, 0.15f),
-        bodyMedium = b.bodyMedium.sized(14f, 20f, FontWeight.Normal, s, 0.15f),
-        bodySmall = b.bodySmall.sized(12f, 16f, FontWeight.Normal, s, 0.2f),
+        bodyMedium = b.bodyMedium.sized(15f, 21f, FontWeight.Normal, s, 0.15f),
+        bodySmall = b.bodySmall.sized(13f, 18f, FontWeight.Normal, s, 0.2f),
         labelLarge = b.labelLarge.sized(14f, 20f, FontWeight.SemiBold, s, 0.1f),
-        labelMedium = b.labelMedium.sized(12f, 16f, FontWeight.Medium, s, 0.3f),
-        labelSmall = b.labelSmall.sized(11f, 16f, FontWeight.Medium, s, 0.4f),
+        labelMedium = b.labelMedium.sized(13f, 18f, FontWeight.Medium, s, 0.3f),
+        labelSmall = b.labelSmall.sized(12f, 16f, FontWeight.Medium, s, 0.4f),
     )
 }
 
@@ -121,21 +125,33 @@ private val YidShapes = Shapes(
 )
 
 @Composable
-fun isDark(): Boolean = when (Prefs.theme) { 1 -> false; 2 -> true; else -> isSystemInDarkTheme() }
+fun isDark(): Boolean = LookPrefs.preset.dark || when (Prefs.theme) { 1 -> false; 2 -> true; else -> isSystemInDarkTheme() }
 
-/** The brand bar's colour: the site's green by day, a deep green-grey at night (like WhatsApp's dark header). */
+/** The brand bar's colour: the site's green by day (or the chosen colour theme), a deep green-grey at night (like WhatsApp's dark header). */
 @Composable
-fun topBarColor(): Color = if (isDark()) Color(0xFF1A2723) else Green
+fun topBarColor(): Color = if (isDark()) Color(0xFF1A2723) else if (LookPrefs.colorTheme == 0) Green else LookPrefs.preset.accent
+
+private fun themed(b: ColorScheme, p: ColorPreset, dark: Boolean): ColorScheme = if (p.name == "Emerald Teal") b else b.copy(
+    primary = if (dark) p.accentLight else p.accent, onPrimary = if (dark) Color(0xFF0A0A0F) else Color.White,
+    primaryContainer = (if (dark) p.accent else p.accentLight).copy(alpha = if (dark) 0.35f else 0.22f).compositeOver(b.surface),
+    onPrimaryContainer = if (dark) Color.White else p.accent, surfaceTint = if (dark) p.accentLight else p.accent, inversePrimary = p.accent,
+    background = if (p.dark) p.bg else b.background, surface = if (p.dark) p.bg2 else b.surface)
+
+private fun contrast(s: ColorScheme): ColorScheme = s.copy(onSurfaceVariant = s.onSurface, outline = s.onSurface.copy(alpha = 0.7f), outlineVariant = s.onSurface.copy(alpha = 0.4f))
 
 @Composable
 fun YidTheme(content: @Composable () -> Unit) {
-    UiPrefs.init(LocalContext.current)
+    val ctx = LocalContext.current
+    UiPrefs.init(ctx); LookPrefs.init(ctx)
     val dark = isDark()
-    val scheme = if (dark) Dark else Light
-    val scale = UiPrefs.scale
-    val type = remember(scale) { yidTypography(scale) }
-    MaterialTheme(colorScheme = scheme, typography = type, shapes = YidShapes) {
-        // Text and icons drawn straight on the page (not inside a Surface) take the page's own ink, so dark mode is right everywhere.
-        CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
+    val scheme = themed(if (dark) Dark else Light, LookPrefs.preset, dark).let { if (LookPrefs.highContrast) contrast(it) else it }
+    val type = remember { yidTypography(1f) }
+    val d = LocalDensity.current
+    // Text size S/M/L scales every text in the app (also sizes written as .sp in screens), like the site's Text Size.
+    CompositionLocalProvider(LocalDensity provides Density(d.density, d.fontScale * UiPrefs.scale)) {
+        MaterialTheme(colorScheme = scheme, typography = type, shapes = YidShapes) {
+            // Text and icons drawn straight on the page (not inside a Surface) take the page's own ink, so dark mode is right everywhere.
+            CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
+        }
     }
 }

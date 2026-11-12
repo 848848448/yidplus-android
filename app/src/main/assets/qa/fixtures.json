@@ -1,0 +1,560 @@
+{
+ "/api/auth/me": {
+  "ok": true,
+  "user": {
+   "id": "demo-me",
+   "nickname": "משה'לע",
+   "email": "avrumy@example.com",
+   "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+   "role": "owner",
+   "is_owner": true,
+   "verified": 1,
+   "bio": "YID PLUS 👑",
+   "first_name": "Avrumy",
+   "created_at": "2026-06-01T10:00:00.000Z"
+  }
+ },
+ "/api/chat/rooms": {
+  "ok": true,
+  "rooms": [
+   {
+    "id": "r-dm1",
+    "type": "private",
+    "nick": "Yossi Klein",
+    "name": "Yossi Klein",
+    "photo_url": null,
+    "preview": "גוט מארגן! ווען קומסטו?",
+    "unread": 3,
+    "last_time": "2026-11-11T19:26:00.000Z",
+    "members": 2,
+    "other_user_id": "u-yossi",
+    "online": true
+   },
+   {
+    "id": "r-g1",
+    "type": "group",
+    "name": "חברים פון שול",
+    "nick": "",
+    "photo_url": null,
+    "emoji": "",
+    "preview": "[system]",
+    "unread": 12,
+    "last_time": "2026-11-11T19:19:00.000Z",
+    "members": 24,
+    "is_group_admin": true
+   },
+   {
+    "id": "r-dm2",
+    "type": "private",
+    "nick": "Yanky Weiss",
+    "photo_url": "/api/media/avatars%2F40da7cf5-4cb2-47d8-b652-eb4f5ec9c376.png?v=1784164780024",
+    "preview": "[voice]",
+    "unread": 0,
+    "last_time": "2026-11-11T18:52:00.000Z",
+    "members": 2,
+    "other_user_id": "u-yanky"
+   },
+   {
+    "id": "r-c1",
+    "type": "channel",
+    "name": "YID PLUS נייעס",
+    "nick": "",
+    "photo_url": "/api/media/tgchan/allsingersinone.jpeg",
+    "preview": "נייע ווערסיע פון דער אפ איז ארויס 🎉",
+    "unread": 1,
+    "last_time": "2026-11-11T18:25:00.000Z",
+    "members": 312,
+    "read_only": true
+   },
+   {
+    "id": "r-dm3",
+    "type": "private",
+    "nick": "חיים",
+    "photo_url": null,
+    "preview": "א דאנק! 👍",
+    "unread": 0,
+    "last_time": "2026-11-11T16:30:00.000Z",
+    "members": 2,
+    "other_user_id": "u-chaim"
+   },
+   {
+    "id": "r-g2",
+    "type": "group",
+    "name": "Family 👨‍👩‍👧‍👦",
+    "nick": "",
+    "photo_url": "/api/media/user-avatars/392d8eda-e0dd-44ea-a51e-f55ead12fb0c_1785879385829.png",
+    "preview": "Mommy: מיר עסן 7 אזייגער",
+    "unread": 0,
+    "last_time": "2026-11-11T14:30:00.000Z",
+    "members": 9
+   },
+   {
+    "id": "r-dm4",
+    "type": "private",
+    "nick": "Shaya",
+    "photo_url": null,
+    "preview": "[call]",
+    "unread": 0,
+    "last_time": "2026-11-10T18:30:00.000Z",
+    "members": 2,
+    "other_user_id": "u-shaya"
+   },
+   {
+    "id": "r-dm5",
+    "type": "private",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "preview": "די פרייז איז $45",
+    "unread": 0,
+    "last_time": "2026-11-09T17:30:00.000Z",
+    "members": 2,
+    "other_user_id": "u-deal"
+   },
+   {
+    "id": "r-g3",
+    "type": "group",
+    "name": "Python לערנען",
+    "nick": "",
+    "photo_url": null,
+    "preview": "Shimel'a: ווער קען העלפן?",
+    "unread": 0,
+    "last_time": "2026-11-08T08:10:00.000Z",
+    "members": 57
+   }
+  ]
+ },
+ "/api/chat?room_id=r-dm1": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "m1",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "שלום עליכם! וואס הערט זיך?",
+    "created_at": "2026-11-11T18:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m2",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עליכם שלום! ב״ה גוט. און ביי דיר?",
+    "created_at": "2026-11-11T18:02:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m3",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "created_at": "2026-11-11T18:30:00.000Z",
+    "read": 1,
+    "media_url": "/api/media/tgchan/YeshivagedolahTelegramChannel.jpeg",
+    "media_key": "tgchan/a.jpg"
+   },
+   {
+    "id": "m4",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "קוק וואס איך האב געזען היינט 😄",
+    "created_at": "2026-11-11T18:31:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m5",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "וואו, שיין! וואו איז דאס?",
+    "created_at": "2026-11-11T18:50:00.000Z",
+    "read": 1,
+    "reply_to_id": "m4",
+    "reply_to": {
+     "id": "m4",
+     "sender_nick": "משה'לע",
+     "text": "קוק וואס איך האב געזען היינט 😄"
+    }
+   },
+   {
+    "id": "m6",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "voice",
+    "text": "",
+    "created_at": "2026-11-11T19:00:00.000Z",
+    "read": 1,
+    "media_key": "voice/demo.ogg",
+    "media_url": null,
+    "duration": 14
+   },
+   {
+    "id": "m7",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "Ok, I'll be there at 8 👍",
+    "created_at": "2026-11-11T19:20:00.000Z",
+    "read": 1,
+    "reactions": {
+     "👍": 1,
+     "❤️": 2
+    }
+   },
+   {
+    "id": "m8",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "גוט מארגן! ווען קומסטו?",
+    "created_at": "2026-11-11T19:26:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-g1": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "m19",
+    "sender_id": "system",
+    "sender_nick": "",
+    "sender_photo": null,
+    "type": "system",
+    "text": "Yanky joined the group",
+    "created_at": "2026-11-11T16:10:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m20",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "ווער קומט מארגן צום שיעור?",
+    "created_at": "2026-11-11T17:30:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m21",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "text",
+    "text": "איך! 🙋",
+    "created_at": "2026-11-11T17:32:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m22",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "איך אויך, בעז״ה",
+    "created_at": "2026-11-11T17:40:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m23",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "sticker",
+    "text": "https://yidplus.com/images/apple-touch-icon.png",
+    "created_at": "2026-11-11T18:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m24",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "poll",
+    "text": "p1",
+    "created_at": "2026-11-11T18:10:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m25",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "file",
+    "text": "schedule.pdf",
+    "created_at": "2026-11-11T18:20:00.000Z",
+    "read": 1,
+    "media_key": "chat/files/123_schedule.pdf",
+    "media_url": "/api/media/chat%2Ffiles%2F123_schedule.pdf"
+   },
+   {
+    "id": "m26",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "voice_text",
+    "text": "0:12|20,40,60,30,50,70,40,20",
+    "created_at": "2026-11-11T18:30:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m27",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "call",
+    "text": "📞 Missed voice call",
+    "created_at": "2026-11-11T18:40:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m28",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "created_at": "2026-11-11T19:00:00.000Z",
+    "read": 1,
+    "media_url": "/api/media/tgchan/ZemelVIN.jpeg",
+    "media_key": "tgchan/b.jpg"
+   },
+   {
+    "id": "m29",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "",
+    "created_at": "2026-11-11T19:15:00.000Z",
+    "read": 1,
+    "deleted": 1
+   },
+   {
+    "id": "m30",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אזוי אז מיר קענען זיך צוגרייטן.",
+    "created_at": "2026-11-11T19:19:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "m1",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "שלום עליכם! וואס הערט זיך?",
+    "created_at": "2026-11-11T18:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m2",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עליכם שלום! ב״ה גוט. און ביי דיר?",
+    "created_at": "2026-11-11T18:02:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m3",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "created_at": "2026-11-11T18:30:00.000Z",
+    "read": 1,
+    "media_url": "/api/media/tgchan/YeshivagedolahTelegramChannel.jpeg",
+    "media_key": "tgchan/a.jpg"
+   },
+   {
+    "id": "m4",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "קוק וואס איך האב געזען היינט 😄",
+    "created_at": "2026-11-11T18:31:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/notifications": {
+  "ok": true,
+  "unread": 3,
+  "notifications": [
+   {
+    "id": "n1",
+    "type": "follow",
+    "actor_nick": "Yanky",
+    "text": "started following you",
+    "link": "/",
+    "read": 0,
+    "created_at": "2026-11-11T19:10:00.000Z"
+   },
+   {
+    "id": "n2",
+    "type": "like",
+    "actor_nick": "משה'לע",
+    "text": "liked your short",
+    "link": "/shorts",
+    "read": 0,
+    "created_at": "2026-11-11T18:10:00.000Z"
+   },
+   {
+    "id": "n3",
+    "type": "comment",
+    "actor_nick": "חיים",
+    "text": "commented: ״שיין!״",
+    "link": "/",
+    "read": 0,
+    "created_at": "2026-11-11T16:10:00.000Z"
+   },
+   {
+    "id": "n4",
+    "type": "system",
+    "actor_nick": "YID PLUS",
+    "text": "Welcome to YID PLUS",
+    "link": "/",
+    "read": 1,
+    "created_at": "2026-11-09T00:50:00.000Z"
+   }
+  ]
+ },
+ "/api/chat/typing": {
+  "ok": true,
+  "typing": []
+ },
+ "/api/chat/reactions": {
+  "ok": true,
+  "reactions": {
+   "m7": {
+    "👍": 1,
+    "❤️": 2
+   }
+  }
+ },
+ "/api/profile": {
+  "ok": true,
+  "profile": {
+   "id": "demo-me",
+   "nickname": "משה'לע",
+   "email": "owner@example.com",
+   "bio": "YID PLUS 👑 owner",
+   "location": "Brooklyn, NY",
+   "website": "https://yidplus.com",
+   "instagram": "",
+   "youtube": "",
+   "birthday": "",
+   "profile_color": "#1F6F5C",
+   "verified": 1,
+   "role": "owner",
+   "is_owner": true,
+   "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+   "privacy_profile": "public",
+   "privacy_messages": "everyone",
+   "is_private": 0,
+   "show_online": 1,
+   "read_receipts": 1,
+   "notif_messages": 1,
+   "notif_likes": 1,
+   "notif_followers": 1,
+   "notif_channels": 1
+  },
+  "stats": {
+   "shorts": 12,
+   "music": 3,
+   "messages": 1480,
+   "profile_views": 236,
+   "followers": 58
+  },
+  "sessions": [
+   {
+    "id": "s1",
+    "created_at": "2026-11-11T18:30:00.000Z"
+   }
+  ]
+ },
+ "/api/polls?id=p1": {
+  "ok": true,
+  "poll": {
+   "id": "p1",
+   "question": "וואס זאלן מיר עסן?",
+   "options": [
+    {
+     "text": "פיצא",
+     "votes": 5
+    },
+    {
+     "text": "סושי",
+     "votes": 3
+    },
+    {
+     "text": "פלייש",
+     "votes": 7
+    }
+   ],
+   "total": 15,
+   "my_vote": null
+  }
+ },
+ "/api/statuses": {
+  "ok": true,
+  "statuses": []
+ },
+ "/api/blocks": {
+  "ok": true,
+  "blocks": []
+ },
+ "/api/follows": {
+  "ok": true,
+  "following": [],
+  "followers": []
+ },
+ "/api/chat/folders": {
+  "ok": true,
+  "folders": []
+ },
+ "/api/chat/bookmarks": {
+  "ok": true,
+  "bookmarks": []
+ },
+ "/api/2fa": {
+  "ok": true,
+  "enabled": false
+ },
+ "/api/notifications?count=1": {
+  "ok": true,
+  "unread": 3
+ },
+ "/api/admin/stats": {
+  "ok": true,
+  "stats": {
+   "users": 1843,
+   "messages": 250312,
+   "shorts": 4210,
+   "channels": 96
+  }
+ }
+}

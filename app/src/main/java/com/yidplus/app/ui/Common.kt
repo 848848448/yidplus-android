@@ -27,6 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -143,30 +146,61 @@ fun Logo(modifier: Modifier = Modifier) {
 
 /** Calm, distinct colours for people without a photo (picked from the name, so a person keeps the same colour). */
 private val avatarPalette = listOf(
-    Color(0xFF1F6F5C), Color(0xFF2B7A9B), Color(0xFF7056A8), Color(0xFFC0564A), Color(0xFFC7822A),
-    Color(0xFF3E8E52), Color(0xFF4767A8), Color(0xFFAD4F7E), Color(0xFF00897B), Color(0xFF6D7F2B),
+    Color(0xFF1F6F5C), Color(0xFF3A86D4), Color(0xFF8A68D2), Color(0xFFDB6A55), Color(0xFFE0913A),
+    Color(0xFF45A35F), Color(0xFF239FAE), Color(0xFFCF5C91), Color(0xFF5A76C0), Color(0xFF7E8F33),
 )
-fun avatarColor(name: String): Color = avatarPalette[Math.floorMod(name.trim().lowercase().hashCode(), avatarPalette.size)]
+/** The same colour for a name however it is written ("'ישיבה" and "ישיבה" match): only its letters and digits count. */
+fun avatarColor(name: String): Color {
+    val key = name.filter { it.isLetterOrDigit() }.lowercase().ifEmpty { name.trim().lowercase() }
+    return avatarPalette[Math.floorMod(key.hashCode(), avatarPalette.size)]
+}
 
-/** "Moshe Klein" -> "MK", "yidplus" -> "Y", "משה קליין" -> "מק". Emoji and symbols count as a letter. */
+/** The first real letter (or digit) of a word: skips ' " ״ ׳ - . @ # _ and emoji. Hebrew/Yiddish letters are letters. */
+fun firstLetterOf(w: String): String? {
+    var i = 0
+    while (i < w.length) {
+        val cp = w.codePointAt(i)
+        if (Character.isLetterOrDigit(cp)) return String(Character.toChars(cp)).uppercase()
+        i += Character.charCount(cp)
+    }
+    return null
+}
+
+/** "Moshe Klein" -> "MK", "yidplus" -> "Y", "משה קליין" -> "מ", "'ישיבה" -> "י". Never punctuation or an emoji. */
 fun nameInitials(name: String): String {
-    val words = name.trim().split(Regex("\\s+")).map { it.trimStart('@', '#', '.', '_', '-') }.filter { it.isNotEmpty() }
-    if (words.isEmpty()) return "Y"
-    fun first(w: String) = String(Character.toChars(w.codePointAt(0))).uppercase()
-    return if (words.size == 1) first(words[0]) else first(words[0]) + first(words[1])
+    val letters = name.trim().split(Regex("\\s+")).mapNotNull { firstLetterOf(it) }
+    if (letters.isEmpty()) return "Y"
+    val a = letters[0]
+    // Two letters only for Latin names of two words, like Telegram; a Hebrew/Yiddish name shows its first letter, like the site.
+    if (letters.size >= 2 && a[0].code < 0x0590 && letters[1][0].code < 0x0590 && a[0].isLetter() && letters[1][0].isLetter()) return a + letters[1]
+    return a
 }
 
 private val defaultPic = Regex("(default[-_]?(avatar|user|profile)|placeholder|no[-_]?avatar|/globe|anonymous)", RegexOption.IGNORE_CASE)
 
 @Composable
 fun Avatar(url: String?, name: String, size: Dp = 40.dp, emoji: String? = null) {
-    // A real photo when there is one; otherwise a coloured circle with the person's initials (never a generic globe).
+    // The photo first when there is one; under it (while it loads, or when it fails) a coloured circle with the first real letter.
     val photo = url?.takeIf { it.isNotBlank() && !defaultPic.containsMatchIn(it) }
     val label = emoji?.takeIf { it.isNotBlank() } ?: nameInitials(name)
     Box(Modifier.size(size).clip(CircleShape).background(avatarColor(name.ifBlank { "Y" })), contentAlignment = Alignment.Center) {
-        Text(label, color = Color.White, fontWeight = FontWeight.SemiBold, maxLines = 1,
-            fontSize = (size.value * (if (label.length > 1 && emoji.isNullOrBlank()) 0.36f else 0.44f)).sp)
+        Text(label, color = Color.White, fontWeight = FontWeight.SemiBold, maxLines = 1, style = TextStyle(textDirection = TextDirection.Ltr),
+            fontSize = (size.value * (if (label.length > 1 && emoji.isNullOrBlank()) 0.38f else 0.46f)).sp)
         if (photo != null) AsyncImage(model = photo, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+    }
+}
+
+/** A slim one-line "sign in" bar for guests (40 dp, never a third of the screen): a lock, one line, and a Sign in link. */
+@Composable
+fun GuestBar(text: String = "Sign in to chat, post and like", modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth().heightIn(min = 40.dp).background(MaterialTheme.colorScheme.primaryContainer).padding(start = 16.dp, end = 4.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Icon(Icons.Filled.Lock, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+        Text(text, Modifier.weight(1f).padding(start = 10.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer,
+            maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Box(Modifier.heightIn(min = 36.dp).tap(RoundedCornerShape(18.dp)) { Nav.go(Tab.Profile) }.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
+            Text("Sign in", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, maxLines = 1)
+        }
     }
 }
 
@@ -181,13 +215,17 @@ fun Badge(n: Int, muted: Boolean = false) {
 }
 
 /**
- * Loading state. Full-screen lists get a soft skeleton (grey rows that pulse) instead of a bare spinner;
- * small boxes, buttons and Shorts keep a small spinner. `skeleton` forces one or the other.
+ * Loading state, only for a first-ever load (screens show their cached copy and refresh quietly): a short skeleton of
+ * rows shaped like the list that is coming, after a quarter second so a fast load never flashes. Never a spinner over
+ * content; `skeleton = false` keeps a small spinner for a tiny box (and black Shorts).
  */
 @Composable
 fun Loading(modifier: Modifier = Modifier.fillMaxSize(), skeleton: Boolean? = null) {
-    val list = skeleton ?: (modifier == Modifier.fillMaxSize() && !(Nav.tab == Tab.Shorts && Nav.stack.isEmpty()))
-    if (list) SkeletonRows(modifier) else
+    val list = skeleton ?: !(Nav.tab == Tab.Shorts && Nav.stack.isEmpty())
+    var show by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { delay(250); show = true }
+    if (!show) { Box(modifier); return }
+    if (list) SkeletonRows(modifier, rows = if (modifier == Modifier.fillMaxSize()) 6 else 2) else
         Box(modifier, contentAlignment = Alignment.Center) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, modifier = Modifier.size(28.dp)) }
 }
 
@@ -233,10 +271,22 @@ fun Problem(message: String, offline: Boolean, onRetry: () -> Unit, modifier: Mo
         }
         Spacer(Modifier.size(14.dp))
         Text(if (offline) "You're offline" else "Couldn't load this", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-        Text(if (offline) "Check your internet. This page loads by itself when you're back online." else message,
+        Text(if (offline) "Check your internet. This page loads by itself when you're back online." else plainProblem(message),
             Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.size(16.dp))
         PrimaryButton("Try again", onRetry, Modifier.firstFocus())
+    }
+}
+
+/** A server's own words made human: database, quota or stack text never reaches the screen. */
+fun plainProblem(msg: String?): String {
+    val m = msg?.trim().orEmpty()
+    return when {
+        m.isEmpty() -> "Something went wrong"
+        m.contains("D1_ERROR", true) || m.contains("read limit", true) || m.contains("exceeded", true) || m.contains("rate limit", true) ->
+            "yidplus.com isn't answering right now. Please try again in a little while."
+        m.contains("SQLITE", true) || m.contains("Exception") || m.contains("stack", true) || m.contains("Error:") || m.length > 140 -> "yidplus.com had a problem. Please try again."
+        else -> m
     }
 }
 

@@ -44,9 +44,10 @@ object Api {
         app = ctx.applicationContext
         jar = PrefsCookieJar(app)
         Disk.init(app)
+        Fixture.init(app)
     }
 
-    fun hasSession() = jar.has("yp_session")
+    fun hasSession() = Fixture.on || jar.has("yp_session")
     fun session(): String? = jar.value("yp_session")
     fun setSession(token: String) = jar.put("yp_session", token)
     fun clearSession() = jar.clear()
@@ -78,10 +79,12 @@ object Api {
     }
 
     private fun exec(r: Request): JSONObject {
+        Fixture.answer(r)?.let { return it }
         http.newCall(r).execute().use { res ->
             val text = res.body?.string() ?: ""
             val j = runCatching { JSONObject(text) }.getOrNull()
             if (!res.isSuccessful) {
+                if (Fixture.on && (res.code == 401 || res.code == 403)) return JSONObject().put("ok", true)
                 val msg = j?.optString("error")?.takeIf { it.isNotBlank() } ?: "The site answered ${res.code}"
                 throw ApiError(res.code, msg, j)
             }
@@ -98,6 +101,47 @@ object Api {
         e is ApiError -> e.message ?: "Something went wrong"
         isOffline(e) -> "No internet connection"
         else -> "Something went wrong"
+    }
+}
+
+
+/** QA only: a local demo account fed from assets/qa/fixtures.json (shaped like the site's own API answers) so every
+ *  signed-in screen can be photographed without a real password. Nothing is ever sent to the site while it is on:
+ *  sign-in-only reads come from the file, every write is answered locally. Switched on by the QA script (adb intent). */
+object Fixture {
+    @Volatile var data: JSONObject? = null; private set
+    val on get() = data != null
+    private fun prefs(c: Context) = c.getSharedPreferences("qa", Context.MODE_PRIVATE)
+    fun init(c: Context) { if (prefs(c).getBoolean("fixture", false)) load(c) }
+    private fun load(c: Context) {
+        // fixtures.json plus any fixtures-*.json next to it (each screen area keeps its own sample answers).
+        val all = JSONObject()
+        val names = runCatching { c.assets.list("qa")?.toList() }.getOrNull().orEmpty().filter { it.startsWith("fixtures") && it.endsWith(".json") }.sortedBy { if (it == "fixtures.json") "" else it }
+        for (n in names) runCatching {
+            val j = JSONObject(c.assets.open("qa/$n").bufferedReader().use { it.readText() })
+            for (k in j.keys()) all.put(k, j.get(k))
+        }
+        data = if (all.length() > 0) all else null
+    }
+    fun set(c: Context, enable: Boolean) {
+        prefs(c).edit().putBoolean("fixture", enable).commit()
+        if (enable) load(c) else data = null
+        Disk.clear()
+    }
+    fun answer(r: Request): JSONObject? {
+        val d = data ?: return null
+        val u = r.url
+        if (!u.host.endsWith("yidplus.com") || !u.encodedPath.startsWith("/api/")) return null
+        val q = u.encodedQuery
+        val full = u.encodedPath + (if (q.isNullOrBlank()) "" else "?$q")
+        if (r.method != "GET") {
+            // The QA log shows exactly what this action would send to the site (tag YidFx), so each action can be checked against the site's own code.
+            val ct = r.body?.contentType()?.toString().orEmpty()
+            val b = if (ct.contains("json")) runCatching { okio.Buffer().also { r.body?.writeTo(it) }.readUtf8().take(400) }.getOrDefault("") else "<$ct ${r.body?.contentLength() ?: 0} bytes>"
+            android.util.Log.i("YidFx", "${r.method} $full $b")
+            return JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
+        }
+        return d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath)
     }
 }
 

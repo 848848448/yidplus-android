@@ -33,6 +33,7 @@ confirm_install() {
       if [ -n "$xy" ]; then shot 05-android-install-prompt; adb shell input tap $xy; log "confirmed Android's install prompt at $xy"; sleep 6; fi
     fi
     [ "$(ver)" = "$WANT" ] && return 0
+    adb shell pidof $PKG >/dev/null 2>&1 || { log "app closed by itself; opening it again"; adb shell am start -W -n $PKG/.MainActivity >/dev/null; sleep 4; }
     # Older apps (1.0.x) need Update tapped again after the "allow installs" step; tap the app's own button at most twice.
     if [ "$i" -gt 2 ] && [ "${again:-0}" -lt 2 ] && ! timeout 20 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -q packageinstaller; then
       xy=$(find_xy "Update"); [ -n "$xy" ] && { adb shell input tap $xy; again=$(( ${again:-0} + 1 )); log "tapped the app's Update again ($again)"; sleep 5; }
@@ -62,7 +63,10 @@ if [ "${NOTIFY:-0}" = 1 ]; then
   sleep 3; shot 01-update-from-notification
 else
 adb shell am start -W -n $PKG/.MainActivity >/dev/null
-for i in $(seq 1 20); do xy=$(find_xy "Update available"); [ -n "$xy" ] && break; sleep 2; done
+# 2.0.0 can close by itself a few seconds after opening (fixed in 2.0.1); like a person would, open it again.
+for i in $(seq 1 20); do xy=$(find_xy "Update available"); [ -n "$xy" ] && break
+  adb shell pidof $PKG >/dev/null 2>&1 || { log "app closed by itself; opening it again"; adb shell am start -W -n $PKG/.MainActivity >/dev/null; }
+  sleep 2; done
 sleep 1; shot 01-update-available
 tap "Update" 15 || true
 fi
@@ -70,6 +74,13 @@ sleep 2; shot 02-allow-updates
 tap "Open settings" 5 && { sleep 4; shot 03-android-settings; }
 adb shell appops set $PKG REQUEST_INSTALL_PACKAGES allow
 adb shell input keyevent 4
+sleep 3
+# 2.0.0 does not carry on by itself after "allow installs" (Android restarts the app); a person then taps
+# Settings > Check for updates, which is this same action.
+if ! timeout 20 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -q packageinstaller; then
+  adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.CHECK_UPDATE >/dev/null 2>&1; log "Settings > Check for updates"; sleep 4
+  tap "Update" 8 || true
+fi
 sleep 1.5; shot 04-downloading
 confirm_install || { shot 05-android-install-prompt; log "Android install prompt never confirmed"; }
 NOW=$(ver); log "version after update: $NOW"

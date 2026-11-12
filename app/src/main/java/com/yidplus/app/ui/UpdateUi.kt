@@ -99,11 +99,20 @@ object UpdateUi {
 
     fun openPermission(ctx: Context, info: UpdateInfo) {
         askPermission = null; pending = info; awaitingPermission = true
+        // Android may restart the app when this permission changes; remember the wish so the update carries on after.
+        Updater.prefs(ctx).edit().putBoolean("resumeAfterPermission", true).apply()
         runCatching { ctx.startActivity(Updater.installPermissionIntent(ctx)) }
     }
 
     fun onResume(ctx: Context) {
+        val p = Updater.prefs(ctx)
+        if (!awaitingPermission && p.getBoolean("resumeAfterPermission", false)) {
+            // The app was restarted while the person was allowing installs: carry on with the update.
+            p.edit().remove("resumeAfterPermission").apply()
+            if (Updater.canInstall(ctx)) { installNow(ctx); return }
+        }
         if (awaitingPermission) {
+            p.edit().remove("resumeAfterPermission").apply()
             awaitingPermission = false
             val info = pending; pending = null
             if (info != null && Updater.canInstall(ctx)) start(ctx, info)

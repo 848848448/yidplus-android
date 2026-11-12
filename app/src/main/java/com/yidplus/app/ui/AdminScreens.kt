@@ -1,48 +1,35 @@
 package com.yidplus.app.ui
 
-import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yidplus.app.data.Api
+import com.yidplus.app.data.Res
+import com.yidplus.app.data.Session
 import com.yidplus.app.data.SiteConfig
 import com.yidplus.app.data.objects
 import com.yidplus.app.data.str
-import kotlinx.coroutines.delay
+import com.yidplus.app.data.strOrNull
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 
-/** The site's Admin → Features switches. Turning one off here hides that tab in the app's bottom bar (and on the site) at once. */
+/** The site's Admin → Features switches (admin.js FEATURE_FLAGS). Off hides that tab in the bottom bar for everyone, on the site and in the app. */
 private val featureFlags = listOf(
     Triple("feat_shorts", "Shorts", "The Shorts tab and video feed"),
     Triple("feat_music", "Music", "The Music tab and player"),
@@ -53,107 +40,171 @@ private val featureFlags = listOf(
 private val featureIcons = mapOf("feat_shorts" to Icons.Filled.Movie, "feat_music" to Icons.Filled.MusicNote, "feat_status" to Icons.Filled.Star,
     "feat_channels" to Icons.Filled.Explore, "feat_guest" to Icons.Filled.Person)
 
+/** The website-only sections (admin.js ADMIN_NAV ids), opened on the site's page at that section. */
+private val webSections = listOf(
+    Triple("analytics", "Analytics", Icons.Filled.Insights), Triple("announcements", "Announcements", Icons.Filled.Campaign),
+    Triple("support-chats", "Support chats", Icons.Filled.SupportAgent), Triple("feedback", "Feedback", Icons.Filled.Feedback),
+    Triple("ads", "Ads", Icons.Filled.Sell), Triple("invite-codes", "Invite codes", Icons.Filled.ConfirmationNumber),
+    Triple("badges", "Badges", Icons.Filled.MilitaryTech), Triple("maintenance", "Maintenance", Icons.Filled.Build),
+    Triple("audit-logs", "Audit logs", Icons.Filled.History),
+)
+
 class AdminPage : PageScreen() {
     override val perfName = "Admin"
+    override fun equals(other: Any?) = other is AdminPage
+    override fun hashCode() = 300
     @Composable override fun Content() {
         val c = ctx()
         val scope = rememberCoroutineScope()
-        var stats by remember { mutableStateOf<JSONObject?>(null) }
-        var statsErr by remember { mutableStateOf<String?>(null) }
+        val statsRes = remember { Res("/api/admin/stats") { it } }
+        val nowRes = remember { Res("/api/admin/insights") { it } }
         var flags by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
-        var q by remember { mutableStateOf("") }
-        var users by remember { mutableStateOf<List<JSONObject>?>(null) }
+        var allowFor by remember { mutableStateOf<String?>(null) }
+        // null = still reading, false = the site didn't answer: the switches then stay locked, so nothing is saved from a wrong picture.
+        var flagsOk by remember { mutableStateOf<Boolean?>(null) }
+        var flagsTry by remember { mutableIntStateOf(0) }
         LaunchedEffect(Unit) {
             if (SettingsProfile.demo) {
-                stats = JSONObject().put("users", 1834).put("new_today", 12).put("online", 47).put("shorts", 3120).put("messages", 98210).put("channels", 64).put("open_reports", 2)
-                flags = mapOf("feat_music" to "off"); users = emptyList(); return@LaunchedEffect
+                statsRes.data = JSONObject().put("stats", JSONObject().put("users", 1834).put("new_today", 12).put("online", 47).put("shorts", 3120).put("messages", 98210).put("channels", 64).put("open_reports", 2))
+                flags = mapOf("feat_music" to "off"); flagsOk = true; return@LaunchedEffect
             }
-            runCatching { Api.get("/api/admin/stats").optJSONObject("stats") }.onSuccess { stats = it }.onFailure { statsErr = Api.friendly(it) }
-            runCatching { Api.get("/api/settings").optJSONObject("settings") }.onSuccess { j -> if (j != null) flags = j.keys().asSequence().filter { it.startsWith("feat_") }.associateWith { j.optString(it) } }
+            launch { statsRes.load(force = true) }
+            launch { nowRes.load(force = true) }
         }
-        // Search people as you type (the site's Admin → Users search).
-        LaunchedEffect(q) {
-            if (SettingsProfile.demo || q.trim().length < 2) { if (q.isBlank()) users = null; return@LaunchedEffect }
-            delay(350)
-            runCatching { Api.get("/api/admin/users?search=" + Uri.encode(q.trim())).optJSONArray("users").objects() }.onSuccess { users = it.distinctBy { u -> u.str("id") } }
+        LaunchedEffect(flagsTry) {
+            if (SettingsProfile.demo) return@LaunchedEffect
+            runCatching { Api.get("/api/settings").optJSONObject("settings") ?: error("no settings") }
+                .onSuccess { j -> flags = j.keys().asSequence().filter { it.startsWith("feat_") }.associateWith { j.optString(it) }; flagsOk = true }
+                .onFailure { flagsOk = false }
         }
-        SettingsPage("Admin", sub = "YID PLUS control center") {
-            SettingsCard("Today") {
-                val s = stats
-                if (s == null) Text(statsErr ?: "Loading…", Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                else Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val s = statsRes.data?.optJSONObject("stats")
+        val now = nowRes.data
+        val owner = adminIsOwner
+        val role = when { Session.me?.isOwner == true || Session.me?.role == "owner" -> "👑 Owner"; Session.me?.role == "admin_super" -> "🛡 Super admin"; SettingsProfile.demo -> "👑 Owner"; else -> "🔒 Moderator" }
+        SettingsPage("Admin", sub = "$role · YID PLUS control center") {
+            // ── Right now (admin.js _loadNow: GET /api/admin/insights) ──
+            SettingsCard("Right now") {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Tile(s.optInt("users"), "Members", Modifier.weight(1f)); Tile(s.optInt("online"), "Online now", Modifier.weight(1f)); Tile(s.optInt("new_today"), "New today", Modifier.weight(1f))
+                        Tile(now?.optInt("online_now") ?: s?.optInt("online") ?: 0, "Online", Modifier.weight(1f), live = true)
+                        Tile(now?.optInt("active_sessions") ?: 0, "Sessions", Modifier.weight(1f))
+                        Tile(now?.optInt("total_users") ?: s?.optInt("users") ?: 0, "Members", Modifier.weight(1f))
                     }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Tile(s.optInt("shorts"), "Shorts", Modifier.weight(1f)); Tile(s.optInt("channels"), "Channels", Modifier.weight(1f)); Tile(s.optInt("open_reports"), "Open reports", Modifier.weight(1f), alert = s.optInt("open_reports") > 0)
+                    if (s != null) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Tile(s.optInt("new_today"), "New today", Modifier.weight(1f)); Tile(s.optInt("shorts"), "Shorts", Modifier.weight(1f))
+                        Tile(s.optInt("messages"), "Messages", Modifier.weight(1f))
                     }
+                    val online = now?.optJSONArray("online_users").objects()
+                    if (online.isNotEmpty()) LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
+                        items(online.take(30), key = { it.str("id") }) { u ->
+                            Column(Modifier.width(56.dp).tap(RoundedCornerShape(10.dp)) { Nav.open(AdminUserPage(u.str("id"), u.toString())) }, horizontalAlignment = Alignment.CenterHorizontally) {
+                                Avatar(Api.abs(u.strOrNull("photo_url")), u.str("nickname").ifBlank { "?" }, 44.dp)
+                                Text(u.str("nickname"), style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                        }
+                    }
+                    val growth = now?.optJSONArray("growth").objects()
+                    if (growth.isNotEmpty()) GrowthBars(growth)
                 }
             }
+            // ── The sections the app has natively ──
+            SettingsCard("Manage") {
+                SettingRow(Icons.Filled.People, "Users", "Search, verify, mute, block, roles", value = s?.optInt("users")?.takeIf { it > 0 }?.let { adminN(it) }, modifier = Modifier.firstFocus()) { Nav.open(AdminUsersPage()) }
+                RowDivider(64.dp)
+                val rep = s?.optInt("open_reports") ?: 0
+                SettingRow(Icons.Filled.Flag, "Reports", if (rep > 0) "$rep open" else "Nothing open", value = if (rep > 0) rep.toString() else null) { Nav.open(AdminReportsPage()) }
+                RowDivider(64.dp)
+                SettingRow(Icons.Filled.Verified, "Verification requests", "Approve or deny the ✅ mark") { Nav.open(AdminVerifyPage()) }
+                if (owner) {
+                    RowDivider(64.dp)
+                    SettingRow(Icons.Filled.Campaign, "Channels", "Member channels: verify or delete", value = s?.optInt("channels")?.takeIf { it > 0 }?.toString()) { Nav.open(AdminChannelsPage()) }
+                    RowDivider(64.dp)
+                    SettingRow(Icons.Filled.Send, "Telegram channels", "Add or remove the channels in the Channels tab") { Nav.open(AdminTelegramPage()) }
+                    RowDivider(64.dp)
+                    SettingRow(Icons.Filled.Podcasts, "Broadcast", "A message to every member, with a phone notification") { Nav.open(AdminBroadcastPage()) }
+                    RowDivider(64.dp)
+                    SettingRow(Icons.Filled.Block, "Word filter", "Words and phrases blurred for everyone") { Nav.open(AdminBadWordsPage()) }
+                }
+            }
+            // ── Features (admin.js buildFeaturesPanel / toggleFeature: PUT /api/settings {key, value:'on'|'off'}) ──
             SettingsCard("Features") {
                 featureFlags.forEachIndexed { i, (key, label, desc) ->
                     if (i > 0) RowDivider(64.dp)
                     val on = flags[key] != "off"
-                    SettingRow(featureIcons[key] ?: Icons.Filled.Star, label, desc + if (!settingsIsSuperAdmin) " · owner only" else "", switch = on,
-                        modifier = if (i == 0) Modifier.firstFocus() else Modifier) {
-                        if (!settingsIsSuperAdmin) { toast(c, "Only the owner or a super admin can change this"); return@SettingRow }
+                    SettingRow(featureIcons[key] ?: Icons.Filled.Star, label, desc + if (!owner) " · owner only" else "", switch = on) {
+                        if (!owner) { toast(c, "Only the owner can change this"); return@SettingRow }
+                        if (flagsOk != true) { toast(c, "Couldn't read the current switches from yidplus.com yet. Trying again…"); flagsTry++; return@SettingRow }
                         val v = if (on) "off" else "on"
                         flags = flags + (key to v)
                         scope.launch {
                             runCatching { if (!SettingsProfile.demo) Api.put("/api/settings", JSONObject().put("key", key).put("value", v)) }
-                                .onSuccess { toast(c, if (v == "on") "$label is on" else "$label is off for everyone"); SiteConfig.refresh() }
+                                .onSuccess { toast(c, if (v == "on") "✅ Enabled" else "🚫 Disabled"); SiteConfig.refresh() }
                                 .onFailure { flags = flags + (key to if (on) "on" else "off"); toast(c, Api.friendly(it)) }
                         }
                     }
+                    if (!on && owner) Text("Who can still see it: " + (flags[key + "_allow"]?.ifBlank { null } ?: "nobody") + " · change",
+                        Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { allowFor = key }.padding(start = 64.dp, end = 16.dp, bottom = 10.dp),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
-            SettingsHint("Off = the tab disappears from the bottom bar for everyone, on the site and in the app. People on a feature's allow-list (set in the full panel) still see it.")
-            SettingsCard("Everything else") {
-                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open the full admin panel", "Reports, ads, channels, Telegram, bots, broadcasts, logs and more (your admin PIN is asked)") {
-                    Nav.open(Screen.Web(Api.BASE + "/admin"))
+            if (flagsOk == false) SettingsHint("⚠ yidplus.com didn't send the current switches, so they're locked to avoid saving the wrong value. Tap a switch to try again.")
+            SettingsHint("Off = the tab disappears from the bottom bar for everyone, on the site and in the app.")
+            // ── Rare sections stay on the website's admin page ──
+            if (owner) SettingsCard("More on the website") {
+                webSections.forEachIndexed { i, (id, label, icon) ->
+                    if (i > 0) RowDivider(64.dp)
+                    SettingRow(icon, label, null) { Nav.open(AdminWebPage(id)) }
                 }
+                RowDivider(64.dp)
+                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open the full admin panel", "Every section of the website's admin page") { Nav.open(AdminWebPage(null)) }
             }
-            SettingsCard("Find a member") {
-                OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), singleLine = true, label = { Text("Name or email") },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search))
-                users?.take(20)?.forEach { u -> AdminUserRow(u) { changed -> users = users?.map { if (it.str("id") == changed.str("id")) changed else it } } }
-                if (users?.isEmpty() == true && q.length >= 2) Text("Nobody found", Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+        }
+        allowFor?.let { key ->
+            var v by remember(key) { mutableStateOf(flags[key + "_allow"] ?: "") }
+            AlertDialog(onDismissRequest = { allowFor = null }, title = { Text("Who can still see it") },
+                text = { OutlinedTextField(v, { v = it }, Modifier.fillMaxWidth(), label = { Text("Nicknames or emails, comma-separated") }) },
+                confirmButton = { TextButton({
+                    val seen = HashSet<String>()
+                    val list = v.split(',').map { it.trim() }.filter { it.isNotEmpty() && seen.add(it.lowercase()) }
+                    val value = list.joinToString(", ")
+                    allowFor = null
+                    scope.launch {
+                        runCatching { if (!SettingsProfile.demo) Api.put("/api/settings", JSONObject().put("key", key + "_allow").put("value", value)) }
+                            .onSuccess { flags = flags + (key + "_allow" to value); toast(c, if (list.isNotEmpty()) "👁 ${list.size} can still see it" else "Nobody can see it while off") }
+                            .onFailure { toast(c, Api.friendly(it)) }
+                    }
+                }) { Text("Save") } },
+                dismissButton = { TextButton({ allowFor = null }) { Text("Cancel") } })
         }
     }
 }
 
 @Composable
-private fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = false) {
+private fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = false, live: Boolean = false) {
     Column(modifier.clip(RoundedCornerShape(12.dp)).background(if (alert) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer).padding(vertical = 10.dp, horizontal = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(if (n >= 10000) "${n / 1000}k" else n.toString(), style = MaterialTheme.typography.titleLarge,
-            color = if (alert) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer, maxLines = 1)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = if (alert) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(adminN(n), style = MaterialTheme.typography.titleLarge,
+            color = if (live) BadgeGreen else if (alert) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer, maxLines = 1)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = if (alert) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
+/** New members per day (insights.growth: {day:'YYYY-MM-DD', count}), as small bars like the site's. */
 @Composable
-private fun AdminUserRow(u: JSONObject, onChanged: (JSONObject) -> Unit) {
-    val c = ctx()
-    val scope = rememberCoroutineScope()
-    val blocked = u.optInt("blocked") == 1
-    val role = when (u.str("role")) { "admin_super" -> "Super admin"; "admin_limited" -> "Admin"; else -> null }
-    Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Avatar(null, u.str("nickname"), 40.dp)
-        Column(Modifier.padding(start = 12.dp).weight(1f)) {
-            Text(u.str("nickname"), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(listOfNotNull(role, if (u.optInt("online") == 1) "online" else null, if (blocked) "blocked" else null, u.str("email").ifBlank { null }).joinToString(" · "),
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-        Surface(color = androidx.compose.ui.graphics.Color.Transparent) {
-            Text(if (blocked) "Unblock" else "Block", Modifier.tap(RoundedCornerShape(16.dp)) {
-                scope.launch {
-                    runCatching { Api.put("/api/admin/users", JSONObject().put("id", u.str("id")).put("blocked", !blocked)) }
-                        .onSuccess { toast(c, if (blocked) "Unblocked" else "Blocked"); onChanged(JSONObject(u.toString()).put("blocked", if (blocked) 0 else 1)) }
-                        .onFailure { toast(c, Api.friendly(it)) }
+private fun GrowthBars(g: List<JSONObject>) {
+    val max = (g.maxOfOrNull { it.optInt("count") } ?: 1).coerceAtLeast(1)
+    Column {
+        Text("New members per day", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))
+        Row(Modifier.fillMaxWidth().height(86.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            g.takeLast(14).forEach { d ->
+                val n = d.optInt("count")
+                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
+                    if (n > 0) Text(n.toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                    Box(Modifier.fillMaxWidth(0.75f).height((4 + 50f * n / max).dp).clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                        .background(Brush.verticalGradient(listOf(Color(0xFF2B8A73), Color(0xFF14503F)))))
+                    Text(d.str("day").takeLast(2), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, textAlign = TextAlign.Center)
                 }
-            }.padding(horizontal = 12.dp, vertical = 8.dp), color = if (blocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelLarge)
+            }
         }
     }
 }

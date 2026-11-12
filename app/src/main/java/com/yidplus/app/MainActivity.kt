@@ -88,6 +88,8 @@ class MainActivity : ComponentActivity() {
             "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
             "com.yidplus.app.QA_FEATURES" -> com.yidplus.app.data.SiteConfig.qaShowAll = i.getBooleanExtra("all", false)
             "com.yidplus.app.QA_UPDATE_NOTIFY" -> UpdateWorker.now(this)
+            "com.yidplus.app.QA_FIXTURE" -> { com.yidplus.app.data.Fixture.set(this, i.getBooleanExtra("on", true)); com.yidplus.app.data.Store.clear(); lifecycleScope.launch { Session.refresh() } }
+            "com.yidplus.app.QA_OPEN" -> i.getStringExtra("page")?.let { p -> runCatching { Class.forName("com.yidplus.app.ui.SavedHistoryKt").getMethod("qaOpenNew", String::class.java).invoke(null, p) } }
             "com.yidplus.app.QA_DEDUPE" -> lifecycleScope.launch { com.yidplus.app.ui.qaDedupe(applicationContext) }
             ACTION_INSTALL_UPDATE -> UpdateUi.installNow(this)
             ACTION_OPEN_TAB -> runCatching { Tab.valueOf(i.getStringExtra("tab") ?: "Home") }.getOrNull()?.let { Nav.go(it) }
