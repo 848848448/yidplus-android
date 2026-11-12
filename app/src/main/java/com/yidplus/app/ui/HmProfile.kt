@@ -210,15 +210,15 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
         val link = Api.BASE + "/?channel=" + soEnc(userId)
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             TopBar("@$nick", onBack = { Nav.back() }) {
-                IconBtn(Icons.Filled.Share, "Share", { share(c, "@$nick on YID PLUS\n$link") }, tint = LocalContentColor.current)
+                IconBtn(Sym.Share, "Share", { share(c, "@$nick on YID PLUS\n$link") }, tint = LocalContentColor.current)
                 Box {
-                    IconBtn(Icons.Filled.MoreVert, "More", { menu = true }, tint = LocalContentColor.current)
+                    IconBtn(Sym.MoreVert, "More", { menu = true }, tint = LocalContentColor.current)
                     DropdownMenu(menu, { menu = false }) {
-                        DropdownMenuItem(text = { Text("View channel") }, leadingIcon = { Icon(Icons.Filled.Campaign, null) }, onClick = { menu = false; Nav.open(SoUserChannelPage(userId, nick)) })
-                        DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Icons.Filled.Link, null) }, onClick = { menu = false; soCopy(c, link) })
+                        DropdownMenuItem(text = { Text("View channel") }, leadingIcon = { Icon(Sym.Campaign, null) }, onClick = { menu = false; Nav.open(SoUserChannelPage(userId, nick)) })
+                        DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { menu = false; soCopy(c, link) })
                         if (!isMe && me != null) {
-                            DropdownMenuItem(text = { Text(if (iBlocked) "Unblock this user" else "Block this user") }, leadingIcon = { Icon(Icons.Filled.Block, null) }, onClick = { menu = false; block = true })
-                            DropdownMenuItem(text = { Text("Report this user", color = MaterialTheme.colorScheme.error) }, leadingIcon = { Icon(Icons.Filled.Flag, null, tint = MaterialTheme.colorScheme.error) }, onClick = { menu = false; report = true })
+                            DropdownMenuItem(text = { Text(if (iBlocked) "Unblock this user" else "Block this user") }, leadingIcon = { Icon(Sym.Block, null) }, onClick = { menu = false; block = true })
+                            DropdownMenuItem(text = { Text("Report this user", color = MaterialTheme.colorScheme.error) }, leadingIcon = { Icon(Sym.Flag, null, tint = MaterialTheme.colorScheme.error) }, onClick = { menu = false; report = true })
                         }
                     }
                 }
@@ -245,8 +245,8 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(nick, fontSize = 21.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                                     style = TextStyle(textDirection = TextDirection.Content))
-                                if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(19.dp))
-                                if (isPrivate) Icon(Icons.Filled.Lock, "Private", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                                if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(19.dp))
+                                if (isPrivate) Icon(Sym.Lock, "Private", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
                             Text("@$nick", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             val role = j.str("role")
@@ -259,7 +259,7 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                                     Text(" " + j.str("location"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1) }
                                 val web = j.str("website")
                                 if (web.isNotBlank()) Row(Modifier.tap(RoundedCornerShape(8.dp)) { openUrl(c, if (web.startsWith("http")) web else "https://$web") }, verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.Language, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Sym.Language, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
                                     Text(" Website", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium) }
                             }
                             Row(Modifier.padding(top = 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -269,11 +269,11 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                                 HmStat(stats.optInt("music", music.size), "Music") { tab = 1 }
                             }
                             Row(Modifier.padding(top = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (isMe) SoPill("Edit profile", false, { Nav.go(Tab.Profile) }, Modifier.weight(1f).firstFocus(), icon = Icons.Filled.Edit)
+                                if (isMe) SoPill("Edit profile", false, { Nav.go(Tab.Profile) }, Modifier.weight(1f).firstFocus(), icon = Sym.Edit)
                                 else {
                                     SoPill(when { following -> "Following"; pending -> "Requested"; isPrivate -> "Request"; else -> "Follow" }, !following && !pending, { follow() },
-                                        Modifier.weight(1f).firstFocus(), icon = if (following) Icons.Filled.Check else if (pending) Icons.Filled.Schedule else Icons.Filled.PersonAdd, enabled = !busy && !pending)
-                                    SoPill("Message", false, { hmOpenDm(c, scope, userId, nick, photo) }, Modifier.weight(1f), icon = Icons.Filled.ChatBubbleOutline)
+                                        Modifier.weight(1f).firstFocus(), icon = if (following) Sym.Check else if (pending) Sym.Schedule else Sym.PersonAdd, enabled = !busy && !pending)
+                                    SoPill("Message", false, { hmOpenDm(c, scope, userId, nick, photo) }, Modifier.weight(1f), icon = Sym.ChatBubbleOutline)
                                 }
                             }
                         }
@@ -283,15 +283,15 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                     Surface(color = MaterialTheme.colorScheme.surface) { SoChips(listOf("Videos", "Music"), tab, { tab = it }) }
                     HorizontalDivider(thickness = 0.5.dp)
                 }
-                if (iBlocked) item(key = "blocked") { SoEmpty(Icons.Filled.Block, "You blocked @$nick", action = "Unblock", onAction = { block = true }) }
+                if (iBlocked) item(key = "blocked") { SoEmpty(Sym.Block, "You blocked @$nick", action = "Unblock", onAction = { block = true }) }
                 else if (tab == 0) {
-                    if (videos.isEmpty()) item(key = "nov") { if (contentLoaded) SoEmpty(Icons.Filled.Movie, "No videos yet") else SoSkeleton(rows = 2) }
+                    if (videos.isEmpty()) item(key = "nov") { if (contentLoaded) SoEmpty(Sym.Movie, "No videos yet") else SoSkeleton(rows = 2) }
                     items(videos.chunked(3), key = { "v" + it.first().str("id") }) { row ->
                         Row(Modifier.fillMaxWidth().padding(horizontal = 2.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                             for (s in row) Box(Modifier.weight(1f).aspectRatio(9f / 14f).tap(RoundedCornerShape(2.dp)) { soOpenUploadShort(s.str("id")) }) {
                                 SoVideoPoster(null, s.str("caption"), 0, Modifier.fillMaxSize())
                                 Row(Modifier.align(Alignment.BottomStart).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.PlayArrow, null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                    Icon(Sym.PlayArrow, null, tint = Color.White, modifier = Modifier.size(14.dp))
                                     Text(soNum(s.optInt("views")), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
@@ -300,7 +300,7 @@ data class HmProfilePage(val userId: String, val name: String = "") : PageScreen
                         Spacer(Modifier.height(2.dp))
                     }
                 } else {
-                    if (music.isEmpty()) item(key = "nom") { if (contentLoaded) SoEmpty(Icons.Filled.MusicNote, "No music yet") else SoSkeleton(rows = 2) }
+                    if (music.isEmpty()) item(key = "nom") { if (contentLoaded) SoEmpty(Sym.MusicNote, "No music yet") else SoSkeleton(rows = 2) }
                     itemsIndexed(music, key = { _, t -> "m" + t.id }) { i, t -> HmTrackRow(t) { Music.play(c, music.toList(), i) } }
                 }
                 item(key = "end") { Spacer(Modifier.height(24.dp)) }
@@ -318,14 +318,14 @@ fun HmTrackRow(t: Track, onClick: () -> Unit) {
         .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(46.dp).clip(RoundedCornerShape(8.dp)).background(Green.copy(alpha = .15f)), contentAlignment = Alignment.Center) {
             if (t.cover != null) AsyncImage(t.cover, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            else Icon(Icons.Filled.MusicNote, null, tint = Green)
+            else Icon(Sym.MusicNote, null, tint = Green)
         }
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
             Text(t.title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
             Text(listOf(t.artist, if (t.plays > 0) soNum(t.plays) + " plays" else "").filter { it.isNotBlank() }.joinToString(" · "), fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        Icon(Icons.Filled.PlayCircle, "Play", tint = Green, modifier = Modifier.size(30.dp))
+        Icon(Sym.PlayCircle, "Play", tint = Green, modifier = Modifier.size(30.dp))
     }
 }
 
@@ -353,7 +353,7 @@ data class HmFollowListPage(val userId: String, val nick: String, val followers:
             when {
                 list.isEmpty() && err != null -> Problem(err!!, false, { retry++ })
                 list.isEmpty() && loading -> SoSkeleton()
-                list.isEmpty() -> SoEmpty(Icons.Filled.Group, if (followers) "Nobody follows this channel yet." else "Not following anyone yet.")
+                list.isEmpty() -> SoEmpty(Sym.Group, if (followers) "Nobody follows this channel yet." else "Not following anyone yet.")
                 else -> LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
                     items(list, key = { it.str("id") }) { u ->
                         val name = u.str("nickname").ifBlank { "User" }
@@ -364,11 +364,11 @@ data class HmFollowListPage(val userId: String, val nick: String, val followers:
                             Row(Modifier.weight(1f).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text("@$name", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                                     style = TextStyle(textDirection = TextDirection.Content))
-                                if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                                if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
                             if (mine) {
                                 TextButton({ removing = u }) { Text("Remove") }
-                                IconBtn(Icons.Filled.Block, "Block", { blocking = u }, tint = MaterialTheme.colorScheme.error, size = 40.dp)
+                                IconBtn(Sym.Block, "Block", { blocking = u }, tint = MaterialTheme.colorScheme.error, size = 40.dp)
                             }
                         }
                         SoDivider(76.dp)
