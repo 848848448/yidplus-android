@@ -152,7 +152,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
                 if (joined && ch.unread > 0 && !readNow) DropdownMenuItem(text = { Text("Mark as read") }, leadingIcon = { Icon(Sym.DoneAll, null) }, onClick = { rowMenu = false; readNow = true
                     scope.launch { runCatching { Api.post("/api/telegram-read", JSONObject().put("username", ch.username)) }; Badges.channels = (Badges.channels - ch.unread).coerceAtLeast(0) } })
                 DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Sym.Logout else Sym.Add, null) },
-                    onClick = { rowMenu = false; scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } })
+                    onClick = { rowMenu = false; scope.launch { soTgToggleJoin(c, ch.username, joined)?.let { joined = it.first } } })
                 DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Sym.Info, null) }, onClick = { rowMenu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined))) })
                 DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { rowMenu = false; soCopy(c, soTgLink(ch.username)) })
             }
@@ -173,7 +173,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (joined) SoBadge(if (readNow) 0 else ch.unread, Modifier.padding(start = 8.dp))
                 // A small outlined Join (like Telegram's), so the row keeps WhatsApp's height.
-                else Box(Modifier.padding(start = 8.dp).heightIn(min = 28.dp).soTouchOnly().tap(RoundedCornerShape(14.dp)) { scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } }
+                else Box(Modifier.padding(start = 8.dp).heightIn(min = 28.dp).soTouchOnly().tap(RoundedCornerShape(14.dp)) { scope.launch { soTgToggleJoin(c, ch.username, joined)?.let { joined = it.first } } }
                     .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 3.dp), contentAlignment = Alignment.Center) {
                     Text("Join", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, maxLines = 1)
                 }
@@ -272,7 +272,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
     }
     LaunchedEffect(listState) { snapshotFlow { listState.firstVisibleItemIndex }.collect { if (it <= 1) newCount = 0 } }
     val farFromNewest by remember { derivedStateOf { listState.firstVisibleItemIndex > 3 } }
-    fun toggleJoin() { if (!joining) scope.launch { joining = true; soTgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; joining = false } }
+    fun toggleJoin() { if (!joining) scope.launch { joining = true; soTgToggleJoin(c, ch.username, joined)?.let { (j, n) -> members = if (n >= 0) n else (members + (if (j) 1 else -1)).coerceAtLeast(0); joined = j }; joining = false } }
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(ch.title, onBack = { Nav.back() }, sub = soMembers(members), lead = {
