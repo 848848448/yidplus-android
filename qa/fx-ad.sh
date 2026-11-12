@@ -46,7 +46,7 @@ adswipe; shot AD-05-settings-verify-share
 adswipe; adswipe; shot AD-06-settings-bottom
 check "AD settings scroll"
 # Colour theme + text size (kept on the phone, like the site's localStorage)
-tab Profile; sleep 3; adtop; adfind "L"; adfind "Ocean Blue"; sleep 2; shot AD-07-ocean-blue-large-text
+tab Profile; sleep 3; adtop; adfind "L"; adtop; adfind "Ocean Blue"; sleep 2; proof "colour theme" "LOOK color_theme=1"; shot AD-07-ocean-blue-large-text
 adtop; adfind "M"; adfind "Emerald Teal"; sleep 1
 # Save profile (PUT /api/profile with the changed field, like theme.js saveEditField)
 adq EditProfile 5; shot AD-07b-edit-profile; adfind "Brooklyn, NY"; timeout 10 adb shell input keyevent KEYCODE_MOVE_END; adtype "_Monsey"; adhidekb; adt "SAVE"; sleep 3

@@ -1,5 +1,8 @@
 package com.yidplus.app.ui
 
+import android.util.Log
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -151,7 +154,7 @@ fun ColorThemeCard() {
 private fun Swatch(i: Int) {
     val p = ColorPresets[i]
     val sel = LookPrefs.colorTheme == i
-    Column(Modifier.width(72.dp).tap(RoundedCornerShape(10.dp)) { LookPrefs.putColor(i) }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(Modifier.width(72.dp).semantics(mergeDescendants = true) { contentDescription = p.name }.tap(RoundedCornerShape(10.dp)) { LookPrefs.putColor(i); Log.i("YidFx", "LOOK color_theme=$i ${p.name}") }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(44.dp).clip(CircleShape).border(if (sel) 3.dp else 1.dp, if (sel) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant, CircleShape)
             .padding(if (sel) 4.dp else 0.dp).clip(CircleShape).background(Brush.linearGradient(listOf(p.accent, p.accentLight))), contentAlignment = Alignment.Center) {
             if (p.dark) Box(Modifier.size(16.dp).clip(CircleShape).background(p.bg))
