@@ -1,0 +1,28 @@
+first start: TotalTime: 1206
+first start: WaitTime: 1220
+cold start 1 (before profile compile): TotalTime: 530
+cold start 2 (before profile compile): TotalTime: 499
+cold start 3 (before profile compile): TotalTime: 503
+cold start 1 (baseline profile compiled): TotalTime: 468
+cold start 2 (baseline profile compiled): TotalTime: 516
+cold start 3 (baseline profile compiled): TotalTime: 499
+Total frames rendered: 3
+Janky frames: 1 (33.33%)
+50th percentile: 5ms
+90th percentile: 89ms
+95th percentile: 89ms
+99th percentile: 89ms
+Number Slow UI thread: 0
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 1
+50th gpu percentile: 8ms
+90th gpu percentile: 4950ms
+95th gpu percentile: 4950ms
+99th gpu percentile: 4950ms
+push: 11-12 00:04:53.393 18428 18428 I YidplusPush: probe: no token (IOException: java.util.concurrent.ExecutionException: java.io.IOException: MISSING_INSTANCEID_SERVICE)
+11-12 00:00:54.965 16992 16992 I YidPerf : Home content 700 ms after process start
+11-12 00:01:09.015 16992 16992 I YidPerf : AiChat content 10 ms after open
+11-12 00:01:18.764 16992 16992 I YidPerf : UserChannel content 8 ms after open (cache)
+11-12 00:04:20.697 16992 16992 I YidPerf : AiChat content 18 ms after open (cache)
+11-12 00:04:30.014 16992 16992 I YidPerf : Chats content 215750 ms after process start
+11-12 00:04:48.404 18428 18428 I YidPerf : Chats content 576 ms after process start
