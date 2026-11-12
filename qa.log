@@ -1,0 +1,162 @@
+[00:29:33] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[00:29:37] screen 480x640 @ 240 dpi
+[00:29:37] ---- Signed in (QA fixture account) ----
+[00:29:42] fixture true
+[00:29:51] shot F01-home-signedin
+[00:29:51] open https://yidplus.com/chat
+[00:29:56] shot F02-chats-list
+[00:29:58] chat list texts:  text="Chats"  text="All"  text="16"  text="Private"  text="3"  text="Groups"  text="12"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="חפ"  text="חברים פון שול"  text="Yesterday"  text="System message"  text="12"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="16"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:30:05] shot F03-chat-dm
+[00:30:07] shot F03b-chat-dm-up
+[00:30:10] open https://yidplus.com/chat
+[00:30:24] shot F04-chat-group
+[00:30:26] shot F04b-group-up
+[00:30:28] shot F04c-group-top
+[00:30:32] shot F05-message-actions
+[00:30:42] shot F06-notifications
+[00:30:44] tab Home
+[00:30:47] shot F07-home-header
+[00:30:47] open https://yidplus.com/shorts
+[00:30:56] shot F08-shorts-signedin
+[00:30:56] tab Profile
+[00:30:59] shot F09-profile-signedin
+[00:31:11] shot F09b-profile-scrolled
+[00:31:24] open https://yidplus.com/chat
+[00:31:28] shot F10-chats-dark
+[00:31:35] shot F11-chat-dark
+[00:31:41] screen 1080x2400 @ 420 dpi
+[00:31:50] open https://yidplus.com/chat
+[00:31:54] shot F12-phone-chats
+[00:32:01] shot F13-phone-chat
+[00:32:04] screen 480x640 @ 240 dpi
+[00:32:04] ---- qa/fx-lk.sh ----
+[00:32:14] picker files: -rw------- 1 u0_a162 u0_a162 27779 2026-11-12 00:32 lkqa.mp4 -rw------- 1 u0_a162 u0_a162 60175 2026-11-12 00:32 lkqa.png 
+[00:32:14] tab Home
+[00:32:20] shot LK-01-channels
+[00:32:23] lk_tapui 'Members'
+[00:32:28] shot LK-02-channels-members
+[00:32:32] lk_tapui 'Joined'
+[00:32:35] shot LK-03-channels-joined
+[00:32:38] lk_tapui 'Telegram'
+[00:32:49] shot LK-04-tg-channel
+[00:32:52] shot LK-05-tg-channel-scrolled
+[00:32:52] lk step react-tg
+[00:32:55] lk_tapui 'React'
+[00:33:00] lk_tapui 'Quick reaction 1'
+[00:33:02] shot LK-05c-tg-reacted
+[00:33:02] lk step share-tg
+[00:33:06] lk_tapui 'Share post'
+[00:33:09] shot LK-05d-tg-share-sheet
+[00:33:11] lk step join-tg
+[00:33:19] lk_tapui: 'Join channel' not on screen
+[00:33:22] shot LK-05e-tg-joined
+[00:33:29] shot LK-05b-tg-channel-reopen-cached
+[00:33:32] tab Home
+[00:33:39] lk_tapui 'Members'
+[00:33:49] shot LK-06-my-channel
+[00:33:52] lk step like-post
+[00:34:00] lk_tapui: 'Like' not on screen
+[00:34:02] shot LK-07-my-channel-liked
+[00:34:02] lk step comment-post
+[00:34:09] lk_tapui: 'Comment' not on screen
+[00:34:13] shot LK-08-post-comments
+[00:34:16] lk step send-comment
+[00:34:24] lk_tapui: 'Send' not on screen
+[00:34:26] shot LK-09-comment-sent
+[00:34:31] tab Home
+[00:34:37] lk_tapui 'Members'
+[00:34:49] shot LK-09b-my-channel-scrolled
+[00:34:55] lk_tapui 'Photo'
+[00:34:58] shot LK-22-gallery-open
+[00:34:59] touch devices: add device 1: /dev/input/event2	 name: "virtio_input_multi_touch_1";add device 2: /dev/input/event9	 name: "virtio_input_multi_touch_8";add device 3: /dev/input/event10	 name: "virtio_input_multi_touch_9";add device 5: /dev/input/event11	 name: "virtio_input_multi_touch_10";
+[00:35:01] shot LK-23-gallery-pinched
+[00:35:01] gallery log: pinch zoom 4.25 
+[00:35:03] shot LK-23b-gallery-zoomed-panned
+[00:35:05] shot LK-24-gallery-double-tap-reset
+[00:35:05] gallery log: pinch zoom 4.25 double-tap zoom 1.00 
+[00:35:07] shot LK-25-gallery-double-tap-zoom
+[00:35:07] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 
+[00:35:09] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[00:35:10] pinch-out at 240,330 on /dev/input/event2 (max 32767 x 32767)
+[00:35:12] shot LK-25b-gallery-raw-pinch
+[00:35:12] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[00:35:12] double-tap at 240,330
+[00:35:15] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[00:35:18] shot LK-26-gallery-swiped-next
+[00:35:25] tab Home
+[00:35:31] lk_tapui 'Members'
+[00:35:40] lk step new-post
+[00:35:43] lk_tapui 'New post'
+[00:35:48] shot LK-10-new-post
+[00:35:52] lk_tapui 'Post'
+[00:35:55] shot LK-11-new-post-sent
+[00:35:58] tab Home
+[00:36:05] lk_tapui 'Members'
+[00:36:13] lk step new-photo-post
+[00:36:17] lk_tapui 'New post'
+[00:36:28] lk_tapui 'Photo'
+[00:36:32] shot LK-11b-photo-picker
+[00:36:39] lk_tapui: 'lkqa.png' not on screen
+[00:36:42] picker open, file row not found: back
+[00:36:48] qa pick image
+[00:36:48] shot LK-11c-photo-picked
+[00:36:51] lk_tapui 'Post'
+[00:36:56] shot LK-11d-photo-post-sent
+[00:37:02] tab Shorts
+[00:37:13] shot LK-12-shorts
+[00:37:13] lk step like-short
+[00:37:18] lk_tapui 'Like'
+[00:37:21] shot LK-13-short-liked
+[00:37:21] lk step comment-short
+[00:37:27] lk_tapui 'Comment'
+[00:37:33] shot LK-14-short-comments
+[00:37:40] lk_tapui 'Post'
+[00:37:42] shot LK-14b-short-comment-sent
+[00:37:45] lk step swipe-short
+[00:37:50] shot LK-15-short-swiped
+[00:37:56] shot LK-16-short-swiped2
+[00:38:01] lk_tapui 'Uploads'
+[00:38:07] shot LK-16b-shorts-uploads
+[00:38:07] lk step like-upload
+[00:38:12] lk_tapui 'Like'
+[00:38:14] lk step save-upload
+[00:38:23] lk_tapui: 'Save' not on screen
+[00:38:25] save: key 4 (Save sits in More on small screens)
+[00:38:27] shot LK-16c-upload-liked-saved
+[00:38:27] lk step follow-creator
+[00:38:31] lk_tapui 'More'
+[00:38:37] lk_tapui '@[^"]*videos[^"]*'
+[00:38:41] shot LK-16d-creator
+[00:38:44] lk_tapui 'Follow'
+[00:38:46] shot LK-16e-creator-followed
+[00:38:51] lk step comment-upload
+[00:38:55] lk_tapui 'Comment'
+[00:39:07] lk_tapui 'Post'
+[00:39:09] shot LK-16f-upload-comments
+[00:39:12] lk step upload-short
+[00:39:16] lk_tapui 'Upload a Short'
+[00:39:20] shot LK-17-upload-picker
+[00:39:28] lk_tapui: 'lkqa.mp4' not on screen
+[00:39:31] picker open, file row not found: back
+[00:39:36] qa pick video
+[00:39:36] shot LK-17b-upload-picked
+[00:39:40] lk_tapui 'Upload'
+[00:39:45] shot LK-17c-upload-sent
+[00:39:53] fixture false
+[00:40:02] tab Chats
+[00:40:06] shot LK-18-guest-chats
+[00:40:06] tab Home
+[00:40:10] shot LK-19-guest-channels
+[00:40:14] fixture true
+[00:40:26] tab Home
+[00:40:30] shot LK-20-channels-dark
+[00:40:33] lk_tapui 'Members'
+[00:40:36] shot LK-20b-members-dark
+[00:40:40] lk_tapui 'Telegram'
+[00:40:41] tab Home
+[00:40:47] lk_tapui 'Members'
+[00:40:57] shot LK-21-my-channel-dark
+[00:41:02] fixture writes the app would have sent: 41
+[00:41:06] fixture false
