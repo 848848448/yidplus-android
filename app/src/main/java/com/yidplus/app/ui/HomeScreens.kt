@@ -202,7 +202,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
     }
     suspend fun fetch(before: Long?): List<TgPost> = withContext(Dispatchers.IO) {
         val j = Api.get("/api/telegram-ingest?username=" + ch.username + "&limit=$PAGE" + (before?.let { "&before=$it" } ?: ""))
-        j.optJSONArray("posts").objects().map { TgPost.from(ch.username, it) }.filter { before == null || it.id < before }.sortedByDescending { it.id }
+        j.optJSONArray("posts").objects().map { HmTgExtras.put(ch.username, it); TgPost.from(ch.username, it) }.filter { before == null || it.id < before }.sortedByDescending { it.id }
     }
     suspend fun refresh() {
         loading = true
@@ -212,7 +212,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
             buffer.clear(); buffer.addAll(fresh.drop(PAGE))
             posts.clear(); posts.addAll(fresh.take(PAGE)); error = null; offline = false; end = got.isEmpty()
             withContext(Dispatchers.IO) {
-                val arr = JSONArray(); fresh.take(PAGE).forEach { p -> arr.put(JSONObject().put("tg_msg_id", p.id).put("text", p.text).put("media_type", p.mediaType)
+                val arr = JSONArray(); fresh.take(PAGE).forEach { p -> arr.put(HmTgExtras.into(ch.username, p.id, JSONObject()).put("tg_msg_id", p.id).put("text", p.text).put("media_type", p.mediaType)
                     .put("media_title", p.title).put("media_performer", p.performer).put("media_duration", p.duration).put("media_name", p.fileName)
                     .put("link", p.link).put("posted_at", p.postedAt).put("views", p.views).put("author_name", p.author)) }
                 Disk.write(Store.key(cacheKey), JSONObject().put("posts", arr))
@@ -229,12 +229,31 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
         catch (e: Exception) { error = Api.friendly(e) } finally { loading = false; loadingMore = false }
     }
     LaunchedEffect(ch.username) {
-        val cached = withContext(Dispatchers.IO) { Disk.read(Store.key(cacheKey))?.optJSONArray("posts").objects().map { TgPost.from(ch.username, it) } }
+        val cached = withContext(Dispatchers.IO) { Disk.read(Store.key(cacheKey))?.optJSONArray("posts").objects().map { HmTgExtras.put(ch.username, it); TgPost.from(ch.username, it) } }
         if (cached.isNotEmpty() && posts.isEmpty()) { addNew(posts, cached); Perf.shown("Channel", fromCache = true) }
         launch { reacts.load() }
         refresh(); if (posts.isNotEmpty()) Perf.shown("Channel")
     }
     LaunchedEffect(Net.online) { if (Net.online && offline) refresh() }
+    val listState = rememberLazyListState()
+    var newCount by remember(ch.username) { mutableIntStateOf(0) }
+    // Live: like the site, look for new posts every 25 s while the channel is open; new ones appear at the bottom (Telegram order).
+    LaunchedEffect(ch.username) {
+        while (true) {
+            delay(25_000)
+            if (loading || posts.isEmpty()) continue
+            val got = runCatching { fetch(null) }.getOrNull() ?: continue
+            val top = posts.first().id
+            val ids = posts.mapTo(HashSet()) { it.id }
+            val add = got.filter { it.id > top && it.id !in ids }.sortedByDescending { it.id }
+            if (add.isEmpty()) continue
+            val atNewest = listState.firstVisibleItemIndex <= 1
+            posts.addAll(0, add)
+            if (atNewest) listState.animateScrollToItem(0) else newCount += add.size
+        }
+    }
+    LaunchedEffect(listState) { snapshotFlow { listState.firstVisibleItemIndex }.collect { if (it <= 1) newCount = 0 } }
+    val farFromNewest by remember { derivedStateOf { listState.firstVisibleItemIndex > 3 } }
     fun toggleJoin() { if (!joining) scope.launch { joining = true; soTgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; joining = false } }
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -253,7 +272,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
                 }
             }
         }
-        val state = rememberLazyListState()
+        val state = listState
         LaunchedEffect(state, posts.size) {
             snapshotFlow { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }.collect { if (it >= posts.size - 5) more() }
         }
@@ -263,11 +282,29 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
                 posts.isEmpty() && error != null -> Problem(error!!, offline, { scope.launch { refresh() } })
                 posts.isEmpty() && (loading || !end) -> PostSkeleton()
                 posts.isEmpty() -> SoEmpty(Icons.Filled.HourglassTop, "Fetching posts from Telegram. A new channel takes a few minutes.")
-                else -> LazyColumn(Modifier.fillMaxSize(), state = state, contentPadding = PaddingValues(vertical = 6.dp)) {
-                    items(posts, key = { it.id }) { p -> PostCard(p, ch, reacts, if (p == posts.first()) Modifier.firstFocus() else Modifier,
-                        onMedia = { url -> openGallery(posts.filter { it.isPhoto || it.isVideo }.mapNotNull { q -> q.media?.let { GItem(it, q.isVideo, if (q.isVideo) q.thumb else null, q.title) } }, url) },
-                        onDeleted = { posts.removeAll { it.id == p.id } }) }
+                // Telegram order: newest at the bottom, scroll up for older (reverseLayout keeps index 0 = newest).
+                else -> LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(vertical = 6.dp)) {
+                    val units = hmGroupPosts(ch.username, posts.toList())
+                    val gallery = { url: String -> openGallery(posts.filter { it.isPhoto || it.isVideo }.sortedBy { it.id }.mapNotNull { q -> q.media?.let { GItem(it, q.isVideo, if (q.isVideo) q.thumb else null, q.title) } }, url) }
+                    units.forEachIndexed { ui, u ->
+                        val main = u.firstOrNull { it.text.isNotBlank() } ?: u.first()
+                        item(key = "p" + u.first().id) { PostCard(main, ch, reacts, if (ui == 0) Modifier.firstFocus() else Modifier,
+                            onMedia = gallery, onDeleted = { posts.removeAll { q -> u.any { it.id == q.id } } }, album = if (u.size > 1) u else emptyList()) }
+                        val older = units.getOrNull(ui + 1)
+                        val day = hmDayKey(u.last().postedAt)
+                        if ((older == null && end) || (older != null && hmDayKey(older.last().postedAt) != day))
+                            item(key = "d" + u.first().id) { HmDayChip(hmDayLabel(u.last().postedAt)) }
+                    }
                     if (loadingMore) item { Loading(Modifier.fillMaxWidth().padding(vertical = 8.dp), skeleton = true) }
+                }
+            }
+            if (posts.isNotEmpty() && (newCount > 0 || farFromNewest)) {
+                Surface(Modifier.align(Alignment.BottomEnd).padding(12.dp).tap(RoundedCornerShape(20.dp)) { scope.launch { listState.animateScrollToItem(0); newCount = 0 } },
+                    shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.primary, shadowElevation = 4.dp) {
+                    Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.KeyboardArrowDown, "Newest posts", tint = Color.White)
+                        if (newCount > 0) Text(" $newCount new", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
         }
@@ -294,9 +331,14 @@ private fun PostSkeleton() {
 }
 
 @Composable
-private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Modifier, onMedia: (String) -> Unit = { }, onDeleted: () -> Unit = {}) {
+private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Modifier, onMedia: (String) -> Unit = { }, onDeleted: () -> Unit = {}, album: List<TgPost> = emptyList()) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
+    var revealed by remember { mutableStateOf(false) }
+    val ents = HmTgExtras.of(ch.username, p.id)?.entities.orEmpty()
+    val linkC = MaterialTheme.colorScheme.primary; val spoilC = MaterialTheme.colorScheme.onSurfaceVariant
+    val styled = remember(p.text, ents, revealed) { hmTgFormat(p.text, ents, linkC, spoilC, revealed) }
+    val cardUrl = remember(p.text) { if (album.isEmpty() && !p.isPhoto && !p.isVideo) hmCardUrl(p.text) else null }
     var ask by remember { mutableStateOf(false) }
     val firstUrl = remember(p.text) { urlRegex.find(p.text)?.value }
     Surface(modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
@@ -311,6 +353,8 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Mod
                 }
             }.tap(RoundedCornerShape(14.dp)) {
                 when {
+                    hmHasSpoiler(ents) && !revealed -> revealed = true
+                    album.isNotEmpty() -> expanded = !expanded
                     p.isVideo || p.isPhoto -> onMedia(p.media!!)
                     p.isAudio -> Nav.open(Screen.Video(p.media!!, p.title.ifBlank { p.author }))
                     p.text.length > 280 && !expanded -> expanded = true
@@ -319,7 +363,9 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Mod
                     else -> expanded = !expanded
                 }
             }) {
-                if (p.isPhoto || p.isVideo) {
+                if (album.isNotEmpty()) {
+                    HmAlbumGrid(album) { q -> q.media?.let(onMedia) }
+                } else if (p.isPhoto || p.isVideo) {
                     // Full card width, its own shape kept (never cropped), at most ~60% of the screen tall.
                     val maxH = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * 0.6f).dp
                     Box(Modifier.fillMaxWidth()) {
@@ -341,10 +387,11 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Mod
                     }
                 }
                 if (p.text.isNotBlank()) {
-                    Text(p.text, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), maxLines = if (expanded) Int.MAX_VALUE else 8, overflow = TextOverflow.Ellipsis,
+                    Text(styled, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), maxLines = if (expanded) Int.MAX_VALUE else 8, overflow = TextOverflow.Ellipsis,
                         fontSize = 16.sp, lineHeight = 22.sp, style = TextStyle(textDirection = TextDirection.Content))
                 }
             }
+            cardUrl?.let { u -> Box(Modifier.padding(horizontal = 8.dp)) { ChLinkCard(u, false) { } } }
             SoTgReactionRow(p.id, reacts, Modifier.padding(horizontal = 10.dp, vertical = 2.dp))
             Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 2.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (p.views > 0) { Icon(Icons.Filled.Visibility, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
