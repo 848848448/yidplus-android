@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.semantics.selected
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -536,7 +537,8 @@ fun FilterChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, m
             val shape = RoundedCornerShape(50)
             val bg = if (on) (if (dark) Color(0xFF103529) else Color(0xFFD8FDD2)) else (if (dark) Color(0xFF202C33) else Color(0xFFF0F2F5))
             val ink = if (on) (if (dark) Color(0xFFD8FDD2) else Color(0xFF15603E)) else MaterialTheme.colorScheme.onSurfaceVariant
-            Row(Modifier.heightIn(min = 32.dp).clip(shape).background(bg).tap(shape) { onSelect(i) }.padding(horizontal = 14.dp),
+            Row(Modifier.heightIn(min = 32.dp).clip(shape).background(bg).tap(shape) { onSelect(i) }
+                .semantics { contentDescription = options[i]; this.selected = on }.padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(options[i], color = ink, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
                 val n = counts.getOrNull(i)

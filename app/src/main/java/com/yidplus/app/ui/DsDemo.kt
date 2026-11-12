@@ -40,10 +40,12 @@ class DsDemoPage : PageScreen() {
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
             if (searching) SearchBarField(q, { q = it }, "Search…", { searching = false; q = "" })
             else TopBar("Chats", onBack = { Nav.back() })
-            if (!searching) CollapsingHeader(state) { SearchPill("Search…", { searching = true }) }
+            if (!searching) CollapsingHeader(state) { Column {
+                SearchPill("Search…", { searching = true })
+                FilterChips(listOf("All", "Unread", "Favourites", "Groups"), chip, { chip = it }, counts = listOf(null, 3, null, null))
+            } }
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 LazyColumn(Modifier.fillMaxSize(), state = state, contentPadding = fabSafePadding()) {
-                    item { FilterChips(listOf("All", "Unread", "Favourites", "Groups"), chip, { chip = it }, counts = listOf(null, 3, null, null)) }
                     items((1..24).toList()) { n ->
                         Row(Modifier.fillMaxWidth().heightIn(min = Dim.row).tap(RoundedCornerShape(0.dp)) { }.padding(horizontal = Dim.l),
                             verticalAlignment = Alignment.CenterVertically) {
@@ -56,7 +58,7 @@ class DsDemoPage : PageScreen() {
                         }
                     }
                 }
-                Fab(Sym.AddComment, "New chat", { Snack.show("Chat archived", "Undo") { } }, Modifier.align(Alignment.BottomEnd))
+                if (!searching) Fab(Sym.AddComment, "New chat", { Snack.show("Chat archived", "Undo") { } }, Modifier.align(Alignment.BottomEnd))
             }
         }
     }

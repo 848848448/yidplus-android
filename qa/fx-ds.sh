@@ -40,7 +40,7 @@ adb shell input swipe 240 520 240 300 300; sleep 1; shot DS-34-searchpill-hides-
 for k in 1 2 3 4 5; do adb shell input swipe 240 560 240 120 150; sleep 0.4; done; sleep 1; shot DS-35-last-row-above-fab
 adb shell input swipe 240 260 240 480 300; sleep 1; shot DS-36-searchpill-back-on-scroll-up
 for k in 1 2 3 4 5 6; do adb shell input swipe 240 200 240 560 120; sleep 0.3; done; sleep 1
-ds_tap "Unread"; sleep 1; shot DS-37-filter-chip-unread
+ds_tap "Unread"; sleep 1; shot DS-37-filter-chip-unread-selected
 ds_tap "Search…"; sleep 1.5; shot DS-38-search-open
 adb shell input text "Yanky"; sleep 1; shot DS-39-search-typed
 key 4; sleep 1; key 4; sleep 1; shot DS-39b-search-closed-by-back
