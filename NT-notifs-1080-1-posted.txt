@@ -1,0 +1,36 @@
+    NotificationRecord(0x006fd32f: pkg=com.yidplus.app user=UserHandle{0} id=105089553 tag=chat importance=4 key=0|com.yidplus.app|105089553|chat|10130: Notification(channel=chats shortcut=chat_nt-g1 contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0xff1f6f5c category=msg groupKey=com.yidplus.app.CHATS.nt-g1 actions=2 vis=PRIVATE locusId=LocusId[10_chars]))
+      groupKey=0|com.yidplus.app|g:com.yidplus.app.CHATS.nt-g1
+      actions={
+          android.title=String (Family 👨‍👩‍👧‍👦: Mommy)
+          android.conversationTitle=String (Family 👨‍👩‍👧‍👦)
+          android.text=String (ברענג די קינדער 🍰)
+          android.largeIcon=Icon (Icon(typ=BITMAP size=95x95))
+          android.isGroupConversation=Boolean (true)
+      shortcut=chat_nt-g1 found valid? true
+    NotificationRecord(0x01e856c2: pkg=com.yidplus.app user=UserHandle{0} id=-1037192127 tag=chat importance=4 key=0|com.yidplus.app|-1037192127|chat|10130: Notification(channel=chats shortcut=chat_nt-dm1 contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0xff1f6f5c category=msg groupKey=com.yidplus.app.CHATS.nt-dm1 actions=2 vis=PRIVATE locusId=LocusId[11_chars]))
+      groupKey=0|com.yidplus.app|g:com.yidplus.app.CHATS.nt-dm1
+      actions={
+          android.title=String (Yanky Weiss)
+          android.text=String (🎤 Voice message 0:12)
+          android.largeIcon=Icon (Icon(typ=BITMAP size=95x95))
+          android.isGroupConversation=Boolean (false)
+      shortcut=chat_nt-dm1 found valid? true
+    NotificationRecord(0x0c8f3ed1: pkg=com.yidplus.app user=UserHandle{0} id=105089555 tag=chat importance=4 key=0|com.yidplus.app|105089555|chat|10130: Notification(channel=chats shortcut=chat_nt-g3 contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0xff1f6f5c category=msg groupKey=com.yidplus.app.CHATS.nt-g3 actions=2 vis=PRIVATE locusId=LocusId[10_chars]))
+      groupKey=0|com.yidplus.app|g:com.yidplus.app.CHATS.nt-g3
+      actions={
+          android.title=String (Python לערנען‎: Yossi Klein)
+          android.conversationTitle=String (Python לערנען)
+          android.text=String (קוק וואס איך האב געזען היינט 😄)
+          android.largeIcon=Icon (Icon(typ=BITMAP size=95x95))
+          android.isGroupConversation=Boolean (true)
+      shortcut=chat_nt-g3 found valid? true
+    NotificationRecord(0x00bb4f5d: pkg=android user=UserHandle{-1} id=19 tag=null importance=3 key=-1|android|19|null|1000: Notification(channel=PHYSICAL_KEYBOARD shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x0 color=0xff607d8b vis=PRIVATE))
+      groupKey=-1|android|19|null|1000
+          android.title=String (Configure physical keyboard)
+          android.text=String (Tap to select language and layout)
+      shortcut=null found valid? false
+    NotificationRecord(0x07f5bf89: pkg=android user=UserHandle{-1} id=55 tag=null importance=2 key=-1|android|55|null|1000: Notification(channel=DEVELOPER shortcut=null contentView=null vibrate=null sound=null tick defaults=0x0 flags=0x2 color=0xff607d8b vis=PUBLIC))
+      groupKey=-1|android|55|null|1000
+          android.title=String (Serial console enabled)
+          android.text=String (Performance is impacted. To disable, check bootloader.)
+      shortcut=null found valid? false
