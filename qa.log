@@ -1,0 +1,227 @@
+[09:07:18] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[09:07:21] screen 480x640 @ 240 dpi
+[09:07:21] ---- Signed in (QA fixture account) ----
+[09:07:25] fixture true
+[09:07:35] shot F01-home-signedin
+[09:07:35] open https://yidplus.com/chat
+[09:07:40] shot F02-chats-list
+[09:07:42] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Yesterday"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[09:07:49] shot F03-chat-dm
+[09:07:51] shot F03b-chat-dm-up
+[09:07:55] open https://yidplus.com/chat
+[09:08:09] shot F04-chat-group
+[09:08:11] shot F04b-group-up
+[09:08:13] shot F04c-group-top
+[09:08:16] shot F05-message-actions
+[09:08:26] shot F06-notifications
+[09:08:29] tab Home
+[09:08:32] shot F07-home-header
+[09:08:32] open https://yidplus.com/shorts
+[09:08:41] shot F08-shorts-signedin
+[09:08:41] tab Profile
+[09:08:44] shot F09-profile-signedin
+[09:08:56] shot F09b-profile-scrolled
+[09:09:09] open https://yidplus.com/chat
+[09:09:13] shot F10-chats-dark
+[09:09:20] shot F11-chat-dark
+[09:09:26] screen 1080x2400 @ 420 dpi
+[09:09:35] open https://yidplus.com/chat
+[09:09:39] shot F12-phone-chats
+[09:09:46] shot F13-phone-chat
+[09:09:49] screen 480x640 @ 240 dpi
+[09:09:49] ---- qa/fx-lk.sh ----
+[09:09:59] picker files: -rw------- 1 u0_a124 u0_a124 38185 2026-11-12 09:09 lkqa.mp4 -rw------- 1 u0_a124 u0_a124 89804 2026-11-12 09:09 lkqa.png 
+[09:09:59] tab Home
+[09:10:05] shot LK-01-channels
+[09:10:09] lk_tapui 'Members'
+[09:10:14] shot LK-02-channels-members
+[09:10:17] lk_tapui 'Joined'
+[09:10:20] shot LK-03-channels-joined
+[09:10:24] lk_tapui 'Telegram'
+[09:10:35] shot LK-04-tg-channel
+[09:10:38] shot LK-05-tg-channel-scrolled
+[09:10:38] lk step react-tg
+[09:10:41] lk_tapui 'React'
+[09:10:46] lk_tapui 'Quick reaction 1'
+[09:10:48] shot LK-05c-tg-reacted
+[09:10:48] lk step share-tg
+[09:10:51] lk_tapui 'Share post'
+[09:10:54] shot LK-05d-tg-share-sheet
+[09:10:57] lk step join-tg
+[09:11:05] lk_tapui: 'Join channel' not on screen
+[09:11:08] shot LK-05e-tg-joined
+[09:11:14] shot LK-05b-tg-channel-reopen-cached
+[09:11:18] tab Home
+[09:11:24] lk_tapui 'Members'
+[09:11:35] shot LK-06-my-channel
+[09:11:38] lk step like-post
+[09:11:46] lk_tapui: 'Like' not on screen
+[09:11:48] shot LK-07-my-channel-liked
+[09:11:48] lk step comment-post
+[09:11:55] lk_tapui: 'Comment' not on screen
+[09:11:58] shot LK-08-post-comments
+[09:12:02] lk step send-comment
+[09:12:10] lk_tapui: 'Send' not on screen
+[09:12:12] shot LK-09-comment-sent
+[09:12:17] tab Home
+[09:12:23] lk_tapui 'Members'
+[09:12:35] shot LK-09b-my-channel-scrolled
+[09:12:41] lk_tapui 'Photo'
+[09:12:44] shot LK-22-gallery-open
+[09:12:45] touch devices: add device 1: /dev/input/event11	 name: "virtio_input_multi_touch_10";add device 2: /dev/input/event8	 name: "virtio_input_multi_touch_7";add device 3: /dev/input/event5	 name: "virtio_input_multi_touch_4";add device 4: /dev/input/event12	 name: "virtio_input_multi_touch_11";
+[09:12:47] shot LK-23-gallery-pinched
+[09:12:47] gallery log: pinch zoom 4.25 
+[09:12:49] shot LK-23b-gallery-zoomed-panned
+[09:12:51] shot LK-24-gallery-double-tap-reset
+[09:12:51] gallery log: pinch zoom 4.25 double-tap zoom 1.00 
+[09:12:53] shot LK-25-gallery-double-tap-zoom
+[09:12:53] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 
+[09:12:55] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[09:12:56] pinch-out at 240,330 on /dev/input/event11 (max 32767 x 32767)
+[09:12:58] shot LK-25b-gallery-raw-pinch
+[09:12:58] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[09:12:58] double-tap at 240,330
+[09:13:01] gallery log: pinch zoom 4.25 double-tap zoom 1.00 double-tap zoom 2.50 pinch zoom 1.00 
+[09:13:04] shot LK-26-gallery-swiped-next
+[09:13:11] tab Home
+[09:13:17] lk_tapui 'Members'
+[09:13:26] lk step new-post
+[09:13:29] lk_tapui 'New post'
+[09:13:34] shot LK-10-new-post
+[09:13:38] lk_tapui 'Post'
+[09:13:41] shot LK-11-new-post-sent
+[09:13:44] tab Home
+[09:13:51] lk_tapui 'Members'
+[09:13:59] lk step new-photo-post
+[09:14:03] lk_tapui 'New post'
+[09:14:17] lk_tapui: 'Photo' not on screen
+[09:14:21] shot LK-11b-photo-picker
+[09:14:29] lk_tapui: 'lkqa.png' not on screen
+[09:14:34] qa pick image
+[09:14:34] shot LK-11c-photo-picked
+[09:14:38] lk_tapui 'Post'
+[09:14:42] shot LK-11d-photo-post-sent
+[09:14:48] tab Shorts
+[09:14:58] shot LK-12-shorts
+[09:14:58] lk step like-short
+[09:15:06] lk_tapui: 'Like' not on screen
+[09:15:08] shot LK-13-short-liked
+[09:15:08] lk step comment-short
+[09:15:16] lk_tapui: 'Comment' not on screen
+[09:15:20] shot LK-14-short-comments
+[09:15:30] lk_tapui: 'Post' not on screen
+[09:15:33] shot LK-14b-short-comment-sent
+[09:15:35] lk step swipe-short
+[09:15:40] shot LK-15-short-swiped
+[09:15:44] shot LK-16-short-swiped2
+[09:15:52] lk_tapui: 'Uploads' not on screen
+[09:15:58] shot LK-16b-shorts-uploads
+[09:15:58] lk step like-upload
+[09:16:06] lk_tapui: 'Like' not on screen
+[09:16:08] lk step save-upload
+[09:16:16] lk_tapui: 'Save' not on screen
+[09:16:17] save: key 4 (Save sits in More on small screens)
+[09:16:19] shot LK-16c-upload-liked-saved
+[09:16:19] lk step follow-creator
+[09:16:27] lk_tapui: 'More' not on screen
+[09:16:36] lk_tapui: '@[^"]*videos[^"]*' not on screen
+[09:16:40] shot LK-16d-creator
+[09:16:47] lk_tapui: 'Follow' not on screen
+[09:16:50] shot LK-16e-creator-followed
+[09:16:54] lk step comment-upload
+[09:17:02] lk_tapui: 'Comment' not on screen
+[09:17:16] lk_tapui: 'Post' not on screen
+[09:17:18] shot LK-16f-upload-comments
+[09:17:21] lk step upload-short
+[09:17:28] lk_tapui: 'Upload a Short' not on screen
+[09:17:28] qa open upload page
+[09:17:32] shot LK-17-upload-picker
+[09:17:40] lk_tapui: 'lkqa.mp4' not on screen
+[09:17:45] qa pick video
+[09:17:45] shot LK-17b-upload-picked
+[09:17:53] lk_tapui: 'Upload' not on screen
+[09:17:53] Upload: top-bar action, fixed position
+[09:17:59] shot LK-17c-upload-sent
+[09:18:06] fixture false
+[09:18:15] tab Chats
+[09:18:19] shot LK-18-guest-chats
+[09:18:19] tab Home
+[09:18:23] shot LK-19-guest-channels
+[09:18:27] fixture true
+[09:18:39] tab Home
+[09:18:43] shot LK-20-channels-dark
+[09:18:46] lk_tapui 'Members'
+[09:18:50] shot LK-20b-members-dark
+[09:18:53] lk_tapui 'Telegram'
+[09:18:54] tab Home
+[09:19:01] lk_tapui 'Members'
+[09:19:10] shot LK-21-my-channel-dark
+[09:19:16] ---- qa/fx-nw.sh ----
+[09:19:28] nw open ai_row
+[09:19:29] shot NW-01-chatlist-status-ai
+[09:19:30] nw texts chatlist:  content-desc="Back"  text="Chats"  text="מ"  content-desc="Add status"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  content-desc="Pinned"  text="Ask me anything"  text="Y"  text="Yanky"  text="12:40"  text="Yanky: גוט שבת!"  text="ח"  text="חברים גרופע"  text="12:40" 
+[09:19:33] nw tapped 'YID PLUS AI'
+[09:19:36] shot NW-02-ai-chat
+[09:19:40] nw tapped 'Message YID PLUS AI'
+[09:19:42] shot NW-03-ai-typed
+[09:19:47] shot NW-04-ai-asked
+[09:19:49] nw_tap: 'Clear chat' not on screen
+[09:19:50] shot NW-05-ai-clear-confirm
+[09:19:51] nw_tap: 'Clear' not on screen
+[09:19:53] shot NW-06-ai-cleared-welcome
+[09:19:55] nw_tap: 'Give me an idea' not on screen
+[09:19:58] nw_tap: 'Give me an idea' not on screen
+[09:20:01] shot NW-07-ai-chip-asked
+[09:20:11] nw open status
+[09:20:11] shot NW-08-status-viewer
+[09:20:13] nw texts viewer:  text="8:30 at the shul, bring a friend!"  content-desc="Close"  text="Y"  text="Yanky"  text="16h ago"  text="Reply…"  content-desc="Like status" 
+[09:20:16] shot NW-09-status-next
+[09:20:26] shot NW-10-status-next-user
+[09:20:30] nw tapped 'Like status'
+[09:20:32] shot NW-11-status-liked
+[09:20:36] nw tapped 'Reply…'
+[09:20:40] shot NW-12-status-replied
+[09:20:50] nw open status_me
+[09:20:51] shot NW-13-my-status
+[09:20:53] nw_tap: '14 views' not on screen
+[09:20:56] nw tapped '6 views'
+[09:20:58] shot NW-14-my-viewers
+[09:21:07] nw open status_me
+[09:21:11] nw tapped 'More'
+[09:21:12] shot NW-15-my-status-menu
+[09:21:15] nw tapped 'Delete'
+[09:21:17] shot NW-16-my-status-deleted
+[09:21:24] nw open post_status
+[09:21:24] shot NW-17-post-status
+[09:21:29] nw tapped 'Change colour'
+[09:21:33] nw tapped 'Change colour'
+[09:21:34] shot NW-18-post-status-typed
+[09:21:40] nw tapped 'Followers'
+[09:21:41] shot NW-18b-post-status-colours
+[09:21:45] nw tapped 'Post status'
+[09:21:48] shot NW-19-after-post
+[09:21:54] nw open saved
+[09:21:54] shot NW-20-saved
+[09:21:56] nw texts saved:  content-desc="Back"  text="Saved items"  text="3 items"  text="אביסל חינוך פאראן דאגי אויך &#128021;&#129325;"  text="Short · @Shimel’a · 17h"  content-desc="Remove from saved"  text="@DealPoint"  text="Short · 1d"  content-desc="Remove from saved"  text="מזמור לדוד"  text="Song · Yid Plus Music · 3d"  content-desc="Remove from saved" 
+[09:21:59] nw tapped 'Remove from saved'
+[09:22:00] shot NW-21-unsaved-undo
+[09:22:03] nw tapped 'UNDO'
+[09:22:05] shot NW-22-undo
+[09:22:11] shot NW-23-saved-short-playing
+[09:22:21] nw open history
+[09:22:21] shot NW-24-history
+[09:22:25] nw tapped 'Clear all'
+[09:22:26] shot NW-25-history-confirm
+[09:22:29] nw tapped 'Clear'
+[09:22:31] shot NW-26-history-cleared
+[09:22:42] nw open ai_row
+[09:22:42] shot NW-27-dark-chatlist
+[09:22:45] nw tapped 'YID PLUS AI'
+[09:22:48] shot NW-28-dark-ai
+[09:23:00] nw open saved
+[09:23:00] shot NW-29-dark-saved
+[09:23:05] nw writes so far: 17
+[09:23:06] fixture writes the app would have sent: 45
+[09:23:10] fixture false
