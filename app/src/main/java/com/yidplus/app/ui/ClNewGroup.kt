@@ -100,7 +100,7 @@ data class ChNewGroup(val type: String) : PageScreen() {
             }
         }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-            ChBar(if (type == "channel") "New channel" else "New group", onBack = { Nav.back() }) { ChIcon(Icons.Filled.Check, "Create", { create() }) }
+            ChBar(if (type == "channel") "New channel" else "New group", onBack = { Nav.back() }) { ChIcon(Sym.Check, "Create", { create() }) }
             if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             // One scrolling page, so at 480x640 with the keyboard up nothing is squeezed: photo + name on one row, the rest below.
             LazyColumn(Modifier.fillMaxSize()) {
@@ -109,15 +109,15 @@ data class ChNewGroup(val type: String) : PageScreen() {
                         Box(Modifier.size(56.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { pick.launch("image/*") }
                             .semantics { contentDescription = "Add $what photo" }, contentAlignment = Alignment.Center) {
                             if (photo != null) AsyncImage(photo, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                            else Icon(Icons.Filled.AddAPhoto, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            else Icon(Sym.AddPhotoAlternate, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        OutlinedTextField(name, { name = it.take(60) }, Modifier.weight(1f).padding(start = 12.dp).firstFocus(), singleLine = true, label = { Text(if (type == "channel") "Channel name" else "Group name") },
+                        OutlinedTextField(name, { name = it.take(60) }, Modifier.weight(1f).padding(start = 12.dp), singleLine = true, label = { Text(if (type == "channel") "Channel name" else "Group name") },
                             textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                     }
                     OutlinedTextField(desc, { desc = it.take(255) }, Modifier.fillMaxWidth().padding(horizontal = 16.dp), maxLines = 3, label = { Text("Description (optional)") },
                         textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
-                    ClSwitch(Icons.Filled.Public, if (public) "Public" else "Private", if (public) "Anyone can find and join it" else "Only people with the invite link", public) { public = it }
-                    if (type != "channel") ClSwitch(Icons.Filled.Edit, "Everyone can write", if (writeAll) "All members can send messages" else "Only admins can send", writeAll) { writeAll = it }
+                    ClSwitch(Sym.Public, if (public) "Public" else "Private", if (public) "Anyone can find and join it" else "Only people with the invite link", public) { public = it }
+                    if (type != "channel") ClSwitch(Sym.Edit, "Everyone can write", if (writeAll) "All members can send messages" else "Only admins can send", writeAll) { writeAll = it }
                     PrimaryButton(if (type == "channel") "Create channel" else "Create group" + if (picked.isNotEmpty()) " with ${picked.size}" else "", { create() }, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp), enabled = !busy)
                     if (picked.isNotEmpty()) Text(picked.joinToString(", ") { it.nick }, Modifier.padding(horizontal = 16.dp), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Text(if (type == "channel") "Add subscribers (optional)" else "Add members", Modifier.padding(start = 16.dp, top = 8.dp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)

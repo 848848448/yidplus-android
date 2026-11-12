@@ -189,5 +189,26 @@
    "members": 140,
    "type": "group"
   }
+ },
+ "/api/invite": {
+  "ok": true,
+  "room": null
+ },
+ "/api/chat/join-requests": {
+  "ok": true,
+  "requests": [],
+  "count": 0
+ },
+ "/api/search": {
+  "ok": true,
+  "results": [],
+  "posts": []
+ },
+ "/api/link-preview": {
+  "ok": false
+ },
+ "/api/chat/drafts": {
+  "ok": true,
+  "drafts": []
  }
 }

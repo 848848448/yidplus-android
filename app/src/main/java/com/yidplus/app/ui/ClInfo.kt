@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -61,7 +62,7 @@ internal fun ClMediaTabs(roomId: String) {
     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         tabs.forEachIndexed { i, (label, n) ->
             val on = tab == i
-            Box(Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) ChatLook.bar else MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(16.dp)) { tab = i }
+            Box(Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(16.dp)) { tab = i }
                 .padding(horizontal = 14.dp, vertical = 7.dp)) {
                 Text(if (n > 0) "$label $n" else label, color = if (on) Color.White else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal)
             }
@@ -78,17 +79,17 @@ internal fun ClMediaTabs(roomId: String) {
                     row.forEach { m ->
                         Box(Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(4.dp)).background(Color(0xFF263238))
                             .tap(RoundedCornerShape(4.dp)) { openGallery(media.map { GItem(it.media!!, it.isVideo, null, it.nick) }, m.media!!) }, contentAlignment = Alignment.Center) {
-                            if (m.isImage) AsyncImage(m.media, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) else Icon(Icons.Filled.PlayCircle, "Video", tint = Color.White, modifier = Modifier.size(32.dp))
+                            if (m.isImage) AsyncImage(m.media, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) else Icon(Sym.PlayCircle, "Video", tint = Color.White, modifier = Modifier.size(32.dp))
                         }
                     }
                     repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
-        1 -> shown.forEach { m -> ChRow(m.fileName, m.nick + " · " + chatTime(m.createdAt), { ClTileIcon(if (m.isMusic) Icons.Filled.MusicNote else Icons.Filled.Description) }) { m.media?.let { openUrl(c, it) } } }
+        1 -> shown.forEach { m -> ChRow(m.fileName, m.nick + " · " + chatTime(m.createdAt), { ClTileIcon(if (m.isMusic) Sym.MusicNote else Sym.Description) }) { m.media?.let { openUrl(c, it) } } }
         2 -> shown.forEach { m -> val u = URL_RX.find(m.text)?.value ?: ""
-            ChRow(u.removePrefix("https://").removePrefix("http://").take(60), m.text.replace(u, "").trim().ifBlank { m.nick + " · " + chatTime(m.createdAt) }, { ClTileIcon(Icons.Filled.Link) }) { openUrl(c, u) } }
-        else -> shown.forEach { m -> ChRow("🎤 Voice message" + (m.voiceDur.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), m.nick + " · " + chatTime(m.createdAt), { ClTileIcon(Icons.Filled.Mic) }) { m.media?.let { openUrl(c, it) } } }
+            ChRow(u.removePrefix("https://").removePrefix("http://").take(60), m.text.replace(u, "").trim().ifBlank { m.nick + " · " + chatTime(m.createdAt) }, { ClTileIcon(Sym.Link) }) { openUrl(c, u) } }
+        else -> shown.forEach { m -> ChRow("🎤 Voice message" + (m.voiceDur.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), m.nick + " · " + chatTime(m.createdAt), { ClTileIcon(Sym.Mic) }) { m.media?.let { openUrl(c, it) } } }
     }
     if (loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(16.dp))
     else if (more) TextButton({ scope.launch { page(false) } }, Modifier.fillMaxWidth()) { Text("Load more") }
@@ -96,7 +97,7 @@ internal fun ClMediaTabs(roomId: String) {
 
 @Composable
 private fun ClTileIcon(icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    Box(Modifier.size(44.dp).clip(RoundedCornerShape(10.dp)).background(ChatLook.bar.copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(icon, null, tint = ChatLook.bar) }
+    Box(Modifier.size(44.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(icon, null, tint = MaterialTheme.colorScheme.primary) }
 }
 
 /** The invite link (chat.js _geCopyInvite / _geRevokeInvite): copy, share, and — for managers — revoke and make a new one. */
@@ -108,8 +109,8 @@ internal fun ClInviteDialog(room: Room, code0: String?, canManage: Boolean, onCo
     LaunchedEffect(Unit) { if (code == null && canManage) runCatching { ChatApi.invite(room.id) }.onSuccess { code = it; onCode(it) }.onFailure { toast(c, Api.friendly(it)) } }
     val url = code?.let { "${Api.BASE}/chat?join=$it" }
     AlertDialog(onDismissRequest = onDismiss, title = { Text("Invite link") }, text = {
-        Column {
-            Text(url ?: "Making a link…", fontSize = 15.sp, color = ChatLook.bar, modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(10.dp))
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(url ?: "Making a link…", fontSize = 15.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(10.dp))
             Spacer(Modifier.height(6.dp))
             Text("Anyone with this link can " + (if (room.type == "channel") "join this channel." else "ask to join or join this group."), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(8.dp))
@@ -134,7 +135,7 @@ internal fun ClReportDialog(reportedId: String, roomId: String?, onDismiss: () -
     var details by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     AlertDialog(onDismissRequest = onDismiss, title = { Text("🚩 Report") }, text = {
-        Column {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
             reasons.forEachIndexed { i, (_, label) ->
                 Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).tap(RoundedCornerShape(8.dp)) { pick = i }, verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(pick == i, null); Text(label, Modifier.padding(start = 10.dp), fontSize = 16.sp)
@@ -165,11 +166,11 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
             }
         }
     }, text = {
-        Column {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
             ChDialogRow("💬 Message ${mb.nick}") { onDismiss(); scope.launch { runCatching { ChatApi.openDm(mb.id) }.onSuccess { id -> Nav.open(Screen.Chat(ChatApi.roomOf(id, "private", mb.nick, mb.photo, mb.id))) }.onFailure { toast(c, Api.friendly(it)) } } }
             if (canManage && !isOwnerRow) {
                 ChDialogRow("🏷 Set title") { titleAsk = true }
-                ChDialogRow(if (mb.admin) "⬇ Dismiss as admin" else "⭐ Make admin", ChatLook.bar) {
+                ChDialogRow(if (mb.admin) "⬇ Dismiss as admin" else "⭐ Make admin", MaterialTheme.colorScheme.primary) {
                     scope.launch { runCatching { ChatApi.setAdmin(room.id, mb.id, !mb.admin) }.onSuccess { toast(c, if (mb.admin) "Admin removed" else "⭐ ${mb.nick} is now an admin"); onChanged(); onDismiss() }.onFailure { toast(c, Api.friendly(it)) } }
                 }
                 ChDialogRow("🚫 Remove from group", Color(0xFFD32F2F)) { removeAsk = true }
@@ -198,7 +199,7 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
 @Composable
 internal fun ClAutoDeleteDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
     AlertDialog(onDismissRequest = onDismiss, title = { Text("⏱ Disappearing messages") }, text = {
-        Column {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
             Text("New messages disappear after the time you pick.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(6.dp))
             CL_AUTO_DELETE.forEach { (m, label) ->

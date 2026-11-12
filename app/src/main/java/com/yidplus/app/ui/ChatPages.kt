@@ -70,7 +70,7 @@ import org.json.JSONObject
 @Composable
 internal fun InfoAction(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
     Column(Modifier.width(72.dp).clip(RoundedCornerShape(12.dp)).border1().tap(RoundedCornerShape(12.dp), onClick = onClick).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, null, tint = ChatLook.bar); Text(label, fontSize = 13.sp, color = ChatLook.bar, maxLines = 1)
+        Icon(icon, null, tint = MaterialTheme.colorScheme.primary); Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, maxLines = 1)
     }
 }
 @Composable internal fun Modifier.border1(): Modifier = this.then(Modifier.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f)))
@@ -87,16 +87,16 @@ internal fun UserSearch(hint: String, onUser: (ChMember) -> Unit, selected: Set<
     var users by remember { mutableStateOf<List<ChMember>?>(null) }
     LaunchedEffect(q) { delay(if (q.isBlank()) 0 else 350); users = runCatching { withContext(Dispatchers.IO) { ChatApi.users(q.trim()) } }.getOrElse { emptyList() } }
     OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp).firstFocus(), singleLine = true, placeholder = { Text(hint) },
-        leadingIcon = { Icon(Icons.Filled.Search, null) }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content), shape = RoundedCornerShape(24.dp))
+        leadingIcon = { Icon(Sym.Search, null) }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content), shape = RoundedCornerShape(24.dp))
     LazyColumn(Modifier.fillMaxSize()) {
         item { header() }
         val u = users
         when {
             u == null -> item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
-            u.isEmpty() -> item { ChEmpty(Icons.Filled.PersonSearch, if (q.isBlank()) "Type a name to find people" else "No one found for “$q”") }
+            u.isEmpty() -> item { ChEmpty(Sym.PersonSearch, if (q.isBlank()) "Type a name to find people" else "No one found for “$q”") }
             else -> items(u, key = { it.id }) { mb ->
                 ChRow(mb.nick, mb.title.ifBlank { null }, { ChAvatar(mb.photo, mb.nick, mb.id, 44.dp) },
-                    trail = { if (mb.id in selected) Icon(Icons.Filled.CheckCircle, "Selected", tint = ChatLook.unread) }) { onUser(mb) }
+                    trail = { if (mb.id in selected) Icon(Sym.CheckCircle, "Selected", tint = ChatLook.unread) }) { onUser(mb) }
             }
         }
     }
@@ -115,9 +115,9 @@ class ChNewChat : PageScreen() {
                         .onFailure { toast(c, Api.friendly(it)) }
                 }
             }, header = {
-                ChRow("New group", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Group, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("group")) }
-                ChRow("New channel", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Campaign, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("channel")) }
-                ChRow("Join by invite link", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Link, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChJoinLink()) }
+                ChRow("New group", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Group, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("group")) }
+                ChRow("New channel", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Campaign, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("channel")) }
+                ChRow("Join by invite link", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Link, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChJoinLink()) }
             })
         }
     }
@@ -160,7 +160,7 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
                 Text(p.chStr("name"), Modifier.padding(top = 8.dp), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, style = TextStyle(textDirection = TextDirection.Content))
                 Text("${p.optInt("members")} members · " + (if (p.chStr("visibility") == "public") "Public" else "Private — an admin approves new members"), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
                 if (p.chStr("description").isNotBlank()) Text(p.chStr("description"), Modifier.padding(top = 6.dp), fontSize = 14.sp, textAlign = TextAlign.Center, style = TextStyle(textDirection = TextDirection.Content))
-                if (pending) Text("⏳ Request sent. You'll be in once an admin approves.", Modifier.padding(top = 14.dp), fontSize = 15.sp, color = ChatLook.bar, textAlign = TextAlign.Center)
+                if (pending) Text("⏳ Request sent. You'll be in once an admin approves.", Modifier.padding(top = 14.dp), fontSize = 15.sp, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
                 else PrimaryButton(if (p.chStr("visibility") == "public") "Join" else "Request to join", {
                     scope.launch { runCatching { ClApi.inviteJoin(code!!) }.onSuccess { r ->
                         // chat.js _handleInviteJoin: joined / already_member open the chat; pending = a request the admins approve.
@@ -171,7 +171,7 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
                         } }.onFailure { toast(c, Api.friendly(it)) } }
                 }, Modifier.fillMaxWidth().padding(top = 14.dp))
             } else if (err != null) Text(err!!, Modifier.padding(16.dp), color = MaterialTheme.colorScheme.error)
-            else ChEmpty(Icons.Filled.Link, "Paste a group's invite link to see it and join")
+            else ChEmpty(Sym.Link, "Paste a group's invite link to see it and join")
         }
     }
 }
@@ -190,7 +190,7 @@ class ChSaved : PageScreen() {
             val l = list
             when {
                 l == null -> ChSkeleton(5)
-                l.isEmpty() -> ChEmpty(Icons.Filled.StarBorder, "No saved messages yet. Long-press a message → Save message")
+                l.isEmpty() -> ChEmpty(Sym.StarBorder, "No saved messages yet. Long-press a message → Save message")
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     items(l, key = { it.chStr("message_id") }) { b ->
                         val txt = b.chStr("text").let { if (b.chStr("type") == "voice") "🎤 Voice message" else if (it.isBlank() && b.chStr("media_key").isNotBlank()) "📎 Media" else it }
@@ -242,13 +242,13 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
             ChBar("Forward to…", sub = m.preview, onBack = { Nav.back() })
             if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), singleLine = true, placeholder = { Text("Search chats") },
-                leadingIcon = { Icon(Icons.Filled.Search, null) }, shape = RoundedCornerShape(24.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
+                leadingIcon = { Icon(Sym.Search, null) }, shape = RoundedCornerShape(24.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
             val l = (res.data ?: emptyList()).filter { it.joined && (!it.room.readOnly || it.canManage) && (q.isBlank() || it.room.name.contains(q.trim(), true)) }
             LazyColumn(Modifier.fillMaxSize()) {
                 items(l, key = { it.room.id }) { r ->
                     ChRow(r.room.name, if (r.room.id in sent) "Sent ✓" else when (r.room.type) { "private" -> "Private chat"; "channel" -> "Channel"; else -> "Group" },
                         { ChAvatar(r.room.photo, r.room.name, r.room.otherUserId ?: r.room.id, 44.dp) }, modifier = if (r === l.first()) Modifier.firstFocus() else Modifier,
-                        trail = { if (r.room.id in sent) Icon(Icons.Filled.CheckCircle, null, tint = ChatLook.unread) else Icon(Icons.AutoMirrored.Filled.Send, "Send", tint = ChatLook.bar) }) { forward(r) }
+                        trail = { if (r.room.id in sent) Icon(Sym.CheckCircle, null, tint = ChatLook.unread) else Icon(Sym.Send, "Send", tint = MaterialTheme.colorScheme.primary) }) { forward(r) }
                 }
             }
         }
@@ -275,17 +275,17 @@ data class ChPollNew(val room: Room) : PageScreen() {
             }
         }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-            ChBar("New poll", sub = room.name, onBack = { Nav.back() }) { ChIcon(Icons.AutoMirrored.Filled.Send, "Send poll", { send() }) }
+            ChBar("New poll", sub = room.name, onBack = { Nav.back() }) { ChIcon(Sym.Send, "Send poll", { send() }) }
             if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
                 OutlinedTextField(question, { question = it }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Question") }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                 opts.forEachIndexed { i, s ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         OutlinedTextField(s, { opts[i] = it }, Modifier.weight(1f).padding(top = 6.dp), singleLine = true, label = { Text("Option ${i + 1}") }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
-                        if (opts.size > 2) ChIcon(Icons.Filled.Close, "Remove option", { opts.removeAt(i) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (opts.size > 2) ChIcon(Sym.Close, "Remove option", { opts.removeAt(i) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
-                if (opts.size < 12) TextButton({ opts.add("") }) { Icon(Icons.Filled.Add, null); Text(" Add option") }
+                if (opts.size < 12) TextButton({ opts.add("") }) { Icon(Sym.Add, null); Text(" Add option") }
                 Row(Modifier.fillMaxWidth().tap { multi = !multi }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("Allow several answers", Modifier.weight(1f), fontSize = 16.sp); Switch(multi, null)
                 }
@@ -329,7 +329,7 @@ data class ChCall(val room: Room, val kind: String) : PageScreen() {
                     loadUrl("${Api.BASE}/yidplus-chat.html#room=" + chEnc(room.id))
                 }
             }, modifier = Modifier.weight(1f).fillMaxWidth())
-            else ChEmpty(Icons.Filled.MicOff, "The microphone is needed for calls", action = "Allow") { perm.launch(Manifest.permission.RECORD_AUDIO) }
+            else ChEmpty(Sym.MicOff, "The microphone is needed for calls", action = "Allow") { perm.launch(Manifest.permission.RECORD_AUDIO) }
         }
     }
 }

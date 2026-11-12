@@ -82,11 +82,11 @@ data class ChEditGroup(val room: Room) : PageScreen() {
                     Box(Modifier.clip(CircleShape).tap(CircleShape) { pickPhoto() }) {
                         ChAvatar(photo, name.ifBlank { room.name }, room.id, 72.dp)
                         Box(Modifier.align(Alignment.BottomEnd).size(26.dp).clip(CircleShape).background(ChatLook.unread), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Filled.PhotoCamera, "Change photo", tint = Color.White, modifier = Modifier.size(15.dp))
+                            Icon(Sym.PhotoCamera, "Change photo", tint = Color.White, modifier = Modifier.size(15.dp))
                         }
                     }
                     Column(Modifier.weight(1f).padding(start = 14.dp)) {
-                        OutlinedTextField(name, { name = it.take(60) }, Modifier.fillMaxWidth().firstFocus(), singleLine = true, label = { Text("$what name") },
+                        OutlinedTextField(name, { name = it.take(60) }, Modifier.fillMaxWidth(), singleLine = true, label = { Text("$what name") },
                             textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                     }
                 }
@@ -101,39 +101,39 @@ data class ChEditGroup(val room: Room) : PageScreen() {
 
                 ClHdr("$what type")
                 val public = j.chStr("visibility") == "public"
-                ClSwitch(Icons.Filled.Public, "Public $what".lowercase().replaceFirstChar { it.uppercase() }, if (public) "Anyone can find and join" else "Only people with the invite link", public) {
+                ClSwitch(Sym.Public, "Public $what".lowercase().replaceFirstChar { it.uppercase() }, if (public) "Anyone can find and join" else "Only people with the invite link", public) {
                     flip("visibility", it, if (it) "public" else "private") }
-                ClNav(Icons.Filled.Link, "Invite link", j.chStr("invite_code").takeIf { it.isNotBlank() }?.let { "${Api.BASE}/chat?join=$it" } ?: "Create a link") { inviteOpen = true }
-                ClSwitch(Icons.Filled.HowToReg, "Approve new members", "An admin must approve joins", j.optBoolean("approve_members")) { flip("approve_members", it) }
+                ClNav(Sym.Link, "Invite link", j.chStr("invite_code").takeIf { it.isNotBlank() }?.let { "${Api.BASE}/chat?join=$it" } ?: "Create a link") { inviteOpen = true }
+                ClSwitch(Sym.HowToReg, "Approve new members", "An admin must approve joins", j.optBoolean("approve_members")) { flip("approve_members", it) }
 
                 if (!isChannel) {
                     ClHdr("What members can do")
-                    ClSwitch(Icons.Filled.Edit, "Send Messages", "Members can write", !j.optBoolean("read_only")) { on -> flip("read_only", on, !on, if (on) "✍️ Everyone can write now" else "🔒 Group set to admins-only") }
+                    ClSwitch(Sym.Edit, "Send Messages", "Members can write", !j.optBoolean("read_only")) { on -> flip("read_only", on, !on, if (on) "✍️ Everyone can write now" else "🔒 Group set to admins-only") }
                     val mediaOn = CL_MEDIA_PERMS.count { (k, _) -> pget(k, k != "polls") }
-                    ClNav(Icons.Filled.PermMedia, "Send Media", "$mediaOn/${CL_MEDIA_PERMS.size}") { Nav.open(ClSendMedia(room, j)) }
-                    ClSwitch(Icons.Filled.PersonAdd, "Add Users", "Members can add others", pget("add_users", false)) { perm("add_users", it) }
-                    ClSwitch(Icons.Filled.PushPin, "Pin Messages", null, pget("pin_messages", false)) { perm("pin_messages", it) }
-                    ClSwitch(Icons.Filled.Info, "Change $what Info", "Name, photo, description", pget("change_info", false)) { perm("change_info", it) }
+                    ClNav(Sym.PhotoLibrary, "Send Media", "$mediaOn/${CL_MEDIA_PERMS.size}") { Nav.open(ClSendMedia(room, j)) }
+                    ClSwitch(Sym.PersonAdd, "Add Users", "Members can add others", pget("add_users", false)) { perm("add_users", it) }
+                    ClSwitch(Sym.PushPin, "Pin Messages", null, pget("pin_messages", false)) { perm("pin_messages", it) }
+                    ClSwitch(Sym.Info, "Change $what Info", "Name, photo, description", pget("change_info", false)) { perm("change_info", it) }
                 }
 
                 ClHdr("Messages")
-                ClSwitch(Icons.Filled.AddReaction, "Reactions", "Members can react to messages", j.optBoolean("reactions_enabled", true)) { flip("reactions_enabled", it) }
-                ClSwitch(Icons.Filled.Save, "Allow saving content", "Members can save and forward media", j.optBoolean("allow_saving", true)) { flip("allow_saving", it) }
-                ClSwitch(Icons.Filled.History, "Chat history for new members", "New members see earlier messages", j.optBoolean("history_visible", true)) { flip("history_visible", it) }
-                ClNav(Icons.Filled.Timer, "Disappearing messages", clAutoDeleteLabel(j.optInt("auto_delete_minutes", 0))) { adAsk = true }
-                if (Session.me?.isOwner == true || Session.me?.role == "owner") ClSwitch(Icons.Filled.Star, "Featured", "Everyone sees this $what in discovery", j.optBoolean("featured")) { on ->
+                ClSwitch(Sym.AddReaction, "Reactions", "Members can react to messages", j.optBoolean("reactions_enabled", true)) { flip("reactions_enabled", it) }
+                ClSwitch(Sym.Save, "Allow saving content", "Members can save and forward media", j.optBoolean("allow_saving", true)) { flip("allow_saving", it) }
+                ClSwitch(Sym.History, "Chat history for new members", "New members see earlier messages", j.optBoolean("history_visible", true)) { flip("history_visible", it) }
+                ClNav(Sym.Timer, "Disappearing messages", clAutoDeleteLabel(j.optInt("auto_delete_minutes", 0))) { adAsk = true }
+                if (Session.me?.isOwner == true || Session.me?.role == "owner") ClSwitch(Sym.Star, "Featured", "Everyone sees this $what in discovery", j.optBoolean("featured")) { on ->
                     flip("featured", on, on, if (on) "⭐ Everyone will see this group" else "Group hidden from discovery — reachable by search or link") }
 
                 ClHdr("People")
                 val info = ChatApi.info(room.id)
-                ClNav(Icons.Filled.AdminPanelSettings, "Administrators", "${(info?.members?.count { it.admin || it.id == info.createdBy } ?: 0).coerceAtLeast(1)}") { Nav.open(ClPeople(room, admins = true)) }
-                ClNav(Icons.Filled.Group, if (isChannel) "Subscribers" else "Members", "${info?.members?.size ?: j.optInt("members")}") { Nav.open(ClPeople(room, admins = false)) }
+                ClNav(Sym.AdminPanelSettings, "Administrators", "${(info?.members?.count { it.admin || it.id == info.createdBy } ?: 0).coerceAtLeast(1)}") { Nav.open(ClPeople(room, admins = true)) }
+                ClNav(Sym.Group, if (isChannel) "Subscribers" else "Members", "${info?.members?.size ?: j.optInt("members")}") { Nav.open(ClPeople(room, admins = false)) }
                 if (requests.isNotEmpty()) {
                     ClHdr("Join requests (${requests.size})")
                     requests.forEach { r ->
                         ChRow(r.chStr("nickname"), chatTime(r.chStr("created_at")), { ChAvatar(Api.abs(r.chStr("photo_url").ifBlank { null }), r.chStr("nickname"), r.chStr("user_id"), 44.dp) }, trail = {
-                            ChIcon(Icons.Filled.Done, "Approve ${r.chStr("nickname")}", { scope.launch { runCatching { ClApi.answerJoin(r.opt("id"), true) }.onSuccess { toast(c, "✅ Approved") }.onFailure { toast(c, Api.friendly(it)) }; loadReq(); ChatApi.rooms.load(true) } }, tint = ChatLook.unread)
-                            ChIcon(Icons.Filled.Close, "Decline ${r.chStr("nickname")}", { scope.launch { runCatching { ClApi.answerJoin(r.opt("id"), false) }.onFailure { toast(c, Api.friendly(it)) }; loadReq() } }, tint = Color(0xFFD32F2F))
+                            ChIcon(Sym.Done, "Approve ${r.chStr("nickname")}", { scope.launch { runCatching { ClApi.answerJoin(r.opt("id"), true) }.onSuccess { toast(c, "✅ Approved") }.onFailure { toast(c, Api.friendly(it)) }; loadReq(); ChatApi.rooms.load(true) } }, tint = ChatLook.unread)
+                            ChIcon(Sym.Close, "Decline ${r.chStr("nickname")}", { scope.launch { runCatching { ClApi.answerJoin(r.opt("id"), false) }.onFailure { toast(c, Api.friendly(it)) }; loadReq() } }, tint = Color(0xFFD32F2F))
                         }) { }
                     }
                 }
@@ -186,15 +186,15 @@ data class ClPeople(val room: Room, val admins: Boolean) : PageScreen() {
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
             ChBar(if (admins) "Administrators" else if (room.type == "channel") "Subscribers" else "Members", sub = "${list.size}", onBack = { Nav.back() })
             if (!admins) OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), singleLine = true, placeholder = { Text("Search members") },
-                leadingIcon = { Icon(Icons.Filled.Search, null) }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
+                leadingIcon = { Icon(Sym.Search, null) }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
             androidx.compose.foundation.lazy.LazyColumn(Modifier.fillMaxSize()) {
-                if (!admins && info?.canManage == true) item { ChRow("Add members", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar), contentAlignment = Alignment.Center) { Icon(Icons.Filled.PersonAdd, null, tint = Color.White) } }, titleColor = ChatLook.bar) { Nav.open(ChPickUsers(room.id, room.name)) } }
+                if (!admins && info?.canManage == true) item { ChRow("Add members", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.PersonAdd, null, tint = Color.White) } }, titleColor = MaterialTheme.colorScheme.primary) { Nav.open(ChPickUsers(room.id, room.name)) } }
                 if (admins) item { Text("Admins can edit the group, add and remove members and pin messages. Tap a member to make them an admin.", Modifier.padding(16.dp), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(list.size, key = { list[it].id }) { i -> val mb = list[i]
                     ChRow(mb.nick + if (mb.id == me?.id) " (You)" else "", mb.title.ifBlank { null }, { ChAvatar(mb.photo, mb.nick, mb.id, 44.dp) },
-                        trail = { if (mb.admin || mb.id == info?.createdBy) Text(if (mb.id == info?.createdBy) "Owner" else "Admin", fontSize = 12.sp, color = ChatLook.bar) }) { if (mb.id != me?.id) menu = mb }
+                        trail = { if (mb.admin || mb.id == info?.createdBy) Text(if (mb.id == info?.createdBy) "Owner" else "Admin", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary) }) { if (mb.id != me?.id) menu = mb }
                 }
-                if (admins) item { ChRow("Add admin", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Add, null, tint = Color.White) } }, titleColor = ChatLook.bar) { Nav.open(ClPeople(room, admins = false)) } }
+                if (admins) item { ChRow("Add admin", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Add, null, tint = Color.White) } }, titleColor = MaterialTheme.colorScheme.primary) { Nav.open(ClPeople(room, admins = false)) } }
             }
         }
         menu?.let { mb -> ClMemberSheet(room, mb, info?.canManage == true, mb.id == info?.createdBy, { scope.launch { ChatApi.rooms.load(true) } }) { menu = null } }
@@ -204,7 +204,7 @@ data class ClPeople(val room: Room, val admins: Boolean) : PageScreen() {
 @Composable
 internal fun ClHdr(t: String) {
     HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
-    Text(t, Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD3BC) else it })
+    Text(t, Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
 }
 
 @Composable
@@ -221,6 +221,6 @@ internal fun ClNav(icon: ImageVector, title: String, value: String?, onClick: ()
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.width(18.dp))
         Column(Modifier.weight(1f)) { Text(title, fontSize = 16.sp); if (!value.isNullOrBlank()) Text(value, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
-        Icon(Icons.Filled.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(Sym.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

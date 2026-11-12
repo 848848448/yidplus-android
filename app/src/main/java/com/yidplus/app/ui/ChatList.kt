@@ -50,6 +50,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -162,6 +163,8 @@ fun ChatsScreen() {
     LaunchedEffect(me?.id) { if (me != null) Statuses.res.load() }
     val ringOf = remember(stUsers) { stUsers.orEmpty().filter { it.slides.isNotEmpty() && it.userId != me?.id }.associateBy { it.userId } }
     val selRooms = list.orEmpty().filter { it.room.id in sel }
+    // The Qin F21 (480x640, ~427 dp tall): status circles + AI row + chips left no room for a single chat. There they shrink to one 56 dp row each.
+    val compact = LocalConfiguration.current.screenHeightDp < 600
 
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
@@ -187,29 +190,29 @@ fun ChatsScreen() {
             searching -> ChSearchField(q, { q = it }, "Search chats, people, messages", { closeSearch() })
             else -> ChBar("Chats", sub = if (me == null) "Guest · featured groups" else null,
                 lead = if (me != null) ({ Box(Modifier.size(40.dp).tap(CircleShape) { drawer = true }.semantics { contentDescription = "Menu" }, contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Menu, null, tint = Color.White, modifier = Modifier.size(24.dp)) } }) else null) {
-                ChIcon(Icons.Filled.Search, "Search chats", { searching = true })
+                    Icon(Sym.Menu, null, tint = LocalContentColor.current, modifier = Modifier.size(24.dp)) } }) else null) {
+                ChIcon(Sym.Search, "Search chats", { searching = true })
             }
         }
         if (me == null) {
             Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Lock, null, Modifier.size(18.dp)); Text("  Sign in to see and send your own chats", Modifier.weight(1f), fontSize = 14.sp)
+                Icon(Sym.Lock, null, Modifier.size(18.dp)); Text("  Sign in to see and send your own chats", Modifier.weight(1f), fontSize = 14.sp)
                 PrimaryButton("Sign in", { Nav.go(Tab.Profile) })
             }
         }
         if (searching) { ChSearchResults(q, list ?: emptyList()); return@Column }
         // Gap 5: the chips scroll sideways with room at the end, so none is ever cut mid-word at 480 px. Folders (chat.js renderChatFoldersRow) follow the tabs.
-        if (me != null) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 20.dp, top = 8.dp, bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (me != null) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 20.dp, top = if (compact) 4.dp else 8.dp, bottom = if (compact) 4.dp else 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CHAT_TABS.forEach { (k, label) ->
                 val n = list?.let { l -> l.filter { matchTab(it, k) && !it.muted }.sumOf { it.room.unread } } ?: 0
                 ClChip(label, folder == null && tab == k, if (k == "unread") 0 else n) { setTab(k) }
             }
             folders.forEach { f ->
                 val n = list?.let { l -> l.filter { it.room.id in f.roomIds && !it.muted }.sumOf { it.room.unread } } ?: 0
-                ClChip(f.name, folder == f.id, n, icon = Icons.Filled.Folder) { folder = if (folder == f.id) null else f.id }
+                ClChip(f.name, folder == f.id, n, icon = Sym.Folder) { folder = if (folder == f.id) null else f.id }
             }
             Box(Modifier.size(34.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { Nav.open(ClFolderManager()) }
-                .semantics { contentDescription = "Chat folders" }, contentAlignment = Alignment.Center) { Icon(Icons.Filled.Add, null, Modifier.size(20.dp)) }
+                .semantics { contentDescription = "Chat folders" }, contentAlignment = Alignment.Center) { Icon(Sym.Add, null, Modifier.size(20.dp)) }
         }
         // Gap 3: no spinner over the list, ever — the cached list stays and refreshes silently; only a pull the person makes shows the pull indicator.
         Box(Modifier.weight(1f).fillMaxWidth().pointerInput(tab, folder) {
@@ -232,16 +235,16 @@ fun ChatsScreen() {
                         }
                         val tg = if (f == null && (tab == "all" || tab == "channels" || tab == "unread")) tgRes.data.orEmpty().filter { (it.joined || me == null) && (tab != "unread" || it.unread > 0) }.sortedByDescending { it.lastAt ?: "" } else emptyList()
                         LazyColumn(Modifier.fillMaxSize(), state = rememberLazyListState(), contentPadding = PaddingValues(bottom = if (me != null) 88.dp else 8.dp)) {
-                            if (me != null && tab == "all" && f == null && q.isBlank()) item(key = "nw-status") { StatusStrip() }
-                            if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank()) item(key = "nw-ai") { AiChatRow { Nav.open(AiChatPage()) } }
+                            if (me != null && tab == "all" && f == null && q.isBlank()) item(key = "nw-status") { if (compact) ClStatusRow(stUsers.orEmpty()) else StatusStrip() }
+                            if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank()) item(key = "nw-ai") { AiChatRow(compact) { Nav.open(AiChatPage()) } }
                             if (shown.isEmpty() && tg.isEmpty()) item {
-                                if (me == null) ChEmpty(Icons.Filled.Forum, "No public groups right now")
-                                else if (f != null) ChEmpty(Icons.Filled.Folder, "No chats in this folder", action = "Edit folders") { Nav.open(ClFolderManager()) }
-                                else ChEmpty(Icons.Filled.Forum, if (tab == "all") "No chats yet. Start a conversation or create a group to get going" else "Nothing here", action = if (tab == "all") "Start Chatting" else null) { Nav.open(ChNewChat()) }
+                                if (me == null) ChEmpty(Sym.Forum, "No public groups right now")
+                                else if (f != null) ChEmpty(Sym.Folder, "No chats in this folder", action = "Edit folders") { Nav.open(ClFolderManager()) }
+                                else ChEmpty(Sym.Forum, if (tab == "all") "No chats yet. Start a conversation or create a group to get going" else "Nothing here", action = if (tab == "all") "Start Chatting" else null) { Nav.open(ChNewChat()) }
                             }
                             items(shown, key = { it.room.id }) { r ->
                                 val ring = ringOf[r.room.otherUserId ?: ""]
-                                ChRoomRow(r, if (r === shown.first()) Modifier.firstFocus() else Modifier, pinned = r.room.id in pins, selected = r.room.id in sel, selecting = sel.isNotEmpty(),
+                                ChRoomRow(r, if (r === shown.first()) Modifier.firstFocus() else Modifier, compact = compact, pinned = r.room.id in pins, selected = r.room.id in sel, selecting = sel.isNotEmpty(),
                                     ring = ring != null, ringSeen = ring != null && Statuses.allSeen(ring),
                                     onRing = { ring?.let { Nav.open(StatusViewerPage(it.userId)) } },
                                     onLong = { if (me != null) { if (r.room.id in sel) sel.remove(r.room.id) else sel.add(r.room.id) } },
@@ -255,13 +258,13 @@ fun ChatsScreen() {
             }
             // Gap 13: WhatsApp's green round button for a new chat / group / channel (the site has the same green button).
             if (me != null && sel.isEmpty()) Box(Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
-                Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
-                    contentAlignment = Alignment.Center) { Icon(Icons.AutoMirrored.Filled.Chat, null, tint = Color.White, modifier = Modifier.size(26.dp)) }
+                Box(Modifier.size(if (compact) 48.dp else 56.dp).clip(RoundedCornerShape(16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
+                    contentAlignment = Alignment.Center) { Icon(Sym.Chat, null, tint = Color.White, modifier = Modifier.size(26.dp)) }
                 DropdownMenu(fabMenu, { fabMenu = false }) {
-                    ChMenuItem(Icons.Filled.Person, "New chat") { fabMenu = false; Nav.open(ChNewChat()) }
-                    ChMenuItem(Icons.Filled.Group, "New group") { fabMenu = false; Nav.open(ChNewGroup("group")) }
-                    ChMenuItem(Icons.Filled.Campaign, "New channel") { fabMenu = false; Nav.open(ChNewGroup("channel")) }
-                    ChMenuItem(Icons.Filled.Link, "Join by invite link") { fabMenu = false; Nav.open(ChJoinLink()) }
+                    ChMenuItem(Sym.Person, "New chat") { fabMenu = false; Nav.open(ChNewChat()) }
+                    ChMenuItem(Sym.Group, "New group") { fabMenu = false; Nav.open(ChNewGroup("group")) }
+                    ChMenuItem(Sym.Campaign, "New channel") { fabMenu = false; Nav.open(ChNewGroup("channel")) }
+                    ChMenuItem(Sym.Link, "Join by invite link") { fabMenu = false; Nav.open(ChJoinLink()) }
                 }
             }
         }
@@ -287,18 +290,18 @@ fun ChatsScreen() {
                     if (ok > 0) toast(c, if (rs.size == 1 && !rs[0].isPrivate) "🚪 You left the group." else "🗑 Chat removed")
                     sel.clear(); res.load(true)
                 }
-            }) { Text(if (rs.size == 1 && !rs[0].isPrivate) "Leave" else "Delete", color = Color(0xFFD32F2F)) } },
+            }) { Text(if (rs.size == 1 && !rs[0].isPrivate) "Leave" else if (rs.size == 1) "Delete chat" else "Delete ${rs.size} chats", color = Color(0xFFD32F2F)) } },
             dismissButton = { TextButton({ delAsk = null }) { Text("Cancel") } })
     }
 }
 
 @Composable
 private fun ClChip(label: String, on: Boolean, n: Int, icon: ImageVector? = null, onClick: () -> Unit) {
-    Row(Modifier.clip(RoundedCornerShape(18.dp)).background(if (on) ChatLook.bar.copy(alpha = .14f) else MaterialTheme.colorScheme.surfaceVariant)
+    Row(Modifier.clip(RoundedCornerShape(18.dp)).background(if (on) MaterialTheme.colorScheme.primary.copy(alpha = .14f) else MaterialTheme.colorScheme.surfaceVariant)
         .tap(RoundedCornerShape(18.dp), onClick = onClick).padding(horizontal = 14.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (icon != null) { Icon(icon, null, Modifier.size(16.dp), tint = if (on) ChatLook.bar else MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.width(4.dp)) }
+        if (icon != null) { Icon(icon, null, Modifier.size(16.dp), tint = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.width(4.dp)) }
         Text(label, maxLines = 1, softWrap = false, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (on) ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD3BC) else it } else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             style = TextStyle(textDirection = TextDirection.Content))
         if (n > 0) { Spacer(Modifier.width(6.dp)); ChBadge(n) }
     }
@@ -316,7 +319,7 @@ internal fun ChMenuItem(icon: ImageVector, text: String, color: Color = Color.Un
 /** One chat row (WhatsApp: 72 dp, 50 dp avatar, name ellipsizes before the time). Long-press (or the keypad's long OK / Menu key) selects it. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, pinned: Boolean = false, selected: Boolean = false, selecting: Boolean = false,
+internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = false, pinned: Boolean = false, selected: Boolean = false, selecting: Boolean = false,
                        ring: Boolean = false, ringSeen: Boolean = false, onRing: () -> Unit = {}, onLong: (() -> Unit)? = null, onToggle: () -> Unit = {}) {
     val r = ri.room
     val c = ctx()
@@ -325,17 +328,17 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, pinned: Boolean = f
     val focused by src.collectIsFocusedAsState()
     val sel = Nav.chatDetail?.room?.id == r.id
     Column(Modifier.background(when { selected -> ChatLook.unread.copy(alpha = .16f); sel -> MaterialTheme.colorScheme.primaryContainer; else -> Color.Transparent })) {
-        Row(modifier.fillMaxWidth().height(72.dp).restoreFocus("room:" + r.id)
+        Row(modifier.fillMaxWidth().height(if (compact) 64.dp else 72.dp).restoreFocus("room:" + r.id)
             .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold) else Modifier)
             .onPreviewKeyEvent { e -> if (e.type == KeyEventType.KeyUp && e.key == Key.Menu && onLong != null) { onLong(); true } else false }
             .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onLongClick = onLong, onClick = open)
             .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box {
                 // The site shows "online" only to site admins (chat.js renderChatList: c.online && isAnyAdmin()).
-                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, 50.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
+                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 46.dp else 50.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
                 if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() } else av()
                 if (selected) Box(Modifier.align(Alignment.BottomEnd).size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(1.dp).clip(CircleShape).background(ChatLook.unread), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Check, "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
+                    Icon(Sym.Check, "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
                 }
             }
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
@@ -352,8 +355,8 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, pinned: Boolean = f
                     val pv = remember(ri, v) { chatPreview(ri) }
                     Text(if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
-                    if (ri.muted) Icon(Icons.Filled.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (pinned) Icon(Icons.Filled.PushPin, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (ri.muted) Icon(Sym.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (pinned) Icon(Sym.PushPinFill, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(4.dp)); ChBadge(r.unread, ri.muted)
                 }
             }

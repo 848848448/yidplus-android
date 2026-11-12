@@ -93,14 +93,14 @@ data class ChInfo(val room: Room) : PageScreen() {
         val seeOnline = chIsSiteAdmin()
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
             ChBar(if (isPrivate) "Contact info" else if (room.type == "group") "Group info" else "Channel info", onBack = { Nav.back() }) {
-                if (manage) ChIcon(Icons.Filled.Edit, "Edit", { Nav.open(ChEditGroup(room)) })
+                if (manage) ChIcon(Sym.Edit, "Edit", { Nav.open(ChEditGroup(room)) })
             }
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 Column(Modifier.fillMaxWidth().padding(vertical = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(if (manage) Modifier.clip(CircleShape).tap(CircleShape) { pickPhoto() } else Modifier) {
                         ChAvatar(photo, room.name, room.otherUserId ?: room.id, 96.dp, online = isPrivate && info?.online == true && seeOnline)
                         if (manage) Box(Modifier.align(Alignment.BottomEnd).size(32.dp).clip(CircleShape).background(ChatLook.unread), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Filled.PhotoCamera, "Change photo", tint = Color.White, modifier = Modifier.size(18.dp))
+                            Icon(Sym.PhotoCamera, "Change photo", tint = Color.White, modifier = Modifier.size(18.dp))
                         }
                     }
                     Spacer(Modifier.height(10.dp))
@@ -109,11 +109,11 @@ data class ChInfo(val room: Room) : PageScreen() {
                     Text(when { isPrivate -> if (info?.online == true && seeOnline) "online" else "Private chat"; room.type == "channel" -> "Channel · $n subscribers"
                         else -> "Group · $n members" } + (if (!isPrivate && info?.visibility == "public") " · Public" else ""), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (me != null) Row(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        InfoAction(Icons.AutoMirrored.Filled.Chat, "Message") { Nav.back() }
-                        if (isPrivate || room.type == "group") InfoAction(Icons.Filled.Call, "Call") { Nav.open(ChCall(room, "audio")) }
-                        if (isPrivate || room.type == "group") InfoAction(Icons.Filled.Videocam, "Video") { Nav.open(ChCall(room, "video")) }
-                        if (!isPrivate && manage) InfoAction(Icons.Filled.PersonAdd, "Add") { Nav.open(ChPickUsers(room.id, room.name)) }
-                        else InfoAction(Icons.Filled.Search, "Search") { Nav.back() }
+                        InfoAction(Sym.Chat, "Message") { Nav.back() }
+                        if (isPrivate || room.type == "group") InfoAction(Sym.Call, "Call") { Nav.open(ChCall(room, "audio")) }
+                        if (isPrivate || room.type == "group") InfoAction(Sym.Videocam, "Video") { Nav.open(ChCall(room, "video")) }
+                        if (!isPrivate && manage) InfoAction(Sym.PersonAdd, "Add") { Nav.open(ChPickUsers(room.id, room.name)) }
+                        else InfoAction(Sym.Search, "Search") { Nav.back() }
                     }
                 }
                 HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
@@ -127,7 +127,7 @@ data class ChInfo(val room: Room) : PageScreen() {
                         if (info.muted) scope.launch { runCatching { ChatApi.mute(room.id, false) }.onSuccess { ClLocal.setMuteUntil(c, room.id, 0); toast(c, "🔊 Unmuted"); res.load(true) }.onFailure { toast(c, Api.friendly(it)) } }
                         else muteAsk = true
                     }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.NotificationsOff, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Sym.NotificationsOff, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Column(Modifier.weight(1f).padding(start = 18.dp)) {
                             Text("Mute notifications", fontSize = 16.sp)
                             if (info.muted) Text(if (until > 0) "Until " + java.text.SimpleDateFormat("EEE h:mm a", java.util.Locale.US).format(java.util.Date(until)) else "Always", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -135,13 +135,13 @@ data class ChInfo(val room: Room) : PageScreen() {
                         Switch(info.muted, null)
                     }
                     if (manage) Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp)) { adAsk = true }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Timer, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Sym.Timer, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Disappearing messages", fontSize = 16.sp); Text(clAutoDeleteLabel(autoDel), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }
                     if (!isPrivate && (code != null || manage)) Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp)) { inviteOpen = true }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Link, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Sym.Link, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Invite link", fontSize = 16.sp); Text(code?.let { "${Api.BASE}/chat?join=$it" } ?: "Create and share a link", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-                        Icon(Icons.Filled.Share, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Sym.Share, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
                 }
@@ -149,28 +149,28 @@ data class ChInfo(val room: Room) : PageScreen() {
                 HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
                 if (info != null && !isPrivate && info.members.isNotEmpty()) {
                     ChSection("${info.members.size} members" + (if (seeOnline) info.onlineCount.takeIf { it > 0 }?.let { " · $it online" } ?: "" else ""))
-                    if (manage) ChRow("Add members", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar), contentAlignment = Alignment.Center) { Icon(Icons.Filled.PersonAdd, null, tint = Color.White) } },
-                        titleColor = ChatLook.bar) { Nav.open(ChPickUsers(room.id, room.name)) }
-                    if (manage || code != null) ChRow("Invite via link", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Link, null, tint = Color.White) } },
-                        titleColor = ChatLook.bar) { inviteOpen = true }
+                    if (manage) ChRow("Add members", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.PersonAdd, null, tint = Color.White) } },
+                        titleColor = MaterialTheme.colorScheme.primary) { Nav.open(ChPickUsers(room.id, room.name)) }
+                    if (manage || code != null) ChRow("Invite via link", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Link, null, tint = Color.White) } },
+                        titleColor = MaterialTheme.colorScheme.primary) { inviteOpen = true }
                     info.members.sortedWith(compareByDescending<ChMember> { it.id == info.createdBy }.thenByDescending { it.admin }.thenByDescending { it.online && seeOnline }.thenBy { it.nick.lowercase() }).take(300).forEach { mb ->
                         val sub = listOfNotNull(mb.title.ifBlank { null }, if (mb.online && seeOnline) "online" else null).joinToString(" · ").ifBlank { null }
                         ChRow(mb.nick + if (mb.id == me?.id) " (You)" else "", sub, { ChAvatar(mb.photo, mb.nick, mb.id, 44.dp, mb.online && seeOnline) },
-                            trail = { if (mb.admin || mb.id == info.createdBy) Text(if (mb.id == info.createdBy) "Owner" else "Admin", fontSize = 12.sp, color = ChatLook.bar, modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(ChatLook.bar.copy(alpha = .12f)).padding(horizontal = 6.dp, vertical = 2.dp)) }) {
+                            trail = { if (mb.admin || mb.id == info.createdBy) Text(if (mb.id == info.createdBy) "Owner" else "Admin", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = .12f)).padding(horizontal = 6.dp, vertical = 2.dp)) }) {
                             if (mb.id != me?.id && me != null) memberMenu = mb
                         }
                     }
                 }
                 if (info != null && me != null && info.joined) {
                     Spacer(Modifier.height(8.dp))
-                    if (isPrivate && room.otherUserId != null) ChRow("Block ${room.name}", null, { Icon(Icons.Filled.Block, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
+                    if (isPrivate && room.otherUserId != null) ChRow("Block ${room.name}", null, { Icon(Sym.Block, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
                         confirm = "Block ${room.name}? They won't be able to message you." to suspend { ChatApi.block(room.otherUserId ?: ""); toast(c, "Blocked"); Unit }
                     }
-                    if (info.createdBy != me.id) ChRow("Report " + if (isPrivate) room.name else if (room.type == "group") "group" else "channel", null, { Icon(Icons.Filled.Flag, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) { report = true }
-                    ChRow(if (isPrivate) "Delete chat" else if (room.type == "group") "Leave group" else "Leave channel", null, { Icon(Icons.AutoMirrored.Filled.ExitToApp, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
+                    if (info.createdBy != me.id) ChRow("Report " + if (isPrivate) room.name else if (room.type == "group") "group" else "channel", null, { Icon(Sym.Flag, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) { report = true }
+                    ChRow(if (isPrivate) "Delete chat" else if (room.type == "group") "Leave group" else "Leave channel", null, { Icon(Sym.ExitToApp, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
                         confirm = (if (isPrivate) "Delete chat with \"${room.name}\"?" else "Leave \"${room.name}\"?") to suspend { ChatApi.leave(room.id); res.load(true); Nav.back(); Nav.back(); Unit }
                     }
-                    if (!isPrivate && (info.createdBy == me.id || chIsSiteAdmin())) ChRow("Delete for everyone", null, { Icon(Icons.Filled.DeleteForever, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
+                    if (!isPrivate && (info.createdBy == me.id || chIsSiteAdmin())) ChRow("Delete for everyone", null, { Icon(Sym.DeleteForever, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
                         confirm = "Delete \"${room.name}\" and all its messages for everyone?" to suspend { ChatApi.leave(room.id, all = true); res.load(true); Nav.back(); Nav.back(); Unit }
                     }
                 }

@@ -49,6 +49,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -108,7 +109,7 @@ import org.json.JSONObject
 /* ═════════════════════════ Look (WhatsApp-like, light and dark) ═════════════════════════ */
 
 internal object ChatLook {
-    val bar = Color(0xFF1F6F5C)
+    val bar: Color @Composable get() = topBarColor()
     val unread = Color(0xFF25A45A)
     val tick = Color(0xFF34B7F1)
     @Composable fun dark() = MaterialTheme.colorScheme.surface.luminance() < 0.5f
@@ -125,16 +126,16 @@ internal object ChatLook {
 @Composable
 internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = null, lead: (@Composable () -> Unit)? = null, onTitle: (() -> Unit)? = null,
                    actions: @Composable RowScope.() -> Unit = {}) {
-    Surface(color = ChatLook.bar, contentColor = Color.White, shadowElevation = 2.dp) {
+    Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) ChIcon(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack) else Spacer(Modifier.width(12.dp))
             Row(Modifier.weight(1f).then(if (onTitle != null) Modifier.tap(RoundedCornerShape(8.dp), onClick = onTitle) else Modifier).padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 if (lead != null) { lead(); Spacer(Modifier.width(8.dp)) }
                 Column(Modifier.weight(1f)) {
-                    Text(title, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    Text(title, color = LocalContentColor.current, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         style = TextStyle(textDirection = TextDirection.Content))
-                    if (!sub.isNullOrBlank()) Text(sub, color = Color.White.copy(alpha = .82f), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (!sub.isNullOrBlank()) Text(sub, color = LocalContentColor.current.copy(alpha = .82f), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
             actions()
@@ -143,7 +144,7 @@ internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = n
 }
 
 @Composable
-internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = Color.White, size: Dp = 44.dp) {
+internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, size: Dp = 44.dp) {
     Box(Modifier.size(size).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
     }
@@ -203,13 +204,13 @@ internal fun ChSkeleton(rows: Int = 8) {
 
 @Composable
 internal fun ChSearchField(q: String, onQ: (String) -> Unit, hint: String, onClose: () -> Unit) {
-    Surface(color = ChatLook.bar, contentColor = Color.White, shadowElevation = 2.dp) {
+    Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             ChIcon(Icons.AutoMirrored.Filled.ArrowBack, "Close search", onClose)
-            TextField(q, onQ, Modifier.weight(1f).firstFocus(always = true), singleLine = true, placeholder = { Text(hint, color = Color.White.copy(alpha = .7f)) },
-                textStyle = TextStyle(color = Color.White, fontSize = 17.sp, textDirection = TextDirection.Content),
-                colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent, cursorColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, focusedTextColor = Color.White, unfocusedTextColor = Color.White))
+            TextField(q, onQ, Modifier.weight(1f).firstFocus(always = true), singleLine = true, placeholder = { Text(hint, color = LocalContentColor.current.copy(alpha = .7f)) },
+                textStyle = TextStyle(color = LocalContentColor.current, fontSize = 17.sp, textDirection = TextDirection.Content),
+                colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent, cursorColor = LocalContentColor.current,
+                    focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, focusedTextColor = LocalContentColor.current, unfocusedTextColor = LocalContentColor.current))
             if (q.isNotEmpty()) ChIcon(Icons.Filled.Close, "Clear", { onQ("") })
         }
     }

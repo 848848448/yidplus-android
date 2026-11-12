@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.PushPin as OutlinedPushPin
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +32,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.yidplus.app.data.Api
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.TgChannel
@@ -53,20 +54,20 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
             Column(Modifier.fillMaxWidth().background(ChatLook.bar).tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp)) {
                 ChAvatar(me?.photo, me?.nickname ?: "User", me?.id ?: "me", 64.dp)
                 Spacer(Modifier.height(10.dp))
-                Text(me?.nickname ?: "User", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                Text(me?.nickname ?: "User", color = barContent(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content))
-                Text("@" + (me?.nickname ?: "user"), color = Color.White.copy(alpha = .8f), fontSize = 14.sp, maxLines = 1, style = TextStyle(textDirection = TextDirection.Content))
+                Text("@" + (me?.nickname ?: "user"), color = barContent().copy(alpha = .8f), fontSize = 14.sp, maxLines = 1, style = TextStyle(textDirection = TextDirection.Content))
             }
-            ClDrawerItem(Icons.Filled.Person, "My Profile", Modifier.firstFocus(always = true)) { onClose(); Nav.go(Tab.Profile) }
-            ClDrawerItem(Icons.Filled.Bookmark, "Saved Messages") { onClose(); Nav.open(ChSaved()) }
-            ClDrawerItem(Icons.Filled.Folder, "Chat Folders") { onClose(); Nav.open(ClFolderManager()) }
-            ClDrawerItem(Icons.Filled.Group, "New Group") { onClose(); Nav.open(ChNewGroup("group")) }
-            ClDrawerItem(Icons.Filled.Campaign, "New Channel") { onClose(); Nav.open(ChNewGroup("channel")) }
-            ClDrawerItem(Icons.Filled.Link, "Join by invite link") { onClose(); Nav.open(ChJoinLink()) }
-            ClDrawerItem(Icons.Filled.Settings, "Chat settings") { onClose(); Nav.open(ClChatSettings()) }
+            ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true)) { onClose(); Nav.go(Tab.Profile) }
+            ClDrawerItem(Sym.Bookmark, "Saved Messages") { onClose(); Nav.open(ChSaved()) }
+            ClDrawerItem(Sym.Folder, "Chat Folders") { onClose(); Nav.open(ClFolderManager()) }
+            ClDrawerItem(Sym.Group, "New Group") { onClose(); Nav.open(ChNewGroup("group")) }
+            ClDrawerItem(Sym.Campaign, "New Channel") { onClose(); Nav.open(ChNewGroup("channel")) }
+            ClDrawerItem(Sym.Link, "Join by invite link") { onClose(); Nav.open(ChJoinLink()) }
+            ClDrawerItem(Sym.Settings, "Chat settings") { onClose(); Nav.open(ClChatSettings()) }
             if (chIsSiteAdmin()) {
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                ClDrawerItem(Icons.Filled.AdminPanelSettings, "Admin Panel") { onClose(); Nav.open(AdminPage()) }
+                ClDrawerItem(Sym.AdminPanelSettings, "Admin Panel") { onClose(); Nav.open(AdminPage()) }
             }
         }
     }
@@ -84,15 +85,15 @@ private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = M
 @Composable
 internal fun ClSelectBar(n: Int, allPinned: Boolean, allMuted: Boolean, single: Boolean, onClose: () -> Unit, onPin: () -> Unit, onMute: () -> Unit,
                          onRead: () -> Unit, onDelete: () -> Unit, onInfo: () -> Unit) {
-    Surface(color = ChatLook.bar, contentColor = Color.White, shadowElevation = 2.dp) {
+    Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            ChIcon(Icons.Filled.Close, "Cancel selection", onClose)
-            Text("$n", Modifier.weight(1f).padding(start = 8.dp), color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
-            ChIcon(if (allPinned) Icons.Filled.PushPin else Icons.Outlined.OutlinedPushPin, if (allPinned) "Unpin" else "Pin", onPin)
-            ChIcon(if (allMuted) Icons.Filled.Notifications else Icons.Filled.NotificationsOff, if (allMuted) "Unmute" else "Mute", onMute)
-            ChIcon(Icons.Filled.MarkChatRead, "Mark as read", onRead)
-            ChIcon(Icons.Filled.Delete, "Delete", onDelete)
-            if (single) ChIcon(Icons.Filled.Info, "Info", onInfo)
+            ChIcon(Sym.Close, "Cancel selection", onClose)
+            Text("$n", Modifier.weight(1f).padding(start = 8.dp), color = LocalContentColor.current, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+            ChIcon(if (allPinned) Sym.PushPinFill else Sym.PushPin, if (allPinned) "Unpin" else "Pin", onPin)
+            ChIcon(if (allMuted) Sym.Notifications else Sym.NotificationsOff, if (allMuted) "Unmute" else "Mute", onMute)
+            ChIcon(Sym.MarkChatRead, "Mark as read", onRead)
+            ChIcon(Sym.Delete, "Delete", onDelete)
+            if (single) ChIcon(Sym.Info, "Info", onInfo)
         }
     }
 }
@@ -103,7 +104,7 @@ internal fun ClMuteDialog(title: String, onPick: (Long) -> Unit, onDismiss: () -
     var pick by remember { mutableStateOf(0) }
     val opts = listOf("8 hours" to 8L * 3600_000L, "1 week" to 7L * 24 * 3600_000L, "Always" to -1L)
     AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = {
-        Column {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
             Text("Other members won't see that you muted this chat.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(8.dp))
             opts.forEachIndexed { i, (label, _) ->
@@ -178,8 +179,8 @@ class ClFolderManager : PageScreen() {
                 if (l == null) item { ChSkeleton(2) }
                 else if (l.isEmpty()) item { Text("No folders yet", Modifier.padding(horizontal = 16.dp, vertical = 8.dp), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 else items(l, key = { "f" + it.id }) { f ->
-                    ChRow(f.name, if (f.roomIds.isEmpty()) "No chats" else "${f.roomIds.size} chats", { Box(Modifier.size(44.dp).clip(CircleShape).background(ChatLook.bar.copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Folder, null, tint = ChatLook.bar) } },
-                        trail = { ChIcon(Icons.Filled.Delete, "Delete folder ${f.name}", { ask = f }, tint = Color(0xFFD32F2F)) }) { ask = f }
+                    ChRow(f.name, if (f.roomIds.isEmpty()) "No chats" else "${f.roomIds.size} chats", { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Sym.Folder, null, tint = MaterialTheme.colorScheme.primary) } },
+                        trail = { ChIcon(Sym.Delete, "Delete folder ${f.name}", { ask = f }, tint = Color(0xFFD32F2F)) }) { ask = f }
                 }
                 item {
                     ChSection("New folder")
@@ -225,19 +226,19 @@ class ClChatSettings : PageScreen() {
             Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).firstFocus().tap(RoundedCornerShape(0.dp)) {
                 val on = !dark; com.yidplus.app.data.Prefs.setThemeMode(if (on) 2 else 1); toast(c, if (on) "🌙 Dark mode on" else "☀️ Light mode on")
             }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.DarkMode, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(Sym.DarkMode, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("Dark mode", Modifier.weight(1f).padding(start = 18.dp), fontSize = 16.sp); Switch(dark, null)
             }
             HorizontalDivider()
             Row(Modifier.padding(start = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.FormatSize, null, tint = MaterialTheme.colorScheme.onSurfaceVariant); Text("Message text size", Modifier.padding(start = 18.dp), fontSize = 16.sp)
+                Icon(Sym.FormatSize, null, tint = MaterialTheme.colorScheme.onSurfaceVariant); Text("Message text size", Modifier.padding(start = 18.dp), fontSize = 16.sp)
             }
             Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("sm" to "Small", "md" to "Medium", "lg" to "Large").forEach { (k, label) ->
                     val on = font == k
-                    Box(Modifier.weight(1f).clip(RoundedCornerShape(18.dp)).background(if (on) ChatLook.bar else MaterialTheme.colorScheme.surfaceVariant)
+                    Box(Modifier.weight(1f).clip(RoundedCornerShape(18.dp)).background(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
                         .tap(RoundedCornerShape(18.dp)) { font = k; ClLocal.setFont(c, k); toast(c, "Font size: $label") }.padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
-                        Text(label, color = if (on) Color.White else MaterialTheme.colorScheme.onSurface, fontSize = when (k) { "sm" -> 14.sp; "lg" -> 18.sp; else -> 16.sp })
+                        Text(label, color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, fontSize = when (k) { "sm" -> 14.sp; "lg" -> 18.sp; else -> 16.sp })
                     }
                 }
             }
@@ -247,10 +248,42 @@ class ClChatSettings : PageScreen() {
             Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).tap(RoundedCornerShape(0.dp)) {
                 receipts = !receipts; ClLocal.setReceipts(c, receipts); toast(c, if (receipts) "✓✓ Read receipts on" else "Read receipts off")
             }.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.DoneAll, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(Sym.DoneAll, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Read receipts", fontSize = 16.sp); Text("Let others see when you've read their messages", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 Switch(receipts, null)
             }
         }
+    }
+}
+
+/** Small screens: the status circles become one 56 dp row (WhatsApp's "Status" row): stacked rings of who posted, tap = the first unseen. */
+@Composable
+internal fun ClStatusRow(all: List<StUser>) {
+    val me = Session.me ?: return
+    val others = all.filter { it.userId != me.id && it.slides.isNotEmpty() }
+    val mine = all.firstOrNull { it.userId == me.id && it.slides.isNotEmpty() }
+    val unseen = others.filter { !Statuses.allSeen(it) }
+    Column {
+        Row(Modifier.fillMaxWidth().height(56.dp).tap(RoundedCornerShape(0.dp)) {
+            val first = unseen.firstOrNull() ?: others.firstOrNull()
+            if (first != null) Nav.open(StatusViewerPage(first.userId)) else if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+        }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.width(if (others.isEmpty()) 40.dp else (40 + 14 * (others.size.coerceAtMost(3) - 1)).dp).height(40.dp)) {
+                if (others.isEmpty()) Box(Modifier.size(40.dp).clip(CircleShape).background(ChatLook.unread.copy(alpha = .15f)), contentAlignment = Alignment.Center) {
+                    Icon(Sym.Add, null, tint = ChatLook.unread, modifier = Modifier.size(22.dp)) }
+                others.take(3).forEachIndexed { i, u ->
+                    Box(Modifier.padding(start = (14 * i).dp)) { ClRingAvatar(u.photo, u.nick, u.userId, 40.dp, false, ring = true, seen = Statuses.allSeen(u)) }
+                }
+            }
+            Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                Text("Status", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(when { unseen.isNotEmpty() -> "${unseen.size} new update" + (if (unseen.size > 1) "s" else ""); others.isNotEmpty() -> "Seen all updates"; else -> "Tap to add a status update" },
+                    fontSize = 13.sp, color = if (unseen.isNotEmpty()) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            }
+            Box(Modifier.size(40.dp).clip(CircleShape).tap(CircleShape) { Nav.open(PostStatusPage()) }.semantics { contentDescription = "Add status" }, contentAlignment = Alignment.Center) {
+                Icon(Sym.PhotoCamera, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
     }
 }
