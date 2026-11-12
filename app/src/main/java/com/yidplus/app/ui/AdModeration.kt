@@ -56,16 +56,14 @@ class AdReportsPage : PageScreen() {
                             pills += "Resolve" to { a.sure("Resolve?", "Mark this report resolved? The report stays in the review history.", danger = false) {
                                 adminDo(c, scope, "Report resolved", { tick++ }) { Api.put("/api/reports", jo("id" to r.s("id"), "resolved" to true)) } } }
                             pills += "Warn" to { a.ask("Warning to @$nick", "Warning to send to @$nick:", lines = 2) { m ->
-                                if (m.isNotBlank()) a.sure("Send this warning?", m.trim(), danger = false) {
+                                if (m.isNotBlank()) a.sure("Send this warning?", m.trim(), danger = false, okLabel = "Send") {
                                     adminDo(c, scope, "Warning sent") { Api.post("/api/admin/warnings", jo("user_id" to r.s("reported_id"), "message" to m.trim())) } } } }
                             pills += "Block user" to { a.sure("Ban @$nick?", "Ban @$nick? This will also block their device.") {
                                 adminDo(c, scope, "🚫 @$nick banned!", { tick++ }) { Api.put("/api/admin/users", jo("id" to r.s("reported_id"), "blocked" to true)) } } }
                         }
                         if (adminIsOwner) pills += "Add user note" to { a.ask("Private note", "Private admin note for this user:", lines = 2) { n ->
                             if (n.isNotBlank()) adminDo(c, scope, "Note saved") { Api.post("/api/admin/notes", jo("user_id" to r.s("reported_id"), "note" to "Report " + r.s("id") + ": " + n.trim())) } } }
-                        LazyRow(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(pills) { (t, f) -> AdminPill(t, color = if (t == "Block user") AdRed else MaterialTheme.colorScheme.primary, onClick = f) }
-                        }
+                        AdPills(*pills.toTypedArray())
                     }
                 }
             }
@@ -258,7 +256,7 @@ class AdChatsPage : PageScreen() {
                             if (!off) a.sure("Hide?", "Hide this group/channel? Regular users won't see it. You can unhide anytime.", danger = false) { go() } else go()
                         },
                         "🗑 Delete" to { a.sure("Delete?", "PERMANENTLY delete \"$name\"? All its messages will be gone. This cannot be undone.") {
-                            a.sure("Are you sure?", "Are you absolutely sure? This is permanent.") { adminDo(c, scope, "🗑 Deleted", { tick++ }) { Api.delete("/api/admin/room-control?room_id=" + adEnc(r.s("id"))) } } } })
+                            a.sure("Delete for good?", "Are you absolutely sure? This is permanent.", okLabel = "Delete") { adminDo(c, scope, "🗑 Deleted", { tick++ }) { Api.delete("/api/admin/room-control?room_id=" + adEnc(r.s("id"))) } } } })
                 }
             }
         }
@@ -302,12 +300,12 @@ class AdShortsModPage : PageScreen() {
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope(); val a = rememberAsk()
         var tick by remember { mutableIntStateOf(0) }
-        val res = adRes("/api/shorts", tick)
+        val res = adRes("/api/shorts?admin=1", tick)
         AdPanel("Shorts", sub = "Video uploads moderation", res = res) { j ->
             val l = j.arr("shorts")
             if (l.isEmpty()) adEmpty("No shorts uploaded yet", Sym.Movie)
             items(l, key = { it.s("id") }) { s ->
-                AdRow(s.s("caption").ifBlank { "(no caption)" }, sub = s.s("nick") + " · ❤️ " + adminN(s.n("likes")) + " · " + adWhen(s.s("created_at")), icon = Sym.Movie, trail = "🗑") {
+                AdRow(s.s("caption").ifBlank { "Video by @" + s.s("nick").ifBlank { "?" } }, sub = s.s("nick") + " · ❤️ " + adminN(s.n("likes")) + " · " + adWhen(s.s("created_at")), icon = Sym.Movie, trail = "🗑") {
                     a.sure("Delete?", "Delete this short?") { adminDo(c, scope, "🗑 Deleted.", { tick++ }) { Api.delete("/api/shorts?id=" + adEnc(s.s("id"))) } }
                 }
             }
@@ -356,7 +354,7 @@ class AdMusicModPage : PageScreen() {
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope(); val a = rememberAsk()
         var tick by remember { mutableIntStateOf(0) }
-        val res = adRes("/api/music", tick)
+        val res = adRes("/api/music?admin=1", tick)
         var q by remember { mutableStateOf("") }
         AdPanel("🎵 Music library", sub = "Remove any track", res = res) { j ->
             item { AdminSearchField(q, { q = it }, "Search title, artist or uploader…") }
