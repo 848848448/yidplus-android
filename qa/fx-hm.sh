@@ -14,17 +14,21 @@ hm_tapui() {
 }
 # A chip in a sideways-scrolling chip row: find the row by its first chip ("All"), swipe it left until the chip shows, tap it.
 hm_tapchip() {
-  local want="$1" row="" y1 y2 n x hit
+  local want="$1" row="" y1="" y2="" n x hit
   for n in 1 2 3 4; do
     timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
     x=$(timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n')
-    row=$(echo "$x" | grep -E '(text|content-desc)="All"' | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
-    # An empty dump happens while something animates (uiautomator waits for idle): try again.
-    [ -z "$row" ] && { log "hm_tapchip: no chip row yet ($n)"; timeout 5 adb shell rm -f /sdcard/hm.xml >/dev/null 2>&1; sleep 2; continue; }
-    set -- $row; y1=$2; y2=$4
+    # The row's line is read once from its first chip ("All"); after a swipe "All" itself has scrolled away.
+    if [ -z "$y1" ]; then
+      row=$(echo "$x" | grep -E '(text|content-desc)="All"' | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+      # An empty dump happens while something animates (uiautomator waits for idle): try again.
+      [ -z "$row" ] && { log "hm_tapchip: no chip row yet ($n)"; timeout 5 adb shell rm -f /sdcard/hm.xml >/dev/null 2>&1; sleep 2; continue; }
+      set -- $row; y1=$2; y2=$4
+    fi
     # Only a node on the chip row's own line counts (a "Users" group header further down is not the chip).
     hit=$(echo "$x" | grep -E "(text|content-desc)=\"$want\"" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | paste -d' ' - - - - | awk -v a=$y1 -v b=$y2 '{c=($2+$4)/2; if (c>=a-4 && c<=b+4) {print; exit}}')
     if [ -n "$hit" ]; then set -- $hit; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "hm_tapchip '$want'"; return 0; fi
+    log "hm_tapchip row y=$y1-$y2 shows: $(echo "$x" | grep -oE 'text="[^"]+"[^/]*bounds="\[[0-9]+,[0-9]+\]' | awk -F'"' -v a=$y1 -v b=$y2 '{split($NF,q,/[^0-9]+/); if (q[3]>=a-6 && q[3]<=b) printf "%s|", $2}' | head -c 200)"
     timeout 10 adb shell input swipe 420 $(( (y1 + y2) / 2 )) 80 $(( (y1 + y2) / 2 )) 500; sleep 1.5
   done
   log "hm_tapchip: '$want' not found"
@@ -90,7 +94,7 @@ hm_tapui "Search all of YID PLUS"; sleep 6; hm_hidekb; sleep 1; shot HM-07-searc
 hm_tapchip "Users"; sleep 5; hm_hidekb; shot HM-08-search-users
 hm_tapui "Moshe Fx"; sleep 6; shot HM-09-profile
 hm_mark profile-follow; hm_find "Follow"; sleep 4; shot HM-10-profile-followed
-hm_find "Message"; sleep 5; shot HM-11-profile-message; key 4; sleep 2
+hm_find "Message"; sleep 5; shot HM-11-profile-message; hm_hidekb; key 4; sleep 3
 hm_find "Followers"; sleep 5; shot HM-12-followers-list; key 4; sleep 2
 hm_tapui "More"; sleep 1; shot HM-13-profile-menu
 hm_tapui "Report this user"; sleep 2
