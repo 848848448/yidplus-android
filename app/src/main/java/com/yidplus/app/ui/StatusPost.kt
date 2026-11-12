@@ -252,16 +252,16 @@ private fun PostStatus(startMedia: Boolean) {
             Spacer(Modifier.height(10.dp))
             if (!ime) Text(Statuses.privacyHint(privacy), Modifier.padding(horizontal = 16.dp, vertical = 2.dp), color = Color.White.copy(alpha = .8f), fontSize = 13.sp)
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp), contentPadding = PaddingValues(end = 8.dp)) {
+                LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(end = 6.dp)) {
                     items(listOf("followers" to "Followers", "public" to "Everyone", "private" to "Only me")) { (k, label) ->
                         val on = privacy == k
                         Box(Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) Color.White else Color(0x4D000000)).tap(RoundedCornerShape(16.dp)) { privacy = k }
-                            .padding(horizontal = 12.dp, vertical = 7.dp)) {
-                            Text(label, color = if (on) Color.Black else Color.White, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1)
+                            .padding(horizontal = 10.dp, vertical = 7.dp)) {
+                            Text(label, color = if (on) Color.Black else Color.White, fontSize = 13.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1)
                         }
                     }
                 }
-                Box(Modifier.size(56.dp).clip(CircleShape).background(if (posting) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { post() },
+                Box(Modifier.size(50.dp).clip(CircleShape).background(if (posting) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { post() },
                     contentAlignment = Alignment.Center) {
                     Icon(Sym.Send, "Post status", tint = Color.White, modifier = Modifier.size(24.dp))
                 }

@@ -84,7 +84,7 @@ import org.json.JSONObject
 import java.net.URLEncoder
 
 /* QA only (fixture account): `adb shell am broadcast -a com.yidplus.app.QA_SM --es page <name>` opens helper SM's pages by name.
- * Registered while the Music tab is on screen (MainActivity's QA_OPEN list belongs to another helper). */
+ * Registered while the Chats status strip or the Music tab is on screen (MainActivity's QA_OPEN list belongs to another helper). */
 fun smQaOpen(page: String) {
     when (page) {
         "updates" -> Nav.open(SmUpdatesPage())
@@ -104,15 +104,28 @@ fun smQaOpen(page: String) {
     android.util.Log.i("YidFx", "SM-STEP open $page")
 }
 
+private object SmQaHub {
+    var users = 0
+    var receiver: android.content.BroadcastReceiver? = null
+}
+
+/** Mounted by the status strip (Chats) and the Music tab; one receiver however many are on screen. */
 @Composable
 fun SmQaReceiver() {
-    val c = ctx()
-    DisposableEffect(Unit) {
+    val c = ctx().applicationContext
+    DisposableEffect(com.yidplus.app.data.Fixture.on) {
         if (!com.yidplus.app.data.Fixture.on) return@DisposableEffect onDispose { }
-        val r = object : android.content.BroadcastReceiver() {
-            override fun onReceive(x: android.content.Context?, i: android.content.Intent?) { smQaOpen(i?.getStringExtra("page") ?: "") }
+        SmQaHub.users++
+        if (SmQaHub.receiver == null) {
+            val r = object : android.content.BroadcastReceiver() {
+                override fun onReceive(x: android.content.Context?, i: android.content.Intent?) { smQaOpen(i?.getStringExtra("page") ?: "") }
+            }
+            androidx.core.content.ContextCompat.registerReceiver(c, r, android.content.IntentFilter("com.yidplus.app.QA_SM"), androidx.core.content.ContextCompat.RECEIVER_EXPORTED)
+            SmQaHub.receiver = r
         }
-        androidx.core.content.ContextCompat.registerReceiver(c, r, android.content.IntentFilter("com.yidplus.app.QA_SM"), androidx.core.content.ContextCompat.RECEIVER_EXPORTED)
-        onDispose { runCatching { c.unregisterReceiver(r) } }
+        onDispose {
+            SmQaHub.users--
+            if (SmQaHub.users <= 0) { SmQaHub.users = 0; SmQaHub.receiver?.let { r -> runCatching { c.unregisterReceiver(r) } }; SmQaHub.receiver = null }
+        }
     }
 }

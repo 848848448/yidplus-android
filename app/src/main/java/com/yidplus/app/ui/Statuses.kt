@@ -273,6 +273,7 @@ object Statuses {
 /** WhatsApp-style status circles: "My status" first (tap = view mine or post, long-press / + = post), then everyone else. */
 @Composable
 fun StatusStrip() {
+    SmQaReceiver()
     if (SiteConfig.hidden("statuses")) return
     val res = Statuses.res
     LaunchedEffect(Session.me?.id) { res.load() }

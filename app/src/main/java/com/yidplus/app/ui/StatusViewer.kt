@@ -152,8 +152,27 @@ import org.json.JSONObject
 
 /** "5m ago", "2h ago", "Nov 4" (never "Nov 4 ago"). */
 fun stAgo(s: String?): String {
-    val a = ago(s)
-    return when { a.isBlank() || a == "now" -> "just now"; a.last() in "mhd" && a.dropLast(1).all { it.isDigit() } -> "$a ago"; else -> a }
+    // WhatsApp's status times: "Just now", "12 minutes ago", "Today, 10:21", "Yesterday, 22:05", then the date.
+    val t = smParseTime(s) ?: return ago(s).let { a -> if (a.isBlank() || a == "now") "Just now" else a }
+    val now = System.currentTimeMillis()
+    val mins = ((now - t) / 60_000L).toInt()
+    if (mins < 1) return "Just now"
+    if (mins < 60) return if (mins == 1) "1 minute ago" else "$mins minutes ago"
+    val cal = java.util.Calendar.getInstance().apply { timeInMillis = t }
+    val today = java.util.Calendar.getInstance()
+    val hm = android.text.format.DateFormat.format(if (android.text.format.DateFormat.is24HourFormat(com.yidplus.app.ui.SmPrefs.appCtx ?: return ago(s))) "HH:mm" else "h:mm a", t).toString()
+    val sameDay = cal.get(java.util.Calendar.YEAR) == today.get(java.util.Calendar.YEAR) && cal.get(java.util.Calendar.DAY_OF_YEAR) == today.get(java.util.Calendar.DAY_OF_YEAR)
+    today.add(java.util.Calendar.DAY_OF_YEAR, -1)
+    val yest = cal.get(java.util.Calendar.YEAR) == today.get(java.util.Calendar.YEAR) && cal.get(java.util.Calendar.DAY_OF_YEAR) == today.get(java.util.Calendar.DAY_OF_YEAR)
+    return when { sameDay -> "Today, $hm"; yest -> "Yesterday, $hm"; else -> android.text.format.DateFormat.format("d MMM", t).toString() + ", $hm" }
+}
+
+/** The site's times: ISO "2026-11-11T18:10:00.000Z" or D1's "2026-11-11 18:10:00" (UTC). */
+fun smParseTime(s: String?): Long? {
+    if (s.isNullOrBlank()) return null
+    val v = s.trim().replace(' ', 'T').let { if (it.endsWith("Z") || Regex("[+-]\\d\\d:?\\d\\d$").containsMatchIn(it)) it else it + "Z" }
+    return runCatching { java.time.Instant.parse(v).toEpochMilli() }.getOrNull()
+        ?: runCatching { java.time.OffsetDateTime.parse(v).toInstant().toEpochMilli() }.getOrNull()
 }
 
 /** Full-screen status viewer. [userId] = whose statuses to start with (null = the first one with something new). */
@@ -350,13 +369,13 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                         textAlign = TextAlign.Center, lineHeight = if (slide.text.length > 120) 28.sp else 36.sp, style = TextStyle(textDirection = TextDirection.Content))
                 }
             }
-            if (slide.media != null && slide.text.isNotBlank()) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+            if (slide.media != null && slide.text.isNotBlank()) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().alpha(if (held) 0f else 1f)
                 .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xB3000000)))).padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 84.dp)) {
                 Text(smLinkify(slide.text), color = Color.White, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), style = TextStyle(textDirection = TextDirection.Content))
             }
         }
         // Top: progress bars + who + actions
-        Column(Modifier.align(Alignment.TopCenter).fillMaxWidth().background(Brush.verticalGradient(listOf(Color(0x99000000), Color.Transparent)))
+        Column(Modifier.align(Alignment.TopCenter).fillMaxWidth().alpha(if (held) 0f else 1f).background(Brush.verticalGradient(listOf(Color(0x99000000), Color.Transparent)))
             .padding(start = 6.dp, end = 6.dp, top = 8.dp, bottom = 14.dp)) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                 user.slides.indices.forEach { j ->
@@ -412,7 +431,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
             }
         }
         // Bottom: views for mine, reply + react for others
-        if (!readOnly) Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 10.dp, vertical = 10.dp)) {
+        if (!readOnly) Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().alpha(if (held) 0f else 1f).navigationBarsPadding().imePadding().padding(horizontal = 10.dp, vertical = 10.dp)) {
             if (reactBar) Row(Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp).clip(RoundedCornerShape(28.dp)).background(Color(0xCC1F1F1F))
                 .padding(horizontal = 6.dp, vertical = 4.dp)) {
                 SmReactions.forEachIndexed { i, e ->
@@ -475,14 +494,14 @@ private fun StViewersSheet(slide: StSlide, onClose: () -> Unit) {
             shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp), color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.navigationBarsPadding()) {
                 Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(viewers?.let { "Viewed by ${it.size}" } ?: "Viewed by", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                    Text(viewers?.let { "Viewed by ${if (it.isEmpty()) slide.views else it.size}" } ?: "Viewed by", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     IconBtn(Sym.Close, "Close", onClose, modifier = Modifier.firstFocus(always = true))
                 }
                 val v = viewers
                 when {
                     failed -> Text("Could not load viewers", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     v == null -> SkeletonRows(Modifier.fillMaxWidth(), rows = 2)
-                    v.isEmpty() -> Text("No views yet", Modifier.fillMaxWidth().padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                    v.isEmpty() -> Text(if (slide.views > 0) "${slide.views} views. The names are not available for this one." else "No views yet", Modifier.fillMaxWidth().padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
                     else -> LazyColumn { items(v) { u ->
                         Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                             Avatar(Api.abs(u.strOrNull("photo_url")), u.str("nickname").ifBlank { "User" }, 44.dp)

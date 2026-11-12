@@ -41,6 +41,7 @@ import java.io.File
 /** Helper SM (2.1): small things the statuses, music and photo viewer share. Local-only settings live in prefs "sm". */
 object SmPrefs {
     private var ctx: Context? = null
+    val appCtx: Context? get() = ctx
     private fun p() = ctx?.getSharedPreferences("sm", Context.MODE_PRIVATE)
     val muted = mutableStateListOf<String>()
     val highlights = mutableStateListOf<JSONObject>()
