@@ -85,7 +85,7 @@ fun HomeScreen() {
     var hdrShown by remember { mutableStateOf(true) }
     LaunchedEffect(view) { hdrShown = true }
     // Coming back to the tab (or opening it from elsewhere) always shows the search pill and the chips.
-    LaunchedEffect(Nav.tab) { hdrShown = true }
+    LaunchedEffect(Nav.tab, Nav.stack.size, Nav.homeDetail) { hdrShown = true }
     val hdrConn = remember { object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
         // Any finger move toward the top brings the pill and chips back (even on a short list that cannot scroll, or at its top
         // where pull-to-refresh takes the drag); only a real scroll down hides them.
