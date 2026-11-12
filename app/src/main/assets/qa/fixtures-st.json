@@ -1,0 +1,413 @@
+{
+ "/api/profile": {
+  "ok": true,
+  "profile": {
+   "id": "demo-me",
+   "nickname": "משה'לע",
+   "email": "owner@example.com",
+   "bio": "YID PLUS 👑 owner",
+   "location": "Brooklyn, NY",
+   "website": "https://yidplus.com",
+   "instagram": "",
+   "youtube": "",
+   "birthday": "",
+   "profile_color": "#1F6F5C",
+   "verified": 1,
+   "role": "owner",
+   "is_owner": true,
+   "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+   "privacy_profile": "public",
+   "privacy_messages": "everyone",
+   "is_private": 0,
+   "show_online": 1,
+   "read_receipts": 1,
+   "notif_messages": 1,
+   "notif_likes": 1,
+   "notif_followers": 1,
+   "notif_channels": 1
+  },
+  "stats": {
+   "shorts": 12,
+   "music": 3,
+   "messages": 1480,
+   "profile_views": 236,
+   "followers": 58
+  },
+  "sessions": [
+   {
+    "id": "s1",
+    "created_at": "2026-11-11T18:30:00.000Z"
+   },
+   {
+    "id": "s2",
+    "created_at": "2026-11-08T12:00:00.000Z"
+   }
+  ],
+  "login_logs": [
+   {
+    "ip": "72.89.14.201",
+    "action": "login",
+    "created_at": "2026-11-12T03:58:00.000Z"
+   },
+   {
+    "ip": "72.89.14.201",
+    "action": "fail",
+    "created_at": "2026-11-12T03:57:10.000Z"
+   },
+   {
+    "ip": "108.41.77.9",
+    "action": "login",
+    "created_at": "2026-11-10T21:14:00.000Z"
+   },
+   {
+    "ip": "108.41.77.9",
+    "action": "login",
+    "created_at": "2026-11-07T08:02:00.000Z"
+   }
+  ]
+ },
+ "/api/profile?user_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "profile": {
+   "id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+   "nickname": "DealPoint",
+   "first_name": "Deal Point",
+   "bio": "Best deals in Boro Park 🛒 Shorts every day",
+   "location": "Brooklyn, NY",
+   "website": "https://dealpoint.example.com",
+   "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+   "banner_url": null,
+   "profile_color": "#1565C0",
+   "verified": 1,
+   "role": "user",
+   "is_private": 0,
+   "i_blocked": false,
+   "stats": {
+    "shorts": 2,
+    "music": 1,
+    "messages": 0
+   }
+  }
+ },
+ "/api/follows?user_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "followers": 214,
+  "following": 38,
+  "is_following": false,
+  "is_private": false,
+  "has_pending_request": false
+ },
+ "/api/statuses?user_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "statuses": [
+   {
+    "user_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nickname": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "slides": [
+     {
+      "id": "st-dp-1",
+      "type": "text",
+      "text": "New deals tonight! 🔥",
+      "bg": "linear-gradient(135deg,#0d47a1,#42a5f5)",
+      "created_at": "2026-11-12T01:00:00.000Z"
+     }
+    ]
+   }
+  ]
+ },
+ "/api/music?owner_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "tracks": [
+   {
+    "id": "mt-dp-1",
+    "title": "א פרייליכע ניגון",
+    "artist": "DealPoint",
+    "owner_nick": "DealPoint",
+    "audio_url": "/api/media/music%2Ffx-dp-1.mp3",
+    "cover_url": null,
+    "plays": 51,
+    "liked": false
+   }
+  ]
+ },
+ "/api/follows?followers=1&user_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-y",
+    "nickname": "Yossi Klein",
+    "photo_url": null,
+    "verified": 0
+   },
+   {
+    "id": "u-private",
+    "nickname": "Shloimy",
+    "photo_url": null,
+    "verified": 0
+   },
+   {
+    "id": "u-r",
+    "nickname": "Ruchy_W",
+    "photo_url": null,
+    "verified": 0
+   },
+   {
+    "id": "u-m",
+    "nickname": "Mendy.B",
+    "photo_url": null,
+    "verified": 1
+   }
+  ]
+ },
+ "/api/follows?following=1&user_id=5df73439-246d-43d2-9b1e-fd72b30432e1": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-y",
+    "nickname": "Yossi Klein",
+    "photo_url": null,
+    "verified": 0
+   },
+   {
+    "id": "u-m",
+    "nickname": "Mendy.B",
+    "photo_url": null,
+    "verified": 1
+   }
+  ]
+ },
+ "/api/profile?user_id=u-private": {
+  "ok": false,
+  "error": "Profile is private"
+ },
+ "/api/profile?user_id=demo-me": {
+  "ok": true,
+  "profile": {
+   "id": "demo-me",
+   "nickname": "משה'לע",
+   "email": "owner@example.com",
+   "bio": "YID PLUS 👑 owner",
+   "location": "Brooklyn, NY",
+   "website": "https://yidplus.com",
+   "instagram": "",
+   "youtube": "",
+   "birthday": "",
+   "profile_color": "#1F6F5C",
+   "verified": 1,
+   "role": "owner",
+   "is_owner": true,
+   "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+   "privacy_profile": "public",
+   "privacy_messages": "everyone",
+   "is_private": 0,
+   "show_online": 1,
+   "read_receipts": 1,
+   "notif_messages": 1,
+   "notif_likes": 1,
+   "notif_followers": 1,
+   "notif_channels": 1,
+   "stats": {
+    "shorts": 12,
+    "music": 3,
+    "messages": 1480,
+    "profile_views": 236,
+    "followers": 58
+   },
+   "i_blocked": false
+  }
+ },
+ "/api/follows?user_id=demo-me": {
+  "ok": true,
+  "followers": 58,
+  "following": 21,
+  "is_following": false,
+  "is_private": false,
+  "has_pending_request": false
+ },
+ "/api/follows?followers=1&user_id=demo-me": {
+  "ok": true,
+  "users": [
+   {
+    "id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nickname": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": 1
+   },
+   {
+    "id": "u-y",
+    "nickname": "Yossi Klein",
+    "photo_url": null,
+    "verified": 0
+   },
+   {
+    "id": "u-r",
+    "nickname": "Ruchy_W",
+    "photo_url": null,
+    "verified": 0
+   },
+   {
+    "id": "u-m",
+    "nickname": "Mendy.B",
+    "photo_url": null,
+    "verified": 1
+   }
+  ]
+ },
+ "/api/shorts?owner_id=demo-me": {
+  "ok": true,
+  "shorts": [
+   {
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 172,
+    "comments": 0,
+    "created_at": "2026-08-23T09:31:26.393Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "6630b5bb-e297-417b-bc25-fdd9d23836d9",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 66,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:13.056Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664752750_9f8a7c54-32f9-41fa-807a-a2c2a7d801db.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5e56e09b-5e91-45f9-8050-fe3fdc1b2dbb",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 53,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:04.668Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664744352_fdfd8d82-e9c6-43af-b79a-7ec42554c92c.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "62644202-0563-4309-9d49-3c1fbb726af6",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 46,
+    "comments": 0,
+    "created_at": "2026-08-02T09:58:54.413Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664734151_b0cbc4e4-f0c5-4a72-bf15-270a3b766033.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5619e488-7ae0-488d-a3fa-5152f974c6dd",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 50,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:48.714Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534528381_ad0aa0cc-73aa-4b01-8a4b-3398d13e43ab.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "32edd03e-3407-4ef8-8fbb-ce959445ad6d",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 48,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:32.634Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534511982_43f067fd-b777-4268-8993-f3c8a653a22b.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "f05f9306-56bf-4c14-ad37-5b75425e1e68",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 45,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:17.773Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534497248_c52834ee-dcf0-4afa-a788-80a69ca96ebb.mp4",
+    "liked": false,
+    "saved": false
+   }
+  ]
+ },
+ "/api/support-chats?self=1": {
+  "ok": true,
+  "chat": {
+   "id": "fx-sc1",
+   "status": "open"
+  },
+  "messages": [
+   {
+    "id": "m1",
+    "sender_type": "user",
+    "text": "My Shorts won't load since yesterday",
+    "created_at": "2026-11-12T03:40:00.000Z"
+   },
+   {
+    "id": "m2",
+    "sender_type": "admin",
+    "text": "Hi! Sorry about that. Which phone do you have? We're looking at it now.",
+    "created_at": "2026-11-12T03:44:00.000Z"
+   }
+  ]
+ },
+ "/api/support-chats?chat_id=fx-sc1": {
+  "ok": true,
+  "chat": {
+   "id": "fx-sc1",
+   "status": "open"
+  },
+  "messages": [
+   {
+    "id": "m1",
+    "sender_type": "user",
+    "text": "My Shorts won't load since yesterday",
+    "created_at": "2026-11-12T03:40:00.000Z"
+   },
+   {
+    "id": "m2",
+    "sender_type": "admin",
+    "text": "Hi! Sorry about that. Which phone do you have? We're looking at it now.",
+    "created_at": "2026-11-12T03:44:00.000Z"
+   }
+  ]
+ },
+ "/api/auth/check-nick?nick=moshe_123": {
+  "ok": true,
+  "available": true
+ }
+}

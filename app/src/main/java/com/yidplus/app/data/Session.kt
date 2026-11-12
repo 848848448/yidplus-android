@@ -39,15 +39,19 @@ object Session {
 
     suspend fun login(email: String, password: String, code: String?): Login {
         return try {
-            val body = JSONObject().put("email", email.trim()).put("password", password)
-            if (!code.isNullOrBlank()) body.put("totp_code", code.trim())
+            // Same body as the site's AUTH.login: {email, password, totp_code, fingerprint} (the fingerprint is a stable id of this install).
+            val body = JSONObject().put("email", email.trim()).put("password", password).put("totp_code", code?.trim().orEmpty()).put("fingerprint", fingerprint())
             Api.post("/api/auth/login", body)
             refresh()
             if (me != null) Login.Ok else Login.Fail("Signed in, but the session didn't stick. Try again.")
         } catch (e: Api.ApiError) {
-            if (e.body?.optBoolean("need_2fa") == true) Login.Need2fa else Login.Fail(e.message ?: "Couldn't sign in")
+            if (e.body?.optBoolean("need_2fa") == true) Login.Need2fa
+            else Login.Fail((e.message ?: "").let { if (it.contains("Invalid", true)) "Wrong email or password." else it.ifBlank { "Login failed." } })
         } catch (e: Exception) { Login.Fail(Api.friendly(e)) }
     }
+
+    /** A random id made once per install, sent as the site's device fingerprint (used by the site for device bans). */
+    fun fingerprint(): String = prefs.getString("fp", null) ?: ("app-" + java.util.UUID.randomUUID().toString().replace("-", "").take(24)).also { prefs.edit().putString("fp", it).apply() }
 
     suspend fun logout() {
         runCatching { com.yidplus.app.Push.unregister(ctx) }

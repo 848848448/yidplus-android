@@ -91,7 +91,7 @@ data class NwItem(val type: String, val id: String, val media: String?, val nick
     val key get() = "$type:$id"
     companion object {
         fun list(j: JSONObject): List<NwItem> = j.optJSONArray("items").objects().map {
-            NwItem(it.str("item_type").ifBlank { "short" }, it.str("item_id").ifBlank { it.str("id") }, Api.abs(it.strOrNull("media_url")),
+            NwItem(it.str("item_type").ifBlank { "short" }, it.str("item_id").ifBlank { it.str("id") }, Api.abs(it.strOrNull("media_url") ?: it.strOrNull("audio_url") ?: it.strOrNull("video_url")),
                 it.str("nick").ifBlank { it.str("nickname") }, it.str("caption"), it.str("title"), it.str("artist"), Api.abs(it.strOrNull("cover_url")),
                 it.strOrNull("saved_at") ?: it.strOrNull("viewed_at") ?: it.strOrNull("created_at"))
         }.filter { it.id.isNotBlank() }
@@ -194,6 +194,12 @@ private fun openNwItem(x: NwItem, c: Context) {
     val m = x.media
     if (m == null) { toast(c, "This item can't be played here"); return }
     WatchHistory.record(x.type, x.id)
+    // 2.1 ST: a song plays in the music player (cover, controls, notification), not as a bare video.
+    if (x.type == "music" || x.type == "song") {
+        Music.play(c, listOf(com.yidplus.app.data.Track(x.id, x.title.ifBlank { "Untitled" }, x.artist, x.cover, m, "", null, 0, false)), 0)
+        android.util.Log.i("YidFx", "PLAY music ${x.id}")
+        return
+    }
     Nav.open(Screen.Video(m, if (x.type == "short") "@" + x.nick.ifBlank { "Short" } else x.title.ifBlank { "Song" }))
 }
 

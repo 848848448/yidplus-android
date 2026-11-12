@@ -43,10 +43,10 @@ fun SettingsTopCard(onEdit: () -> Unit) {
     val verified = (p?.optInt("verified") ?: 0) == 1
     val role = when { me?.isOwner == true || me?.role == "owner" -> "Owner"; me?.role == "admin_super" -> "Super admin"; me?.role == "admin_limited" -> "Moderator"; else -> null }
     Surface(color = MaterialTheme.colorScheme.surface) {
-        Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 12.dp)) {
+        Column(Modifier.fillMaxWidth().firstFocus().tap(RoundedCornerShape(0.dp), onClick = onEdit).padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.tap(CircleShape, onClick = onEdit)) {
-                    Avatar(photo, nick.ifBlank { "Me" }, 72.dp)
+                Box {
+                    Avatar(photo, nick.ifBlank { "Me" }, 60.dp)
                     Box(Modifier.align(Alignment.BottomEnd).size(24.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
                         contentAlignment = Alignment.Center) { Icon(Icons.Filled.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(13.dp)) }
                 }
@@ -60,12 +60,10 @@ fun SettingsTopCard(onEdit: () -> Unit) {
                     Text("@$nick", style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Ltr)), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (!email.isNullOrBlank()) Text(email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-            }
-            Box(Modifier.padding(top = 12.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp))
-                .firstFocus().tap(RoundedCornerShape(20.dp), onClick = onEdit).padding(vertical = 9.dp), contentAlignment = Alignment.Center) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.padding(start = 8.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp)).padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Edit, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
-                    Text("Edit Profile", Modifier.padding(start = 6.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                    Text("Edit Profile", Modifier.padding(start = 4.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
@@ -123,12 +121,13 @@ fun ReadingCard() {
 /** theme.js "Appearance": Dark Mode, Text Size S / M / L. */
 @Composable
 fun AppearanceCard() {
+    val c = ctx()
     SettingsCard("Appearance") {
         LabelRow(Icons.Filled.DarkMode, "Dark mode", if (Prefs.theme == 0) "Same as the phone" else null) {
-            Segmented(listOf("Light", "Dark", "Auto"), when (Prefs.theme) { 1 -> 0; 2 -> 1; else -> 2 }) { Prefs.setThemeMode(when (it) { 0 -> 1; 1 -> 2; else -> 0 }) }
+            Segmented(listOf("Light", "Dark", "Auto"), when (Prefs.theme) { 1 -> 0; 2 -> 1; else -> 2 }) { Prefs.setThemeMode(when (it) { 0 -> 1; 1 -> 2; else -> 0 }); toast(c, when (it) { 0 -> "Light mode"; 1 -> "Dark mode"; else -> "Same as the phone" }); android.util.Log.i("YidFx", "LOOK theme=$it") }
         }
         RowDivider(64.dp)
-        LabelRow(Icons.Filled.FormatSize, "Text size") { Segmented(listOf("S", "M", "L"), UiPrefs.textSize) { UiPrefs.setText(it) } }
+        LabelRow(Icons.Filled.FormatSize, "Text size") { Segmented(listOf("S", "M", "L"), UiPrefs.textSize) { UiPrefs.setText(it); toast(c, "Text size: " + listOf("Small", "Normal", "Large")[it.coerceIn(0, 2)]); android.util.Log.i("YidFx", "LOOK text_size=$it") } }
     }
 }
 

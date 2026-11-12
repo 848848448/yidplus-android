@@ -144,6 +144,7 @@ object SettingsProfile {
             val body = MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart(field, "$field.$ext", bytes.toRequestBody(type.toMediaType())).build()
             val req = Request.Builder().url(Api.BASE + "/api/profile").put(body).header("Accept", "application/json").build()
+            if (com.yidplus.app.data.Fixture.answer(req) != null) { withContext(Dispatchers.Main) { res.load(force = true) }; return@withContext null }
             Api.http.newCall(req).execute().use { r ->
                 val t = r.body?.string() ?: ""
                 if (!r.isSuccessful) return@withContext runCatching { JSONObject(t).optString("error") }.getOrNull()?.takeIf { it.isNotBlank() } ?: "The site answered ${r.code}"
@@ -543,6 +544,22 @@ class SettingsSecurity : PageScreen() {
                 if (sessions.size > 1) {
                     RowDivider(0.dp)
                     SettingRow(Icons.Filled.Devices, "Sign out all devices", "Including this phone", danger = true) { logoutAll = true }
+                }
+            }
+            // 2.1 ST: the site's GET /api/profile already returns login_logs (ip, action, created_at); shown here like Telegram's "Active sessions" history.
+            val logs = SettingsProfile.res.data?.optJSONArray("login_logs").objects()
+            if (logs.isNotEmpty()) SettingsCard("Recent sign-ins") {
+                logs.take(10).forEachIndexed { i, l ->
+                    if (i > 0) RowDivider(64.dp)
+                    val fail = l.str("action").contains("fail", true)
+                    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(if (fail) Icons.Filled.Security else Icons.Filled.Devices, null, tint = if (fail) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
+                        Column(Modifier.padding(start = 24.dp).weight(1f)) {
+                            Text(if (fail) "Failed sign-in attempt" else "Signed in", style = MaterialTheme.typography.bodyLarge, color = if (fail) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+                            Text(listOf(l.str("ip"), ago(l.str("created_at")).let { if (it.isBlank()) "" else if (it == "now") "just now" else "$it ago" }).filter { it.isNotBlank() }.joinToString(" · "),
+                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                 }
             }
         }

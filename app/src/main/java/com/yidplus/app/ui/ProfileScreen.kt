@@ -49,6 +49,9 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Pin
+import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Share
@@ -125,6 +128,17 @@ fun ProfileScreen() {
                     "AdminBroadcast" -> AdminBroadcastPage()
                     "AdminBadWords" -> AdminBadWordsPage()
                     "AdminWeb" -> AdminWebPage("ads")
+                    // 2.1 ST pages
+                    "UserProfile" -> StProfilePage("5df73439-246d-43d2-9b1e-fd72b30432e1", "DealPoint")
+                    "PrivateProfile" -> StProfilePage("u-private", "Shloimy")
+                    "MyProfile" -> StProfilePage("demo-me", Session.me?.nickname ?: "")
+                    "Followers" -> StFollowListPage("demo-me", Session.me?.nickname ?: "", true)
+                    "Following" -> StFollowListPage("5df73439-246d-43d2-9b1e-fd72b30432e1", "DealPoint", false)
+                    "Support" -> StSupportPage()
+                    "Register" -> StRegisterPage("YID2026")
+                    "Forgot" -> StForgotPage("avrumy@example.com")
+                    "Reset" -> StResetPage("fx-reset-token")
+                    "AppLock" -> StAppLockPage()
                     else -> null
                 }
                 if (v == "off") SettingsProfile.demo = false
@@ -145,6 +159,7 @@ fun ProfileScreen() {
                 Column(Modifier.widthIn(max = 640.dp).fillMaxWidth()) {
                     // The website's Settings page, in its order (js/theme.js buildSettingsPage).
                     if (!signedIn) Surface(color = MaterialTheme.colorScheme.surface) { LoginForm() } else {
+                        StVerifyBanner()
                         SettingsTopCard { Nav.open(SettingsEditProfile()) }
                         SettingsCard {
                             // TODO(coordinator): SavedItemsPage / HistoryPage come from feat-new2 (ui/SavedHistory.kt); wire with Nav.open(SavedItemsPage()) / Nav.open(HistoryPage()).
@@ -161,6 +176,8 @@ fun ProfileScreen() {
                         SettingsCard("Account") {
                             SettingRow(Icons.Filled.Edit, "Profile", "Name, photo, cover, bio, location, links") { Nav.open(SettingsEditProfile()) }
                             RowDivider(64.dp)
+                            SettingRow(Icons.Filled.Visibility, "My profile page", "See your profile the way others see it") { Session.me?.let { openUserProfile(it.id, it.nickname, it.photo) } ?: Nav.open(StProfilePage("demo-me")) }
+                            RowDivider(64.dp)
                             SettingRow(Icons.Filled.Lock, "Privacy", "Private account, active status, read receipts, who can message you") { Nav.open(SettingsPrivacy()) }
                             RowDivider(64.dp)
                             SettingRow(Icons.Filled.Security, "Security", "Password, two-factor authentication") { Nav.open(SettingsSecurity()) }
@@ -173,6 +190,8 @@ fun ProfileScreen() {
                             SettingRow(Icons.Filled.Devices, "Devices", if (devs > 0) "$devs active · sign out other devices" else "Where you're signed in") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
                             SettingRow(Icons.Filled.Block, "Blocked users", null) { Nav.open(SettingsBlocked()) }
+                            RowDivider(64.dp)
+                            SettingRow(Icons.Filled.Pin, "App lock", if (StLock.enabled) "On · asks your PIN when the app opens" else "Off · lock the app with a 4-digit PIN") { Nav.open(StAppLockPage()) }
                             RowDivider(64.dp)
                             SettingRow(Icons.Filled.Notifications, "Activity", "Likes, comments, follows") { Nav.open(SoNotifsPage()) }
                         }
@@ -241,20 +260,24 @@ private fun LoginForm() {
         if (!form) {
             PrimaryButton("Sign in with email", { form = true }, Modifier.fillMaxWidth().firstFocus())
             SecondaryButton("Sign in with Google", { GoogleAuth.start(c) }, Modifier.fillMaxWidth())
-            if (com.yidplus.app.data.SiteConfig.registrationOpen) SecondaryButton("Create an account", { Nav.open(Screen.Web(Api.BASE + "/?signup=1")) }, Modifier.fillMaxWidth(), icon = Icons.Filled.PersonAdd)
+            if (com.yidplus.app.data.SiteConfig.registrationOpen) SecondaryButton("Create an account", { Nav.open(StRegisterPage()) }, Modifier.fillMaxWidth(), icon = Icons.Filled.PersonAdd)
+            Text("Need help? Start chat", Modifier.align(Alignment.CenterHorizontally).tap { Nav.open(StSupportPage("login")) }.padding(8.dp),
+                color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
             return@Column
         }
         OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(always = true), label = { Text("Email") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
-        OutlinedTextField(pw, { pw = it }, Modifier.fillMaxWidth(), label = { Text("Password") }, singleLine = true, visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = if (need2fa) ImeAction.Next else ImeAction.Done), keyboardActions = KeyboardActions(onDone = { go() }))
+        StPasswordField(pw, { pw = it }, "Password", done = !need2fa, onDone = { go() })
         if (need2fa) OutlinedTextField(code, { code = it.filter(Char::isDigit).take(6) }, Modifier.fillMaxWidth(), label = { Text("6-digit code") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done), keyboardActions = KeyboardActions(onDone = { go() }))
         if (err != null) Text(err!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         PrimaryButton(if (busy) "Signing in…" else "Sign in", { go() }, Modifier.fillMaxWidth(), enabled = !busy)
         SecondaryButton("Sign in with Google", { GoogleAuth.start(c) }, Modifier.fillMaxWidth())
-        Text("Forgot your password? Reset it on yidplus.com.", Modifier.tap { Nav.open(Screen.Web(Api.BASE + "/reset-password")) }.padding(6.dp),
-            color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Forgot password?", Modifier.tap { Nav.open(StForgotPage(email)) }.padding(8.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
+            Text("Need help?", Modifier.tap { Nav.open(StSupportPage("login")) }.padding(8.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
+        }
+        if (com.yidplus.app.data.SiteConfig.registrationOpen) SecondaryButton("Create an account", { Nav.open(StRegisterPage()) }, Modifier.fillMaxWidth(), icon = Icons.Filled.PersonAdd)
     }
 }
 
@@ -265,6 +288,7 @@ private fun AppSettings() {
     val scope = rememberCoroutineScope()
     val askNotif = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (!ok) toast(c, "Notifications are off in Android settings") }
     var pick by remember { mutableStateOf<String?>(null) }
+    var stExport by remember { mutableStateOf("") }
     val themes = listOf("Same as phone", "Light", "Dark")
     val sizes = listOf("Small", "Normal", "Large")
     SettingsCard("App") {
@@ -290,11 +314,18 @@ private fun AppSettings() {
         }
     }
     SettingsCard("Help") {
+        SettingRow(Icons.Filled.SupportAgent, "Help & Support", "Ask a question or chat with the YID PLUS team") { Nav.open(StSupportPage()) }
+        RowDivider(64.dp)
         SettingRow(Icons.Filled.Feedback, "Send feedback", "Report a problem or share an idea") { Nav.open(SettingsFeedback()) }
         if (Session.me != null || SettingsProfile.demo) {
             RowDivider(64.dp)
-            SettingRow(Icons.Filled.Download, "Download my data", "A copy of your profile, saved to Downloads") { scope.launch { toast(c, settingsExportData(c)) } }
+            SettingRow(Icons.Filled.Download, "Download my data", stExport.ifBlank { "Your account, posts, Shorts, statuses, music and sent messages" }) {
+                if (stExport.startsWith("Preparing")) return@SettingRow
+                scope.launch { toast(c, stExportMyData(c) { stExport = it }); stExport = "" }
+            }
         }
+        RowDivider(64.dp)
+        SettingRow(Icons.Filled.PersonAdd, "Invite a friend", "Share YID PLUS with someone") { share(c, "Join me on YID PLUS, the Yiddish community: chats, channels, Shorts and music. https://yidplus.com") }
         RowDivider(64.dp)
         SettingRow(Icons.Filled.Info, "About YID PLUS", "Version ${BuildConfig.VERSION_NAME} · privacy · terms") { Nav.open(SettingsAbout()) }
     }
