@@ -1,0 +1,169 @@
+[00:05:47] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[00:05:50] screen 480x640 @ 240 dpi
+[00:05:50] ---- Signed in (QA fixture account) ----
+[00:05:54] fixture true
+[00:06:02] shot F01-home-signedin
+[00:06:02] open https://yidplus.com/chat
+[00:06:08] shot F02-chats-list
+[00:06:09] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="BL"  text="Berel Links"  text="Yesterday"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:06:16] shot F03-chat-dm
+[00:06:18] shot F03b-chat-dm-up
+[00:06:22] open https://yidplus.com/chat
+[00:06:36] shot F04-chat-group
+[00:06:38] shot F04b-group-up
+[00:06:39] shot F04c-group-top
+[00:06:43] shot F05-message-actions
+[00:06:52] shot F06-notifications
+[00:06:55] tab Home
+[00:06:58] shot F07-home-header
+[00:06:58] open https://yidplus.com/shorts
+[00:07:07] shot F08-shorts-signedin
+[00:07:07] tab Profile
+[00:07:10] shot F09-profile-signedin
+[00:07:21] shot F09b-profile-scrolled
+[00:07:35] open https://yidplus.com/chat
+[00:07:39] shot F10-chats-dark
+[00:07:45] shot F11-chat-dark
+[00:07:52] screen 1080x2400 @ 420 dpi
+[00:07:59] open https://yidplus.com/chat
+[00:08:04] shot F12-phone-chats
+[00:08:10] shot F13-phone-chat
+[00:08:14] screen 480x640 @ 240 dpi
+[00:08:14] ---- qa/fx-ch.sh ----
+[00:08:20] open https://yidplus.com/chat
+[00:08:28] shot CH-01-chat-list
+[00:08:30] CH list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="BL"  text="Berel Links"  text="Yesterday"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:08:32] shot CH-02-chips-scrolled
+[00:08:34] shot CH-02b-list-scrolled
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[372,363][456,447]" 
+[00:08:39] chtap 414 405
+[00:08:41] shot CH-03-fab-menu
+  node: text="New group" class="android.widget.TextView" content-desc="" bounds="[248,244][367,274]" 
+[00:08:45] chtap 307 259
+  node: text="Group name" class="android.widget.TextView" content-desc="" bounds="[48,165][182,172]" 
+[00:08:51] chtap 115 168
+[00:08:54] shot CH-03b-new-group
+  node: text="" class="android.widget.Button" content-desc="Create" bounds="[405,51][477,123]" 
+[00:08:57] chtap 441 87
+  YidFx: 11-12 00:08:55.681  3411  3446 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[00:09:11] open https://yidplus.com/chat
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[372,363][456,447]" 
+[00:09:19] chtap 414 405
+  node: text="New chat" class="android.widget.TextView" content-desc="" bounds="[248,172][352,202]" 
+[00:09:24] chtap 300 187
+[00:09:31] shot CH-03c-new-chat
+[00:09:32] chtap: 'Dovid New' not on screen
+[00:09:46] open https://yidplus.com/chat
+  node: text="" class="android.widget.Button" content-desc="Search chats" bounds="[339,51][405,123]" 
+[00:09:53] chtap 372 87
+[00:09:56] keyboard shown after typing in search: mInputShown=true
+[00:10:00] keyboard shown after Back from search: mInputShown=false
+[00:10:00] shot CH-04-search-closed
+[00:10:06] open chat r-g1
+[00:10:06] shot CH-05-group-bottom
+  node: text="Yanky is typing…" class="android.widget.TextView" content-desc="" bounds="[141,90][287,123]" 
+[00:10:07] CH ok: 'typing' on screen
+  YidFx: 11-12 00:10:00.270  3982  4017 I YidFx   : POST /api/chat/read {"room_id":"r-g1"}
+[00:10:09] shot CH-05b-group-up
+[00:10:11] shot CH-05c-group-top
+[00:10:13] open chat r-g1
+[00:10:14] shot CH-06-group-reopen-instant
+[00:10:24] open chat r-g2
+[00:10:24] shot CH-07-group-photo-header
+  node: text="&#128222; Group voice call · 12 min · 2:30 PM" class="android.widget.TextView" content-desc="" bounds="[77,419][404,442]" 
+[00:10:26] CH ok: 'Group voice call' on screen
+[00:10:33] open chat r-dm4
+[00:10:33] shot CH-07b-dm-missed-call
+  node: text="&#128222; Missed voice call · 6:30 PM" class="android.widget.TextView" content-desc="" bounds="[108,419][372,442]" 
+[00:10:34] CH ok: 'Missed voice call' on screen
+[00:10:43] open chat r-dm1
+[00:10:43] shot CH-08-dm-online-ticks-reacts
+[00:10:51] open chat r-dm2
+[00:10:51] shot CH-09-dm-last-seen-voice
+[00:10:59] open chat r-spy
+[00:10:59] shot CH-10-admin-spectating
+  node: text="&#128065; Viewing as Admin" class="android.widget.TextView" content-desc="" bounds="[141,87][329,120]" 
+[00:11:01] CH ok: 'Viewing as Admin' on screen
+[00:11:03] CH ok: 'Join group' not shown
+[00:11:11] open chat r-g4
+[00:11:11] shot CH-11-not-joined-group
+  node: text="Join group" class="android.widget.TextView" content-desc="" bounds="[188,502][292,532]" 
+[00:11:14] chtap 240 517
+  YidFx: 11-12 00:11:12.898  3982  4014 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+[00:11:26] open chat r-links
+[00:11:26] shot CH-12-links-cards
+[00:11:29] shot CH-12b-links-up
+[00:11:31] shot CH-12c-links-top
+[00:11:36] screen 1080x2400 @ 420 dpi
+[00:11:43] open chat r-links
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[00:11:47] bubble at: 232 1978
+[00:11:49] shot CH-13-swipe-reply
+  node: text="Reply to Berel Links" class="android.widget.TextView" content-desc="" bounds="[135,1218][442,1276]" 
+[00:11:50] CH ok: 'Reply to' on screen
+  node: text="" class="android.view.View" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[00:11:58] chtap 1006 1423
+[00:11:59] shot CH-13b-swipe-reply-sent
+  YidFx: 11-12 00:11:56.183  3982  4016 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,776][417,825]" 
+[00:12:05] long-press 232 800
+[00:12:05] shot CH-14-long-press-menu
+  node: text="Reply" class="android.widget.TextView" content-desc="" bounds="[272,825][377,883]" 
+[00:12:09] chtap 324 854
+  node: text="" class="android.view.View" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[00:12:17] chtap 1006 1423
+  YidFx: 11-12 00:12:15.344  3982  4016 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,505][417,554]" 
+[00:12:24] long-press 232 529
+  node: text="&#128077;" class="android.widget.TextView" content-desc="" bounds="[694,660][774,734]" 
+[00:12:27] chtap 734 697
+[00:12:29] shot CH-14b-reacted
+  YidFx: 11-12 00:12:25.774  3982  4016 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1280][417,1329]" 
+[00:12:35] long-press 232 1304
+  node: text="Forward" class="android.widget.TextView" content-desc="" bounds="[272,1077][430,1135]" 
+[00:12:39] chtap 351 1106
+[00:12:42] shot CH-15-forward
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[195,443][403,492]" 
+[00:12:46] chtap 299 467
+  YidFx: 11-12 00:12:44.046  3982  4015 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[00:12:57] long-press 232 1978
+  node: text="Pin" class="android.widget.TextView" content-desc="" bounds="[272,1203][335,1261]" 
+[00:13:00] chtap 303 1232
+  YidFx: 11-12 00:12:58.776  3982  4015 I YidFx   : PUT /api/chat/rooms {"room_id":"r-links","pinned_message_id":"l9"}
+[00:13:03] shot CH-16-pinned
+[00:13:08] chtap: 'Send' not on screen
+[00:13:09] shot CH-17-sent-text
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[00:13:15] long-press 232 1978
+  node: text="Delete" class="android.widget.TextView" content-desc="" bounds="[272,1707][394,1765]" 
+[00:13:18] chtap 333 1736
+[00:13:20] shot CH-17b-delete-confirm
+  node: text="Yes" class="android.widget.TextView" content-desc="" bounds="[760,1208][821,1261]" 
+[00:13:23] chtap 790 1234
+  YidFx: 11-12 00:13:21.697  3982  4015 I YidFx   : DELETE /api/chat?id=l9 < 0 bytes>
+  node: text="" class="android.view.View" content-desc="Photo" bounds="[32,442][505,915]" 
+[00:13:32] shot CH-18-photo-viewer
+  node: text="" class="android.widget.Button" content-desc="Attach" bounds="[701,2140][817,2266]" 
+[00:13:40] chtap 759 2203
+[00:13:42] shot CH-19-attach-sheet
+  node: text="Gallery" class="android.widget.TextView" content-desc="" bounds="[115,1947][224,2005]" 
+[00:13:46] chtap 169 1976
+[00:13:50] shot CH-19b-picker
+[00:13:52] chtap: 'ch_test.png' not on screen
+[00:13:57] shot CH-19c-photo-sent
+[00:13:58] chtap: 'Record voice message' not on screen
+[00:14:02] shot CH-20-recording
+[00:14:04] chtap: 'Send voice message' not on screen
+[00:14:13] screen 480x640 @ 240 dpi
+[00:14:21] open chat r-links
+[00:14:21] shot CH-21-links-dark
+[00:14:23] open https://yidplus.com/chat
+[00:14:26] shot CH-22-list-dark
+[00:14:28] CH perf: 11-12 00:10:45.530  3982  3982 I YidPerf : Chat content 35 ms after open (cache) 11-12 00:10:53.866  3982  3982 I YidPerf : Chat content 19 ms after open (cache) 11-12 00:11:05.280  3982  3982 I YidPerf : Chat content 42 ms after open 11-12 00:11:19.179  3982  3982 I YidPerf : Chat content 43 ms after open 11-12 00:11:36.619  3982  3982 I YidPerf : Chat content 57 ms after open (cache) 11-12 00:14:17.922  3982  3982 I YidPerf : Chat content 1940 ms after open 
+[00:14:28] CH all writes: 24
+[00:14:28] fixture writes the app would have sent: 24
+[00:14:32] fixture false
