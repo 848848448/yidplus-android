@@ -98,7 +98,7 @@ class AdHealthCheckPage : PageScreen() {
     @Composable override fun Content() {
         var tick by remember { mutableIntStateOf(0) }
         val res = adRes("/api/admin/diagnostics", tick)
-        val probes = listOf("Feed / posts" to "/api/posts", "Chat rooms" to "/api/chat/rooms", "Shorts" to "/api/shorts", "Music" to "/api/music", "Status updates" to "/api/statuses",
+        val probes = listOf("Feed / posts" to "/api/posts?probe=1", "Chat rooms" to "/api/chat/rooms", "Shorts" to "/api/shorts?probe=1", "Music" to "/api/music?probe=1", "Status updates" to "/api/statuses",
             "Channels" to "/api/channels", "Your session" to "/api/auth/me", "Admin stats" to "/api/admin/stats")
         val results = remember { mutableStateMapOf<String, Pair<Boolean, String>>() }
         LaunchedEffect(tick) {
@@ -285,8 +285,8 @@ class AdNuclearPage : PageScreen() {
             adCard("☢️ Hide / restore content", hint = "Hiding never deletes anything. Restore brings it all back.") {
                 nuclearCats.forEach { (id, label, desc) ->
                     AdRow(label, sub = desc)
-                    AdPills("🔴 Hide all" to { a.sure("⚠️ HIDE ALL $id?", "Are you sure?") { adminDo(c, scope, "🔴 Hidden!") { Api.post("/api/admin/nuclear", jo("category" to id, "action" to "hide")) } } },
-                        "🟢 Restore" to { a.sure("⚠️ RESTORE ALL $id?", "Are you sure?", danger = false) { adminDo(c, scope, "🟢 Restored!") { Api.post("/api/admin/nuclear", jo("category" to id, "action" to "restore")) } } })
+                    AdPills("🔴 Hide all" to { a.sure("⚠️ HIDE ALL $id?", "Are you sure?", okLabel = "Hide all") { adminDo(c, scope, "🔴 Hidden!") { Api.post("/api/admin/nuclear", jo("category" to id, "action" to "hide")) } } },
+                        "🟢 Restore" to { a.sure("⚠️ RESTORE ALL $id?", "Are you sure?", danger = false, okLabel = "Restore all") { adminDo(c, scope, "🟢 Restored!") { Api.post("/api/admin/nuclear", jo("category" to id, "action" to "restore")) } } })
                 }
             }
             item { SectionTitle("👥 Nuclear permissions") }
