@@ -207,7 +207,7 @@ fun ShOptionsSheet(s: Clip, speed: Float, onSpeed: (Float) -> Unit, onDismiss: (
             Spacer(Modifier.height(6.dp))
             SettingRow(Sym.ArrowUpward, "Auto-scroll", switch = ShPrefs.auto) { ShPrefs.changeAuto(!ShPrefs.auto) }
             if (s.fromSrc) SettingRow(Sym.Block, "Not interested") { onDismiss(); onNotInterested() }
-            if (s.fromSrc) SettingRow(Sym.VisibilityOff, "Don’t show videos from " + s.creator.ifBlank { "this creator" }) { onDismiss(); onHide() }
+            if (s.fromSrc) SettingRow(Sym.VisibilityOff, "Don’t show this creator", s.creator.ifBlank { null }) { onDismiss(); onHide() }
             SettingRow(Sym.AccountCircle, s.creator.ifBlank { "This creator" } + "’s videos") { onDismiss(); onCreator() }
             SettingRow(Sym.Link, "Copy link") { onDismiss(); onCopy() }
             SettingRow(Sym.Bookmarks, "Saved videos (${Feeds.saved.size})") { onDismiss(); onSaved() }
