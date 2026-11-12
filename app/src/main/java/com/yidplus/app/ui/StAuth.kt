@@ -139,7 +139,7 @@ class StRegisterPage(val invite: String = "") : PageScreen() {
             Logo(Modifier.align(Alignment.CenterHorizontally))
             if (invite.isNotBlank()) StMsg("You were invited! Your invite code is filled in.", true)
             StMsg(msg, ok)
-            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Email address") }, singleLine = true,
+            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth(), label = { Text("Email address") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
             OutlinedTextField(nick, { nick = it.replace(" ", "") }, Modifier.fillMaxWidth(), label = { Text("Nickname (cannot be changed later)") }, singleLine = true,
                 isError = nickOk == false,
@@ -186,7 +186,7 @@ class StForgotPage(val email0: String = "") : PageScreen() {
             Icon(Sym.Mail, null, Modifier.size(56.dp).align(Alignment.CenterHorizontally), tint = MaterialTheme.colorScheme.primary)
             Text("Type the email of your account. We'll send you a link to set a new password.", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             StMsg(msg, ok)
-            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Email address") }, singleLine = true,
+            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth(), label = { Text("Email address") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { go() }))
             PrimaryButton(if (busy) "Sending…" else "Send reset link", { if (!busy) go() }, Modifier.fillMaxWidth(), enabled = !busy)
             SecondaryButton("Need help? Start chat", { Nav.open(StSupportPage("login")) }, Modifier.fillMaxWidth())
@@ -223,10 +223,10 @@ class StResetPage(val token: String) : PageScreen() {
         StFormPage("Set a new password") {
             StMsg(msg, ok)
             if (!ok) {
-                StPasswordField(pw, { pw = it }, "New password", Modifier.firstFocus())
+                StPasswordField(pw, { pw = it }, "New password")
                 StPasswordField(pw2, { pw2 = it }, "Confirm new password", done = true, onDone = { go() })
                 PrimaryButton(if (busy) "Saving…" else "Save New Password", { if (!busy) go() }, Modifier.fillMaxWidth(), enabled = !busy)
-            } else PrimaryButton("Sign in", { Nav.go(Tab.Profile) }, Modifier.fillMaxWidth().firstFocus(always = true))
+            } else PrimaryButton("Sign in", { Nav.go(Tab.Profile) }, Modifier.fillMaxWidth())
         }
     }
 }

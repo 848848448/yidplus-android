@@ -59,10 +59,10 @@ fun SettingsTopCard(onEdit: () -> Unit) {
                     Text("@$nick", style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Ltr)), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (!email.isNullOrBlank()) Text(email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                Row(Modifier.padding(start = 8.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp)).padding(horizontal = 10.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Sym.Edit, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
-                    Text("Edit Profile", Modifier.padding(start = 4.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                // WhatsApp keeps this corner small (a QR icon); ours is a round edit button so the name has room at 480 px.
+                Box(Modifier.padding(start = 6.dp).size(40.dp).clip(CircleShape).border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = .5f), CircleShape)
+                    .semantics { contentDescription = "Edit profile" }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Edit, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 }
             }
         }

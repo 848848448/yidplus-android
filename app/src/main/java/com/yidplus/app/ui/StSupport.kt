@@ -245,7 +245,7 @@ class StSupportPage(val from: String = "settings") : PageScreen() {
             if (composer != null) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
                 Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (composer == "__live__") IconBtn(Sym.AttachFile, "Attach a photo", { pickPhoto.launch("image/*") })
-                    OutlinedTextField(text, { text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text(if (composer == "__email__") "Your email..." else "Type your message...") },
+                    OutlinedTextField(text, { text = it }, Modifier.weight(1f), placeholder = { Text(if (composer == "__email__") "Your email..." else "Type your message...") },
                         maxLines = 4, shape = RoundedCornerShape(24.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = if (composer == "__email__") KeyboardType.Email else KeyboardType.Text, imeAction = ImeAction.Send),
                         keyboardActions = KeyboardActions(onSend = { submit() }))
