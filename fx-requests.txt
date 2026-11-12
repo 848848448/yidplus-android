@@ -1,0 +1,53 @@
+--------- beginning of kernel
+--------- beginning of main
+--------- beginning of system
+11-12 08:04:49.497  2586  2620 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 08:05:07.080  2586  2894 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-12 08:06:14.170  3254  3294 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 08:06:32.788  3496  3496 I YidFx   : SM-STEP music-tab
+11-12 08:07:07.853  3709  3709 I YidFx   : SM-STEP play
+11-12 08:07:16.264  3419  3455 I YidFx   : PUT /api/music {"id":"fxm1","play":true}
+11-12 08:07:16.264  3419  3455 I YidFx   : POST /api/history {"item_type":"music","item_id":"fxm1"}
+11-12 08:07:29.670  3419  3419 I YidFx   : SM-STEP open player
+11-12 08:07:56.580  4158  4158 I YidFx   : SM-STEP track-menu
+11-12 08:08:09.339  3419  3464 I YidFx   : POST /api/saves {"item_type":"music","item_id":"fxm2"}
+11-12 08:08:14.561  4278  4278 I YidFx   : SM-STEP album
+11-12 08:08:17.598  3419  3419 I YidFx   : SM-STEP open album
+11-12 08:08:18.837  3419  3465 I YidFx   : PUT /api/music {"id":"fxm1","play":true}
+11-12 08:08:18.837  3419  3465 I YidFx   : POST /api/history {"item_type":"music","item_id":"fxm1"}
+11-12 08:08:24.399  3419  3464 I YidFx   : PUT /api/music {"id":"fxm5","play":true}
+11-12 08:08:24.399  3419  3453 I YidFx   : POST /api/history {"item_type":"music","item_id":"fxm5"}
+11-12 08:08:31.613  4351  4351 I YidFx   : SM-STEP music-video
+11-12 08:08:44.311  3419  3465 I YidFx   : PUT /api/music {"id":"fxm6","play":true}
+11-12 08:08:44.311  3419  3464 I YidFx   : POST /api/history {"item_type":"music","item_id":"fxm6"}
+11-12 08:08:47.247  3419  3419 I YidFx   : SM-STEP open player
+11-12 08:09:01.654  4502  4502 I YidFx   : SM-STEP music-upload
+11-12 08:09:04.686  3419  3419 I YidFx   : SM-STEP open upload
+11-12 08:09:05.076  3419  3453 I YidFx   : PUT /api/music {"id":"fxm6","play":true}
+11-12 08:09:05.077  3419  3455 I YidFx   : POST /api/history {"item_type":"music","item_id":"fxm6"}
+11-12 08:09:08.774  3419  3419 I YidFx   : LK-QA picked qa-pick.mp4 49152 bytes
+11-12 08:09:10.792  3419  3419 I YidFx   : LK-QA picked qa-pick.png 899 bytes
+11-12 08:09:20.843  3419  3453 I YidFx   : SM-UPLOAD POST /api/music {"title":"QA test","artist":"משה'לע","type":"single","audio":<file qa-pick.mp4>,"cover":<file qa-pick.png>}
+11-12 08:09:20.843  3419  3453 I YidFx   : POST /api/music <multipart/form-data; boundary=ec957d4b-0729-4a23-8fac-83b403385ad7 50767 bytes>
+11-12 08:09:30.701  4658  4658 I YidFx   : SM-STEP updates
+11-12 08:09:33.737  3419  3419 I YidFx   : SM-STEP open updates
+11-12 08:09:40.357  4700  4700 I YidFx   : SM-STEP status-other
+11-12 08:09:41.440  3419  3455 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-12 08:09:48.982  3419  3453 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-yanky"}
+11-12 08:09:48.982  3419  3455 I YidFx   : POST /api/chat {"room_id":"fx-380348580412","type":"text","text":"🔥 (reacted to your status)"}
+11-12 08:09:57.924  3419  3455 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-12 08:10:08.373  5034  5034 I YidFx   : SM-STEP mute
+11-12 08:10:08.581  3419  3455 I YidFx   : PUT /api/statuses {"view":true,"id":"st-d-1"}
+11-12 08:10:27.347  3419  3419 I YidFx   : SM-STEP open updates
+11-12 08:10:42.087  3419  3419 I YidFx   : SM-STEP open highlights
+11-12 08:10:52.036  5312  5312 I YidFx   : SM-STEP status-mine
+11-12 08:11:04.635  3419  3453 I YidFx   : PUT /api/statuses {"viewers":true,"id":"st-me-1"}
+11-12 08:11:18.340  5509  5509 I YidFx   : SM-STEP post-text
+11-12 08:11:27.951  3419  3465 I YidFx   : POST /api/statuses {"type":"text","text":"Gut Morgen","bg":"linear-gradient(135deg,#1a1a2e,#16213e)","privacy":"followers"}
+11-12 08:11:32.886  5590  5590 I YidFx   : SM-STEP post-media
+11-12 08:11:39.235  3419  3419 I YidFx   : LK-QA picked qa-pick.png 899 bytes
+11-12 08:11:50.250  3419  3464 I YidFx   : SM-UPLOAD POST /api/statuses {"type":"media","text":"Caption test","caption":"Caption test","privacy":"followers","media":<file status.png>}
+11-12 08:11:50.250  3419  3464 I YidFx   : POST /api/statuses <multipart/form-data; boundary=07a975b8-187c-4a5d-aade-f29466c33024 1578 bytes>
+11-12 08:11:56.258  5718  5718 I YidFx   : SM-STEP gallery
+11-12 08:12:00.296  3419  3419 I YidFx   : SM-STEP open gallery
+11-12 08:12:25.334  3419  3419 I YidFx   : SM-DOWNLOAD GET https://yidplus.com/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549 as 32a9be01-7448-43c7-b23d-cc89c97ce89f.png

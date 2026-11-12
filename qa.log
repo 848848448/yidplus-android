@@ -1,0 +1,163 @@
+[08:03:56] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[08:03:59] screen 480x640 @ 240 dpi
+[08:03:59] ---- Signed in (QA fixture account) ----
+[08:04:03] fixture true
+[08:04:12] shot F01-home-signedin
+[08:04:12] open https://yidplus.com/chat
+[08:04:17] shot F02-chats-list
+[08:04:18] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="Baruch"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[08:04:26] shot F03-chat-dm
+[08:04:28] shot F03b-chat-dm-up
+[08:04:31] open https://yidplus.com/chat
+[08:04:45] shot F04-chat-group
+[08:04:47] shot F04b-group-up
+[08:04:49] shot F04c-group-top
+[08:04:52] shot F05-message-actions
+[08:05:02] shot F06-notifications
+[08:05:04] tab Home
+[08:05:07] shot F07-home-header
+[08:05:07] open https://yidplus.com/shorts
+[08:05:16] shot F08-shorts-signedin
+[08:05:16] tab Profile
+[08:05:19] shot F09-profile-signedin
+[08:05:31] shot F09b-profile-scrolled
+[08:05:44] open https://yidplus.com/chat
+[08:05:48] shot F10-chats-dark
+[08:05:55] shot F11-chat-dark
+[08:06:01] screen 1080x2400 @ 420 dpi
+[08:06:10] open https://yidplus.com/chat
+[08:06:14] shot F12-phone-chats
+[08:06:21] shot F13-phone-chat
+[08:06:24] screen 480x640 @ 240 dpi
+[08:06:24] ---- qa/fx-sm.sh ----
+[08:06:33] sm step music-tab
+[08:06:33] tab Music
+[08:06:39] shot SM-01-music-tab
+[08:06:41] SM texts music-tab: Music|6 songs|Search music|Liked songs|Upload music|All|Albums|Singles|Music videos|Albums|See all|Chats, 18 unread|18|Chats|Music|Music|Shorts|Shorts|Channels|Channels|Settings|Settings|
+[08:06:44] sm_tap 'Albums'
+[08:06:46] shot SM-02-music-albums
+[08:06:50] sm_tap 'Music videos'
+[08:06:52] shot SM-03-music-videos
+[08:06:55] sm_tap 'All'
+[08:07:01] sm_tap 'Search music'
+[08:07:04] shot SM-04-music-search-empty
+[08:07:08] sm step play
+[08:07:12] sm_tap 'Singles'
+[08:07:14] shot SM-04b-music-singles
+[08:07:15] sm rec SM-video-music
+[08:07:21] sm_tap 'א נייע ניגון'
+[08:07:21] shot SM-05-song-playing-miniplayer
+[08:07:24] sm_tap 'Pause'
+[08:07:27] sm_tap 'Play'
+[08:07:27] tab Chats
+[08:07:34] sm open player
+[08:07:34] shot SM-05b-player
+[08:07:36] SM texts player: Back to music|Now playing|Share track|More|Save|א נייע ניגון|Mendy Weiss|Unlike|0:20|3:18|Shuffle off|Previous|Pause|Next|Repeat off|
+[08:07:38] shot SM-06-player-scrolled-upnext
+[08:07:41] sm_tap 'Shuffle off'
+[08:07:45] sm_tap 'Repeat off'
+[08:07:46] shot SM-07-player-shuffle-repeat
+[08:07:53] shot SM-08-miniplayer
+[08:07:57] sm video SM-video-music: 482782 bytes
+[08:07:57] sm step track-menu
+[08:07:57] tab Music
+[08:08:03] sm_tap 'Singles'
+[08:08:07] sm_tap 'More for שבת פרייד'
+[08:08:08] shot SM-09-track-menu
+[08:08:11] sm_tap 'Save'
+[08:08:15] sm step album
+[08:08:15] tab Chats
+[08:08:23] sm open album
+[08:08:23] shot SM-10-album-page
+[08:08:26] sm_tap 'Shuffle'
+[08:08:29] shot SM-11-album-shuffle
+[08:08:32] sm step music-video
+[08:08:32] tab Music
+[08:08:38] sm_tap 'Music videos'
+[08:08:44] sm_tap 'YID PLUS Theme (video)'
+[08:08:44] tab Chats
+[08:08:51] sm open player
+[08:08:59] sm_tap 'Video'
+[08:09:00] shot SM-12-player-video
+[08:09:02] sm step music-upload
+[08:09:02] tab Chats
+[08:09:09] sm open upload
+[08:09:09] shot SM-13-music-upload-empty
+[08:09:16] sm_tap 'Track title'
+[08:09:19] shot SM-14-music-upload-filled
+[08:09:23] sm_tap 'Upload'
+[08:09:27] shot SM-15-music-upload-sent
+[08:09:31] sm step updates
+[08:09:31] tab Chats
+[08:09:39] sm open updates
+[08:09:39] shot SM-16-updates-page
+[08:09:41] SM texts updates: Back|Updates|4 new|Text status|Refresh|מ|My status|6 views · Yesterday, 7:40 PM|Recent updates|Y|Yanky|Yesterday, 5:06 PM · 2 updates|D|DealPoint|Yesterday, 12:00 PM|Photo or video status|YID PLUS Theme (video)|משה'לע|Previous track|Play|Next track|
+[08:09:41] sm step status-other
+[08:09:42] sm rec SM-video-status
+[08:09:44] qa open status
+[08:09:44] shot SM-17-status-other
+[08:09:47] shot SM-17b-status-paused
+[08:09:49] shot SM-18-status-react-bar
+[08:09:52] shot SM-19-status-reacted
+[08:09:54] shot SM-20-status-menu-other
+[08:09:58] sm_tap 'Save to Highlights'
+[08:10:01] shot SM-21-status-next-slide
+[08:10:04] shot SM-22-status-prev
+[08:10:07] shot SM-24-status-swiped-down-closed
+[08:10:09] sm video SM-video-status: 613810 bytes
+[08:10:09] sm step mute
+[08:10:11] qa open status
+[08:10:17] SM texts mute-menu: Save to Highlights|Save to phone|Share|Mute DealPoint|
+[08:10:22] sm_tap 'Mute DealPoint'
+[08:10:24] tab Chats
+[08:10:33] sm open updates
+[08:10:39] sm_tap 'Muted updates (1)'
+[08:10:39] shot SM-25-updates-muted
+[08:10:39] tab Chats
+[08:10:46] sm open highlights
+[08:10:46] shot SM-26-highlights
+[08:10:50] sm_tap 'Remove'
+[08:10:51] shot SM-27-highlights-removed
+[08:10:52] sm step status-mine
+[08:10:54] qa open status_me
+[08:10:57] shot SM-28-status-mine
+[08:10:59] shot SM-29-status-menu-mine
+[08:11:02] sm_tap 'Privacy: Followers only'
+[08:11:02] shot SM-30-status-privacy
+[08:11:07] shot SM-31-status-viewers
+[08:11:15] sm_tap 'Delete'
+[08:11:15] shot SM-32-status-delete-confirm
+[08:11:19] sm step post-text
+[08:11:23] qa open post_status
+[08:11:24] shot SM-33-post-text-keyboard
+[08:11:26] shot SM-34-post-text-chips
+[08:11:30] sm_tap 'Post status'
+[08:11:33] sm step post-media
+[08:11:37] qa open post_status
+[08:11:46] sm_tap 'Add a caption…'
+[08:11:49] shot SM-35-post-media-caption
+[08:11:52] sm_tap 'Post status'
+[08:11:56] shot SM-36-post-media-sent
+[08:11:56] sm step gallery
+[08:11:57] sm rec SM-video-gallery
+[08:11:57] tab Chats
+[08:12:06] sm open gallery
+[08:12:07] shot SM-37-gallery-photo-chrome
+[08:12:08] shot SM-38-gallery-chrome-hidden
+[08:12:12] shot SM-39-gallery-key-zoom
+[08:12:19] SM gallery log: key zoom 2.50;key zoom 1.00;
+[08:12:21] shot SM-40-gallery-pinch
+[08:12:21] SM gallery log: key zoom 2.50;key zoom 1.00;pinch zoom 4.25;
+[08:12:23] SM gallery log: key zoom 2.50;key zoom 1.00;pinch zoom 4.25;double-tap zoom 1.00;
+[08:12:25] shot SM-41-gallery-menu
+[08:12:33] shot SM-42-gallery-second
+[08:12:39] sm video SM-video-gallery: 291155 bytes
+[08:12:47] shot SM-43-gallery-video
+[08:12:53] shot SM-44-gallery-broken-retry
+[08:12:59] shot SM-45-gallery-back-first
+[08:13:02] shot SM-46-gallery-dragged-closed
+[08:13:02] SM requests: SM-STEP open player;SM-STEP track-menu;POST /api/saves {"item_type":"music","item_id":"fxm2"};SM-STEP album;SM-STEP open album;PUT /api/music {"id":"fxm1","play":true};POST /api/history {"item_type":"music","item_id":"fxm1"};PUT /api/music {"id":"fxm5","play":true};POST /api/history {"item_type":"music","item_id":"fxm5"};SM-STEP music-video;PUT /api/music {"id":"fxm6","play":true};POST /api/history {"item_type":"music","item_id":"fxm6"};SM-STEP open player;SM-STEP music-upload;SM-STEP open upload;PUT /api/music {"id":"fxm6","play":true};POST /api/history {"item_type":"music","item_id":"fxm6"};SM-UPLOAD POST /api/music {"title":"QA test","artist":"משה'לע","type":"single","audio":<file qa-pick.mp4>,"cover":<file qa-pick.png>};POST /api/music <multipart/form-data; boundary=ec957d4b-0729-4a23-8fac-83b403385ad7 50767 bytes>;SM-STEP updates;SM-STEP open updates;SM-STEP status-other;PUT /api/statuses {"view":true,"id":"st-y-1"};POST /api/chat/rooms {"type":"private","other_user_id":"u-yanky"};POST /api/chat {"room_id":"fx-380348580412","type":"text","text":"🔥 (reacted to your status)"};PUT /api/statuses {"view":true,"id":"st-y-2"};SM-STEP mute;PUT /api/statuses {"view":true,"id":"st-d-1"};SM-STEP open updates;SM-STEP open highlights;SM-STEP status-mine;PUT /api/statuses {"viewers":true,"id":"st-me-1"};SM-STEP post-text;POST /api/statuses {"type":"text","text":"Gut Morgen","bg":"linear-gradient(135deg,#1a1a2e,#16213e)","privacy":"followers"};SM-STEP post-media;SM-UPLOAD POST /api/statuses {"type":"media","text":"Caption test","caption":"Caption test","privacy":"followers","media":<file status.png>};POST /api/statuses <multipart/form-data; boundary=07a975b8-187c-4a5d-aade-f29466c33024 1578 bytes>;SM-STEP gallery;SM-STEP open gallery;SM-DOWNLOAD GET https://yidplus.com/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549 as 32a9be01-7448-43c7-b23d-cc89c97ce89f.png;
+[08:13:02] fixture writes the app would have sent: 50
+[08:13:06] fixture false
