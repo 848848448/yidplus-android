@@ -60,7 +60,7 @@ fun AdUserMore(id: String, nick: String, u: JSONObject, detail: JSONObject?) {
                 tag = if (d.b("banned")) "🚫 Banned" to AdRed else null) {
                 if (d.b("banned")) return@AdRow
                 if (d.s("ip").isBlank() && d.s("fingerprint").isBlank()) { toast(c, "No device info"); return@AdRow }
-                a.sure("Ban device", "Ban this device/IP? Nobody will be able to sign in or register from it.") {
+                a.sure("Ban device?", "Ban this device/IP? Nobody will be able to sign in or register from it.") {
                     adminDo(c, scope, "🚫 Device banned") { Api.post("/api/admin/device-bans", jo("ip" to d.s("ip").ifBlank { null }, "fingerprint" to d.s("fingerprint").ifBlank { null }, "reason" to "Banned from user 360 view")) }
                 }
             }

@@ -138,12 +138,12 @@ class AdCallsPage : PageScreen() {
                 val ring = k.s("status") == "ringing"
                 AdRow(k.s("caller_nick").ifBlank { "?" } + " → " + k.s("callee_nick").ifBlank { "?" }, sub = if (ring) "● Ringing…" else "● In call · " + adWhen(k.s("updated_at")),
                     icon = if (k.s("kind") == "audio") Sym.Mic else Sym.Videocam, iconTint = if (ring) AdAmber else AdGreen) {
-                    a.sure("End call", "Force-end this call?") { adminDo(c, scope, "Call ended", { scope.launch { res.load(true) } }) { Api.post("/api/admin/calls", jo("action" to "end", "call_id" to k.s("id"))) } }
+                    a.sure("End call?", "Force-end this call?") { adminDo(c, scope, "Call ended", { scope.launch { res.load(true) } }) { Api.post("/api/admin/calls", jo("action" to "end", "call_id" to k.s("id"))) } }
                 }
             }
             items(groups, key = { "g" + it.s("room_id") }) { g ->
                 AdRow("Group call" + g.s("room_name").let { if (it.isNotBlank()) " · $it" else "" }, sub = "● " + g.n("n") + " on the call", icon = Sym.Groups) {
-                    a.sure("End group call", "Force-end this group call?") { adminDo(c, scope, "Group call ended", { scope.launch { res.load(true) } }) { Api.post("/api/admin/calls", jo("action" to "end_group", "room_id" to g.s("room_id"))) } }
+                    a.sure("End group call?", "Force-end this group call?") { adminDo(c, scope, "Group call ended", { scope.launch { res.load(true) } }) { Api.post("/api/admin/calls", jo("action" to "end_group", "room_id" to g.s("room_id"))) } }
                 }
             }
             if (live.isNotEmpty() || groups.isNotEmpty()) item { AdHint("Tap a live call to end it.") }
