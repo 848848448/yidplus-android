@@ -244,13 +244,13 @@ fun AiAvatar(size: Dp, square: Boolean = false) {
 
 /** The pinned row at the top of the chat list, styled like a chat row (site: _aiChatRow). Hidden when the owner turned AI off. */
 @Composable
-fun AiChatRow(onOpen: () -> Unit) {
+fun AiChatRow(compact: Boolean = false, onOpen: () -> Unit) {
     LaunchedEffect(Unit) { AiChat.load(network = false); AiChat.refreshSwitch() }
     if (AiChat.siteOff) return
     Column(Modifier.fillMaxWidth().background(Green.copy(alpha = if (isDark()) .14f else .06f))) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).tap(RoundedCornerShape(0.dp)) { onOpen() }.padding(horizontal = 16.dp, vertical = 8.dp),
+        Row(Modifier.fillMaxWidth().heightIn(min = if (compact) 60.dp else 72.dp).tap(RoundedCornerShape(0.dp)) { onOpen() }.padding(horizontal = 16.dp, vertical = if (compact) 4.dp else 8.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            AiAvatar(52.dp)
+            AiAvatar(if (compact) 44.dp else 52.dp)
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {

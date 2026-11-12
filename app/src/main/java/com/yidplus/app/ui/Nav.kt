@@ -48,6 +48,11 @@ object Nav {
     var shortsDeepLink by mutableStateOf<String?>(null)
     /** The list row that opened the screen on top, so Back puts the keypad focus back on it. */
     var lastOpened by mutableStateOf<String?>(null)
+    /**
+     * Goes up by one each time the user taps the tab that is already open (with nothing on top). Like WhatsApp, a
+     * screen's list scrolls back to the top: `val r = Nav.reselect[Tab.Chats] ?: 0; LaunchedEffect(r) { if (r > 0) listState.animateScrollToItem(0) }`.
+     */
+    val reselect = androidx.compose.runtime.mutableStateMapOf<Tab, Int>()
 
     fun go(t: Tab) {
         val ok = if (com.yidplus.app.data.SiteConfig.visible(t)) t else start
