@@ -19,9 +19,9 @@ hm_swipe() { timeout 10 adb shell input swipe 240 "$1" 240 "$2" 350; sleep "${3:
 # 0. The site's Home page as the "Feed" chip: greeting + Hebrew date, announcement, tiles, composer, Hot Shorts, Popular channels, community posts.
 tab Home; sleep 4
 hm_tapui "Feed"; sleep 7; shot HM-30-feed-top
-hm_swipe 560 220; shot HM-31-feed-shorts-channels
-hm_swipe 560 160; hm_swipe 560 160; shot HM-32-feed-posts
-hm_swipe 160 600; hm_swipe 160 600; hm_swipe 160 600
+hm_swipe 430 150; shot HM-31-feed-shorts-channels
+hm_swipe 430 130; hm_swipe 430 130; shot HM-32-feed-posts
+hm_swipe 150 450; hm_swipe 150 450; hm_swipe 150 450; hm_swipe 430 300
 hm_tapui "What's happening\?"; sleep 1
 timeout 10 adb shell input text "HM%stest%spost"; sleep 1; hm_hidekb; shot HM-33-feed-composer
 hm_mark feed-post; hm_tapui "Post"; sleep 4; shot HM-34-feed-posted
@@ -48,8 +48,9 @@ key 4; sleep 1; key 4; sleep 2
 tab Home; sleep 3
 hm_tapui "Search"; sleep 2
 timeout 10 adb shell input text "moshe"; sleep 3
-hm_tapui "Search all of YID PLUS"; sleep 6; shot HM-07-search-all
-hm_tapui "Users"; sleep 5; shot HM-08-search-users
+hm_tapui "Search all of YID PLUS"; sleep 6; hm_hidekb; sleep 1; shot HM-07-search-all
+timeout 10 adb shell input swipe 420 205 60 205 300; sleep 1
+hm_tapui "Users"; sleep 5; hm_hidekb; shot HM-08-search-users
 hm_tapui "Moshe Fx"; sleep 6; shot HM-09-profile
 hm_mark profile-follow; hm_tapui "Follow"; sleep 4; shot HM-10-profile-followed
 hm_tapui "Message"; sleep 5; shot HM-11-profile-message; key 4; sleep 2
@@ -76,13 +77,13 @@ hm_tapui "Followers"; sleep 5; shot HM-25-my-followers
 hm_mark follower-remove; hm_tapui "Remove"; sleep 1; shot HM-26-remove-follower-confirm
 hm_tapui "Remove"; sleep 3; shot HM-27-follower-removed
 key 4; sleep 3
-hm_swipe 560 260; shot HM-20-member-channel-scrolled
+hm_swipe 500 200; shot HM-20-member-channel-scrolled
 key 4; sleep 2
 
 # 4. Notifications page: day groups, pull to refresh, Mark all read, Open chats.
 tab Home; sleep 3
 hm_tapui "Notifications"; sleep 5; shot HM-21-notifications
-hm_swipe 200 560 3; shot HM-22-notifications-pulled
+hm_swipe 200 560 3
 timeout 10 adb shell input swipe 240 200 240 200 1000; sleep 2; shot HM-24-notification-longpress
 hm_mark notif-markread; hm_tapui "Mark as read"; sleep 2
 hm_mark notifs-readall; hm_tapui "Mark all read"; sleep 3; shot HM-23-notifications-read
@@ -103,9 +104,9 @@ timeout 10 adb shell input swipe 240 250 240 250 900; sleep 2; key 4
 hm_rec_stop
 hm_rec_start HM-video-feed-profile
 hm_tapui "Feed"; sleep 4
-hm_swipe 560 220 1; hm_swipe 560 200 1; hm_swipe 200 600 1
+hm_swipe 430 150 1; hm_swipe 430 150 1; hm_swipe 150 450 1
 hm_tapui "Search"; sleep 1; timeout 10 adb shell input text "moshe"; sleep 1
-hm_tapui "Search all of YID PLUS"; sleep 3; hm_tapui "Users"; sleep 3
+hm_tapui "Search all of YID PLUS"; sleep 3; hm_hidekb; timeout 10 adb shell input swipe 420 205 60 205 300; sleep 1; hm_tapui "Users"; sleep 3; hm_hidekb
 hm_tapui "Moshe Fx"; sleep 4; hm_tapui "Followers"; sleep 3; key 4
 hm_rec_stop
 key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
