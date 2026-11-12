@@ -153,11 +153,11 @@ fun AdBars(points: List<Pair<String, Int>>, color: Color = AdGreen, height: Dp =
 @Composable
 fun AdRow(title: String, sub: String? = null, photo: String? = null, letter: String? = null, icon: ImageVector? = null, iconTint: Color = AdGreen,
           trail: String? = null, tag: Pair<String, Color>? = null, sub2: String? = null, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
-    Row(modifier.fillMaxWidth().heightIn(min = 60.dp).then(if (onClick != null) Modifier.tap(RoundedCornerShape(0.dp), onClick = onClick) else Modifier)
+    Row(modifier.fillMaxWidth().heightIn(min = 64.dp).then(if (onClick != null) Modifier.tap(RoundedCornerShape(0.dp), onClick = onClick) else Modifier)
         .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         when {
             icon != null -> Box(Modifier.size(40.dp).clip(CircleShape).background(iconTint.copy(alpha = .13f)), contentAlignment = Alignment.Center) { Icon(icon, null, tint = iconTint, modifier = Modifier.size(22.dp)) }
-            letter != null || photo != null -> Avatar(Api.abs(photo), letter ?: title, 44.dp)
+            letter != null || photo != null -> Avatar(Api.abs(photo), letter ?: title, 48.dp)
         }
         Column(Modifier.weight(1f).padding(start = if (icon != null || letter != null || photo != null) 12.dp else 0.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -177,7 +177,7 @@ fun AdRow(title: String, sub: String? = null, photo: String? = null, letter: Str
 @OptIn(ExperimentalLayoutApi::class)
 fun AdPills(vararg pills: Pair<String, () -> Unit>, color: Color = MaterialTheme.colorScheme.primary) {
     FlowRow(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        pills.forEach { (t, f) -> AdminPill(t, color = if (t.startsWith("🚫") || t.startsWith("🗑") || t.startsWith("Delete") || t.startsWith("Ban") || t.startsWith("Remove") || t.startsWith("Revoke") || t.startsWith("End")) AdRed else color, onClick = f) }
+        pills.forEach { (t, f) -> AdminPill(t, color = if (t.startsWith("🚫") || t.startsWith("🗑") || t.startsWith("Delete") || t.startsWith("Ban") || t.startsWith("Remove") || t.startsWith("Revoke") || t.startsWith("End") || t.startsWith("Block")) AdRed else color, onClick = f) }
     }
 }
 
@@ -202,7 +202,11 @@ class AdAsk {
     var danger by mutableStateOf(true)
     var prompt by mutableStateOf<AdPromptSpec?>(null)
     var menu by mutableStateOf<Pair<String, List<Pair<String, () -> Unit>>>?>(null)
-    fun sure(title: String, text: String, danger: Boolean = true, ok: () -> Unit) { this.danger = danger; confirm = Triple(title, text, ok) }
+    var okText by mutableStateOf("OK")
+    /** WhatsApp-style confirm: the button names the action ("Block", "Remove", "End call"), never a bare Yes. */
+    fun sure(title: String, text: String, danger: Boolean = true, okLabel: String? = null, ok: () -> Unit) {
+        this.danger = danger; okText = okLabel ?: adVerb(title); confirm = Triple(title, text, ok)
+    }
     fun ask(title: String, label: String, value: String = "", number: Boolean = false, lines: Int = 1, ok: (String) -> Unit) { prompt = AdPromptSpec(title, label, value, number, lines, ok) }
     fun actions(title: String, vararg items: Pair<String, () -> Unit>) { menu = title to items.toList() }
 }
@@ -214,7 +218,7 @@ fun rememberAsk(): AdAsk = remember { AdAsk() }
 /** Draws whatever [a] is asking right now. Put it once at the end of a panel. */
 @Composable
 fun AdDialogs(a: AdAsk) {
-    a.confirm?.let { (t, x, ok) -> SettingsConfirmDialog(t, x, if (a.danger) "Yes" else "OK", danger = a.danger, onOk = ok, onDismiss = { a.confirm = null }) }
+    a.confirm?.let { (t, x, ok) -> SettingsConfirmDialog(t, x, a.okText, danger = a.danger, onOk = ok, onDismiss = { a.confirm = null }) }
     a.prompt?.let { p ->
         var v by remember(p) { mutableStateOf(p.value) }
         AlertDialog(onDismissRequest = { a.prompt = null }, title = { Text(p.title) },
@@ -304,4 +308,12 @@ suspend fun adMultipart(c: android.content.Context, path: String, fields: List<P
     }
     val body = mb.build(); val buf = okio.Buffer(); body.writeTo(buf)
     return Api.upload(path, buf.readByteArray(), body.contentType().toString())
+}
+
+/** "Remove track?" → "Remove track", "⚠️ HIDE ALL shorts?" → "Hide all shorts", long titles → "OK". */
+fun adVerb(title: String): String {
+    val t = title.replace(Regex("[^\\p{L}\\p{N} '’-]"), " ").trim().replace(Regex("\\s+"), " ")
+    if (t.isEmpty() || t.length > 18) return "OK"
+    val w = if (t == t.uppercase()) t.lowercase() else t
+    return w.replaceFirstChar { it.uppercase() }
 }
