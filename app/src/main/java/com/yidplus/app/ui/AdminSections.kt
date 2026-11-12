@@ -222,6 +222,7 @@ data class AdminUserPage(val id: String, val rowJson: String) : PageScreen() {
                     }
                 }
             }
+            if (!protected) AdUserMore(id, nick, u, detail)
             if (protected) SettingsHint("This is the owner's account. It can't be changed here.") else {
                 SettingsCard("Actions") {
                     SettingRow(Icons.Filled.Verified, if (verified) "Remove verified mark" else "Verify", if (verified) "The ✅ goes away" else "Gives the green ✅ mark", modifier = Modifier.firstFocus()) {
@@ -277,7 +278,7 @@ data class AdminUserPage(val id: String, val rowJson: String) : PageScreen() {
     }
 }
 
-// ── Reports (admin.js buildReportsPanel: GET /api/reports; Ban = PUT /api/admin/users {id, blocked:true}; Dismiss = DELETE /api/reports?id=) ──
+// ── Reports (admin.js buildReportsPanel: GET /api/reports; Ban = PUT /api/admin/users {id, blocked:true}; Resolve = PUT /api/reports {id, resolved:true} like admin-control.js; 2.1 home opens AdReportsPage) ──
 
 class AdminReportsPage : PageScreen() {
     override val perfName = "AdminReports"
@@ -303,7 +304,7 @@ class AdminReportsPage : PageScreen() {
                             Text(r.str("reason").ifBlank { "(no reason given)" }, style = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Content)), modifier = Modifier.padding(top = 4.dp))
                             Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 AdminPill("Ban", MaterialTheme.colorScheme.error, modifier = if (r === list.first()) Modifier.firstFocus() else Modifier) { ban = r }
-                                AdminPill("Dismiss") { adminDo(c, scope, "✓ Dismissed", { gone.add(r.str("id")) }) { Api.delete("/api/reports?id=" + Uri.encode(r.str("id"))) } }
+                                AdminPill("✓ Resolve") { adminDo(c, scope, "✓ Resolved", { gone.add(r.str("id")) }) { Api.put("/api/reports", JSONObject().put("id", r.str("id")).put("resolved", true)) } }
                             }
                         }
                     }
