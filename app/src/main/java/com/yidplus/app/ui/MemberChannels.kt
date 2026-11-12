@@ -268,7 +268,7 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                                 if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
                                 if (j.str("privacy") == "followers_only") Icon(Sym.Lock, "Followers only", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
-                            Text("@$title", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("@\u2068$title\u2069", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             if (j.str("bio").isNotBlank()) Text(j.str("bio"), fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp), style = TextStyle(textDirection = TextDirection.Content))
                             Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Stat(soNum(j.optInt("followers")), "Followers") { Nav.open(HmFollowListPage(ownerId, title, true)) }
@@ -379,7 +379,7 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
                     Text(name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false), style = TextStyle(textDirection = TextDirection.Content))
                     if (p.verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 3.dp).size(15.dp))
                 }
-                Text("@$name · " + ago(p.at), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text("@\u2068$name\u2069 · " + ago(p.at), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             }
             if (canDelete) IconBtn(Sym.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)

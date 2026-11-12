@@ -19,7 +19,8 @@ hm_tapchip() {
     timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
     x=$(timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n')
     row=$(echo "$x" | grep -E '(text|content-desc)="All"' | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
-    [ -z "$row" ] && { log "hm_tapchip: no chip row"; return 0; }
+    # An empty dump happens while something animates (uiautomator waits for idle): try again.
+    [ -z "$row" ] && { log "hm_tapchip: no chip row yet ($n)"; timeout 5 adb shell rm -f /sdcard/hm.xml >/dev/null 2>&1; sleep 2; continue; }
     set -- $row; y1=$2; y2=$4
     # Only a node on the chip row's own line counts (a "Users" group header further down is not the chip).
     hit=$(echo "$x" | grep -E "(text|content-desc)=\"$want\"" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | paste -d' ' - - - - | awk -v a=$y1 -v b=$y2 '{c=($2+$4)/2; if (c>=a-4 && c<=b+4) {print; exit}}')
@@ -39,6 +40,8 @@ hm_find() {
   log "hm_find: '$want' not found after scrolling"
 }
 # hm_longui: long-press the first thing whose text or content-desc is exactly $1.
+# Scroll the current list back to its top (shows the Channels tab's pill + chips again).
+hm_top() { hm_swipe 200 560 1; hm_swipe 200 560 1; hm_swipe 200 560 1; }
 hm_longui() {
   local want="$1" bb
   timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
@@ -61,10 +64,10 @@ timeout 10 adb shell input text "HM%stest%spost"; sleep 1; hm_hidekb; sleep 1; s
 hm_mark feed-post; hm_tapui "Post"; sleep 4; shot HM-34-feed-posted
 hm_swipe 430 230; shot HM-31-feed-shorts-channels
 hm_swipe 430 180; hm_swipe 430 180; shot HM-32-feed-posts
-hm_tapui "Telegram"; sleep 2
+hm_top; hm_tapui "Telegram"; sleep 2
 
 # 1. A Telegram channel: Telegram order (newest at the bottom), formatting, link card, album grid, day chips, live check, Join.
-tab Home; sleep 4
+tab Home; sleep 4; hm_top
 hm_tapui "Telegram"; sleep 3
 hm_longui "יידישע נייעס"; shot HM-38-tg-row-longpress-menu
 hm_mark tg-row-markread; hm_tapui "Mark as read"; sleep 2; shot HM-39-tg-row-read
@@ -103,7 +106,7 @@ hm_tapui "Clear"; sleep 2; hm_hidekb; sleep 1; shot HM-17-recent-searches
 key 4; sleep 1; key 4; sleep 2
 
 # 3. Member channel: Message, ⋮ menu, Profile, tabs.
-tab Home; sleep 3
+tab Home; sleep 3; hm_top
 hm_tapui "Members"; sleep 5
 hm_tapui "משה'לע"; sleep 6; shot HM-18-member-channel
 hm_tapui "Channel options"; sleep 1; shot HM-19-member-channel-menu
@@ -127,7 +130,7 @@ key 4; sleep 2
 # 5. Two short screen videos (480x640, H.264): the Telegram channel by touch AND D-pad, then the Feed + search → profile → Follow.
 hm_rec_start() { timeout -k 3 40 adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit 28 "/sdcard/$1.mp4" >/dev/null 2>&1 & HM_REC=$!; HM_RECN="$1"; sleep 1; log "hm rec $1"; }
 hm_rec_stop() { wait "$HM_REC" 2>/dev/null; sleep 1; timeout 60 adb pull "/sdcard/$HM_RECN.mp4" "$OUT/$HM_RECN.mp4" >/dev/null 2>&1; timeout 10 adb shell rm -f "/sdcard/$HM_RECN.mp4" >/dev/null 2>&1; log "hm video $HM_RECN.mp4 $(stat -c %s "$OUT/$HM_RECN.mp4" 2>/dev/null)"; }
-tab Home; sleep 3; hm_tapui "Telegram"; sleep 2
+tab Home; sleep 3; hm_top; hm_tapui "Telegram"; sleep 2
 hm_rec_start HM-video-telegram
 hm_find "'?שיעורים יומיים"; sleep 4
 key 19; key 19; key 19; sleep 1; key 20; sleep 1
@@ -138,12 +141,12 @@ key 4; sleep 2
 hm_longui "יידישע נייעס"; key 4
 hm_rec_stop
 hm_rec_start HM-video-feed-profile
-tab Home; sleep 2; hm_tapui "Feed"; sleep 4
+tab Home; sleep 2; hm_top; hm_tapui "Feed"; sleep 4
 hm_swipe 430 200 1; hm_swipe 430 200 1; hm_swipe 150 450 1
 hm_tapui "Search"; sleep 1; timeout 10 adb shell input text "moshe"; sleep 1
 hm_tapui "Search all of YID PLUS"; sleep 3; hm_hidekb; hm_tapchip "Users"; sleep 3; hm_hidekb
 hm_tapui "Moshe Fx"; sleep 4; hm_find "Followers"; sleep 3; key 4
 hm_rec_stop
 key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
-tab Home; sleep 2; hm_tapui "Telegram"; sleep 1
+tab Home; sleep 2; hm_top; hm_tapui "Telegram"; sleep 1
 check hm-done

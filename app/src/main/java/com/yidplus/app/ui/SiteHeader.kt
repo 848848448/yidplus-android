@@ -249,8 +249,8 @@ private fun HitRow(h: SoHit, c: Context, q: String = "") {
         is SoHit.Telegram -> Triple(h.ch.title, "@" + h.ch.username + " · " + soMembers(h.ch.members), "Telegram")
         is SoHit.Post -> Triple(h.name.ifBlank { "Post" }, h.text.replace('\n', ' '), "Post")
         is SoHit.Short -> Triple(h.text.ifBlank { "Short video" }, ago(h.at), "Short")
-        is SoHit.Feed -> Triple(h.clip.caption.replace('\n', ' ').ifBlank { "Short video" }, "@" + h.clip.creator, "Short")
-        is SoHit.User -> Triple(h.name, "@" + h.name, "User")
+        is SoHit.Feed -> Triple(h.clip.caption.replace('\n', ' ').ifBlank { "Short video" }, "@\u2068" + h.clip.creator + "\u2069", "Short")
+        is SoHit.User -> Triple(h.name, "@\u2068" + h.name + "\u2069", "User")
         is SoHit.Group -> Triple(h.room.name, soMembers(h.members), "Group")
         is SoHit.Chat -> Triple(h.room.name, h.sub, "Chat")
     }
