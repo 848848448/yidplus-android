@@ -121,7 +121,7 @@ fun SoTgReactionRow(id: Long, reacts: SoTgReacts, modifier: Modifier = Modifier)
             Box {
                 Box(Modifier.size(width = 40.dp, height = 30.dp).soTouchOnly().tap(RoundedCornerShape(15.dp)) { pick = true }
                     .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(15.dp)), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.AddReaction, "React", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    Icon(Sym.AddReaction, "React", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
                 DropdownMenu(pick, { pick = false }) {
                     Row(Modifier.padding(horizontal = 6.dp)) {
@@ -161,7 +161,7 @@ fun SoVideoPoster(url: String?, title: String, duration: Int, modifier: Modifier
             if (title.isNotBlank()) Text(title, color = Color.White.copy(alpha = 0.9f), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Box(Modifier.size(56.dp).clip(CircleShape).background(Color.Black.copy(alpha = .5f)), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.PlayArrow, "Play", tint = Color.White, modifier = Modifier.size(36.dp))
+            Icon(Sym.PlayArrow, "Play", tint = Color.White, modifier = Modifier.size(36.dp))
         }
         if (duration > 0) Text(dur(duration), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
             modifier = Modifier.align(Alignment.BottomStart).padding(8.dp).background(Color.Black.copy(alpha = .6f), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 1.dp))
@@ -203,15 +203,15 @@ data class SoTgInfoPage(val ch: TgChannel) : PageScreen() {
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SoPill(if (joined) "Leave" else "Join", !joined, {
                                 if (!busy) scope.launch { busy = true; soTgToggleJoin(c, ch.username)?.let { (j, n) -> joined = j; members = n }; busy = false } },
-                                Modifier.firstFocus(), icon = if (joined) Icons.Filled.Logout else Icons.Filled.Add)
-                            SoPill("Share", false, { share(c, ch.title + "\n" + soTgLink(ch.username)) }, icon = Icons.Filled.Share)
-                            SoPill("Copy link", false, { soCopy(c, soTgLink(ch.username)) }, icon = Icons.Filled.Link)
+                                Modifier.firstFocus(), icon = if (joined) Sym.Logout else Sym.Add)
+                            SoPill("Share", false, { share(c, ch.title + "\n" + soTgLink(ch.username)) }, icon = Sym.Share)
+                            SoPill("Copy link", false, { soCopy(c, soTgLink(ch.username)) }, icon = Sym.Link)
                         }
                     }
                     Spacer(Modifier.height(8.dp))
                     Text("MEMBERS ON YID PLUS", Modifier.padding(start = 16.dp, top = 8.dp, bottom = 6.dp), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
                 }
-                if (list.isEmpty()) item { SoEmpty(Icons.Filled.Group, msg ?: "No members yet") }
+                if (list.isEmpty()) item { SoEmpty(Sym.Group, msg ?: "No members yet") }
                 items(list, key = { it.str("user_id") }) { m ->
                     Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         SoThumb(Api.abs(m.strOrNull("photo_url")), m.str("name"), 42.dp)
@@ -219,7 +219,7 @@ data class SoTgInfoPage(val ch: TgChannel) : PageScreen() {
                             Text(m.str("name"), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                             Text("joined " + ago(m.strOrNull("joined_at")), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if (isAdmin) IconBtn(Icons.Filled.PersonRemove, "Remove", {
+                        if (isAdmin) IconBtn(Sym.PersonRemove, "Remove", {
                             scope.launch {
                                 runCatching { Api.delete("/api/telegram-info?username=" + soEnc(ch.username) + "&user_id=" + soEnc(m.str("user_id"))).soCheck() }
                                     .onSuccess { list.remove(m); members = maxOf(0, members - 1); toast(c, "Removed") }.onFailure { toast(c, Api.friendly(it)) }
