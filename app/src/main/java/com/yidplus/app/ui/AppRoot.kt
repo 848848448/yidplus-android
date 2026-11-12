@@ -138,7 +138,7 @@ fun AppRoot(onExit: () -> Unit) {
                 }
             }
             UpdateDialogs()
-            androidx.compose.material3.SnackbarHost(Snack.host, Modifier.align(Alignment.BottomCenter).padding(bottom = if (top == null && !wide) 72.dp else 16.dp)) { data ->
+            androidx.compose.material3.SnackbarHost(Snack.host, Modifier.align(Alignment.BottomCenter).padding(bottom = if (top == null && !wide) (if (smallScreen()) 60.dp else 72.dp) else 16.dp)) { data ->
                 // WhatsApp's snackbar: dark, 8 dp corners, the action in WhatsApp green
                 androidx.compose.material3.Snackbar(data, shape = RoundedCornerShape(8.dp), containerColor = Color(0xFF323739), contentColor = Color.White,
                     actionColor = Color(0xFF25D366), modifier = Modifier.padding(horizontal = 8.dp))
@@ -209,7 +209,7 @@ private fun BottomBar(dark: Boolean) {
     Surface(color = bg, shadowElevation = 8.dp) {
         Column {
             HorizontalDivider(thickness = 0.5.dp, color = if (dark) Color.White.copy(alpha = .08f) else MaterialTheme.colorScheme.outlineVariant)
-            Row(Modifier.fillMaxWidth().heightIn(min = 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = if (smallScreen()) 48.dp else 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
         }
@@ -218,6 +218,7 @@ private fun BottomBar(dark: Boolean) {
 
 @Composable
 private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
+    val small = smallScreen()
     val sel = Nav.tab == t && Nav.stack.isEmpty()
     val on = if (dark) Color.White.copy(alpha = .78f) else MaterialTheme.colorScheme.onSurfaceVariant
     val active = if (dark) Color.White else if (isDark()) MaterialTheme.colorScheme.primary else Green
@@ -227,16 +228,16 @@ private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
     val n = when (t) { Tab.Chats -> Badges.chats; Tab.Home -> Badges.channels; else -> 0 }
     val dot = n <= 0 && when (t) { Tab.Shorts -> NavDots.shorts; Tab.Home -> NavDots.channels; else -> false }
     Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) { if (Nav.stack.isEmpty()) Nav.reselect[t] = (Nav.reselect[t] ?: 0) + 1; Nav.stack.clear() } else Nav.go(t) }
-        .semantics { contentDescription = t.label + if (n > 0) ", $n unread" else if (dot) ", new" else "" }.padding(vertical = 5.dp),
+        .semantics { contentDescription = t.label + if (n > 0) ", $n unread" else if (dot) ", new" else "" }.padding(vertical = if (small) 2.dp else 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(width = 64.dp, height = 32.dp), contentAlignment = Alignment.Center) {
-            Box(Modifier.size(width = 58.dp, height = 30.dp).clip(RoundedCornerShape(15.dp)).background(if (sel) pill else Color.Transparent))
+        Box(Modifier.size(width = if (small) 56.dp else 64.dp, height = if (small) 28.dp else 32.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(width = if (small) 52.dp else 58.dp, height = if (small) 26.dp else 30.dp).clip(RoundedCornerShape(15.dp)).background(if (sel) pill else Color.Transparent))
             Icon(if (sel) tabIconsSelected[t]!! else tabIcons[t]!!, null, tint = if (sel) active else on, modifier = Modifier.size(24.dp))
             if (n > 0) Box(Modifier.align(Alignment.TopEnd).offset(x = (-4).dp, y = (-3).dp)) { Badge(n) }
             else if (dot) Box(Modifier.align(Alignment.TopEnd).offset(x = (-14).dp, y = 2.dp).size(9.dp).clip(CircleShape).background(BadgeGreen))
         }
-        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = if (sel) active else on,
-            fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.dp))
+        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = if (small) 11.sp else 12.sp, lineHeight = if (small) 13.sp else 16.sp), color = if (sel) active else on,
+            fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = if (small) 1.dp else 3.dp))
     }
 }
 
@@ -249,3 +250,7 @@ private fun NavRail() {
         }
     }
 }
+
+/** The 480x640 keypad phone (Qin F21): under 600 dp tall. Bars and rows get their compact sizes there. */
+@Composable
+fun smallScreen(): Boolean = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 600
