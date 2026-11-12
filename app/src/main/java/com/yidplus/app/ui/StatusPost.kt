@@ -209,18 +209,22 @@ private fun PostStatus(startMedia: Boolean) {
         // Top bar
         Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
             IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
-            if (mine != null && media == null) Row(Modifier.clip(RoundedCornerShape(16.dp)).background(Color(0x40000000))
+            if (mine != null && media == null && !ime) Row(Modifier.clip(RoundedCornerShape(16.dp)).background(Color(0x40000000))
                 .tap(RoundedCornerShape(16.dp)) { Nav.back(); Nav.open(StatusViewerPage(Session.me?.id)) }.padding(horizontal = 10.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Icon(Sym.Visibility, null, tint = Color.White, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp))
                 Text("View mine", color = Color.White, fontSize = 13.sp)
             }
             Spacer(Modifier.weight(1f))
-            IconBtn(Sym.PhotoCamera, "Camera", { openCamera() }, tint = Color.White, size = 48.dp)
+            // While typing on a small screen the keyboard takes most of it: the text keeps the room, Send moves up here.
+            if (!ime) IconBtn(Sym.PhotoCamera, "Camera", { openCamera() }, tint = Color.White, size = 48.dp)
             if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
-            IconBtn(Sym.PhotoLibrary, "Photo or video", {
+            if (!ime) IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
+            if (ime) Box(Modifier.padding(start = 4.dp).size(42.dp).clip(CircleShape).background(BadgeGreen).tap(CircleShape) { post() }, contentAlignment = Alignment.Center) {
+                Icon(Sym.Send, "Post status", tint = Color.White, modifier = Modifier.size(20.dp))
+            }
         }
         // Middle: the text (or the chosen media) takes whatever room is left, so the keyboard never pushes controls over it
         Box(Modifier.weight(1f).fillMaxWidth().clipToBounds(), contentAlignment = Alignment.Center) {
@@ -251,7 +255,7 @@ private fun PostStatus(startMedia: Boolean) {
             if (up.running) Box(Modifier.padding(horizontal = 12.dp)) { SmProgress(up, dark = true) }
             Spacer(Modifier.height(10.dp))
             if (!ime) Text(Statuses.privacyHint(privacy), Modifier.padding(horizontal = 16.dp, vertical = 2.dp), color = Color.White.copy(alpha = .8f), fontSize = 13.sp)
-            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (!ime) Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(end = 6.dp)) {
                     items(listOf("followers" to "Followers", "public" to "Everyone", "private" to "Only me")) { (k, label) ->
                         val on = privacy == k

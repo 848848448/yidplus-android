@@ -338,7 +338,7 @@ fun PlayerScreen() {
         }
         Spacer(Modifier.height(8.dp))
         if (videoMode && t?.video != null) SmMusicVideo(t.video)
-        else Box(Modifier.widthIn(max = 260.dp).fillMaxWidth(0.62f).aspectRatio(1f).clip(RoundedCornerShape(18.dp)).background(Green), contentAlignment = Alignment.Center) {
+        else Box(Modifier.widthIn(max = 260.dp).fillMaxWidth(if (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 520) 0.40f else 0.62f).aspectRatio(1f).clip(RoundedCornerShape(18.dp)).background(Green), contentAlignment = Alignment.Center) {
             Icon(Sym.MusicNote, null, tint = Gold, modifier = Modifier.size(72.dp))
             if (Music.art != null) AsyncImage(Music.art, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         }

@@ -78,7 +78,7 @@ key 82; sleep 1; sm_texts mute-menu
 timeout -k 2 12 adb shell uiautomator dump /sdcard/sm.xml >/dev/null 2>&1
 M=$(timeout 20 adb shell cat /sdcard/sm.xml 2>/dev/null | grep -oE 'text="Mute [^"]+"' | head -1 | cut -d'"' -f2)
 [ -n "$M" ] && sm_tap "$M" 2; key 4; sleep 1
-sm_open updates 5; timeout 10 adb shell input swipe 240 520 240 200 300; sleep 1; sm_tap "Muted updates (1)"; sleep 1; shot SM-25-updates-muted
+sm_open updates 5; timeout 10 adb shell input swipe 240 480 240 140 300; sleep 1; timeout 10 adb shell input swipe 240 480 240 140 300; sleep 1; sm_tap "Muted updates (1)" 1; shot SM-25-updates-muted
 sm_open highlights 4; shot SM-26-highlights
 sm_tap "Remove"; sleep 1; shot SM-27-highlights-removed; key 4
 sm_mark status-mine

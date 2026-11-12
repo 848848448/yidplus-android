@@ -331,7 +331,7 @@ class SmMusicUploadPage : PageScreen() {
         Column(Modifier.fillMaxSize()) {
             TopBar("Upload music", onBack = { if (up.running) up.cancel() else Nav.back() })
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(title, { title = it }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Track title") }, singleLine = true, colors = OutlinedTextFieldDefaults.colors(cursorColor = smCursor(MaterialTheme.colorScheme.primary)),
+                OutlinedTextField(title, { title = it }, Modifier.fillMaxWidth(), label = { Text("Track title") }, singleLine = true, colors = OutlinedTextFieldDefaults.colors(cursorColor = smCursor(MaterialTheme.colorScheme.primary)),
                     textStyle = TextStyle(textDirection = TextDirection.Content, fontSize = 16.sp), enabled = !up.running)
                 OutlinedTextField(artist, { artist = it }, Modifier.fillMaxWidth(), label = { Text("Artist name") }, colors = OutlinedTextFieldDefaults.colors(cursorColor = smCursor(MaterialTheme.colorScheme.primary)), placeholder = { Text(Session.me?.nickname ?: "Artist") },
                     singleLine = true, textStyle = TextStyle(textDirection = TextDirection.Content, fontSize = 16.sp), enabled = !up.running)

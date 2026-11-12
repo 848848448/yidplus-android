@@ -316,7 +316,8 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
     Box(Modifier.fillMaxSize()
         .graphicsLayer(translationY = dragY.coerceAtLeast(0f), alpha = (1f - dragY.coerceAtLeast(0f) / 900f).coerceIn(0.35f, 1f))
         .onPreviewKeyEvent { e ->
-            if (e.type != KeyEventType.KeyDown || typing || sheet || menu || reactBar || confirmDel || privacyInfo) false
+            if (e.type == KeyEventType.KeyDown && (e.key == Key.Menu || e.key == Key.Zero) && !menu && !typing) { reactBar = false; sheet = false; menu = true; true }
+            else if (e.type != KeyEventType.KeyDown || typing || sheet || menu || reactBar || confirmDel || privacyInfo) false
             else when (e.key) {
                 Key.DirectionLeft -> { if (rtl) next() else prev(); true }
                 Key.DirectionRight -> { if (rtl) prev() else next(); true }
@@ -393,9 +394,9 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                     Text(if (isMine) "My status" else user.nick, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
                         overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                     Text(stAgo(slide.createdAt),
-                        color = Color.White.copy(alpha = .8f), fontSize = 13.sp, maxLines = 1)
+                        color = Color.White.copy(alpha = .8f), fontSize = 13.sp, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
                 }
-                if (paused && (held || keyPaused)) Text("Paused", color = Color.White.copy(alpha = .8f), fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))
+                if (paused && (held || keyPaused)) Icon(Sym.Pause, "Paused", tint = Color.White.copy(alpha = .85f), modifier = Modifier.padding(end = 2.dp).size(20.dp))
                 if (slide.video) IconBtn(if (SmPrefs.videoMuted) Sym.VolumeOff else Sym.VolumeUp,
                     if (SmPrefs.videoMuted) "Unmute" else "Mute", { SmPrefs.muteVideos(!SmPrefs.videoMuted) }, tint = Color.White)
                 if (isMine) IconBtn(Sym.Add, "Add status", { Nav.open(PostStatusPage()) }, tint = Color.White)
@@ -433,10 +434,10 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
         // Bottom: views for mine, reply + react for others
         if (!readOnly) Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().alpha(if (held) 0f else 1f).navigationBarsPadding().imePadding().padding(horizontal = 10.dp, vertical = 10.dp)) {
             if (reactBar) Row(Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp).clip(RoundedCornerShape(28.dp)).background(Color(0xCC1F1F1F))
-                .padding(horizontal = 6.dp, vertical = 4.dp)) {
+                .padding(horizontal = 4.dp, vertical = 4.dp)) {
                 SmReactions.forEachIndexed { i, e ->
-                    Box(Modifier.size(44.dp).tap(CircleShape) { react(e) }.then(if (i == 0) Modifier.firstFocus(always = true) else Modifier), contentAlignment = Alignment.Center) {
-                        Text(e, fontSize = 24.sp, modifier = Modifier.semantics { contentDescription = "React $e" })
+                    Box(Modifier.size(40.dp).semantics { contentDescription = "React $e" }.tap(CircleShape) { react(e) }.then(if (i == 0) Modifier.firstFocus(always = true) else Modifier), contentAlignment = Alignment.Center) {
+                        Text(e, fontSize = 22.sp)
                     }
                 }
             }

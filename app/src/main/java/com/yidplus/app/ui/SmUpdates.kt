@@ -100,9 +100,12 @@ class SmUpdatesPage : PageScreen() {
         @Suppress("UNUSED_VARIABLE") val v = Statuses.seenVersion
         val me = Session.me
         val all = res.data
+        // 480x640 phones: one FAB (camera); the pencil moves to the top bar so no row is covered.
+        val small = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 520
         Box(Modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize()) {
                 TopBar("Updates", onBack = { Nav.back() }, sub = all?.let { l -> val n = Statuses.unseenCount(l); if (n > 0) "$n new" else null }) {
+                    if (small && me != null) IconBtn(Sym.Edit, "Text status", { Nav.open(PostStatusPage()) })
                     if (SmPrefs.highlights.isNotEmpty()) IconBtn(Sym.Bookmarks, "Highlights", { Nav.open(SmHighlightsPage()) })
                     IconBtn(Sym.Refresh, "Refresh", { scope.launch { res.load(true) } })
                 }
@@ -118,7 +121,7 @@ class SmUpdatesPage : PageScreen() {
                             val loud = others.filter { !SmPrefs.isMuted(it.userId) }
                             val recent = loud.filter { !Statuses.allSeen(it) }
                             val viewed = loud.filter { Statuses.allSeen(it) }
-                            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 140.dp)) {
+                            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = if (small) 84.dp else 140.dp)) {
                                 if (me != null) item(key = "me") {
                                     SmUpdateRow(me.photo, me.nickname, mine?.slides?.map { true } ?: emptyList(), mine = true, title = "My status",
                                         sub = mine?.slides?.lastOrNull()?.let { "${it.views} views · " + stAgo(it.createdAt) } ?: "Tap to add a status update",
@@ -148,7 +151,7 @@ class SmUpdatesPage : PageScreen() {
             }
             if (me != null) Column(Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SmallFloatingActionButton({ Nav.open(PostStatusPage()) }, containerColor = MaterialTheme.colorScheme.surfaceVariant) { Icon(Sym.Edit, "Text status") }
+                if (!small) SmallFloatingActionButton({ Nav.open(PostStatusPage()) }, containerColor = MaterialTheme.colorScheme.surfaceVariant) { Icon(Sym.Edit, "Text status") }
                 FloatingActionButton({ Nav.open(PostStatusPage(startMedia = true)) }, containerColor = BadgeGreen, contentColor = Color.White) { Icon(Sym.PhotoCamera, "Photo or video status") }
             }
         }
