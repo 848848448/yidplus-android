@@ -162,7 +162,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             }
             // The site posts /api/chat/read once when the room opens (members only; spectating leaves no trace) — and again here only when something new arrived.
             val newest = list.lastOrNull()?.id
-            if (me != null && !room.guestView && joinedOk && !spectating && newest != lastReadId) { lastReadId = newest; runCatching { ChatApi.read(room.id) } }
+            if (me != null && room.id.isNotBlank() && !room.guestView && joinedOk && !spectating && newest != lastReadId) { lastReadId = newest; runCatching { ChatApi.read(room.id) } }
             error = null; loaded = true
             Perf.shown("Chat")
         } catch (e: Exception) { if (msgs.isEmpty()) error = Api.friendly(e) }
