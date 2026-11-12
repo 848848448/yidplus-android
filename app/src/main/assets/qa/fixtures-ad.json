@@ -190,21 +190,21 @@
   "reports": [
    {
     "id": "r1",
-    "reported_id": "u-shmuel",
-    "reported_nick": "שמואל ווייס",
-    "reporter_id": "u-yanky",
-    "reporter_nick": "Yanky",
-    "reason": "Spam links in the group",
-    "created_at": "2026-11-11T17:20:00.000Z"
+    "reason": "Spam links",
+    "reported_id": "u-moshe",
+    "reported_nick": "Moshe K",
+    "reporter_nick": "Leah",
+    "resolved": 0,
+    "created_at": "2026-11-12T03:15:00.000Z"
    },
    {
     "id": "r2",
-    "reported_id": "u-mendy",
-    "reported_nick": "Mendy K",
-    "reporter_id": "u-chaim",
-    "reporter_nick": "חיים",
-    "reason": "",
-    "created_at": "2026-11-10T21:05:00.000Z"
+    "reason": "Rude",
+    "reported_id": "u-chaim",
+    "reported_nick": "חיים",
+    "reporter_nick": "Yanky",
+    "resolved": 1,
+    "created_at": "2026-11-12T02:40:00.000Z"
    }
   ]
  },
@@ -329,7 +329,19 @@
    "feat_status": "on",
    "feat_channels": "on",
    "feat_guest": "on",
-   "feat_music_allow": ""
+   "feat_music_allow": "",
+   "app_title": "YID PLUS",
+   "registration_open": "true",
+   "support_chat_login_enabled": "true",
+   "support_chat_home_enabled": "false",
+   "register_rate_max": "5",
+   "welcome_enabled": "true",
+   "welcome_message": "Welcome {name}! Glad to have you here.",
+   "require_email_verify": "false",
+   "automod_threshold": "3",
+   "email_from_name": "YID PLUS",
+   "email_verify_subject": "Confirm your email",
+   "email_verify_intro": "Tap the button to confirm."
   }
  },
  "/api/channels": {
@@ -366,5 +378,890 @@
     "photo_url": null
    }
   ]
+ },
+ "/api/admin/god-feed": {
+  "ok": true,
+  "online_now": 3,
+  "reports_pending": 2,
+  "users": [
+   {
+    "id": "u-yanky",
+    "nickname": "Yanky",
+    "email": "yanky@example.com",
+    "verified": 1,
+    "blocked": 0,
+    "online": 1
+   },
+   {
+    "id": "u-chaim",
+    "nickname": "חיים",
+    "email": "chaim@example.com",
+    "verified": 0,
+    "blocked": 0,
+    "online": 1
+   },
+   {
+    "id": "u-moshe",
+    "nickname": "Moshe K",
+    "email": "moshe@example.com",
+    "verified": 0,
+    "blocked": 0,
+    "online": 1
+   },
+   {
+    "id": "u-leah",
+    "nickname": "Leah",
+    "email": "leah@example.com",
+    "verified": 0,
+    "blocked": 0,
+    "online": 1
+   }
+  ],
+  "events": [
+   {
+    "type": "message",
+    "icon": "💬",
+    "user_id": "u-yanky",
+    "nickname": "Yanky",
+    "text": "sent a message in General",
+    "t": "2026-11-12T03:02:00.000Z"
+   },
+   {
+    "type": "short",
+    "icon": "🎬",
+    "user_id": "u-chaim",
+    "nickname": "חיים",
+    "text": "uploaded a short",
+    "t": "2026-11-12T03:05:00.000Z"
+   },
+   {
+    "type": "login",
+    "icon": "🔑",
+    "user_id": "u-leah",
+    "nickname": "Leah",
+    "text": "signed in",
+    "t": "2026-11-12T03:09:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/user-activity": {
+  "ok": true,
+  "nickname": "Yanky",
+  "online": true,
+  "blocked": false,
+  "events": [
+   {
+    "icon": "💬",
+    "text": "Sent a message in General",
+    "t": "2026-11-12T03:02:00.000Z"
+   },
+   {
+    "icon": "❤️",
+    "text": "Liked a short",
+    "t": "2026-11-12T03:04:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/calls": {
+  "ok": true,
+  "calls_today": 7,
+  "active": [
+   {
+    "id": "c1",
+    "caller_nick": "Yanky",
+    "callee_nick": "Leah",
+    "status": "active",
+    "kind": "video",
+    "updated_at": "2026-11-12T03:03:00.000Z"
+   }
+  ],
+  "group_active": [
+   {
+    "room_id": "r-1",
+    "room_name": "General",
+    "n": 4
+   }
+  ],
+  "recent": [
+   {
+    "id": "c0",
+    "caller_nick": "Moshe K",
+    "callee_nick": "חיים",
+    "status": "ended",
+    "kind": "audio",
+    "created_at": "2026-11-12T03:40:00.000Z"
+   },
+   {
+    "id": "c2",
+    "caller_nick": "Leah",
+    "callee_nick": "Yanky",
+    "status": "declined",
+    "kind": "video",
+    "created_at": "2026-11-12T03:55:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/stats": {
+  "ok": true,
+  "stats": {
+   "users": 1834,
+   "new_today": 12,
+   "online": 47,
+   "shorts": 3120,
+   "messages": 98210,
+   "music": 412,
+   "channels": 64,
+   "open_reports": 2
+  },
+  "daily_visitors": [
+   {
+    "day": "2026-11-06",
+    "visitors": 310
+   },
+   {
+    "day": "2026-11-07",
+    "visitors": 402
+   },
+   {
+    "day": "2026-11-08",
+    "visitors": 388
+   },
+   {
+    "day": "2026-11-09",
+    "visitors": 451
+   },
+   {
+    "day": "2026-11-10",
+    "visitors": 512
+   },
+   {
+    "day": "2026-11-11",
+    "visitors": 477
+   },
+   {
+    "day": "2026-11-12",
+    "visitors": 530
+   }
+  ]
+ },
+ "/api/admin/growth": {
+  "ok": true,
+  "per_day": [
+   {
+    "day": "2026-11-01",
+    "count": 8
+   },
+   {
+    "day": "2026-11-02",
+    "count": 11
+   },
+   {
+    "day": "2026-11-03",
+    "count": 6
+   },
+   {
+    "day": "2026-11-04",
+    "count": 14
+   },
+   {
+    "day": "2026-11-05",
+    "count": 9
+   },
+   {
+    "day": "2026-11-06",
+    "count": 13
+   },
+   {
+    "day": "2026-11-07",
+    "count": 17
+   },
+   {
+    "day": "2026-11-08",
+    "count": 10
+   },
+   {
+    "day": "2026-11-09",
+    "count": 12
+   },
+   {
+    "day": "2026-11-10",
+    "count": 15
+   },
+   {
+    "day": "2026-11-11",
+    "count": 9
+   },
+   {
+    "day": "2026-11-12",
+    "count": 12
+   }
+  ]
+ },
+ "/api/admin/leaderboard": {
+  "ok": true,
+  "shorts": [
+   {
+    "uid": "Yanky",
+    "cnt": 212
+   },
+   {
+    "uid": "חיים",
+    "cnt": 140
+   }
+  ],
+  "music": [
+   {
+    "uid": "Moshe K",
+    "cnt": 33
+   }
+  ],
+  "messages": [
+   {
+    "uid": "Leah",
+    "cnt": 5120
+   },
+   {
+    "uid": "Yanky",
+    "cnt": 4310
+   }
+  ]
+ },
+ "/api/admin/health": {
+  "ok": true,
+  "r2": {
+   "objects": 18342,
+   "bytes": 48318230528,
+   "truncated": false
+  },
+  "counts": {
+   "users": 1834,
+   "posts": 9210,
+   "shorts": 3120,
+   "messages": 98210,
+   "music": 412
+  }
+ },
+ "/api/admin/access-control": {
+  "ok": true,
+  "locked": false,
+  "allowlist": [
+   {
+    "email": "leah@example.com",
+    "nickname": "Leah",
+    "note": "family"
+   }
+  ]
+ },
+ "/api/admin/invite-codes": {
+  "ok": true,
+  "codes": [
+   {
+    "code": "YID-2026",
+    "max_uses": 50,
+    "used_count": 12,
+    "uses_left": 38,
+    "note": "shul",
+    "expires_at": "2026-12-31T00:00:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/badges": {
+  "ok": true,
+  "badges": [
+   {
+    "id": "u-yanky",
+    "nickname": "Yanky",
+    "badge_text": "Chazan",
+    "badge_color": "#1F6F5C"
+   }
+  ]
+ },
+ "/api/admin/sessions-mgr": {
+  "ok": true,
+  "sessions": [
+   {
+    "user_id": "u-yanky",
+    "nickname": "Yanky",
+    "email": "yanky@example.com",
+    "online": 1,
+    "created_at": "2026-11-12T03:30:00.000Z"
+   },
+   {
+    "user_id": "u-leah",
+    "nickname": "Leah",
+    "email": "leah@example.com",
+    "online": 0,
+    "created_at": "2026-11-12T02:30:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/device-bans": {
+  "ok": true,
+  "bans": [
+   {
+    "id": "b1",
+    "ip": "203.0.113.9",
+    "reason": "Spam sign-ups",
+    "banned_by": "owner",
+    "created_at": "2026-11-12T02:00:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/device-bans?logs=1": {
+  "ok": true,
+  "logs": [
+   {
+    "nickname": "Leah",
+    "user_id": "u-leah",
+    "action": "register",
+    "ip": "198.51.100.4",
+    "created_at": "2026-11-12T03:20:00.000Z"
+   },
+   {
+    "nickname": "Yanky",
+    "user_id": "u-yanky",
+    "action": "login",
+    "ip": "198.51.100.7",
+    "created_at": "2026-11-12T03:08:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/ad-exempt": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-chaim",
+    "nickname": "חיים",
+    "email": "chaim@example.com",
+    "no_ads": 1
+   }
+  ]
+ },
+ "/api/admin/users?search=Ya": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-yanky",
+    "nickname": "Yanky"
+   }
+  ]
+ },
+ "/api/feedback": {
+  "ok": true,
+  "feedback": [
+   {
+    "id": "f1",
+    "nickname": "Leah",
+    "type": "idea",
+    "text": "Please add dark mode to music",
+    "device": "Android",
+    "resolved": 0,
+    "created_at": "2026-11-12T03:25:00.000Z"
+   }
+  ]
+ },
+ "/api/support-chats?tab=new": {
+  "ok": true,
+  "chats": [
+   {
+    "id": "sc-1",
+    "user_id": "u-leah",
+    "user_nick": "Leah",
+    "user_email": "leah@example.com",
+    "question_label": "Can't sign in",
+    "screen": "login",
+    "status": "open",
+    "updated_at": "2026-11-12T03:06:00.000Z"
+   },
+   {
+    "id": "sc-2",
+    "user_id": "u-yanky",
+    "user_nick": "Yanky",
+    "question_label": "Payment",
+    "screen": "home",
+    "status": "claimed",
+    "claimed_by": "demo-me",
+    "claimed_by_nick": "משה'לע",
+    "updated_at": "2026-11-12T03:50:00.000Z"
+   }
+  ]
+ },
+ "/api/support-chats?tab=mine": {
+  "ok": true,
+  "chats": [
+   {
+    "id": "sc-1",
+    "user_id": "u-leah",
+    "user_nick": "Leah",
+    "user_email": "leah@example.com",
+    "question_label": "Can't sign in",
+    "screen": "login",
+    "status": "open",
+    "updated_at": "2026-11-12T03:06:00.000Z"
+   },
+   {
+    "id": "sc-2",
+    "user_id": "u-yanky",
+    "user_nick": "Yanky",
+    "question_label": "Payment",
+    "screen": "home",
+    "status": "claimed",
+    "claimed_by": "demo-me",
+    "claimed_by_nick": "משה'לע",
+    "updated_at": "2026-11-12T03:50:00.000Z"
+   }
+  ]
+ },
+ "/api/support-chats?tab=all": {
+  "ok": true,
+  "chats": [
+   {
+    "id": "sc-1",
+    "user_id": "u-leah",
+    "user_nick": "Leah",
+    "user_email": "leah@example.com",
+    "question_label": "Can't sign in",
+    "screen": "login",
+    "status": "open",
+    "updated_at": "2026-11-12T03:06:00.000Z"
+   },
+   {
+    "id": "sc-2",
+    "user_id": "u-yanky",
+    "user_nick": "Yanky",
+    "question_label": "Payment",
+    "screen": "home",
+    "status": "claimed",
+    "claimed_by": "demo-me",
+    "claimed_by_nick": "משה'לע",
+    "updated_at": "2026-11-12T03:50:00.000Z"
+   }
+  ]
+ },
+ "/api/support-chats?chat_id=sc-1": {
+  "ok": true,
+  "status": "open",
+  "user_id": "u-leah",
+  "user_nick": "Leah",
+  "user_email": "leah@example.com",
+  "messages": [
+   {
+    "sender_type": "user",
+    "sender_nick": "Leah",
+    "text": "I forgot my password and the email doesn't come",
+    "created_at": "2026-11-12T03:07:00.000Z"
+   },
+   {
+    "sender_type": "admin",
+    "sender_nick": "משה'לע",
+    "text": "Checking now — what email did you use?",
+    "created_at": "2026-11-12T03:06:00.000Z"
+   }
+  ]
+ },
+ "/api/support-questions?screen=login": {
+  "ok": true,
+  "questions": [
+   {
+    "id": "q1",
+    "label": "Can't sign in",
+    "action_type": "chat"
+   },
+   {
+    "id": "q2",
+    "label": "Forgot password",
+    "action_type": "reset"
+   }
+  ]
+ },
+ "/api/support-questions?screen=home": {
+  "ok": true,
+  "questions": [
+   {
+    "id": "q1",
+    "label": "Can't sign in",
+    "action_type": "chat"
+   },
+   {
+    "id": "q2",
+    "label": "Forgot password",
+    "action_type": "reset"
+   }
+  ]
+ },
+ "/api/admin/rooms": {
+  "ok": true,
+  "rooms": [
+   {
+    "id": "r-1",
+    "emoji": "💬",
+    "nick": "General",
+    "type": "group",
+    "members": 412,
+    "preview": "Gut morgen everyone"
+   },
+   {
+    "id": "r-2",
+    "emoji": "🎵",
+    "nick": "Niggunim",
+    "type": "group",
+    "members": 88,
+    "preview": "New track up"
+   }
+  ]
+ },
+ "/api/chat?room_id=r-1": {
+  "ok": true,
+  "messages": [
+   {
+    "sender_nick": "Yanky",
+    "text": "Gut morgen everyone",
+    "type": "text",
+    "created_at": "2026-11-12T03:04:00.000Z"
+   },
+   {
+    "sender_nick": "Leah",
+    "text": "Good morning!",
+    "type": "text",
+    "created_at": "2026-11-12T03:03:00.000Z"
+   }
+  ]
+ },
+ "/api/shorts": {
+  "ok": true,
+  "shorts": [
+   {
+    "id": "s1",
+    "caption": "Simchas Torah dancing",
+    "nick": "Yanky",
+    "likes": 120,
+    "created_at": "2026-11-12T02:00:00.000Z"
+   },
+   {
+    "id": "s2",
+    "caption": "Shiur clip",
+    "nick": "חיים",
+    "likes": 44,
+    "created_at": "2026-11-12T02:20:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/statuses": {
+  "ok": true,
+  "statuses": [
+   {
+    "id": "st1",
+    "nickname": "Leah",
+    "type": "text",
+    "text": "Shabbos prep 🕯",
+    "privacy": "public",
+    "views": 31,
+    "verified": 0,
+    "created_at": "2026-11-12T03:45:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/user-lists": {
+  "ok": true,
+  "items": [
+   {
+    "id": "u-leah",
+    "nickname": "Leah",
+    "created_at": "2026-11-12T02:20:00.000Z"
+   },
+   {
+    "id": "u-chaim",
+    "nickname": "חיים",
+    "created_at": "2026-11-12T02:00:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/announcements": {
+  "ok": true,
+  "announcements": [
+   {
+    "id": "a1",
+    "text": "Welcome to YID PLUS 2.1!",
+    "created_by": "owner",
+    "created_at": "2026-11-12T02:10:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/ai-settings": {
+  "ok": true,
+  "provider": "claude",
+  "settings": {
+   "enabled": true,
+   "name": "YID PLUS AI",
+   "instructions": "Be kind and helpful.",
+   "welcome": "Hi! Ask me anything.",
+   "hourly_limit": 40
+  }
+ },
+ "/api/admin/feature": {
+  "ok": true,
+  "posts": [
+   {
+    "id": "p1",
+    "caption": "Chanukah lighting in Boro Park",
+    "username": "Yanky",
+    "is_featured": 1,
+    "created_at": "2026-11-12T02:30:00.000Z"
+   },
+   {
+    "id": "p2",
+    "caption": "New niggun",
+    "username": "Moshe K",
+    "is_featured": 0,
+    "created_at": "2026-11-12T02:50:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/admin-bot-setup": {
+  "ok": true,
+  "connected": true,
+  "bot": "yidplus_activity_bot",
+  "chat_linked": true
+ },
+ "/api/admin/private-bot-setup": {
+  "ok": true,
+  "connected": true,
+  "bot": "yidplus_private_bot"
+ },
+ "/api/telegram/set-webhook": {
+  "ok": true,
+  "connected": true,
+  "url": "yidplus.com/api/telegram/webhook",
+  "pending_update_count": 0
+ },
+ "/api/telegram/post-bot-setup": {
+  "ok": true,
+  "connected": false
+ },
+ "/api/admin/bot-email": {
+  "ok": true,
+  "enabled": true,
+  "recipients": [
+   "office@example.com"
+  ]
+ },
+ "/api/admin/bot-email-sender": {
+  "ok": true,
+  "provider": "auto",
+  "from": "bot@yidplus.com",
+  "recent": [
+   {
+    "to": "office@example.com",
+    "status": "sent",
+    "at": "2026-11-12T03:12:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/telegram-bridges": {
+  "ok": true,
+  "bridges": [
+   {
+    "id": "br1",
+    "label": "Main Group",
+    "telegram_chat_id": "-1001234567890",
+    "room_id": "r-1",
+    "room_name": "General",
+    "active": 1
+   }
+  ]
+ },
+ "/api/admin/ads": {
+  "ok": true,
+  "ads": [
+   {
+    "id": "ad-1",
+    "title": "Kosher Pizza — 2 for 1",
+    "link_url": "https://example.com",
+    "interval_minutes": 60,
+    "countdown_seconds": 5,
+    "pages": "all",
+    "active": 1,
+    "exempt_users": "[\"u-chaim\"]"
+   }
+  ]
+ },
+ "/api/admin/email-verify-toggle": {
+  "ok": true,
+  "enabled": false
+ },
+ "/api/admin/guest-mode": {
+  "ok": true,
+  "enabled": true
+ },
+ "/api/admin/maintenance": {
+  "ok": true,
+  "maintenance_mode": false,
+  "message": ""
+ },
+ "/api/src-shorts": {
+  "ok": true,
+  "enabled": true
+ },
+ "/api/admin/security-log": {
+  "ok": true,
+  "alerts": true,
+  "stats": {
+   "total": 1290,
+   "last24": 37,
+   "unique_ips": 212
+  },
+  "offenders": [
+   {
+    "ip": "45.95.1.20",
+    "country": "NL",
+    "city": "Amsterdam",
+    "asn": "AS204601 Example Net",
+    "hits": 41,
+    "first_seen": "2026-11-12T02:00:00.000Z",
+    "last_seen": "2026-11-12T03:05:00.000Z"
+   }
+  ],
+  "banned": [],
+  "logs": [
+   {
+    "id": "l1",
+    "attack_type": "SQL injection",
+    "ip": "45.95.1.20",
+    "country": "NL",
+    "city": "Amsterdam",
+    "region": "NH",
+    "asn": "AS204601 Example Net",
+    "method": "GET",
+    "path": "/api/posts?id=1' OR 1=1",
+    "user_agent": "sqlmap/1.7",
+    "created_at": "2026-11-12T03:05:00.000Z"
+   },
+   {
+    "id": "l2",
+    "attack_type": "Scanner",
+    "ip": "203.0.113.50",
+    "country": "US",
+    "city": "Dallas",
+    "asn": "AS14061",
+    "method": "GET",
+    "path": "/wp-login.php",
+    "user_agent": "curl/8",
+    "created_at": "2026-11-12T03:14:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/diagnostics": {
+  "ok": true,
+  "summary": {
+   "ok": 14,
+   "warn": 2,
+   "fail": 1
+  },
+  "checks": [
+   {
+    "category": "Config",
+    "status": "ok",
+    "label": "Session secret",
+    "detail": "Set"
+   },
+   {
+    "category": "Config",
+    "status": "warn",
+    "label": "Email sender",
+    "detail": "Using the backup sender",
+    "fix": "Verify bot@yidplus.com"
+   },
+   {
+    "category": "Database",
+    "status": "fail",
+    "label": "Index on messages",
+    "detail": "Missing",
+    "fix": "Run Optimize database"
+   }
+  ]
+ },
+ "/api/error-log": {
+  "ok": true,
+  "errors": [
+   {
+    "id": "e1",
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'id')",
+    "source": "js/chat.js",
+    "line": "812",
+    "col": "14",
+    "page": "/chat",
+    "nickname": "Leah",
+    "count": 3,
+    "created_at": "2026-11-12T03:18:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/app-config": {
+  "ok": true,
+  "items": [
+   {
+    "key": "TURN_KEY_ID",
+    "label": "Call relay key",
+    "secret": true,
+    "set_app": true
+   },
+   {
+    "key": "SITE_URL",
+    "label": "Site address",
+    "secret": false,
+    "set_env": true,
+    "hint": "https://yidplus.com"
+   }
+  ]
+ },
+ "/api/admin/audit-logs": {
+  "ok": true,
+  "logs": [
+   {
+    "actor_nick": "owner",
+    "actor_role": "owner",
+    "action": "verify_user",
+    "details": "Yanky",
+    "created_at": "2026-11-12T03:33:00.000Z"
+   },
+   {
+    "actor_nick": "mod1",
+    "actor_role": "admin_limited",
+    "action": "resolve_report",
+    "details": "#r2",
+    "created_at": "2026-11-12T02:10:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/nuclear": {
+  "ok": true,
+  "permissions": [
+   {
+    "user_id": "u-moshe",
+    "nickname": "Moshe K",
+    "granted_by": "owner",
+    "created_at": "2026-11-12T02:40:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/optimize": {
+  "ok": true,
+  "indexes": 24
+ },
+ "/api/admin/notes": {
+  "ok": true,
+  "notes": [
+   {
+    "id": "n1",
+    "text": "Asked for verification twice",
+    "author": "owner",
+    "created_at": "2026-11-12T02:20:00.000Z"
+   }
+  ]
+ },
+ "/api/admin/feature-blocks": {
+  "ok": true,
+  "blocks": []
  }
 }
