@@ -106,10 +106,10 @@ fi
 adx() { timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page "x:Admin" --es qa_ad "$1" >/dev/null 2>&1; sleep "${2:-5}"; log "ad panel $1"; }
 log "---- AD 2.1: admin home ----"
 adq Admin 5; shot AD-50-home-glance; adfind "Overview"; sleep 1; shot AD-51-home-overview-open
-adtop; adtap "Search admin…" 240 330; adtype "att"; adhidekb; sleep 1; shot AD-52-home-search; key 4
+adtop; adt "Search admin"; sleep 2; adtype "att"; adhidekb; sleep 1; shot AD-52-home-search; key 4
 log "---- AD 2.1: Overview ----"
 adx god-mode; shot AD-53-god-mode; key 4
-adx calls; shot AD-54-calls; adt "Yanky → Leah"; sleep 1; adt "Yes"; sleep 2; proof "end call" "\"action\":\"end\""; key 4
+adx calls; shot AD-54-calls; adt "Yanky → Leah"; sleep 1; adt "End call"; sleep 2; proof "end call" "\"action\":\"end\""; key 4
 adx now; shot AD-55-now; key 4
 adx analytics; shot AD-56-analytics; key 4
 adx growth; shot AD-57-growth; key 4
@@ -125,7 +125,7 @@ adx badges; shot AD-65-badges; key 4
 adx ad-exempt; shot AD-66-ad-free; key 4
 adq AdminUser 6; adfind "Edit details"; shot AD-67-user-more; adswipe; adswipe; shot AD-67b-user-devices-notes; key 4
 log "---- AD 2.1: Moderation ----"
-adx reports; shot AD-68-reports; adt "Resolve"; sleep 2; shot AD-69-report-resolved; proof "resolve report" "PUT /api/reports"; key 4
+adx reports; shot AD-68-reports; adt "Resolve"; sleep 1.5; shot AD-69-report-resolve-confirm; adt "Resolve"; sleep 2; proof "resolve report" "PUT /api/reports"; key 4
 adx feedback; shot AD-70-feedback; key 4
 adx support-chats; shot AD-71-support; key 4
 adx support-thread; shot AD-72-support-thread; key 4
@@ -133,9 +133,9 @@ adx chat-watch; shot AD-73-chats; key 4
 adx room-read; shot AD-74-room-read; key 4
 adx shorts-mod; shot AD-75-shorts-mod; key 4
 adx statuses-mod; shot AD-76-statuses-mod; key 4
-adx music-mod; shot AD-76b-music-mod; adt "🗑"; sleep 1; adt "Yes"; sleep 2; proof "remove track" "DELETE /api/music"; key 4
+adx music-mod; shot AD-76b-music-mod; adt "Nigun Simcha"; sleep 1.5; shot AD-76c-music-remove-confirm; adt "Remove track"; sleep 2; proof "remove track" "DELETE /api/music"; key 4
 log "---- AD 2.1: Content ----"
-adx announcements; shot AD-77-announcements; adtap "Type announcement..." 240 200; adtype "Shalom_all"; adhidekb; adt "Post announcement"; sleep 1; adt "OK"; sleep 2; proof "announcement" "POST /api/admin/announcements"; key 4
+adx announcements; shot AD-77-announcements; adtap "Type announcement..." 240 200; adtype "Shalom_all"; adhidekb; adt "Post announcement"; sleep 1; adt "Publish"; sleep 2; proof "announcement" "POST /api/admin/announcements"; key 4
 adx broadcast; shot AD-78-broadcast-schedule; key 4
 adx email-blast; shot AD-79-email-blast; key 4
 adx ai; shot AD-80-ai; key 4
@@ -158,4 +158,21 @@ adx export; shot AD-96-export; key 4
 adx nuclear; shot AD-97-nuclear; key 4
 adx admin-settings; shot AD-98-admin-settings; key 4
 check "AD 2.1 admin panels"
+
+# ---- AD 2.1: screen video of the admin flow with the D-pad (keypad phone) ----
+adrec() { timeout -k 3 $(( $2 + 8 )) adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit "$2" "/sdcard/$1.mp4" >/dev/null 2>&1 & ADREC=$!; sleep 1; }
+adrecend() { wait $ADREC 2>/dev/null; sleep 2; timeout 40 adb pull "/sdcard/$1.mp4" "$OUT/$1.mp4" >/dev/null 2>&1; timeout 10 adb shell rm -f "/sdcard/$1.mp4"; log "video $1 $(stat -c %s "$OUT/$1.mp4" 2>/dev/null) bytes"; }
+adq Admin 5; adtop
+adrec AD-flow-dpad 30
+for k in 20 20 20 20 20 20 20 66; do key $k; done; sleep 1.5     # D-pad down to a category, OK opens it
+for k in 20 20 66; do key $k; done; sleep 3                      # down into a panel, OK
+key 20; key 20; key 20; sleep 1; key 4; sleep 1.5                # move in the panel, Back to the admin home
+adtop; adt "Search admin"; sleep 1.5; adtype "ads"; sleep 1.5; key 20; key 66; sleep 3; key 4; sleep 1; key 4
+adrecend AD-flow-dpad
+adrec AD-flow-panels 30
+adx security 4; adswipe; sleep 1; key 4
+adx telegram 4; adswipe; adswipe; sleep 1; key 4
+adx reports 4; adt "Resolve"; sleep 2; key 4; sleep 1; key 4
+adx music-mod 4; key 4
+adrecend AD-flow-panels
 # ==== [/AD 2.1] ====

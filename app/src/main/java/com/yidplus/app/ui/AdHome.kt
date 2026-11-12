@@ -1,6 +1,9 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.*
@@ -106,7 +109,6 @@ fun adVisible(p: AdPanelDef) = adRole() in p.roles.split(',')
 /** The search + 5 categories on the admin home. Inside SettingsPage's column. */
 @Composable
 fun AdHomeSections(stats: JSONObject?) {
-    var q by remember { mutableStateOf("") }
     var open by remember { mutableStateOf<String?>(null) }
     // QA: `--es qa_ad <panel id>` opens that panel natively (fixtures answer its calls).
     val c = ctx()
@@ -116,26 +118,14 @@ fun AdHomeSections(stats: JSONObject?) {
             delay(700)
         }
     }
-    AdminSearchField(q, { q = it }, "Search admin…")
-    val query = q.trim().lowercase()
-    if (query.isNotEmpty()) {
-        val hits = adPanels.flatMap { (cat, l) -> l.filter(::adVisible).filter { (it.label + " " + it.sub + " " + cat).lowercase().contains(query) }.map { cat to it } }
-        SettingsCard("Results (" + hits.size + ")") {
-            if (hits.isEmpty()) SettingsHint("Nothing matches \u201C" + q.trim() + "\u201D")
-            hits.forEachIndexed { i, (cat, p) ->
-                if (i > 0) RowDivider(64.dp)
-                SettingRow(p.icon, p.label, cat + " · " + p.sub, modifier = if (i == 0) Modifier.firstFocus() else Modifier) { Nav.open(p.open()) }
-            }
-        }
-        return
-    }
+    SearchPill("Search admin", { Nav.open(AdSearchPage()) }, Modifier.firstFocus())
     adCategories.forEach { (cat, sub, color) ->
         val list = adPanels[cat].orEmpty().filter(::adVisible)
         if (list.isEmpty()) return@forEach
         val isOpen = open == cat
         SettingsCard(null) {
             SettingRow(when (cat) { "Overview" -> Icons.Filled.Dashboard; "People" -> Sym.People; "Moderation" -> Sym.Gavel; "Content" -> Sym.Article; else -> Sym.Settings },
-                cat, sub, value = (if (isOpen) "▲ " else "") + list.size) { open = if (isOpen) null else cat }
+                cat, if (isOpen) list.size.toString() + " controls" else sub, value = if (isOpen) "Hide" else list.size.toString()) { open = if (isOpen) null else cat }
             if (isOpen) list.forEach { p ->
                 RowDivider(64.dp)
                 val badge = when (p.id) {
@@ -164,5 +154,27 @@ fun adQaPage(id: String): Screen? {
         "ad-exempt-one" -> AdAdExemptPage("ad-1")
         "support-questions" -> AdSupportQuestionsPage()
         else -> null
+    }
+}
+
+/** Admin search (the site's "Find a control"): every panel this role may open, by name, line or category. */
+class AdSearchPage : PageScreen() {
+    override val perfName = "AdSearch"
+    override fun equals(other: Any?) = other is AdSearchPage
+    override fun hashCode() = 3601
+    @Composable override fun Content() {
+        var q by remember { mutableStateOf("") }
+        val query = q.trim().lowercase()
+        val hits = adPanels.flatMap { (cat, l) -> l.filter(::adVisible).filter { query.isEmpty() || (it.label + " " + it.sub + " " + cat + " " + it.id).lowercase().contains(query) }.map { cat to it } }
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            TopBar("Search admin", onBack = { Nav.back() })
+            AdField(q, { q = it }, "Find a control…", Modifier.firstFocus(always = true))
+            LazyColumn(Modifier.weight(1f).fillMaxWidth(), contentPadding = PaddingValues(bottom = 24.dp)) {
+                if (hits.isEmpty()) item { AdHint("No matching controls.") }
+                items(hits, key = { it.second.id }) { (cat, p) ->
+                    SettingRow(p.icon, p.label, cat + " · " + p.sub) { Nav.open(p.open()) }
+                }
+            }
+        }
     }
 }
