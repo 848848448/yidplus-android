@@ -64,7 +64,7 @@ class AdEmailBlastPage : PageScreen() {
                 AdField(msg, { msg = it }, "Email message...", lines = 5)
                 AdButton("✉️ Send email to all", danger = true) {
                     if (subj.isBlank() || msg.isBlank()) toast(c, "⚠ Add a subject and message.")
-                    else a.sure("Email everyone?", "Send this email to ALL users? This cannot be undone.") {
+                    else a.sure("Email everyone?", "Send this email to ALL users? This cannot be undone.", okLabel = "Send email") {
                         toast(c, "✉️ Sending…")
                         scope.launch {
                             runCatching { Api.post("/api/admin/email-blast", jo("subject" to subj.trim(), "message" to msg.trim())) }
@@ -242,7 +242,7 @@ class AdTelegramBotsPage : PageScreen() {
                 AdField(addMail, { addMail = it }, "add an email…")
                 AdPills("Add" to { val e = addMail.trim(); if (e.contains("@") && e !in recips) { recips.add(e); addMail = "" } else toast(c, "Enter an email address") },
                     "Save recipients" to { adminDo(c, scope, "✅ Saved", { tick++ }) { Api.post("/api/admin/bot-email", jo("enabled" to mailOn, "recipients" to recips.joinToString("\n"))) } },
-                    "🔍 Diagnose" to { scope.launch { runCatching { Api.get("/api/admin/bot-email-diagnose") }.onSuccess { r -> a.sure("Diagnose", r.toString(2).take(1500), danger = false) {} }.onFailure { toast(c, "Could not run the diagnostic.") } } })
+                    "🔍 Diagnose" to { scope.launch { runCatching { Api.get("/api/admin/bot-email-diagnose") }.onSuccess { r -> a.sure("Diagnose", r.toString(2).take(1500), danger = false, okLabel = "OK") {} }.onFailure { toast(c, "Could not run the diagnostic.") } } })
             }
             adCard("📨 Email sending (no daily limit)") {
                 val b = bsend
