@@ -1,0 +1,284 @@
+[09:07:13] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[09:07:16] screen 480x640 @ 240 dpi
+[09:07:16] ---- Signed in (QA fixture account) ----
+[09:07:20] fixture true
+[09:07:29] shot F01-home-signedin
+[09:07:29] open https://yidplus.com/chat
+[09:07:34] shot F02-chats-list
+[09:07:35] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Yesterday"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[09:07:43] shot F03-chat-dm
+[09:07:45] shot F03b-chat-dm-up
+[09:07:48] open https://yidplus.com/chat
+[09:08:02] shot F04-chat-group
+[09:08:04] shot F04b-group-up
+[09:08:06] shot F04c-group-top
+[09:08:09] shot F05-message-actions
+[09:08:19] shot F06-notifications
+[09:08:21] tab Home
+[09:08:24] shot F07-home-header
+[09:08:24] open https://yidplus.com/shorts
+[09:08:33] shot F08-shorts-signedin
+[09:08:33] tab Profile
+[09:08:36] shot F09-profile-signedin
+[09:08:48] shot F09b-profile-scrolled
+[09:09:01] open https://yidplus.com/chat
+[09:09:05] shot F10-chats-dark
+[09:09:11] shot F11-chat-dark
+[09:09:18] screen 1080x2400 @ 420 dpi
+[09:09:26] open https://yidplus.com/chat
+[09:09:30] shot F12-phone-chats
+[09:09:37] shot F13-phone-chat
+[09:09:40] screen 480x640 @ 240 dpi
+[09:09:40] ---- qa/fx-ad.sh ----
+[09:09:47] ---- AD: Settings (signed in) ----
+[09:09:47] tab Profile
+[09:09:51] shot AD-01-settings-top
+[09:09:53] shot AD-02-settings-reading
+[09:09:55] shot AD-03-settings-appearance-color
+[09:09:57] shot AD-04-settings-stats-account
+[09:09:59] shot AD-05-settings-verify-share
+[09:10:04] shot AD-06-settings-bottom
+[09:10:04] tab Profile
+[09:10:28] adfind tapped after 3 swipes
+[09:10:30] PROOF colour theme: LOOK color_theme=1 Ocean Blue
+[09:10:52] adfind tapped after 3 swipes
+[09:10:54] shot AD-07-ocean-blue-large-text
+[09:10:58] shot AD-07c-after-large-text-scroll
+[09:11:20] adfind tapped after 3 swipes
+[09:11:41] adfind tapped after 3 swipes
+[09:11:47] ad page EditProfile
+[09:11:47] shot AD-07b-edit-profile
+[09:11:54] adfind tapped after 1 swipes
+[09:12:01] adt '378'
+[09:12:04] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[09:12:08] ad page Privacy
+[09:12:08] shot AD-08-privacy
+[09:12:12] adt '96'
+[09:12:14] PROOF private account: PUT /api/profile {"is_private":1}
+[09:12:21] adfind tapped after 1 swipes
+[09:12:23] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[09:12:28] ad page NotifPrefs
+[09:12:32] adt '96'
+[09:12:34] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[09:12:34] shot AD-09-notif-prefs
+[09:12:39] ad page ChatSettings
+[09:12:43] adt '161'
+[09:12:44] shot AD-10-chat-settings
+[09:12:45] ---- AD: Notifications page ----
+[09:12:50] shot AD-11-notifications
+[09:12:54] adt '357'
+[09:12:56] PROOF mark all read: POST /api/notifications {"read":"all"}
+[09:12:56] shot AD-13-notifications-all-read
+[09:13:14] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[09:13:14] shot AD-12-notification-opened
+[09:13:17] ---- AD: Admin (native) ----
+[09:13:23] ad page Admin
+[09:13:23] shot AD-20-admin-dashboard
+[09:13:25] shot AD-21-admin-manage
+[09:13:28] shot AD-22-admin-features
+[09:13:38] adfind tapped after 2 swipes
+[09:13:40] PROOF feature switch: PUT /api/settings {"key":"feat_music","value":"on"}
+[09:13:40] shot AD-23-admin-music-switched
+[09:13:44] adt '96'
+[09:13:48] shot AD-24-admin-web-sections
+[09:13:54] ad page AdminUsers
+[09:13:54] shot AD-25-admin-users
+[09:13:56] adtap text
+[09:14:01] shot AD-26-admin-users-search
+[09:14:07] ad page AdminUser
+[09:14:07] shot AD-27-admin-user
+[09:14:11] adt '96'
+[09:14:13] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[09:14:31] adfind tapped after 2 swipes
+[09:14:37] adt '96'
+[09:14:39] PROOF mute user: POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+[09:15:00] adfind tapped after 3 swipes
+[09:15:02] shot AD-28-admin-block-confirm
+[09:15:06] adt '371'
+[09:15:08] PROOF block user: PUT /api/admin/users {"id":"u-yanky","blocked":true}
+[09:15:11] adfind tapped after 0 swipes
+[09:15:17] adt '383'
+[09:15:19] PROOF promote: PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+[09:15:19] shot AD-29-admin-user-after
+[09:15:25] ad page AdminReports
+[09:15:25] shot AD-30-admin-reports
+[09:15:29] adt '221'
+[09:15:31] PROOF dismiss report: DELETE /api/reports?id=r1 < 0 bytes>
+[09:15:34] adt '129'
+[09:15:40] adt '352'
+[09:15:42] PROOF ban from report: PUT /api/admin/users {"id":"u-mendy","blocked":true}
+[09:15:48] ad page AdminVerify
+[09:15:48] shot AD-31-admin-verify
+[09:15:52] adt '256'
+[09:15:54] PROOF approve verify: PUT /api/verify-request {"id":"v1","action":"approve"}
+[09:16:01] ad page AdminChannels
+[09:16:01] shot AD-32-admin-channels
+[09:16:04] adt '313'
+[09:16:06] PROOF verify channel: PUT /api/admin/users {"id":"u-chan1","verified":true}
+[09:16:14] ad page AdminTelegram
+[09:16:14] shot AD-33-admin-telegram
+[09:16:16] adtap text
+[09:16:23] adt '180'
+[09:16:25] PROOF add telegram channel: POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+[09:16:32] ad page AdminBroadcast
+[09:16:32] shot AD-34-admin-broadcast
+[09:16:34] adtap text
+[09:16:41] adt '192'
+[09:16:44] shot AD-35-broadcast-confirm
+[09:16:47] adt '374'
+[09:16:50] PROOF broadcast: POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+[09:16:56] ad page AdminBadWords
+[09:16:56] shot AD-36-admin-word-filter
+[09:16:58] adtap text
+[09:17:06] adt '395'
+[09:17:08] PROOF add bad word: POST /api/admin/bad-words {"word":"testbadword"}
+[09:17:12] adt '42'
+[09:17:14] PROOF remove bad word: DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+[09:17:20] ad page AdminWeb
+[09:17:20] shot AD-37-admin-web-pin
+[09:17:29] adt: 'Unlock' not on screen; screen has: Back|Admin · website|Section: ads|Open in the browser|
+[09:17:36] PROOF admin pin: POST /api/admin/verify-pin {"pin":"1234"}
+[09:17:36] shot AD-38-admin-web-after-pin
+[09:17:37] ---- AD: dark mode ----
+[09:17:40] tab Profile
+[09:17:43] shot AD-40-settings-dark
+[09:17:48] ad page Admin
+[09:17:48] shot AD-41-admin-dark
+[09:17:53] shot AD-42-notifications-dark
+AdminWeb: --------- beginning of kernel
+AdminWeb: --------- beginning of system
+AdminWeb: --------- beginning of main
+AdminWeb: 11-12 09:17:22.671  4955  4955 I YidAdminWeb: webview 83.0.4103.120
+AdminWeb: 11-12 09:17:23.749  4955  4955 I YidAdminWeb: LOG An <img> element was lazyloaded with loading=lazy, but had no dimensions specified. Specifying dimensions improves performance. See https://crbug.com/954323 @:67
+[09:17:58] ---- qa/fx-ch.sh ----
+[09:18:04] open https://yidplus.com/chat
+[09:18:12] shot CH-01-chat-list
+[09:18:14] CH list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="2"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Yesterday"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="18"  text="Chats"  text="Shorts"  text="3"  text="Channels"  text="Settings" 
+[09:18:16] shot CH-02-chips-scrolled
+[09:18:18] shot CH-02b-list-scrolled
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[395,408][467,480]" 
+[09:18:23] chtap 431 444
+[09:18:25] shot CH-03-fab-menu
+  node: text="New group" class="android.widget.TextView" content-desc="" bounds="[257,202][376,232]" 
+[09:18:29] chtap 316 217
+  node: text="Group name" class="android.widget.TextView" content-desc="" bounds="[150,179][284,212]" 
+[09:18:35] chtap 217 195
+[09:18:38] shot CH-03b-new-group
+  node: text="" class="android.widget.Button" content-desc="Create" bounds="[405,51][477,123]" 
+[09:18:41] chtap 441 87
+[09:18:56] open https://yidplus.com/chat
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[395,408][467,480]" 
+[09:19:03] chtap 431 444
+  node: text="New chat" class="android.widget.TextView" content-desc="" bounds="[257,130][361,160]" 
+[09:19:08] chtap 309 145
+[09:19:15] shot CH-03c-new-chat
+[09:19:16] chtap: 'Dovid New' not on screen
+[09:19:31] open https://yidplus.com/chat
+  node: text="" class="android.view.View" content-desc="Search chats" bounds="[72,53][408,106]" 
+[09:19:37] chtap 240 79
+[09:19:41] keyboard shown after typing in search: mInputShown=true
+[09:19:44] keyboard shown after Back from search: mInputShown=false
+[09:19:44] shot CH-04-search-closed
+[09:19:50] open chat r-g1
+[09:19:50] shot CH-05-group-bottom
+  node: text="Yanky is typing…" class="android.widget.TextView" content-desc="" bounds="[141,90][287,123]" 
+[09:19:52] CH ok: 'typing' on screen
+  YidFx: 11-12 09:19:44.080  7446  7480 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+[09:19:53] shot CH-05b-group-up
+[09:19:55] shot CH-05c-group-top
+[09:19:58] open chat r-g1
+[09:19:58] shot CH-06-group-reopen-instant
+[09:20:08] open chat r-g2
+[09:20:08] shot CH-07-group-photo-header
+  node: text="&#128222; Group voice call · 12 min · 2:30 PM" class="android.widget.TextView" content-desc="" bounds="[77,419][404,442]" 
+[09:20:10] CH ok: 'Group voice call' on screen
+[09:20:17] open chat r-dm4
+[09:20:17] shot CH-07b-dm-missed-call
+  node: text="&#128222; Missed voice call · 6:30 PM" class="android.widget.TextView" content-desc="" bounds="[108,419][372,442]" 
+[09:20:19] CH ok: 'Missed voice call' on screen
+[09:20:27] open chat r-dm1
+[09:20:27] shot CH-08-dm-online-ticks-reacts
+[09:20:35] open chat r-dm2
+[09:20:35] shot CH-09-dm-last-seen-voice
+[09:20:44] open chat r-spy
+[09:20:44] shot CH-10-admin-spectating
+  node: text="&#128065; Viewing as Admin" class="android.widget.TextView" content-desc="" bounds="[141,87][329,120]" 
+[09:20:45] CH ok: 'Viewing as Admin' on screen
+[09:20:47] CH ok: 'Join group' not shown
+[09:20:55] open chat r-g4
+[09:20:55] shot CH-11-not-joined-group
+  node: text="Join group" class="android.widget.TextView" content-desc="" bounds="[188,502][292,532]" 
+[09:20:59] chtap 240 517
+  YidFx: 11-12 09:20:56.754  7446  7492 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+[09:21:10] open chat r-links
+[09:21:10] shot CH-12-links-cards
+[09:21:13] shot CH-12b-links-up
+[09:21:16] shot CH-12c-links-top
+[09:21:20] screen 1080x2400 @ 420 dpi
+[09:21:27] open chat r-links
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[09:21:31] bubble at: 232 1978
+[09:21:33] shot CH-13-swipe-reply
+  node: text="Reply to Berel Links" class="android.widget.TextView" content-desc="" bounds="[135,1218][442,1276]" 
+[09:21:35] CH ok: 'Reply to' on screen
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[09:21:42] chtap 1006 1423
+[09:21:43] shot CH-13b-swipe-reply-sent
+  YidFx: 11-12 09:21:40.082  7446  8052 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,776][417,825]" 
+[09:21:49] long-press 232 800
+[09:21:49] shot CH-14-long-press-menu
+  node: text="" class="android.widget.Button" content-desc="Reply" bounds="[368,90][484,216]" 
+[09:21:53] chtap 426 153
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[09:22:01] chtap 1006 1423
+  YidFx: 11-12 09:21:59.163  7446  8052 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,505][417,554]" 
+[09:22:08] long-press 232 529
+  node: text="&#128077;" class="android.widget.TextView" content-desc="" bounds="[646,256][719,291]" 
+[09:22:11] chtap 682 273
+[09:22:14] shot CH-14b-reacted
+  YidFx: 11-12 09:22:09.599  7446  7480 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,432][417,481]" 
+[09:22:20] long-press 232 456
+  node: text="" class="android.widget.Button" content-desc="Forward" bounds="[716,90][832,216]" 
+[09:22:23] chtap 774 153
+[09:22:26] shot CH-15-forward
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[190,460][1038,518]" 
+[09:22:30] chtap 614 489
+  YidFx: 11-12 09:22:27.875  7446  8052 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[09:22:41] long-press 232 1978
+[09:22:42] chtap: 'Pin' not on screen
+[09:22:45] shot CH-16-pinned
+[09:22:50] chtap: 'Send' not on screen
+[09:22:51] shot CH-17-sent-text
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[122,1954][491,2003]" 
+[09:22:57] long-press 306 1978
+[09:22:59] chtap: 'Delete' not on screen
+[09:23:00] shot CH-17b-delete-confirm
+[09:23:01] chtap: 'Yes' not on screen
+  node: text="" class="android.view.View" content-desc="Photo" bounds="[32,405][505,878]" 
+[09:23:10] shot CH-18-photo-viewer
+  node: text="" class="android.widget.Button" content-desc="Attach" bounds="[701,2140][817,2266]" 
+[09:23:19] chtap 759 2203
+[09:23:21] shot CH-19-attach-sheet
+  node: text="Gallery" class="android.widget.TextView" content-desc="" bounds="[119,1765][219,1823]" 
+[09:23:24] chtap 169 1794
+[09:23:28] shot CH-19b-picker
+[09:23:30] chtap: 'ch_test.png' not on screen
+[09:23:35] shot CH-19c-photo-sent
+[09:23:37] chtap: 'Record voice message' not on screen
+[09:23:41] shot CH-20-recording
+[09:23:42] chtap: 'Send voice message' not on screen
+[09:23:51] screen 480x640 @ 240 dpi
+[09:23:59] open chat r-links
+[09:23:59] shot CH-21-links-dark
+[09:24:01] open https://yidplus.com/chat
+[09:24:04] shot CH-22-list-dark
+[09:24:06] CH perf: 11-12 09:20:29.435  7446  7446 I YidPerf : Chat content 38 ms after open (cache) 11-12 09:20:37.779  7446  7446 I YidPerf : Chat content 30 ms after open (cache) 11-12 09:20:49.150  7446  7446 I YidPerf : Chat content 39 ms after open 11-12 09:21:03.035  7446  7446 I YidPerf : Chat content 47 ms after open 11-12 09:21:20.519  7446  7446 I YidPerf : Chat content 58 ms after open (cache) 11-12 09:23:55.701  7446  7446 I YidPerf : Chat content 1782 ms after open 
+[09:24:06] CH all writes: 46
+[09:24:06] fixture writes the app would have sent: 46
+[09:24:10] fixture false
