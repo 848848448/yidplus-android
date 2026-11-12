@@ -1,0 +1,31 @@
+--------- beginning of main
+--------- beginning of kernel
+--------- beginning of system
+11-12 00:33:27.633  5510  5545 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 00:34:26.174  5510  6282 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:34:31.176  5510  6282 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:34:51.500  6709  6742 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:34:56.597  6709  6751 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+--------- beginning of crash
+11-12 00:35:47.883  6953  6953 I YidFx   : LOOK color_theme=1 Ocean Blue
+11-12 00:37:57.849  6953  8390 I YidFx   : PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+11-12 00:38:08.456  6953  8389 I YidFx   : PUT /api/profile {"is_private":1}
+11-12 00:38:17.558  6953  6988 I YidFx   : PUT /api/profile {"read_receipts":0}
+11-12 00:38:28.397  6953  8389 I YidFx   : PUT /api/profile {"notif_likes":0}
+11-12 00:38:50.233  6953  6988 I YidFx   : POST /api/notifications {"read":"all"}
+11-12 00:39:08.280  9014  9046 I YidFx   : POST /api/notifications {"read":"n1"}
+11-12 00:39:38.875  9014  9048 I YidFx   : PUT /api/settings {"key":"feat_music","value":"on"}
+11-12 00:39:44.473  9014  9048 I YidFx   : PUT /api/settings {"key":"feat_music","value":"off"}
+11-12 00:40:11.727  9014  9045 I YidFx   : PUT /api/admin/users {"id":"u-yanky","verified":true}
+11-12 00:40:37.373  9014  9048 I YidFx   : POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+11-12 00:41:03.010  9014  9048 I YidFx   : PUT /api/admin/users {"id":"u-yanky","blocked":true}
+11-12 00:41:17.601  9014  9045 I YidFx   : PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+11-12 00:41:29.542  9014 10030 I YidFx   : DELETE /api/reports?id=r1 < 0 bytes>
+11-12 00:41:40.544  9014 10030 I YidFx   : PUT /api/admin/users {"id":"u-mendy","blocked":true}
+11-12 00:41:52.428  9014 10029 I YidFx   : PUT /api/verify-request {"id":"v1","action":"approve"}
+11-12 00:42:05.308  9014  9048 I YidFx   : PUT /api/admin/users {"id":"u-chan1","verified":true}
+11-12 00:42:24.489  9014 10030 I YidFx   : POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+11-12 00:42:48.173  9014  9048 I YidFx   : POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+11-12 00:43:07.290  9014  9045 I YidFx   : POST /api/admin/bad-words {"word":"testbadword"}
+11-12 00:43:12.815  9014  9048 I YidFx   : DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+11-12 00:43:25.691  9014  9048 I YidFx   : POST /api/admin/verify-pin {"pin":"1234"}
