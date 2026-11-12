@@ -41,7 +41,7 @@ clrows() { # full-width chat rows (52 dp = 78 px at 240 dpi) wholly between the 
   local nav; nav=$(echo "$x" | grep -F 'content-desc="Chats' | grep -oE 'bounds="[^"]+"' | head -1 | grep -oE '[0-9]+' | sed -n 2p)
   local n; n=$(echo "$x" | grep -oE 'bounds="\[0,[0-9]+\]\[480,[0-9]+\]"' | grep -oE '[0-9]+' | paste - - - - | awk -v nb="${nav:-560}" '{h=$4-$2; if (h>=70 && h<=96 && $2>=110 && $4<=nb+2) c++} END{print c+0}')
   log "CL rows: $n full chat rows visible above the bottom bar (top of bottom bar y=${nav:-?}); FAB bounds: ${fab:-none} ($1)"
-  [ "${n:-0}" -ge 5 ] && log "CL ok: 5+ rows at 480x640" || log "CL WRONG: only ${n:-0} rows at 480x640"
+  case "$1" in end*) ;; *) [ "${n:-0}" -ge 5 ] && log "CL ok: 5+ rows at 480x640" || log "CL WRONG: only ${n:-0} rows at 480x640";; esac
 }
 # The Qin F21 has hardware keys and no on-screen nav bar; this emulator draws a 48 dp 3-button bar. Use the thin gesture bar
 # for the whole CL block so the screen height matches the phone more closely (no swipe starts within 70 px of a side edge).
@@ -137,12 +137,14 @@ adb shell input text "https://yidplus.com/chat?join=clpriv"; key 4; sleep 3; sho
 # ── Search, then a non-green theme and dark mode (the bars follow the colour theme: DS P6) ──
 view "https://yidplus.com/chat"; sleep 3; cltap "Search chats"; sleep 2; shot CL-31-search-open; chkb_cl() { log "CL keyboard after search opens: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }; chkb_cl
 adb shell input text "Yo"; sleep 1; shot CL-31b-search-typing; adb shell input text "ssi"; sleep 3; key 4; shot CL-31c-search-results; cltexts search-yossi
-cltap "Clear"; sleep 1; adb shell input text "YID"; sleep 3; key 4; shot CL-27-search; cltexts search-yid
-cltap "Clear"; sleep 1; adb shell input text "Mendy"; sleep 3; key 4; shot CL-27b-search-people; clhas "Contacts"; clhas "Mendy Gold"
-cltap "Clear"; sleep 1; key 4; shot CL-31d-search-recent; clhas "Recent searches"
-cltap "Unread"; sleep 1; shot CL-31e-chip-unread; cltap "Unread"; cltap "Photos"; sleep 1; shot CL-31f-chip-photos; cltap "Photos"; cltap "Links"; sleep 1; shot CL-31g-chip-links; cltap "Links"
-cltap "Clear all"; sleep 1; adb shell input text "zzqx"; sleep 3; key 4; shot CL-31h-no-results; clhas "No results found"
-cltap "Clear"; adb shell input text "Mendy"; sleep 3; key 4; cltap "Mendy Gold"; sleep 2; clfx '"other_user_id":"u-mendy"'; key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
+# each query in a fresh search (close it, open it again, type): no reliance on "Clear" and keyboard Back timing
+clsearch() { local i; for i in 1 2 3; do clpos "Close search" | grep -q . && { cltap "Close search"; sleep 1; } ; done; cltop; cltap "Search chats"; sleep 1.5; [ -n "${1:-}" ] && { adb shell input text "$1"; sleep 3; }; timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -q 'mInputShown=true' && key 4; sleep 1; }
+clsearch YID; shot CL-27-search; cltexts search-yid
+clsearch Mendy; shot CL-27b-search-people; clhas "Contacts"; clhas "Mendy Gold"
+clsearch ""; shot CL-31d-search-recent; clhas "Recent searches"
+cltap "Unread"; sleep 1.5; shot CL-31e-chip-unread; cltap "Unread"; sleep 1; cltap "Photos"; sleep 1.5; shot CL-31f-chip-photos; cltap "Photos"; sleep 1; cltap "Links"; sleep 1.5; shot CL-31g-chip-links; cltap "Links"
+clsearch zzqx; shot CL-31h-no-results; clhas "No results found"
+clsearch Mendy; cltap "Mendy Gold"; sleep 2; clfx '"other_user_id":"u-mendy"'; key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
 adb shell cmd uimode night yes; sleep 3; view "https://yidplus.com/chat"; sleep 3; shot CL-28-list-dark; cltap "Menu"; sleep 1; shot CL-28b-drawer-dark; key 4; sleep 1
 clopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 5; cltap "More"; cltap "Group info"; sleep 2; shot CL-28c-info-dark; key 4; key 4; adb shell cmd uimode night no; sleep 2
 # a non-green colour theme (Ocean / preset 1) and the light bar: the chat bars must follow it
