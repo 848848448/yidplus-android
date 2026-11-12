@@ -535,13 +535,14 @@ fun ShortsScreen() {
         Feeds.forYou.items.removeAll { it.key == s.key }; Feeds.following.items.removeAll { it.key == s.key }
         toast(c, "You won’t see ${s.creator.ifBlank { "this creator" }} anymore")
     }
-    // one tap acts at once (site: no 0.26 s wait); a second tap within 0.3 s undoes it and likes instead
+    // one tap acts at once (site: no 0.26 s wait); a second tap within 0.4 s undoes it and likes instead
     val tapState = remember { longArrayOf(0L) }
     var undo by remember { mutableStateOf<(() -> Unit)?>(null) }
     fun onTap(s: Clip, o: Offset) {
         val now = android.os.SystemClock.uptimeMillis()
         if (com.yidplus.app.data.Fixture.on) android.util.Log.i("YidSh", "tap dt=${now - tapState[0]} muted=${Prefs.muted} paused=$paused first=$firstFrame buf=$buffering")
-        if (now - tapState[0] < 350) {
+        // 400 ms: a single tap already acted at once, so a longer window costs nothing and catches slower fingers
+        if (now - tapState[0] < 400) {
             tapState[0] = 0L; undo?.invoke(); undo = null
             bursts.add(ShBurstAt(now, o.x, o.y, (Math.random() * 30 - 15).toFloat()))
             if (!s.liked) like(s, true)

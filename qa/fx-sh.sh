@@ -63,7 +63,8 @@ sh_tapui "1.5×"; sleep 1; shot SH-11-options-speed; key 4; sleep 2; shot SH-12-
 sh_tapui "More options"; sleep 2; sh_tapui "Normal"; key 4; sleep 1
 # 6. save, share sheet (subject + text), follow from the rail
 sh_mark save; sh_tapui "Save"; sleep 2; shot SH-13-saved-toast
-sh_mark share; sh_tapui "Share"; sleep 3; shot SH-14-share-sheet
+sh_mark share; sh_tapui "Share"; sleep 2
+for i in 1 2 3 4 5; do timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -qi 'chooser\|resolver\|intentresolver' && break; sleep 1; done; sleep 1; shot SH-14-share-sheet
 # close the system share sheet with one Back only if it is in front (a second Back would leave Shorts)
 timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -qi 'chooser\|resolver\|intentresolver' && { key 4; sleep 2; }
 timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -q 'com.yidplus.app' || { view "https://yidplus.com/shorts"; sleep 4; log "share: back in Shorts by link"; }
