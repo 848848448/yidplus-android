@@ -1,0 +1,28 @@
+--------- beginning of main
+--------- beginning of kernel
+--------- beginning of system
+11-12 00:06:55.217  5173  5212 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 00:07:04.003  5173  5214 I YidFx   : POST /api/notifications {"read":"all"}
+11-12 00:07:54.935  5173  6372 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:08:21.760  6803  6836 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+--------- beginning of crash
+11-12 00:09:14.862  7047  7081 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+11-12 00:09:15.063  7047  7081 I YidFx   : POST /api/chat/read {"room_id":"fx-255311754768"}
+11-12 00:10:21.094  7796  7828 I YidFx   : POST /api/chat/read {"room_id":"r-g1"}
+11-12 00:10:39.613  7796  7827 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 00:10:49.591  7796  7827 I YidFx   : POST /api/chat/read {"room_id":"r-dm4"}
+11-12 00:10:58.566  7796  7826 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:11:06.977  7796  7829 I YidFx   : POST /api/chat/read {"room_id":"r-dm2"}
+11-12 00:11:34.588  7796  7829 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+11-12 00:11:40.913  7796  7829 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
+11-12 00:11:58.716  7796  7827 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
+11-12 00:12:13.148  7796  7829 I YidFx   : POST /api/chat/typing {"room_id":"r-links"}
+11-12 00:12:19.502  7796  7829 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+11-12 00:12:33.816  7796  7828 I YidFx   : POST /api/chat/typing {"room_id":"r-links"}
+11-12 00:12:39.270  7796  7828 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+11-12 00:12:49.968  7796  7829 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+11-12 00:13:08.722  7796  7829 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+11-12 00:13:13.892  7796  8870 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
+11-12 00:13:23.676  7796  7829 I YidFx   : PUT /api/chat/rooms {"room_id":"r-links","pinned_message_id":"l9"}
+11-12 00:13:47.467  7796  7829 I YidFx   : DELETE /api/chat?id=l9 < 0 bytes>
+11-12 00:13:58.879  7796  7829 I YidFx   : POST /api/chat/read {"room_id":"r-links"}
