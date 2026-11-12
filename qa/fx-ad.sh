@@ -123,7 +123,7 @@ adx sessions; shot AD-63-sessions; key 4
 adx banned-devices; shot AD-64-banned; key 4
 adx badges; shot AD-65-badges; key 4
 adx ad-exempt; shot AD-66-ad-free; key 4
-adq AdminUser 6; adswipe; adswipe; adswipe; shot AD-67-user-actions-account; adswipe; adswipe; shot AD-67b-user-devices-history; adswipe; adswipe; adswipe; shot AD-67c-user-notes; key 4
+adq AdminUser 6; adswipe; adswipe; adswipe; shot AD-67-user-actions-account; adswipe; adswipe; shot AD-67b-user-devices-history; adt "198.51.100.7 · fp9a8b7c6d"; sleep 1.5; shot AD-67e-ban-device-confirm; adt "Ban device"; sleep 2; proof "ban device" "POST /api/admin/device-bans"; adswipe; adswipe; adswipe; shot AD-67c-user-notes; key 4
 adq AdminUser 6; adfind "Edit details"; sleep 1; shot AD-67d-user-edit-details; key 4
 log "---- AD 2.1: Moderation ----"
 adx reports; shot AD-68-reports; adt "Resolve"; sleep 1.5; shot AD-69-report-resolve-confirm; adt "Resolve"; sleep 2; proof "resolve report" "PUT /api/reports"; key 4
