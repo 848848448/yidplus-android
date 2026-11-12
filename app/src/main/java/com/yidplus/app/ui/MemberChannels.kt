@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -125,14 +126,16 @@ fun SoSiteChannelsList(query: String, sort: Int) {
     }
 }
 
-data class SoSitePost(val id: String, val userId: String, val caption: String, val media: String?, val likes: Int, val comments: Int, val liked: Boolean, val at: String?) {
+data class SoSitePost(val id: String, val userId: String, val caption: String, val media: String?, val likes: Int, val comments: Int, val liked: Boolean, val at: String?,
+                      val views: Int = 0, val author: String = "", val authorPhoto: String? = null, val verified: Boolean = false) {
     val isVideo get() = media != null && soIsVideo(media)
     companion object {
         fun from(j: JSONObject): SoSitePost {
             val content = j.str("content")
             val media = soPostMedia(content)
             val caption = j.str("caption").ifBlank { if (media == null) content else "" }
-            return SoSitePost(j.str("id"), j.str("user_id"), caption, media, j.optInt("likes"), j.optInt("comments"), j.optBoolean("liked"), j.strOrNull("created_at"))
+            return SoSitePost(j.str("id"), j.str("user_id"), caption, media, j.optInt("likes"), j.optInt("comments"), j.optBoolean("liked") || j.optInt("liked") == 1, j.strOrNull("created_at"),
+                j.optInt("views", j.optInt("view_count")), j.str("nickname").ifBlank { j.str("username") }, Api.abs(j.strOrNull("photo_url")), j.optInt("verified") == 1 || j.optBoolean("verified"))
         }
     }
 }
@@ -141,6 +144,7 @@ data class SoWallShort(val id: String, val caption: String, val video: String, v
 /** A member's channel: picture, bio, numbers, Follow (or Request), Share, and its Posts and Shorts. */
 data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen() {
     override val perfName = "UserChannel"
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
         var ch by remember { mutableStateOf<JSONObject?>(null) }
@@ -154,6 +158,14 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
         var busy by remember { mutableStateOf(false) }
         var commentsFor by remember { mutableStateOf<SoSitePost?>(null) }
         var retry by remember { mutableIntStateOf(0) }
+        var menu by remember { mutableStateOf(false) }
+        var report by remember { mutableStateOf(false) }
+        var askPrivacy by remember { mutableStateOf(false) }
+        var pulling by remember { mutableStateOf(false) }
+        val music = remember { mutableStateListOf<Track>() }
+        var musicLoaded by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) { tab = runCatching { Api.app.getSharedPreferences("social", 0).getInt("ypChTab", tab) }.getOrDefault(tab) }
+        fun pickTab(t: Int) { tab = t; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("ypChTab", t).apply() } }
         val mine = Session.me?.id == ownerId
         // The saved copy shows at once (no skeleton when you've been here before); the site's answer replaces it quietly.
         val cacheKey = Store.key("sc|" + ownerId)
@@ -181,6 +193,14 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
             } catch (e: Exception) { if (ch == null) err = Api.friendly(e) }
             Perf.shown("UserChannel")
         }
+        LaunchedEffect(tab, ownerId) { if (tab == 2 && !musicLoaded) { runCatching { val l = Track.list(Api.get("/api/music?owner_id=" + soEnc(ownerId))); music.clear(); music.addAll(l) }; musicLoaded = true } }
+        suspend fun reload() {
+            runCatching {
+                val r = Api.get("/api/channels?owner_id=" + soEnc(ownerId))
+                val p = if (r.optBoolean("locked")) null else runCatching { Api.get("/api/posts?user_id=" + soEnc(ownerId)).optJSONArray("posts").objects() }.getOrNull()
+                applyData(r, p)
+            }.onFailure { toast(c, Api.friendly(it)) }
+        }
         val title = ch?.str("nickname")?.ifBlank { null } ?: name.ifBlank { "Channel" }
         val photo = Api.abs(ch?.strOrNull("photo_url"))
         fun follow() {
@@ -189,11 +209,12 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
             scope.launch {
                 try {
                     if (following || reqStatus == "pending") {
-                        Api.delete("/api/channel-follows?channel_owner_id=" + soEnc(ownerId)); following = false; reqStatus = null
+                        Api.delete("/api/channel-follows?channel_owner_id=" + soEnc(ownerId)); if (following) toast(c, "Unfollowed"); following = false; reqStatus = null
                         ch?.let { it.put("followers", maxOf(0, it.optInt("followers") - 1)) }
                     } else {
                         val st = Api.post("/api/channel-follows", JSONObject().put("channel_owner_id", ownerId)).str("status")
-                        if (st == "pending") { reqStatus = "pending"; toast(c, "Request sent") } else { following = true; ch?.let { it.put("followers", it.optInt("followers") + 1) }; toast(c, "Following $title") }
+                        if (st == "pending") { reqStatus = "pending"; toast(c, "Follow request sent! Waiting for approval.") } else { val wasLocked = locked; following = true; ch?.let { it.put("followers", it.optInt("followers") + 1) }
+                            toast(c, if (wasLocked) "You are now following this channel!" else "Following @$title"); if (wasLocked) reload() }
                     }
                 } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { busy = false }
             }
@@ -201,10 +222,21 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             TopBar(title, onBack = { Nav.back() }) {
                 IconBtn(Icons.Filled.Share, "Share", { share(c, "@$title on YID PLUS\n" + Api.BASE + "/?channel=" + soEnc(ownerId)) }, tint = LocalContentColor.current)
+                Box {
+                    IconBtn(Icons.Filled.MoreVert, "Channel options", { menu = true }, tint = LocalContentColor.current)
+                    DropdownMenu(menu, { menu = false }) {
+                        DropdownMenuItem(text = { Text("Share channel") }, leadingIcon = { Icon(Icons.Filled.Share, null) }, onClick = { menu = false; share(c, "@$title on YID PLUS\n" + Api.BASE + "/?channel=" + soEnc(ownerId)) })
+                        DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Icons.Filled.Link, null) }, onClick = { menu = false; soCopy(c, Api.BASE + "/?channel=" + soEnc(ownerId)) })
+                        DropdownMenuItem(text = { Text("View profile") }, leadingIcon = { Icon(Icons.Filled.Person, null) }, onClick = { menu = false; Nav.open(HmProfilePage(ownerId, title)) })
+                        if (!mine) DropdownMenuItem(text = { Text("Message @$title") }, leadingIcon = { Icon(Icons.Filled.ChatBubbleOutline, null) }, onClick = { menu = false; hmOpenDm(c, scope, ownerId, title, Api.abs(ch?.strOrNull("photo_url"))) })
+                        if (!mine && Session.me != null) DropdownMenuItem(text = { Text("Report", color = MaterialTheme.colorScheme.error) }, leadingIcon = { Icon(Icons.Filled.Flag, null, tint = MaterialTheme.colorScheme.error) }, onClick = { menu = false; report = true })
+                    }
+                }
             }
             if (ch == null && err != null) { Problem(err!!, false, { retry++ }); return@Column }
             if (ch == null) { SoSkeleton(rows = 4); return@Column }
             val j = ch!!
+            PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; reload(); pulling = false } }, modifier = Modifier.fillMaxSize()) {
             LazyColumn(Modifier.fillMaxSize()) {
                 item(key = "head") {
                     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
@@ -215,8 +247,12 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                         Row(Modifier.padding(horizontal = 16.dp).offset(y = (-30).dp), verticalAlignment = Alignment.Bottom) {
                             Box(Modifier.size(80.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(3.dp)) { SoThumb(photo, title, 74.dp) }
                             Spacer(Modifier.weight(1f))
-                            if (!mine) SoPill(when { following -> "Following ✓"; reqStatus == "pending" -> "Requested"; else -> "Follow" }, !following && reqStatus != "pending", { follow() },
-                                Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Icons.Filled.PersonAdd else null, enabled = !busy)
+                            if (!mine) {
+                                SoPill("Message", false, { hmOpenDm(c, scope, ownerId, title, photo) }, icon = Icons.Filled.ChatBubbleOutline)
+                                Spacer(Modifier.width(8.dp))
+                                SoPill(when { following -> "Following ✓"; reqStatus == "pending" -> "Requested"; reqStatus == "rejected" -> "Declined"; else -> "Follow" }, !following && reqStatus != "pending", { follow() },
+                                    Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Icons.Filled.PersonAdd else null, enabled = !busy)
+                            }
                             else SoPill("New post", true, { Nav.open(SoNewPostPage()) }, Modifier.firstFocus(), icon = Icons.Filled.Edit)
                         }
                         Column(Modifier.padding(start = 16.dp, end = 16.dp).offset(y = (-22).dp)) {
@@ -226,32 +262,40 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                                 if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
                                 if (j.str("privacy") == "followers_only") Icon(Icons.Filled.Lock, "Followers only", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
+                            Text("@$title", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             if (j.str("bio").isNotBlank()) Text(j.str("bio"), fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp), style = TextStyle(textDirection = TextDirection.Content))
-                            Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                                Stat(soNum(j.optInt("followers")), "Followers"); Stat(soNum(j.optInt("following")), "Following")
-                                Stat(soNum(j.optInt("total_views")), "Views"); Stat(soNum(j.optInt("shorts_count")), "Shorts")
+                            Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Stat(soNum(j.optInt("followers")), "Followers") { Nav.open(HmFollowListPage(ownerId, title, true)) }
+                                Stat(soNum(j.optInt("following")), "Following") { Nav.open(HmFollowListPage(ownerId, title, false)) }
+                                Stat(soNum(j.optInt("total_views")), "Views", null); Stat(soNum(j.optInt("shorts_count").let { if (it > 0) it else shorts.size }), "Shorts") { pickTab(1) }
                             }
                             if (mine) Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 val priv = j.str("privacy") == "followers_only"
-                                SoPill(if (priv) "Followers only" else "Public", false, {
+                                SoPill(if (priv) "Private · tap to change" else "Public · tap to change", false, { askPrivacy = true }, icon = if (priv) Icons.Filled.Lock else Icons.Filled.Public)
+                                if (askPrivacy) AlertDialog(onDismissRequest = { askPrivacy = false },
+                                    title = { Text(if (priv) "Make this channel PUBLIC?" else "Make this channel PRIVATE?") },
+                                    text = { Text(if (priv) "Everyone will be able to see your content." else "Only followers will see your content. New followers must be approved by you.") },
+                                    dismissButton = { TextButton({ askPrivacy = false }) { Text("Cancel") } },
+                                    confirmButton = { TextButton({ askPrivacy = false
                                     scope.launch {
                                         val nv = if (priv) "public" else "followers_only"
                                         runCatching { Api.put("/api/channels", JSONObject().put("owner_id", ownerId).put("privacy", nv)) }
-                                            .onSuccess { ch = JSONObject(j.toString()).put("privacy", nv); toast(c, if (nv == "public") "Your channel is public" else "Only followers see your posts") }
+                                            .onSuccess { ch = JSONObject(j.toString()).put("privacy", nv); toast(c, if (nv == "public") "Channel is now public — everyone can see your content" else "Channel is now private — only followers can see your content") }
                                             .onFailure { toast(c, Api.friendly(it)) }
-                                    } }, icon = if (priv) Icons.Filled.Lock else Icons.Filled.Public)
+                                    } }) { Text("OK") } })
                                 SoPill("Requests", false, { Nav.open(SoChannelFollowRequestsPage(ownerId)) }, icon = Icons.Filled.PersonAdd)
                             }
                         }
                     }
                 }
                 item(key = "tabs") {
-                    Surface(color = MaterialTheme.colorScheme.surface) { SoChips(listOf("Posts (${posts.size})", "Shorts (${shorts.size})"), tab, { tab = it }) }
+                    Surface(color = MaterialTheme.colorScheme.surface) { SoChips(listOf("Posts (${posts.size})", "Shorts (${shorts.size})", "Music", "About"), tab, { pickTab(it) }) }
                     HorizontalDivider(thickness = 0.5.dp)
                 }
                 if (locked) item(key = "locked") {
-                    SoEmpty(Icons.Filled.Lock, if (reqStatus == "pending") "Request sent. You'll see the posts once it's approved." else "This channel is for followers only",
-                        action = if (reqStatus == "pending") null else "Request to follow", onAction = { follow() })
+                    SoEmpty(Icons.Filled.Lock, when (reqStatus) { "pending" -> "Request pending… You'll see the posts once it's approved."; "rejected" -> "Your request was declined"
+                        else -> "This channel is private. Follow this channel to see their content" },
+                        action = if (reqStatus == "pending" || reqStatus == "rejected") null else "Request to Follow", onAction = { follow() })
                 } else if (tab == 0) {
                     if (posts.isEmpty()) item(key = "noposts") { SoEmpty(Icons.Filled.Article, if (mine) "Write your first post" else "No posts yet", action = if (mine) "New post" else null, onAction = { Nav.open(SoNewPostPage()) }) }
                     // Every photo / video of the channel in one viewer: swipe from one to the next, like WhatsApp.
@@ -259,6 +303,24 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                     items(posts, key = { "p" + it.id }) { p ->
                         SoSitePostCard(p, title, photo, onChange = { n -> val i = posts.indexOfFirst { it.id == n.id }; if (i >= 0) posts[i] = n },
                             onComments = { commentsFor = p }, onDeleted = { posts.removeAll { it.id == p.id } }, gallery = gal)
+                    }
+                } else if (tab == 2) {
+                    if (music.isEmpty()) item(key = "nomusic") { if (musicLoaded) SoEmpty(Icons.Filled.MusicNote, "No tracks yet") else SoSkeleton(rows = 2) }
+                    itemsIndexed(music, key = { _, t -> "m" + t.id }) { i, t -> HmTrackRow(t) { Music.play(c, music.toList(), i) }; SoDivider(74.dp) }
+                } else if (tab == 3) {
+                    item(key = "about") {
+                        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(16.dp)) {
+                            Text("About", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                            Text(j.str("bio").ifBlank { "No bio yet." }, fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp),
+                                color = if (j.str("bio").isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface, style = TextStyle(textDirection = TextDirection.Content))
+                            Text("${posts.size} posts · ${shorts.size} shorts", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 10.dp))
+                            j.strOrNull("created_at")?.let { Text("On YID PLUS since " + it.take(10), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp)) }
+                            if (mine && j.str("privacy") == "followers_only") SoPill("Follow requests", false, { Nav.open(SoChannelFollowRequestsPage(ownerId)) }, Modifier.padding(top = 12.dp), icon = Icons.Filled.PersonAdd)
+                            Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                SoPill("Copy link", false, { soCopy(c, Api.BASE + "/?channel=" + soEnc(ownerId)) }, icon = Icons.Filled.Link)
+                                SoPill("Profile", false, { Nav.open(HmProfilePage(ownerId, title)) }, icon = Icons.Filled.Person)
+                            }
+                        }
                     }
                 } else {
                     if (shorts.isEmpty()) item(key = "noshorts") { SoEmpty(Icons.Filled.Movie, "No Shorts yet") }
@@ -269,6 +331,7 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                                 Row(Modifier.align(Alignment.BottomStart).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Filled.Visibility, null, tint = Color.White, modifier = Modifier.size(14.dp))
                                     Text(" " + soNum(s.views), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                    if (s.likes > 0) { Icon(Icons.Filled.Favorite, null, tint = Color.White, modifier = Modifier.padding(start = 6.dp).size(12.dp)); Text(" " + soNum(s.likes), color = Color.White, fontSize = 12.sp) }
                                 }
                             }
                             repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
@@ -278,14 +341,16 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                 }
                 item(key = "end") { Spacer(Modifier.height(24.dp)) }
             }
+            }
         }
+        if (report) HmReportDialog(ownerId, title, true) { report = false }
         commentsFor?.let { p -> SoPostCommentsSheet(p, onDismiss = { commentsFor = null }, onCount = { n -> val i = posts.indexOfFirst { it.id == p.id }; if (i >= 0) posts[i] = posts[i].copy(comments = n) }) }
     }
 }
 
 @Composable
-private fun Stat(n: String, label: String) {
-    Column {
+private fun Stat(n: String, label: String, onClick: (() -> Unit)? = null) {
+    Column(Modifier.then(if (onClick != null) Modifier.tap(RoundedCornerShape(8.dp), onClick = onClick) else Modifier).padding(horizontal = 4.dp, vertical = 2.dp)) {
         Text(n, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Text(label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -293,22 +358,35 @@ private fun Stat(n: String, label: String) {
 
 /** One post on a member's channel: who and when, the words, the photo / video, then like, comment, share (and delete). */
 @Composable
-fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSitePost) -> Unit, onComments: () -> Unit, onDeleted: () -> Unit, gallery: List<GItem>? = null) {
+fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSitePost) -> Unit, onComments: () -> Unit, onDeleted: () -> Unit, gallery: List<GItem>? = null,
+                   onAuthor: (() -> Unit)? = null) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     var ask by remember { mutableStateOf(false) }
     val canDelete = Session.me?.id == p.userId || SoUser.isAdmin
     Column(Modifier.fillMaxWidth().padding(top = 8.dp).background(MaterialTheme.colorScheme.surface)) {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.weight(1f).then(if (onAuthor != null) Modifier.tap(RoundedCornerShape(8.dp), onClick = onAuthor) else Modifier), verticalAlignment = Alignment.CenterVertically) {
             SoThumb(photo, name, 40.dp)
             Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
-                Text(name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-                Text(ago(p.at), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false), style = TextStyle(textDirection = TextDirection.Content))
+                    if (p.verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 3.dp).size(15.dp))
+                }
+                Text("@$name · " + ago(p.at), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
             }
             if (canDelete) IconBtn(Icons.Filled.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        val emojiOnly = remember(p.caption) { hmEmojiOnly(p.caption) }
         if (p.caption.isNotBlank()) Text(p.caption, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).tap(RoundedCornerShape(4.dp)) { expanded = !expanded },
-            fontSize = 16.sp, lineHeight = 22.sp, maxLines = if (expanded) Int.MAX_VALUE else 8, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+            fontSize = if (emojiOnly) 44.sp else 16.sp, lineHeight = if (emojiOnly) 52.sp else 22.sp, maxLines = if (expanded) Int.MAX_VALUE else 8, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+        val tags = remember(p.caption) { hmHashtags(p.caption) }
+        if (tags.isNotEmpty()) LazyRow(Modifier.fillMaxWidth().padding(bottom = 4.dp), contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            items(tags) { t -> Text(t, Modifier.heightIn(min = 32.dp).tap(RoundedCornerShape(16.dp)) { Nav.open(SoSearchPage(0, t)) }
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = .10f), RoundedCornerShape(16.dp)).padding(horizontal = 10.dp, vertical = 6.dp),
+                color = MaterialTheme.colorScheme.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium) }
+        }
         p.media?.let { m ->
             val maxH = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * 0.6f).dp
             Box(Modifier.fillMaxWidth().padding(top = 4.dp).tap(RoundedCornerShape(0.dp)) { openGallery(gallery ?: listOf(GItem(m, p.isVideo, null, p.caption.take(60))), m) }) {
@@ -325,7 +403,10 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
                     .onFailure { onChange(p); toast(c, Api.friendly(it)) } }
             }
             SoAction(Icons.Filled.ChatBubbleOutline, if (p.comments > 0) soNum(p.comments) else "Comment", null, "Comment", onComments)
-            SoAction(Icons.Filled.Share, "Share", null) { share(c, (if (p.caption.isNotBlank()) p.caption.take(140) + "\n" else "") + Api.BASE + "/?channel=" + soEnc(p.userId)) }
+            SoAction(Icons.Filled.Share, "Share", null) { share(c, (if (p.caption.isNotBlank()) p.caption.take(140) + "\n" else "") + Api.BASE + "/?post=" + soEnc(p.id)) }
+            Spacer(Modifier.weight(1f))
+            if (p.views > 0) { Icon(Icons.Filled.Visibility, "Views", Modifier.size(15.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(" " + soNum(p.views), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 12.dp)) }
         }
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))
     }
@@ -351,6 +432,7 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
     val list = remember(p.id) { mutableStateListOf<JSONObject>() }
     var loading by remember { mutableStateOf(true) }
     var text by remember { mutableStateOf("") }
+    var delAsk by remember { mutableStateOf<JSONObject?>(null) }
     suspend fun load() {
         loading = true
         runCatching { val l = Api.get("/api/posts/comments?post_id=" + soEnc(p.id)).optJSONArray("comments").objects(); list.clear(); list.addAll(l); onCount(l.size) }
@@ -358,6 +440,10 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
         loading = false
     }
     LaunchedEffect(p.id) { load() }
+    delAsk?.let { cm -> AlertDialog(onDismissRequest = { delAsk = null }, title = { Text("Delete this comment?") },
+        confirmButton = { TextButton({ delAsk = null; scope.launch { runCatching { Api.delete("/api/posts/comments?id=" + soEnc(cm.str("id"))) }
+            .onSuccess { list.removeAll { it.str("id") == cm.str("id") }; onCount(list.size); toast(c, "Deleted") }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = MaterialTheme.colorScheme.error) } },
+        dismissButton = { TextButton({ delAsk = null }) { Text("Cancel") } }) }
     SoCommentsPanel(if (list.isEmpty()) "Comments" else if (list.size == 1) "1 comment" else "${list.size} comments", onDismiss) {
         run {
             Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -375,13 +461,16 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
                             val liked = cm.optBoolean("my_liked")
                             Column(Modifier.tap(CircleShape) {
                                 if (Session.me == null) { toast(c, "Sign in to like"); return@tap }
-                                scope.launch { runCatching { Api.put("/api/posts/comments", JSONObject().put("comment_id", cm.str("id"))) }.onSuccess { load() } }
+                                val idx = list.indexOfFirst { it.str("id") == cm.str("id") }
+                                    if (idx >= 0) list[idx] = JSONObject(cm.toString()).put("my_liked", !liked).put("likes", maxOf(0, cm.optInt("likes") + if (liked) -1 else 1))
+                                    scope.launch { runCatching { Api.put("/api/posts/comments", JSONObject().put("comment_id", cm.str("id"))) }
+                                        .onSuccess { r -> val k = list.indexOfFirst { it.str("id") == cm.str("id") }; if (k >= 0 && r.has("likes")) list[k] = JSONObject(list[k].toString()).put("my_liked", r.optBoolean("liked")).put("likes", r.optInt("likes")) }
+                                        .onFailure { val k = list.indexOfFirst { it.str("id") == cm.str("id") }; if (k >= 0) list[k] = cm; toast(c, Api.friendly(it)) } }
                             }.padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, "Like comment", tint = if (liked) Color(0xFFE53958) else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                                 if (cm.optInt("likes") > 0) Text(cm.optInt("likes").toString(), fontSize = 11.sp)
                             }
-                            if (cm.optBoolean("can_delete")) IconBtn(Icons.Filled.DeleteOutline, "Delete comment", {
-                                scope.launch { runCatching { Api.delete("/api/posts/comments?id=" + soEnc(cm.str("id"))) }; load() } }, size = 36.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (cm.optBoolean("can_delete") || cm.str("user_id") == Session.me?.id) IconBtn(Icons.Filled.DeleteOutline, "Delete comment", { delAsk = cm }, size = 36.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -504,3 +593,15 @@ data class SoChannelFollowRequestsPage(val ownerId: String) : PageScreen() {
         }
     }
 }
+
+
+/** A caption that is only emoji (the site's isEmojiOnly) is shown big. */
+fun hmEmojiOnly(s: String): Boolean {
+    val t = s.trim(); if (t.isEmpty() || t.length > 16) return false
+    var i = 0
+    while (i < t.length) { val cp = t.codePointAt(i); val ok = Character.isWhitespace(cp) || cp >= 0x2190 || cp == 0x200D || cp == 0xFE0F || Character.getType(cp) == Character.SURROGATE.toInt()
+        if (!ok || Character.isLetterOrDigit(cp)) return false; i += Character.charCount(cp) }
+    return true
+}
+/** #hashtags in a caption (the site's _linkHashtags: latin, digits, _ and Hebrew letters). */
+fun hmHashtags(s: String): List<String> = Regex("#[\\w\u0590-\u05FF\uFB1D-\uFB4F]+").findAll(s).map { it.value }.distinct().take(8).toList()
