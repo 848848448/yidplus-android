@@ -1,0 +1,122 @@
+[05:44:49] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[05:44:52] screen 480x640 @ 240 dpi
+[05:44:52] ---- Signed in (QA fixture account) ----
+[05:44:56] fixture true
+[05:45:05] shot F01-home-signedin
+[05:45:05] open https://yidplus.com/chat
+[05:45:10] shot F02-chats-list
+[05:45:12] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[05:45:19] shot F03-chat-dm
+[05:45:21] shot F03b-chat-dm-up
+[05:45:25] open https://yidplus.com/chat
+[05:45:39] shot F04-chat-group
+[05:45:40] shot F04b-group-up
+[05:45:42] shot F04c-group-top
+[05:45:46] shot F05-message-actions
+[05:45:56] shot F06-notifications
+[05:45:58] tab Home
+[05:46:01] shot F07-home-header
+[05:46:01] open https://yidplus.com/shorts
+[05:46:10] shot F08-shorts-signedin
+[05:46:10] tab Profile
+[05:46:13] shot F09-profile-signedin
+[05:46:25] shot F09b-profile-scrolled
+[05:46:38] open https://yidplus.com/chat
+[05:46:42] shot F10-chats-dark
+[05:46:48] shot F11-chat-dark
+[05:46:55] screen 1080x2400 @ 420 dpi
+[05:47:04] open https://yidplus.com/chat
+[05:47:08] shot F12-phone-chats
+[05:47:14] shot F13-phone-chat
+[05:47:18] screen 480x640 @ 240 dpi
+[05:47:18] ---- qa/fx-ds.sh ----
+[05:47:25] tab Chats
+[05:47:29] shot DS-01-chats
+[05:47:30] ds texts chats:  text="Chats"  content-desc="Search chats"  content-desc="New chat"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  content-desc="Add status"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels" 
+[05:47:31] tab Profile
+[05:47:35] shot DS-05-settings
+[05:47:35] tab Chats
+[05:47:39] shot DS-07-dpad-focus
+[05:47:41] ds look color=1
+[05:47:41] tab Chats
+[05:47:44] shot DS-11-theme-1-chats
+[05:47:44] tab Profile
+[05:47:47] shot DS-11-theme-1-settings
+[05:47:49] ds look color=4
+[05:47:49] tab Chats
+[05:47:52] shot DS-14-theme-4-chats
+[05:47:52] tab Profile
+[05:47:55] shot DS-14-theme-4-settings
+[05:47:57] ds look color=6
+[05:47:57] tab Chats
+[05:48:00] shot DS-16-theme-6-chats
+[05:48:00] tab Profile
+[05:48:04] shot DS-16-theme-6-settings
+[05:48:06] ds look color=0
+[05:48:08] ds look text=0
+[05:48:08] tab Chats
+[05:48:11] shot DS-20-text-small
+[05:48:13] ds look text=2
+[05:48:13] tab Chats
+[05:48:16] shot DS-21-text-large
+[05:48:18] ds look text=1
+[05:48:20] ds look contrast=1
+[05:48:20] tab Chats
+[05:48:25] shot DS-23-contrast-focus
+[05:48:27] ds look contrast=0
+[05:48:29] ds look bar=light
+[05:48:29] tab Profile
+[05:48:32] shot DS-27-lightbar-settings
+[05:48:32] tab Chats
+[05:48:35] shot DS-26-lightbar-chats
+[05:48:37] ds look bar=green
+[05:48:39] ds look dark=2
+[05:48:39] tab Chats
+[05:48:43] shot DS-28-dark-chats
+[05:48:43] tab Profile
+[05:48:46] shot DS-29-dark-settings
+[05:48:48] ds look dark=0
+[05:48:48] open https://yidplus.com/chat?join=fxjoin123
+[05:48:52] shot DS-30-deeplink-join
+[05:48:54] tab Chats
+[05:48:58] ds look snack=Archived
+[05:48:59] shot DS-32-snackbar-undo
+[05:49:06] ds look demo=1
+[05:49:08] shot DS-33-searchpill-and-chips-top
+[05:49:10] shot DS-34-searchpill-hides-on-scroll-down
+[05:49:17] shot DS-35-last-row-above-fab
+[05:49:18] shot DS-36-searchpill-back-on-scroll-up
+[05:49:28] ds tapped 'Unread'
+[05:49:29] shot DS-37-filter-chip-unread-selected
+[05:49:32] ds tapped 'Search…'
+[05:49:34] shot DS-38-search-open
+[05:49:36] shot DS-39-search-typed
+[05:49:40] shot DS-39b-search-closed-by-back
+[05:49:44] tab Chats
+[05:49:46] tab Profile
+[05:49:50] ds look color=1
+[05:49:53] ds look color=4
+[05:49:56] ds look color=6
+[05:49:59] ds look color=0
+[05:50:01] ds look dark=2
+[05:50:01] tab Chats
+[05:50:05] ds look dark=0
+[05:50:07] ds look text=2
+[05:50:11] ds look text=0
+[05:50:15] ds look text=1
+[05:50:24] ds video -rw-r--r-- 1 runner runner 186370 Nov 12 05:50 qa/out/DS-flow.mp4
+[05:50:26] screen 1080x2400 @ 420 dpi
+[05:50:26] tab Chats
+[05:50:30] shot DS-40-phone-chats
+[05:50:30] tab Profile
+[05:50:33] shot DS-41-phone-settings
+[05:50:35] ds look dark=2
+[05:50:35] tab Chats
+[05:50:38] shot DS-42-phone-dark-chats
+[05:50:40] ds look dark=0
+[05:50:43] screen 480x640 @ 240 dpi
+[05:50:45] tab Chats
+[05:50:47] fixture writes the app would have sent: 3
+[05:50:51] fixture false
