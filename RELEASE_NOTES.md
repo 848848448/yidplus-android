@@ -1,3 +1,6 @@
+## New in 2.0.3
+- Notifications: each chat shows its own notification with the group photo; Reply and Mark as read work
+
 ## New in 2.0.2
 - Chats open instantly; the list shows the real last message ("Yanky: text"), no more "System message"
 - Every message shows: stickers, polls, voice, files, calls, deleted messages; links show a preview card, group links with Join
