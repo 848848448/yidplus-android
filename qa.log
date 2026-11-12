@@ -1,0 +1,334 @@
+[08:36:57] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[08:37:00] screen 480x640 @ 240 dpi
+[08:37:00] ---- Signed in (QA fixture account) ----
+[08:37:04] fixture true
+[08:37:13] shot F01-home-signedin
+[08:37:13] open https://yidplus.com/chat
+[08:37:18] shot F02-chats-list
+[08:37:20] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Yesterday"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[08:37:27] shot F03-chat-dm
+[08:37:29] shot F03b-chat-dm-up
+[08:37:33] open https://yidplus.com/chat
+[08:37:47] shot F04-chat-group
+[08:37:49] shot F04b-group-up
+[08:37:51] shot F04c-group-top
+[08:37:54] shot F05-message-actions
+[08:38:04] shot F06-notifications
+[08:38:06] tab Home
+[08:38:09] shot F07-home-header
+[08:38:09] open https://yidplus.com/shorts
+[08:38:18] shot F08-shorts-signedin
+[08:38:19] tab Profile
+[08:38:22] shot F09-profile-signedin
+[08:38:33] shot F09b-profile-scrolled
+[08:38:46] open https://yidplus.com/chat
+[08:38:50] shot F10-chats-dark
+[08:38:57] shot F11-chat-dark
+[08:39:04] screen 1080x2400 @ 420 dpi
+[08:39:12] open https://yidplus.com/chat
+[08:39:16] shot F12-phone-chats
+[08:39:22] shot F13-phone-chat
+[08:39:26] screen 480x640 @ 240 dpi
+[08:39:26] ---- qa/fx-cl.sh ----
+[08:39:35] screen 480x640 @ 240 dpi
+[08:39:38] CL nav mode: 2
+[08:39:40] open https://yidplus.com/chat
+[08:39:57] shot CL-B01-list-480x640
+[08:39:59] CL rows: 5 full chat rows visible above the bottom bar (top of bottom bar y=545); FAB bounds: 395 456 467 528  (top)
+[08:39:59] CL ok: 5+ rows at 480x640
+[08:40:01] CL ok: 'New chat' not shown
+[08:40:02] CL ok: 'Edit' not shown
+[08:40:04] CL ok: 'Search chats' on screen
+[08:40:05] CL ok: 'Start new chat' on screen
+[08:40:07] CL ok: 'Status' on screen
+[08:40:08] CL ok: 'AI chat' on screen
+[08:40:10] CL texts blockers-list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Yesterday"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  text="חיים"  text="Yesterday"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:40:24] shot CL-B02-list-end-fab-hidden-while-scrolling-down
+[08:40:25] CL rows: 0 full chat rows visible above the bottom bar (top of bottom bar y=545); FAB bounds: none (end-scrolling)
+[08:40:28] shot CL-B02b-list-end-fab-back-last-row-above-it
+[08:40:30] CL rows: 2 full chat rows visible above the bottom bar (top of bottom bar y=545); FAB bounds: 395 456 467 528  (end-fab-back)
+[08:40:44] cltap 'Search chats'
+[08:40:46] shot CL-B03-search-empty
+[08:40:47] CL texts search-empty:  content-desc="Close search"  content-desc="Search field"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[08:40:49] CL ok: 'Close search' on screen
+[08:40:51] shot CL-B04-search-typing-yo
+[08:40:57] shot CL-B05-search-results-yossi
+[08:40:58] CL ok: 'Yossi Klein' on screen
+[08:41:00] CL texts search-results:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="Messages"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="Yossi Klein: Yossi here — see you at the simcha tonight"  text="חברים פון שול"  text="Tue"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:41:07] open https://yidplus.com/chat
+[08:41:20] shot CL-B06-list-theme-ocean
+[08:41:22] CL rows: 5 full chat rows visible above the bottom bar (top of bottom bar y=545); FAB bounds: 395 456 467 528  (ocean)
+[08:41:22] CL ok: 5+ rows at 480x640
+[08:41:24] open https://yidplus.com/chat
+[08:41:37] shot CL-B07-list-dark
+[08:41:39] CL rows: 5 full chat rows visible above the bottom bar (top of bottom bar y=545); FAB bounds: 395 456 467 528  (dark)
+[08:41:39] CL ok: 5+ rows at 480x640
+[08:41:44] open chat r-dm1
+[08:41:44] shot CL-B08-chat-open-dark
+[08:41:48] open https://yidplus.com/chat
+[08:42:10] shot CL-B09-dpad-focus-row
+[08:42:14] shot CL-B10-dpad-ok-opened-chat
+[08:42:17] CL ok: app alive after blockers
+[08:42:17] open https://yidplus.com/chat
+[08:42:45] cltap 'Search chats'
+[08:42:55] cltap 'Private'
+[08:43:00] cltap 'All'
+[08:43:05] cltap 'Menu'
+[08:43:14] CL video: 450236 bytes
+[08:43:14] open https://yidplus.com/chat
+[08:43:22] shot CL-01-list
+[08:43:24] CL texts list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Yesterday"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  text="חיים"  text="Yesterday"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:43:25] CL ok: 'Empty Chat' not shown
+[08:43:27] CL ok: 'Menu' on screen
+[08:43:28] CL ok: 'Status' on screen
+[08:43:32] shot CL-02-chips-end
+[08:43:33] CL ok: 'Work' on screen
+[08:43:35] CL MISSING: 'Chat folders' not on screen
+[08:43:38] cltap 'Work'
+[08:43:41] shot CL-04-folder-work
+[08:43:42] CL texts folder:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Groups"  text="Groups"  text="12"  content-desc="Channels"  text="Channels"  text="1"  content-desc="Work"  text="Work"  content-desc="Chat folders"  text="D"  text="DealPoint"  text="Mon"  text="די פרייז איז $45"  text="P"  text="Python לערנען"  text="Sun"  text="Shimel'a: ווער קען העלפן?"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:43:44] CL ok: 'DealPoint' on screen
+[08:43:45] CL ok: 'Yossi Klein' not shown
+[08:43:54] cltap 'Work'
+[08:44:01] cltap 'Unread'
+[08:44:03] shot CL-05-tab-unread
+[08:44:07] cltap 'All'
+[08:44:17] CL ok: Telegram channel row in the list
+[08:44:17] shot CL-03-list-telegram-rows
+[08:44:29] long-press '231'
+[08:44:29] shot CL-06-selected
+[08:44:31] CL ok: 'Pin' on screen
+[08:44:32] CL ok: 'Mark as read' on screen
+[08:44:36] cltap 'Pin'
+[08:44:45] shot CL-07-pinned-top
+[08:44:47] CL texts pinned:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="BL"  text="Berel Links"  text="Yesterday"  text="קוק די לינקס"  content-desc="Pinned"  text="2"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Yesterday"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  text="חיים"  text="Yesterday"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:44:52] long-press '231'
+[08:44:55] cltap 'Unpin'
+[08:44:56] CL unpinned again
+[08:45:09] long-press '231'
+[08:45:12] cltap 'Mute'
+[08:45:13] shot CL-08-mute-choices
+[08:45:17] cltap '8 hours'
+[08:45:20] cltap 'OK'
+  YidFx: 11-12 08:45:18.548  3430  3464 I YidFx   : PUT /api/chat/rooms {"room_id":"r-dm1","muted":true}
+[08:45:22] CL ok: sent "room_id":"r-dm1","muted":true
+[08:45:34] long-press '231'
+[08:45:38] cltap 'Mark as read'
+  YidFx: 11-12 08:45:36.430  3430  3464 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+[08:45:40] CL ok: sent /api/chat/read
+[08:45:52] long-press '231'
+[08:45:56] cltap 'Delete'
+[08:45:57] shot CL-09-delete-confirm
+[08:46:00] cltap 'Delete chat'
+  YidFx: 11-12 08:45:58.873  3430  3464 I YidFx   : DELETE /api/chat/rooms?room_id=r-dm3 < 0 bytes>
+[08:46:02] CL ok: sent DELETE /api/chat/rooms?room_id=r-dm3
+[08:46:16] long-press '231'
+[08:46:19] cltap 'Berel Links' (scrolled)
+[08:46:19] shot CL-10-two-selected
+[08:46:33] cltap 'Menu'
+[08:46:35] shot CL-11-drawer
+[08:46:36] CL texts drawer:  text="מ"  text="משה'לע"  text="@משה'לע"  text="My Profile"  text="Saved Messages"  text="Chat Folders"  text="New Group"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:46:45] CL ok: 'Admin Panel' in the side menu
+[08:46:45] shot CL-11b-drawer-bottom
+[08:46:51] cltap 'Menu'
+[08:46:56] cltap 'Chat Folders'
+[08:46:59] shot CL-12-folders
+[08:47:01] CL ok: 'Work' on screen
+[08:47:04] cltap 'Folder name'
+[08:47:18] cltap 'Python' (scrolled)
+[08:47:18] shot CL-12b-folder-new
+[08:47:28] cltap 'Create'
+  YidFx: 11-12 08:47:26.864  3430  3464 I YidFx   : POST /api/chat/folders {"name":"Family and friends","icon":"📁","filter":"custom","room_ids":["r-g3"],"sort_order":1}
+[08:47:30] CL ok: sent "name":"Family and friends"
+[08:47:34] cltap 'Delete folder Work'
+[08:47:35] shot CL-12c-folder-delete
+[08:47:39] cltap 'Delete'
+  YidFx: 11-12 08:47:36.955  3430  3464 I YidFx   : DELETE /api/chat/folders?id=cl-f1 < 0 bytes>
+[08:47:41] CL ok: sent DELETE /api/chat/folders?id=cl-f1
+[08:47:46] cltap 'Menu'
+[08:47:55] cltap 'Chat settings' (scrolled)
+[08:47:57] shot CL-13-chat-settings
+[08:48:01] cltap 'Large'
+[08:48:02] shot CL-13b-font-large
+[08:48:06] cltap 'Read receipts'
+[08:48:10] cltap 'Medium'
+[08:48:12] open https://yidplus.com/chat
+[08:48:21] long-press '231'
+[08:48:26] cltap 'Mute'
+[08:48:31] cltap 'Cancel'
+[08:48:37] open chat r-g1
+[08:48:40] cltap 'More'
+[08:48:44] cltap 'Group info'
+[08:48:52] cltap 'Edit'
+[08:49:07] CL video 2: 331143 bytes
+[08:49:13] open chat r-g1
+[08:49:17] cltap 'More'
+[08:49:20] cltap 'Group info'
+[08:49:23] shot CL-14-group-info
+[08:49:25] CL texts info:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="ח"  content-desc="Change photo"  text="חברים פון שול"  text="Group · 6 members"  text="Message"  text="Call"  text="Video"  text="Add"  text="א גרופע פאר די חברים פון שול · Shul friends" 
+[08:49:32] cltap 'Mute notifications' (scrolled)
+[08:49:33] shot CL-14b-mute
+[08:49:37] cltap '1 week'
+[08:49:40] cltap 'OK'
+  YidFx: 11-12 08:49:38.564  3430  7793 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","muted":true}
+[08:49:42] CL ok: sent "room_id":"r-g1","muted":true
+[08:49:46] cltap 'Disappearing messages' (scrolled)
+[08:49:47] shot CL-18-disappearing
+[08:49:50] cltap '1 day'
+  YidFx: 11-12 08:49:48.723  3430  7793 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","auto_delete_minutes":1440}
+[08:49:52] CL ok: sent "auto_delete_minutes":1440
+[08:49:56] cltap 'Invite link' (scrolled)
+[08:49:58] shot CL-19-invite
+[08:50:01] cltap 'Revoke link'
+[08:50:06] cltap 'Revoke'
+[08:50:08] CL MISSING: no request with '"revoke_invite":true'
+[08:50:11] cltap 'Close'
+[08:50:19] cltap 'Files' (scrolled)
+[08:50:19] shot CL-15-info-media-tab
+[08:50:22] cltap 'Files'
+[08:50:23] shot CL-15b-files
+[08:50:27] cltap 'Links'
+[08:50:28] shot CL-15c-links
+[08:50:31] cltap 'Voice'
+[08:50:32] shot CL-15d-voice
+[08:50:36] cltap 'Media'
+[08:50:50] cltap 'Yanky Weiss' (scrolled)
+[08:50:51] shot CL-17-member-sheet
+[08:50:54] cltap 'Set title'
+[08:50:58] shot CL-17a-title
+[08:51:02] cltap 'Save'
+  YidFx: 11-12 08:51:00.346  3430  6932 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-yanky","member_title":"Gabbai"}
+[08:51:04] CL ok: sent "member_title":"Gabbai"
+[08:51:07] cltap 'Shaya' (scrolled)
+[08:51:12] cltap 'Remove from group'
+[08:51:13] shot CL-17b-remove-confirm
+[08:51:17] cltap 'Remove'
+  YidFx: 11-12 08:51:14.970  3430  8671 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-shaya","remove":true}
+[08:51:19] CL ok: sent "remove":true
+[08:51:19] shot CL-16-members
+  clseek 'Report group': 7 swipes in 24 s; screen texts:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="BL"  text="Berel Links"  text="S"  text="Shaya"  text="בעל קורא"  text="YW"  text="Yanky Weiss"  text="Leave group"  text="Delete for everyone" 
+[08:51:43] CL MISSING tap: 'Report group' not found after scrolling
+[08:51:44] CL (owner sees no Report on own group)
+[08:51:57] cltap 'Edit'
+[08:52:00] shot CL-20-edit-top
+[08:52:02] CL texts edit:  content-desc="Back"  text="ח"  text="חברים פון שול"  text="Yanky is typing…"  content-desc="Call"  content-desc="More"  text="  Call in progress · 2 on the call"  text="Join"  content-desc="Emoji"  content-desc="Attach"  content-desc="Camera"  content-desc="Record voice message (hold, or tap for hands-free)" 
+  clseek 'Approve new members': 7 swipes in 24 s; screen texts:  content-desc="Back"  text="ח"  text="חברים פון שול"  text="Yanky is typing…"  content-desc="Call"  content-desc="More"  text="  Call in progress · 2 on the call"  text="Join"  content-desc="Emoji"  content-desc="Attach"  content-desc="Camera"  content-desc="Record voice message (hold, or tap for hands-free)" 
+[08:52:26] CL MISSING tap: 'Approve new members' not found after scrolling
+[08:52:28] CL MISSING: no request with '"approve_members":false'
+[08:52:28] shot CL-20b-edit-mid
+  clseek 'Send Messages': 7 swipes in 24 s; screen texts:  content-desc="Back"  text="ח"  text="חברים פון שול"  text="Yanky is typing…"  content-desc="Call"  content-desc="More"  text="  Call in progress · 2 on the call"  text="Join"  content-desc="Emoji"  content-desc="Attach"  content-desc="Camera"  content-desc="Record voice message (hold, or tap for hands-free)" 
+[08:52:53] CL MISSING tap: 'Send Messages' not found after scrolling
+[08:52:55] CL MISSING: no request with '"read_only":true'
+[08:52:55] shot CL-20c-edit-flipped
+  clseek 'Send Media': 7 swipes in 25 s; screen texts:  content-desc="Back"  text="ח"  text="חברים פון שול"  text="Yanky is typing…"  content-desc="Call"  content-desc="More"  text="  Call in progress · 2 on the call"  text="Join"  content-desc="Emoji"  content-desc="Attach"  content-desc="Camera"  content-desc="Record voice message (hold, or tap for hands-free)" 
+[08:53:20] CL MISSING tap: 'Send Media' not found after scrolling
+[08:53:22] shot CL-21-send-media
+  clseek 'Polls': 7 swipes in 24 s; screen texts:  content-desc="Back"  text="ח"  text="חברים פון שול"  text="Yanky is typing…"  content-desc="Call"  content-desc="More"  text="  Call in progress · 2 on the call"  text="Join"  content-desc="Emoji"  content-desc="Attach"  content-desc="Camera"  content-desc="Record voice message (hold, or tap for hands-free)" 
+[08:53:46] CL MISSING tap: 'Polls' not found after scrolling
+[08:53:48] CL MISSING: no request with '"polls":true'
+  clseek 'Add Users': 7 swipes in 24 s; screen texts:  text="Yesterday"  content-desc="Start new chat"  content-desc="Back"  text="ח"  text="חברים פון שול"  text="Yanky is typing…"  content-desc="Call"  content-desc="More"  text="  Call in progress · 2 on the call"  text="Join"  text="Shaya"  content-desc="Photo"  content-desc="Emoji"  text="Message"  content-desc="Attach"  content-desc="Camera"  content-desc="Record voice message (hold, or tap for hands-free)" 
+[08:54:15] CL MISSING tap: 'Add Users' not found after scrolling
+[08:54:17] CL MISSING: no request with '"add_users":true'
+  clseek 'Administrators': 7 swipes in 25 s; screen texts:  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  text="Yesterday"  text="Yesterday"  content-desc="Start new chat"  content-desc="Back"  text="ח"  text="חברים פון שול"  text="Yanky is typing…"  content-desc="Call"  content-desc="More"  text="  Call in progress · 2 on the call"  text="Join"  text="דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אזוי אז מיר קענען זיך צוגריי
+[08:54:42] CL MISSING tap: 'Administrators' not found after scrolling
+[08:54:44] shot CL-22-admins
+  clseek 'Members': 7 swipes in 25 s; screen texts:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  text="י"  text="ישיבה בחורים"  text="Fri"  text="Leib: א גוטן שבת"  text="י"  text="יידישע נייעס"  text="Yesterday"  text="היינט: א נייע ווערסיע פון YID PLUS איז ארויס"  text="3"  text="CM"  text="Chasidish Music &#127925;"  text="Yesterday"  text="&#127925; Audio"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels" 
+[08:55:11] CL MISSING tap: 'Members' not found after scrolling
+[08:55:13] shot CL-22b-members
+[08:55:15] shot CL-20d-edit-bottom
+[08:55:25] open chat r-dm1
+[08:55:28] cltap 'More'
+[08:55:32] cltap 'Contact info'
+[08:55:35] shot CL-23-contact-info
+[08:55:35] CL note: fixture me is the site owner, so online is shown (site rule: admins only)
+[08:55:46] cltap 'Report Yossi Klein' (scrolled)
+[08:55:47] shot CL-24-report
+[08:55:50] cltap 'Harassment'
+[08:55:54] cltap 'Submit Report'
+  YidFx: 11-12 08:55:52.295  3430 10192 I YidFx   : POST /api/reports {"reported_id":"u-yossi","room_id":"r-dm1","message_id":null,"reason":"harassment","details":""}
+[08:55:56] CL ok: sent /api/reports
+[08:56:01] open https://yidplus.com/chat
+[08:56:07] cltap 'Start new chat'
+[08:56:12] cltap 'New group'
+[08:56:14] shot CL-25-new-group
+[08:56:17] cltap 'Everyone can write'
+[08:56:22] cltap 'Group name'
+[08:56:27] cltap 'Create group' (scrolled)
+[08:56:28] CL (1-letter name must not send)
+[08:56:39] cltap 'Group name'
+[08:56:41] shot CL-25b-new-group-filled
+[08:56:44] cltap 'Create group' (scrolled)
+[08:56:47] CL MISSING: no request with '"name":"QA Group"'
+[08:56:50] open https://yidplus.com/chat
+[08:56:56] cltap 'Start new chat'
+[08:57:01] cltap 'Join by invite link'
+[08:57:08] shot CL-26-invite-private
+[08:57:09] CL MISSING: 'Request to join' not on screen
+  clseek 'Request to join': 7 swipes in 25 s; screen texts:  text="ML"  text="Moshe ↔ Leib"  text="Sat"  text="Leib blocked a user"  text="י"  text="יידישע נייעס"  text="Yesterday"  text="היינט: א נייע ווערסיע פון YID PLUS איז ארויס"  text="3"  text="CM"  text="Chasidish Music &#127925;"  text="Yesterday"  text="&#127925; Audio"  content-desc="Back"  text="Join by invite link"  text="https://yidplus.com/chat?join=clpriv"  text="Paste the invite link"  text="KC"  text="Kollel Chaburah"  text="9 members · Private — an admin approves new members"  text="Admins approve new members" 
+[08:57:34] CL MISSING tap: 'Request to join' not found after scrolling
+[08:57:36] CL MISSING: no request with '"code":"clpriv"'
+[08:57:36] shot CL-26b-request-sent
+[08:57:38] open https://yidplus.com/chat
+[08:57:45] cltap 'Search chats'
+[08:57:47] shot CL-31-search-open
+[08:57:47] CL keyboard after search opens: mInputShown=true
+[08:57:48] shot CL-31b-search-typing
+[08:57:53] shot CL-31c-search-results
+[08:57:55] CL texts search-yossi:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="Messages"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="Yossi Klein: Yossi here — see you at the simcha tonight"  text="חברים פון שול"  text="Tue"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:58:00] cltap 'Close search'
+[08:58:15] cltap 'Search chats'
+[08:58:22] shot CL-27-search
+[08:58:24] CL texts search-yid:  content-desc="Close search"  text="YID"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YP"  text="YID PLUS נייעס"  text="Yesterday"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  text="Public groups"  text="YP"  text="YID PLUS Community"  text="340 members"  text="Messages"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:58:29] cltap 'Close search'
+[08:58:44] cltap 'Search chats'
+[08:58:51] shot CL-27b-search-people
+[08:58:53] CL ok: 'Contacts' on screen
+[08:58:54] CL ok: 'Mendy Gold' on screen
+[08:58:59] cltap 'Close search'
+[08:59:14] cltap 'Search chats'
+[08:59:18] shot CL-31d-search-recent
+[08:59:20] CL ok: 'Recent searches' on screen
+[08:59:23] cltap 'Unread'
+[08:59:25] shot CL-31e-chip-unread
+[08:59:28] cltap 'Unread'
+[08:59:33] cltap 'Photos'
+[08:59:34] shot CL-31f-chip-photos
+[08:59:38] cltap 'Photos'
+[08:59:41] CL MISSING tap: 'Links' not on screen
+[08:59:42] shot CL-31g-chip-links
+[08:59:44] CL MISSING tap: 'Links' not on screen
+[08:59:49] cltap 'Close search'
+[09:00:04] cltap 'Search chats'
+[09:00:11] shot CL-31h-no-results
+[09:00:13] CL ok: 'No results found' on screen
+[09:00:18] cltap 'Close search'
+[09:00:33] cltap 'Search chats'
+[09:00:44] cltap 'Mendy Gold'
+  YidFx: 11-12 09:00:41.984  3430  6932 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-mendy"}
+[09:00:46] CL ok: sent "other_user_id":"u-mendy"
+[09:00:56] open https://yidplus.com/chat
+[09:00:59] shot CL-28-list-dark
+[09:01:02] cltap 'Menu'
+[09:01:03] shot CL-28b-drawer-dark
+[09:01:11] open chat r-g1
+[09:01:14] cltap 'More'
+[09:01:18] cltap 'Group info'
+[09:01:20] shot CL-28c-info-dark
+[09:01:27] open https://yidplus.com/chat
+[09:01:30] shot CL-29-list-theme1
+[09:01:36] long-press '231'
+[09:01:36] shot CL-29b-select-theme1
+[09:01:40] shot CL-29c-list-lightbar
+[09:01:44] cltap 'Menu'
+[09:01:45] shot CL-29d-drawer-lightbar
+[09:01:51] screen 1080x2400 @ 420 dpi
+[09:01:51] open https://yidplus.com/chat
+[09:01:55] shot CL-30-list-1080
+[09:01:59] cltap 'Menu'
+[09:02:00] shot CL-30b-drawer-1080
+[09:02:04] screen 480x640 @ 240 dpi
+[09:02:06] CL all writes: 28
+[09:02:06] fixture writes the app would have sent: 28
+[09:02:10] fixture false
