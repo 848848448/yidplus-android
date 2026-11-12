@@ -107,7 +107,7 @@ lk_mark swipe-short; adb shell input swipe 240 470 240 250 120; sleep 4; shot LK
 adb shell input swipe 240 470 240 250 120; sleep 4; shot LK-16-short-swiped2
 lk_tapui "Uploads"; sleep 6; shot LK-16b-shorts-uploads
 lk_mark like-upload; lk_tapui "Like"; sleep 2
-lk_mark save-upload; lk_tapui "Save"; sleep 2; shot LK-16c-upload-liked-saved
+lk_mark save-upload; lk_tapui "Save"; [ "$LK_OK" != 1 ] && { key 11; log "save: key 4 (Save sits in More on small screens)"; }; sleep 2; shot LK-16c-upload-liked-saved
 lk_mark follow-creator; lk_tapui "More"; sleep 1; lk_tapui "@[^\"]*videos[^\"]*"; sleep 4; shot LK-16d-creator; lk_tapui "Follow"; sleep 2; shot LK-16e-creator-followed; key 4; sleep 3
 lk_mark comment-upload; lk_tapui "Comment"; sleep 3; adb shell input text "Great"; sleep 1; key 111; sleep 1; lk_tapui "Post"; sleep 2; shot LK-16f-upload-comments; key 4; sleep 1
 lk_mark upload-short; lk_tapui "Upload a Short"
@@ -115,7 +115,7 @@ lk_mark upload-short; lk_tapui "Upload a Short"
 sleep 4; shot LK-17-upload-picker
 lk_tapui "lkqa.mp4"; sleep 3
 if [ "$LK_OK" != 1 ]; then lk_inpicker && { log "picker open, file row not found: back"; key 4; sleep 2; }; lk_qapick video; fi
-shot LK-17b-upload-picked; lk_tapui "Upload"; [ "$LK_OK" != 1 ] && { log "Upload button: fixed position"; timeout 10 adb shell input tap 240 585; }
+shot LK-17b-upload-picked; lk_tapui "Upload"; [ "$LK_OK" != 1 ] && { log "Upload: top-bar action, fixed position"; timeout 10 adb shell input tap 440 88; }
 sleep 5; shot LK-17c-upload-sent
 key 4; sleep 2
 # 5. Signed out first open: the guest bar must be slim
