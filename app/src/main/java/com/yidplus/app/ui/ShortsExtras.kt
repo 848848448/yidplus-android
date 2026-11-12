@@ -32,6 +32,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -285,7 +287,7 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
                 val shown = if (tab == ShortsTab.Saved) Feeds.savedFrom else tab
                 for (t in tabs) {
                     val on = t == shown && who == null && tab != ShortsTab.Saved
-                    Column(Modifier.tap(RoundedCornerShape(14.dp)) { onTab(t) }.padding(horizontal = if (smallScreen) 7.dp else 10.dp, vertical = 4.dp),
+                    Column(Modifier.tap(RoundedCornerShape(14.dp)) { onTab(t) }.semantics(mergeDescendants = true) { contentDescription = t.label + " feed" }.padding(horizontal = if (smallScreen) 7.dp else 10.dp, vertical = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(t.label, color = if (on) Color.White else Color.White.copy(alpha = .72f), fontWeight = if (on) FontWeight.Bold else FontWeight.Medium,
                             fontSize = if (smallScreen) 15.sp else 16.sp, maxLines = 1, softWrap = false,

@@ -35,6 +35,8 @@ sh_ime_hide() { timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -q 
 sh_up() { timeout 10 adb shell input swipe 200 420 200 170 120; sleep "${1:-4}"; }
 
 size 480x640 240
+# sendevent (real double-tap) needs a root shell on the emulator; screen videos start after this
+timeout 30 adb root >/dev/null 2>&1; sleep 3; timeout 30 adb wait-for-device; log "adb root: $(timeout 10 adb shell id -u 2>/dev/null)"
 # 1. For You: first video, the swipe hint, the rail (avatar+follow, like, comment, save, share, sound, more), chips
 # video 1 (touch): the first ~30 s of the flow below
 timeout 10 adb shell rm -f /sdcard/SH-flow.mp4 /sdcard/SH-dpad.mp4 >/dev/null 2>&1
@@ -42,9 +44,10 @@ timeout 10 adb shell rm -f /sdcard/SH-flow.mp4 /sdcard/SH-dpad.mp4 >/dev/null 2>
 sh_mark foryou; view "https://yidplus.com/shorts"; sleep 4; shot SH-01-keypad-help
 key 21; sleep 5; shot SH-02-foryou; sh_texts foryou 60
 # 2. one tap = sound on at once (muted start); next tap pauses; a tap on paused plays
-sh_mark tap; timeout 5 adb shell input tap 200 300; sleep 1; shot SH-03-tap-sound-on
+# sound starts on here (the phone's own setting); key 2 = sound off, then the first tap turns it on (does not pause)
+sh_mark tap; key 9; sleep 1; shot SH-03-muted-pill; timeout 5 adb shell input tap 200 300; sleep 1; shot SH-03b-tap-sound-on
 timeout 5 adb shell input tap 200 300; sleep 1; shot SH-04-tap-paused
-timeout 5 adb shell input tap 200 300; sleep 2
+timeout 5 adb shell input tap 200 300; sleep 2; shot SH-04b-tap-plays
 # 3. double-tap = like + heart
 sh_mark dtap-like; sh_dtap 200 300; sleep 0.3; shot SH-05-double-tap-heart; sleep 2; shot SH-06-liked
 # 4. comments over the video (3/4 height), post one (optimistic), close
@@ -72,24 +75,24 @@ sh_mark topic; sh_tapui "News"; sleep 4; shot SH-20-topic-news; sh_tapui "All"; 
 # 9. live scrub with thumb and time
 sh_mark scrub; (timeout 10 adb shell input swipe 30 450 330 450 3500 &) ; sleep 2; shot SH-21-scrubbing; sleep 3
 # 10. Following: who I follow (1 from the rail), the creators list, search, Videos, Back keeps the list, Follow more sheet
-sh_mark following; sh_tapui "Following"; sleep 6; shot SH-22-following-feed; sh_texts following
+sh_mark following; sh_tapui "Following feed"; sleep 6; shot SH-22-following-feed; sh_texts following
 sh_tapui "Follow more"; sleep 4; shot SH-23-follow-more-sheet
 sh_tapui "Search creators"; adb shell input text "Heimishe"; sleep 2; shot SH-24-creators-search; sh_ime_hide; shot SH-24b-creators-found
 sh_tapui "\+ Follow"; sleep 2; shot SH-25-sheet-followed; sh_back_while "Creators to follow"; sleep 3; shot SH-26-following-after-sheet
 # unfollow both -> the list in the feed itself
-sh_mark following-list; sh_tapui "Following"; sleep 3
+sh_mark following-list; sh_tapui "Following feed"; sleep 3
 sh_mark nobody; timeout 10 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Home >/dev/null 2>&1; sleep 1
 # 11. Saved chip (what I saved), Uploads (a member's uploads, views), upload page with camera
 sh_mark saved; view "https://yidplus.com/shorts"; sleep 5; sh_tapui "Saved"; sleep 4; shot SH-27-saved
 sh_tapui "Saved"; sleep 2
-sh_mark uploads; sh_tapui "Uploads"; sleep 6; shot SH-28-uploads; sh_tapui "More options"; sleep 2; shot SH-29-uploads-options; key 4; sleep 1
+sh_mark uploads; sh_tapui "Uploads feed"; sleep 6; shot SH-28-uploads; sh_tapui "More options"; sleep 2; shot SH-29-uploads-options; key 4; sleep 1
 sh_mark upload-page; sh_tapui "Upload a Short"; sleep 3; shot SH-30-upload-page; key 4; sleep 2
 # 12. the end page after the last video
-sh_mark end; sh_tapui "For You"; sleep 4; for i in 1 2 3 4 5 6 7 8 9 10 11 12; do sh_up 2; done; sleep 2; shot SH-31-end-caught-up
+sh_mark end; sh_tapui "For You feed"; sleep 4; for i in 1 2 3 4 5 6 7 8 9 10 11 12; do sh_up 2; done; sleep 2; shot SH-31-end-caught-up
 # 13. a /shorts#<id> link opens that upload
 sh_mark deeplink; view "https://yidplus.com/shorts#6630b5bb-e297-417b-bc25-fdd9d23836d9"; sleep 7; shot SH-32-deeplink-upload
 # 13b. video 2 (D-pad / keypad): next, previous, pause, like (1), comments (3), options (#), creators (0), next tab (*)
-sh_mark dpad; view "https://yidplus.com/shorts"; sleep 4; sh_tapui "For You"; sleep 3
+sh_mark dpad; view "https://yidplus.com/shorts"; sleep 4; sh_tapui "For You feed"; sleep 3
 (timeout 40 adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit 30 /sdcard/SH-dpad.mp4 >/dev/null 2>&1 &)
 sleep 1; key 20; sleep 3; key 20; sleep 3; key 19; sleep 2; key 23; sleep 2; key 23; sleep 1; key 8; sleep 2; shot SH-35-dpad-liked
 key 10; sleep 3; shot SH-36-dpad-comments; key 4; sleep 2; key 18; sleep 2; shot SH-37-dpad-options; key 4; sleep 1
@@ -97,8 +100,9 @@ key 7; sleep 3; shot SH-38-dpad-creators; key 20; key 20; sleep 1; key 17; sleep
 sleep 4; timeout 20 adb pull /sdcard/SH-flow.mp4 "$OUT/SH-flow.mp4" >/dev/null 2>&1; timeout 20 adb pull /sdcard/SH-dpad.mp4 "$OUT/SH-dpad.mp4" >/dev/null 2>&1
 log "videos: $(ls -l "$OUT"/SH-*.mp4 2>/dev/null | awk '{print $5, $9}' | tr '\n' ' ')"
 # 14. dark mode + a tall phone
-adb shell cmd uimode night yes; sleep 3; sh_tapui "Following"; sleep 4; shot SH-33-following-dark; adb shell cmd uimode night no; sleep 2
+adb shell cmd uimode night yes; sleep 3; sh_tapui "Following feed"; sleep 4; shot SH-33-following-dark; adb shell cmd uimode night no; sleep 2
 size 1080x2400 420; restart 6; view "https://yidplus.com/shorts"; sleep 8; shot SH-34-phone-foryou; size 480x640 240
 log "unfixtured GETs from Shorts: $(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -o 'GET-unfixtured [^ ]*' | sort | uniq -c | sort -rn | head -30 | tr '\n' ';')"
+timeout 30 adb unroot >/dev/null 2>&1; sleep 3; timeout 30 adb wait-for-device
 log "taps: $(timeout 20 adb logcat -d -s YidSh 2>/dev/null | grep -o 'tap dt=.*' | head -12 | tr '\n' ';')"
 log "Shorts perf: $(timeout 20 adb logcat -d -s YidPerf 2>/dev/null | grep -o 'Shorts video playing [0-9]* ms' | tail -8 | tr '\n' ';')"

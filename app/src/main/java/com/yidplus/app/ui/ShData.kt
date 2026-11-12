@@ -97,7 +97,9 @@ object ShKeys {
         load()
         val own = keys(s, false); val probe = keys(s, true) + own
         val old = System.currentTimeMillis() - KEEP
-        for (k in probe) { if (k in session || (!creatorPage && (vk[k] ?: 0L) > old)) { dups++; return true } }
+        // a creator's own page shows every video of theirs (also ones already in For You or seen); its list dedupes by id itself
+        if (creatorPage) return false
+        for (k in probe) { if (k in session || (vk[k] ?: 0L) > old) { dups++; return true } }
         session.addAll(own)
         return false
     }
@@ -319,7 +321,7 @@ class ShList {
                     val j = ShDir.fetchCreator(k, ShDir.info(k)?.first ?: "")
                     if (j != null && key == k0) {
                         SoShortTopics.learn(j); ShDir.learnCreators(j)
-                        val got = Clip.srcPage(j).filter { it.creatorId !in Feeds.hidden && !ShKeys.seenBefore(it) && !ShKeys.isDup(it) }
+                        val got = Clip.srcPage(j).filter { it.creatorId !in Feeds.hidden && !ShKeys.seenBefore(it) }
                         // newest first overall; what is already on screen stays where it is
                         val cur = items.size
                         add(got)
