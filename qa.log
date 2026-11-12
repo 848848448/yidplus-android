@@ -1,0 +1,94 @@
+[02:17:27] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[02:17:31] screen 480x640 @ 240 dpi
+[02:17:31] ---- Signed in (QA fixture account) ----
+[02:17:36] fixture true
+[02:17:46] shot F01-home-signedin
+[02:17:46] open https://yidplus.com/chat
+[02:17:51] shot F02-chats-list
+[02:17:53] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:18:00] shot F03-chat-dm
+[02:18:02] shot F03b-chat-dm-up
+[02:18:05] open https://yidplus.com/chat
+[02:18:19] shot F04-chat-group
+[02:18:21] shot F04b-group-up
+[02:18:23] shot F04c-group-top
+[02:18:27] shot F05-message-actions
+[02:18:37] shot F06-notifications
+[02:18:39] tab Home
+[02:18:42] shot F07-home-header
+[02:18:42] open https://yidplus.com/shorts
+[02:18:52] shot F08-shorts-signedin
+[02:18:52] tab Profile
+[02:18:55] shot F09-profile-signedin
+[02:19:06] shot F09b-profile-scrolled
+[02:19:20] open https://yidplus.com/chat
+[02:19:24] shot F10-chats-dark
+[02:19:30] shot F11-chat-dark
+[02:19:37] screen 1080x2400 @ 420 dpi
+[02:19:46] open https://yidplus.com/chat
+[02:19:50] shot F12-phone-chats
+[02:19:57] shot F13-phone-chat
+[02:20:01] screen 480x640 @ 240 dpi
+[02:20:01] ---- qa/fx-ad.sh ----
+[02:20:08] ---- AD: Settings (signed in) ----
+[02:20:08] tab Profile
+[02:20:12] shot AD-01-settings-top
+[02:20:14] shot AD-02-settings-reading
+[02:20:16] shot AD-03-settings-appearance-color
+[02:20:18] shot AD-04-settings-stats-account
+[02:20:20] shot AD-05-settings-verify-share
+[02:20:24] shot AD-06-settings-bottom
+[02:20:24] tab Profile
+[02:20:59] adfind: 'Ocean Blue' not found
+[02:21:01] adt: 'L' not on screen
+[02:21:03] shot AD-07-ocean-blue-large-text
+[02:21:05] adt: 'M' not on screen
+[02:21:06] adt: 'Emerald Teal' not on screen
+[02:21:12] ad page EditProfile
+[02:21:12] shot AD-07b-edit-profile
+[02:21:19] adfind tapped after 1 swipes
+[02:21:27] adt '378'
+[02:21:30] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[02:21:34] ad page Privacy
+[02:21:34] shot AD-08-privacy
+[02:21:37] adt '96'
+[02:21:39] PROOF private account: PUT /api/profile {"is_private":1}
+[02:21:46] adfind tapped after 1 swipes
+[02:21:48] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[02:21:54] ad page NotifPrefs
+[02:21:57] adt '96'
+[02:21:59] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[02:21:59] shot AD-09-notif-prefs
+[02:22:05] ad page ChatSettings
+[02:22:08] adt '161'
+[02:22:09] shot AD-10-chat-settings
+[02:22:11] ---- AD: Notifications page ----
+[02:22:16] shot AD-11-notifications
+[02:22:19] adt '357'
+[02:22:21] PROOF mark all read: POST /api/notifications {"read":"all"}
+[02:22:21] shot AD-13-notifications-all-read
+[02:22:40] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[02:22:40] shot AD-12-notification-opened
+[02:22:43] ---- AD: Admin (native) ----
+[02:22:49] ad page Admin
+[02:22:49] shot AD-20-admin-dashboard
+[02:22:52] shot AD-21-admin-manage
+[02:22:54] shot AD-22-admin-features
+[02:22:55] adt: 'Music' not on screen
+[02:22:57] PROOF feature switch: (no request logged for 'PUT /api/settings')
+[02:22:57] shot AD-23-admin-music-switched
+[02:22:59] adt: 'Music' not on screen
+[02:23:03] shot AD-24-admin-web-sections
+[02:23:09] ad page AdminUsers
+[02:23:10] shot AD-25-admin-users
+[02:23:12] adtap text
+[02:23:16] shot AD-26-admin-users-search
+[02:23:23] ad page AdminUser
+[02:23:23] shot AD-27-admin-user
+[02:23:26] adt '96'
+[02:23:28] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[02:24:01] adfind: 'Mute' not found
+[02:24:04] adt: '24 hours' not on screen
+[02:24:06] PROOF mute user: (no request logged for 'POST /api/admin/mute')
