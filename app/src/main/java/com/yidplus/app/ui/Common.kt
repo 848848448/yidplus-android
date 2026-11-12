@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import kotlinx.coroutines.launch
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -54,6 +56,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -88,7 +92,7 @@ fun Modifier.tap(shape: Shape = RoundedCornerShape(10.dp), role: Role = Role.But
     val focused by src.collectIsFocusedAsState()
     this
         .clip(shape)
-        .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold, shape) else Modifier)
+        .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(if (LookPrefs.highContrast) 3.dp else 2.dp, Gold, shape) else Modifier)
         .clickable(interactionSource = src, indication = androidx.compose.material3.ripple(), enabled = enabled, role = role, onClick = onClick)
 }
 
@@ -116,13 +120,14 @@ fun Modifier.firstFocus(always: Boolean = false): Modifier = composed {
 fun TopBar(title: String, onBack: (() -> Unit)? = null, sub: String? = null, lead: (@Composable () -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
     // The brand bar (WhatsApp/Telegram style): green, white 20 sp title, white icons. Everything placed in it
     // (the back arrow, `lead`, `actions`) takes white as its content colour.
-    Surface(color = topBarColor(), contentColor = Color.White, shadowElevation = 3.dp) {
+    val ink = barContent()
+    Surface(color = topBarColor(), contentColor = ink, shadowElevation = if (LookPrefs.lightBar && !isDark()) 1.dp else 3.dp) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (onBack != null) IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack, size = 48.dp) else Spacer(Modifier.width(12.dp))
+            if (onBack != null) IconBtn(Sym.ArrowBack, "Back", onBack, size = 48.dp) else Spacer(Modifier.width(12.dp))
             if (lead != null) Box(Modifier.padding(start = 2.dp, end = 4.dp)) { lead() }
             Column(Modifier.weight(1f).padding(horizontal = 6.dp)) {
-                Text(title, style = MaterialTheme.typography.titleLarge, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp), color = Color.White.copy(alpha = .82f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(title, style = MaterialTheme.typography.titleLarge, color = barTitle(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (!sub.isNullOrBlank()) Text(sub, style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp), color = ink.copy(alpha = .82f), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             actions()
         }
@@ -201,7 +206,7 @@ fun Avatar(url: String?, name: String, size: Dp = 40.dp, emoji: String? = null) 
 fun GuestBar(text: String = "Sign in to chat, post and like", modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth().heightIn(min = 40.dp).background(MaterialTheme.colorScheme.primaryContainer).padding(start = 16.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Icon(Icons.Filled.Lock, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+        Icon(Sym.Lock, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
         Text(text, Modifier.weight(1f).padding(start = 10.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer,
             maxLines = 1, overflow = TextOverflow.Ellipsis)
         Box(Modifier.heightIn(min = 36.dp).tap(RoundedCornerShape(18.dp)) { Nav.go(Tab.Profile) }.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
@@ -273,7 +278,7 @@ fun EmptyNote(icon: ImageVector, title: String, sub: String? = null, modifier: M
 fun Problem(message: String, offline: Boolean, onRetry: () -> Unit, modifier: Modifier = Modifier.fillMaxSize()) {
     Column(modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Box(Modifier.size(72.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
-            Icon(if (offline) Icons.Filled.CloudOff else Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(36.dp))
+            Icon(if (offline) Sym.CloudOff else Sym.ErrorOutline, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(36.dp))
         }
         Spacer(Modifier.size(14.dp))
         Text(if (offline) "You're offline" else "Couldn't load this", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
@@ -380,3 +385,86 @@ val urlRegex = Regex("""https?://[^\s<>"']+""")
 
 @Composable
 fun ctx(): Context = LocalContext.current
+
+
+/**
+ * The app's floating action button (WhatsApp-2024 look): 56 dp rounded square in the brand colour, a white Material
+ * Symbol, D-pad focusable with the same gold ring as everything else. Put it in a Box with Modifier.align(BottomEnd)
+ * and give the list under it `contentPadding = PaddingValues(bottom = Dim.fab + 24.dp)` so no row hides behind it.
+ */
+@Composable
+fun Fab(icon: ImageVector, label: String, onClick: () -> Unit, modifier: Modifier = Modifier, extended: Boolean = false) {
+    val shape = RoundedCornerShape(16.dp)
+    androidx.compose.material3.Surface(
+        modifier = modifier.padding(16.dp).heightIn(min = Dim.fab).then(if (extended) Modifier else Modifier.width(Dim.fab)).tap(shape, onClick = onClick)
+            .semantics { contentDescription = label },
+        shape = shape, color = if (isDark()) MaterialTheme.colorScheme.primary else topBarColor().takeIf { !LookPrefs.lightBar } ?: MaterialTheme.colorScheme.primary,
+        contentColor = if (isDark()) MaterialTheme.colorScheme.onPrimary else Color.White, shadowElevation = 6.dp
+    ) {
+        Row(Modifier.heightIn(min = Dim.fab).padding(horizontal = if (extended) 16.dp else 0.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center) {
+            Icon(icon, null, Modifier.size(Dim.icon))
+            if (extended) Text(label, Modifier.padding(start = 10.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+/** One confirm dialog for the whole app (the site's safe-dialogs.js): title, one line, a red action when it destroys something. */
+@Composable
+fun ConfirmDialog(title: String, text: String?, confirm: String, onConfirm: () -> Unit, onDismiss: () -> Unit, destructive: Boolean = false, dismiss: String = "Cancel") {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = text?.let { { Text(it) } },
+        confirmButton = {
+            androidx.compose.material3.TextButton(onClick = { onDismiss(); onConfirm() }, modifier = Modifier.firstFocus()) {
+                Text(confirm, color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            }
+        },
+        dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(dismiss) } }
+    )
+}
+
+/** One row of an [ActionSheet]: a Material Symbol, the words, and red when it deletes or leaves. */
+data class SheetAction(val icon: ImageVector, val label: String, val destructive: Boolean = false, val onClick: () -> Unit)
+
+/**
+ * The app's long-press / ⋮ menu as a bottom sheet (WhatsApp-on-Android style): 56 dp rows, icon + label, first row
+ * focused for the D-pad, Back closes it. Use for chat-row, message and post menus so every area looks the same.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun ActionSheet(actions: List<SheetAction>, onDismiss: () -> Unit, title: String? = null) {
+    androidx.compose.material3.ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+            if (!title.isNullOrBlank()) Text(title, Modifier.padding(horizontal = 20.dp, vertical = 8.dp), style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            actions.forEachIndexed { i, a ->
+                val ink = if (a.destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).then(if (i == 0) Modifier.firstFocus() else Modifier)
+                    .tap(RoundedCornerShape(0.dp)) { onDismiss(); a.onClick() }.padding(horizontal = 20.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(a.icon, null, Modifier.size(Dim.icon), tint = if (a.destructive) ink else MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(a.label, Modifier.padding(start = 20.dp), style = MaterialTheme.typography.bodyLarge, color = ink)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * App-wide snackbar (WhatsApp's "Chat archived · UNDO"): `Snack.show("Chat archived", "Undo") { … }` from anywhere.
+ * AppRoot draws it above the bottom bar. Plain info can stay a toast.
+ */
+object Snack {
+    val host = androidx.compose.material3.SnackbarHostState()
+    private val scope = kotlinx.coroutines.MainScope()
+    fun show(text: String, action: String? = null, onAction: (() -> Unit)? = null) {
+        scope.launch {
+            host.currentSnackbarData?.dismiss()
+            val r = host.showSnackbar(text, actionLabel = action, withDismissAction = false,
+                duration = if (action != null) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short)
+            if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) onAction?.invoke()
+        }
+    }
+}
