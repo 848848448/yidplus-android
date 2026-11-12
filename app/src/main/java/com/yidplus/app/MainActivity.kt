@@ -118,6 +118,7 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("wallpaper")?.let { LookPrefs.putWallpaper(it) }
         i.getStringExtra("bar")?.let { LookPrefs.putLightBar(it == "light") }
         i.getStringExtra("dark")?.toIntOrNull()?.let { com.yidplus.app.data.Prefs.setThemeMode(it) }
+        i.getStringExtra("snack")?.let { com.yidplus.app.ui.Snack.show(it, "Undo") { toast(this, "Undone") } }
         android.util.Log.i("YidLook", "color=${LookPrefs.colorTheme} text=${UiPrefs.textSize} contrast=${LookPrefs.highContrast} reduceMotion=${LookPrefs.reduceMotion} motionScale=${YidMotion.scaleFactor} lightBar=${LookPrefs.lightBar}")
     }
 

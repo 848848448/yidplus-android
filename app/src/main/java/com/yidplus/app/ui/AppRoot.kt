@@ -128,6 +128,7 @@ fun AppRoot(onExit: () -> Unit) {
                 }
             }
             UpdateDialogs()
+            androidx.compose.material3.SnackbarHost(Snack.host, Modifier.align(Alignment.BottomCenter).padding(bottom = if (top == null && !wide) 72.dp else 16.dp))
         }
         }
     }
@@ -211,7 +212,7 @@ private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
     // badges: the unread number on Chats (and on Channels for joined Telegram channels), a dot on Shorts / Channels.
     val n = when (t) { Tab.Chats -> Badges.chats; Tab.Home -> Badges.channels; else -> 0 }
     val dot = n <= 0 && when (t) { Tab.Shorts -> NavDots.shorts; Tab.Home -> NavDots.channels; else -> false }
-    Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) Nav.stack.clear() else Nav.go(t) }
+    Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) { if (Nav.stack.isEmpty()) Nav.reselect[t] = (Nav.reselect[t] ?: 0) + 1; Nav.stack.clear() } else Nav.go(t) }
         .semantics { contentDescription = t.label + if (n > 0) ", $n unread" else if (dot) ", new" else "" }.padding(vertical = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(width = 64.dp, height = 32.dp), contentAlignment = Alignment.Center) {
