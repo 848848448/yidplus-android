@@ -20,15 +20,24 @@ cshas() { local p; p=$(cspos "$1"); if [ -n "$p" ]; then log "CS ok: '$1' on scr
 cslong() { sleep 1; local p; p=$(cspos "$1"); [ -z "$p" ] && { log "cslong: '$1' not found"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press $*"; }
 csopen() { # csopen ID TYPE NAME-JSON-ESCAPED [extra json]
   timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
-csfx() { timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400 | sed 's/^/  YidFx: /' | tee -a "$OUT/qa.log" >/dev/null; }
+csfx() { 
+# D-pad / keypad video: move focus with the arrows, OK on the mic = hands-free recording, OK on Send
+csroom 5; csrec CS-flow-dpad 28
+for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
+p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; key 22; sleep 0.6; key 23; sleep 3; shot CS-23-dpad-voice-sent; csfx "type=voice"
+sleep 14; cspull CS-flow-dpad
+timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400 | sed 's/^/  YidFx: /' | tee -a "$OUT/qa.log" >/dev/null; }
 cskb() { log "keyboard shown after $1: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }
 csdbl() { local p; p=$(cspos "$1"); [ -z "$p" ] && { log "csdbl: '$1' not found"; return 0; }; set -- $p; adb shell input tap $1 $2; adb shell input tap $1 $2; sleep 2; log "double-tap $*"; }
 csmic() { cspos "Record voice message"; }
 adb shell pm grant $PKG android.permission.RECORD_AUDIO 2>/dev/null
 adb shell pm grant $PKG android.permission.CAMERA 2>/dev/null
-CSR='{\"id\":\"r-cs\",\"type\":\"group\",\"nick\":\"CS QA\",\"unread\":5,\"members\":3}'
+csrec() { (adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit "${2:-30}" "/sdcard/$1.mp4" >/dev/null 2>&1 &); sleep 1; log "screenrecord $1 started"; }
+cspull() { sleep 2; timeout 30 adb pull "/sdcard/$1.mp4" "$OUT/$1.mp4" >/dev/null 2>&1 && log "video $OUT/$1.mp4 $(stat -c %s "$OUT/$1.mp4" 2>/dev/null) bytes"; }
+CSR='{"id":"r-cs","type":"group","nick":"CS QA","unread":5,"members":3}'
 csroom() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '$CSR'" >/dev/null 2>&1; sleep "${1:-6}"; log "open chat r-cs"; }
 
+csrec CS-flow-touch 30
 # 6: opens at the first unread message under "5 unread messages"; formatting, @mention, bare domain, music card, voice, polls
 csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
 adb shell input swipe 240 220 240 560 300; sleep 1; shot CS-02-formatting-voice-music
@@ -37,10 +46,11 @@ adb shell input swipe 240 220 240 560 300; sleep 3; shot CS-03-older-page-loaded
 csroom 4; adb shell input swipe 240 300 240 520 300; sleep 2; shot CS-04-polls; cshas "+ Suggest an option"; cshas "Close Poll"
 cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted
 # 9: voice: play, speed, seek
-cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; csfx "x"; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
+cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
 # 1: voice note recording — tap = hands-free (pause, stop to listen, send)
 key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked; cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
+cspull CS-flow-touch
 # hold = record, release = send
 p=$(csmic); if [ -n "$p" ]; then set -- $p; (adb shell input swipe $1 $2 $1 $2 3500 &) ; sleep 2; shot CS-08-voice-holding; sleep 3; csfx "type=voice"; fi
 # hold + slide left = cancel (nothing sent)

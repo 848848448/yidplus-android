@@ -638,10 +638,11 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             }
             HorizontalDivider(thickness = 0.5.dp)
         }
-        if (callOn > 0 && !selecting) Row(Modifier.fillMaxWidth().background(Color(0xFF2E7D32)).tap(RoundedCornerShape(0.dp)) { Nav.open(ChCall(room, "audio")) }.padding(horizontal = 16.dp, vertical = 9.dp),
+        if (callOn > 0 && !selecting) Row(Modifier.fillMaxWidth().background(Color(0xFF2E7D32)).tap(RoundedCornerShape(0.dp)) { Nav.open(ChCall(room, "audio")) }.padding(start = 16.dp, end = 10.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically) {
             Icon(Sym.Call, null, Modifier.size(18.dp), tint = Color.White)
-            Text("  Call in progress · $callOn on the call — tap to join", fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
+            Text("  Call in progress · $callOn on the call", Modifier.weight(1f), fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Join", Modifier.clip(RoundedCornerShape(14.dp)).background(Color.White).padding(horizontal = 14.dp, vertical = 4.dp), color = Color(0xFF2E7D32), fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
         csList()
         csComposer()

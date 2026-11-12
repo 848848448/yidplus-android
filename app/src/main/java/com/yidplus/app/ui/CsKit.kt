@@ -301,7 +301,7 @@ internal fun CsPinnedList(roomId: String, onJump: (String) -> Unit, onClose: () 
             else -> LazyColumn(Modifier.heightIn(max = 360.dp)) {
                 items(l) { p ->
                     Column(Modifier.fillMaxWidth().tap { onJump(p.str("message_id")) }.padding(vertical = 8.dp)) {
-                        Text("@" + p.str("sender_nick").ifBlank { "User" }, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.bar)
+                        if (p.str("sender_nick").isNotBlank()) Text("@" + p.str("sender_nick"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.bar)
                         Text(if (p.str("text").isBlank()) "[deleted message]" else if (p.str("type") == "text") p.str("text").take(80) else "[" + p.str("type") + "]",
                             fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                         Text("Pinned by @" + p.str("pinned_by_nick").ifBlank { "admin" } + " · " + chatTime(p.strOrNull("pinned_at")), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
