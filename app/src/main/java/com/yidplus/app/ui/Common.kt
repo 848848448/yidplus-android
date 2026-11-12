@@ -14,7 +14,9 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.semantics.selected
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -221,7 +223,7 @@ fun Badge(n: Int, muted: Boolean = false) {
     if (n <= 0) return
     Box(Modifier.heightIn(min = 20.dp).widthIn(min = 20.dp).clip(CircleShape).background(if (muted) MaterialTheme.colorScheme.outline else BadgeGreen)
         .padding(horizontal = 5.dp, vertical = 1.dp), contentAlignment = Alignment.Center) {
-        Text(if (n > 99) "99+" else n.toString(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Text(if (n > 99) "99+" else n.toString(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1)
     }
 }
 
@@ -465,6 +467,106 @@ object Snack {
             val r = host.showSnackbar(text, actionLabel = action, withDismissAction = false,
                 duration = if (action != null) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short)
             if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) onAction?.invoke()
+        }
+    }
+}
+
+/** Bottom padding for any list under a [Fab] (and the snackbar), so the last row is never hidden: 56 dp FAB + margins. */
+val FabListPadding: Dp = 96.dp
+/** `LazyColumn(contentPadding = fabSafePadding())`: the same with optional top padding. */
+fun fabSafePadding(top: Dp = 0.dp, hasFab: Boolean = true): PaddingValues = PaddingValues(top = top, bottom = if (hasFab) FabListPadding else 16.dp)
+
+/**
+ * The WhatsApp-2024 search field at the top of a main tab: full width, rounded pill, Material Symbol, the hint in
+ * grey, 44 dp (40 dp on a 480x640 screen). Tapping it (or OK on the D-pad) opens the screen's search. It replaces a
+ * search icon in the top bar; don't keep both.
+ */
+@Composable
+fun SearchPill(hint: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val small = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 700
+    val shape = RoundedCornerShape(50)
+    val bg = if (isDark()) Color(0xFF202C33) else Color(0xFFF0F2F5)
+    Row(modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = if (small) 6.dp else 8.dp).heightIn(min = if (small) 40.dp else 44.dp)
+        .clip(shape).background(bg).tap(shape, onClick = onClick).semantics { contentDescription = hint }.padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Icon(Sym.Search, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(hint, Modifier.padding(start = 12.dp), style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/**
+ * True while a header above [state]'s list should show: at the top, and whenever the user scrolls back up; false
+ * while scrolling down (WhatsApp hides its search field the same way). Use with [CollapsingHeader].
+ */
+@Composable
+fun rememberHeaderVisible(state: androidx.compose.foundation.lazy.LazyListState): Boolean {
+    var visible by remember { mutableStateOf(true) }
+    var lastIndex by remember { mutableStateOf(0) }
+    var lastOffset by remember { mutableStateOf(0) }
+    LaunchedEffect(state) {
+        androidx.compose.runtime.snapshotFlow { state.firstVisibleItemIndex to state.firstVisibleItemScrollOffset }.collect { (i, o) ->
+            val down = i > lastIndex || (i == lastIndex && o > lastOffset + 8)
+            val up = i < lastIndex || (i == lastIndex && o < lastOffset - 8)
+            if (i == 0 && o < 24) visible = true else if (down) visible = false else if (up) visible = true
+            lastIndex = i; lastOffset = o
+        }
+    }
+    return visible
+}
+
+/** A header (e.g. [SearchPill]) that slides away on scroll-down and back on scroll-up; instant when Reduce motion is on. */
+@Composable
+fun CollapsingHeader(state: androidx.compose.foundation.lazy.LazyListState, content: @Composable () -> Unit) {
+    androidx.compose.animation.AnimatedVisibility(visible = rememberHeaderVisible(state),
+        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()) { content() }
+}
+
+/**
+ * WhatsApp-2024 filter chips under the search field (All · Unread · Favourites · Groups …): 32 dp rounded chips that
+ * scroll sideways with end padding, the selected one light green with dark-green text, the rest grey. D-pad focusable.
+ */
+@Composable
+fun FilterChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, counts: List<Int?> = emptyList()) {
+    val dark = isDark()
+    androidx.compose.foundation.lazy.LazyRow(modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 24.dp, top = 2.dp, bottom = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(options.size) { i ->
+            val on = i == selected
+            val shape = RoundedCornerShape(50)
+            val bg = if (on) (if (dark) Color(0xFF103529) else Color(0xFFD8FDD2)) else (if (dark) Color(0xFF202C33) else Color(0xFFF0F2F5))
+            val ink = if (on) (if (dark) Color(0xFFD8FDD2) else Color(0xFF15603E)) else MaterialTheme.colorScheme.onSurfaceVariant
+            Row(Modifier.heightIn(min = 32.dp).clip(shape).background(bg).tap(shape) { onSelect(i) }
+                .semantics { contentDescription = options[i]; this.selected = on }.padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(options[i], color = ink, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
+                val n = counts.getOrNull(i)
+                if (n != null && n > 0) Text(" " + (if (n > 99) "99+" else n.toString()), color = ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+/**
+ * The open search (WhatsApp-2024): the bar turns into one field: back arrow, the query, a clear ✕, on the page's own
+ * surface (not green). Focus + keyboard come up at once; Back closes it (put a BackHandler on the screen too).
+ */
+@Composable
+fun SearchBarField(query: String, onQuery: (String) -> Unit, hint: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val fr = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { fr.requestFocus() } }
+    androidx.compose.material3.Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp, modifier = modifier) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconBtn(Sym.ArrowBack, "Close search", onBack, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 48.dp)
+            androidx.compose.foundation.text.BasicTextField(query, onQuery, Modifier.weight(1f).padding(horizontal = 6.dp).focusRequester(fr),
+                singleLine = true, textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface, fontSize = 17.sp,
+                    textDirection = androidx.compose.ui.text.style.TextDirection.Content),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+                decorationBox = { inner -> Box(contentAlignment = Alignment.CenterStart) {
+                    if (query.isEmpty()) Text(hint, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 17.sp, maxLines = 1)
+                    inner() } })
+            if (query.isNotEmpty()) IconBtn(Sym.Close, "Clear", { onQuery("") }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
