@@ -26,12 +26,18 @@ sh_dtap() {
   done
   timeout 20 adb shell "$c"; log "double-tap at $1,$2"
 }
+# Back only while "$1" is still on screen (never one Back too many: that leaves the app)
+sh_back_while() { local n; for n in 1 2 3; do timeout 30 adb shell uiautomator dump /sdcard/sh.xml >/dev/null 2>&1
+  timeout 20 adb shell cat /sdcard/sh.xml 2>/dev/null | grep -qE "(text|content-desc)=\"$1\"" || return 0; key 4; sleep 1; done; }
 sh_up() { timeout 10 adb shell input swipe 240 470 240 200 120; sleep "${1:-4}"; }
 
 size 480x640 240
 # 1. For You: first video, the swipe hint, the rail (avatar+follow, like, comment, save, share, sound, more), chips
-sh_mark foryou; view "https://yidplus.com/shorts"; sleep 4; shot SH-01-foryou-hint
-sleep 6; shot SH-02-foryou; sh_texts foryou 60
+# video 1 (touch): the first ~30 s of the flow below
+timeout 10 adb shell rm -f /sdcard/SH-flow.mp4 /sdcard/SH-dpad.mp4 >/dev/null 2>&1
+(timeout 40 adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit 30 /sdcard/SH-flow.mp4 >/dev/null 2>&1 &)
+sh_mark foryou; view "https://yidplus.com/shorts"; sleep 4; shot SH-01-keypad-help
+key 21; sleep 5; shot SH-02-foryou; sh_texts foryou 60
 # 2. one tap = sound on at once (muted start); next tap pauses; a tap on paused plays
 sh_mark tap; timeout 5 adb shell input tap 200 300; sleep 1; shot SH-03-tap-sound-on
 timeout 5 adb shell input tap 200 300; sleep 1; shot SH-04-tap-paused
@@ -40,8 +46,9 @@ timeout 5 adb shell input tap 200 300; sleep 2
 sh_mark dtap-like; sh_dtap 200 300; sleep 0.3; shot SH-05-double-tap-heart; sleep 2; shot SH-06-liked
 # 4. comments over the video (3/4 height), post one (optimistic), close
 sh_mark comments; sh_tapui "Comment"; sleep 3; shot SH-07-comments
-adb shell input text "Shkoyach%sgevaldig"; sleep 1; sh_mark post-comment; sh_tapui "Post"; sleep 0.5; shot SH-08-comment-posting; sleep 2; shot SH-09-comment-posted
-key 4; sleep 1; key 4; sleep 2
+sh_tapui "Add a comment"; sleep 1; adb shell input text "Shkoyach%sgevaldig"; sleep 1; shot SH-08-comment-typing
+sh_mark post-comment; sh_tapui "Post"; sleep 0.3; shot SH-08b-comment-posting; sleep 2; shot SH-09-comment-posted
+sh_back_while "Close comments"; sleep 2
 # 5. options sheet: speeds, auto-scroll, not interested, hide creator, copy link, saved, reset; 1.5x shows a badge
 sh_mark options; sh_tapui "More options"; sleep 2; shot SH-10-options
 sh_tapui "1.5×"; sleep 1; shot SH-11-options-speed; key 4; sleep 2; shot SH-12-speed-badge
@@ -75,6 +82,14 @@ sh_mark upload-page; sh_tapui "Upload a Short"; sleep 3; shot SH-30-upload-page;
 sh_mark end; sh_tapui "For You"; sleep 4; for i in 1 2 3 4 5 6 7 8 9 10 11 12; do sh_up 2; done; sleep 2; shot SH-31-end-caught-up
 # 13. a /shorts#<id> link opens that upload
 sh_mark deeplink; view "https://yidplus.com/shorts#6630b5bb-e297-417b-bc25-fdd9d23836d9"; sleep 7; shot SH-32-deeplink-upload
+# 13b. video 2 (D-pad / keypad): next, previous, pause, like (1), comments (3), options (#), creators (0), next tab (*)
+sh_mark dpad; view "https://yidplus.com/shorts"; sleep 4; sh_tapui "For You"; sleep 3
+(timeout 40 adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit 30 /sdcard/SH-dpad.mp4 >/dev/null 2>&1 &)
+sleep 1; key 20; sleep 3; key 20; sleep 3; key 19; sleep 2; key 23; sleep 2; key 23; sleep 1; key 8; sleep 2; shot SH-35-dpad-liked
+key 10; sleep 3; shot SH-36-dpad-comments; key 4; sleep 2; key 18; sleep 2; shot SH-37-dpad-options; key 4; sleep 1
+key 7; sleep 3; shot SH-38-dpad-creators; key 20; key 20; sleep 1; key 17; sleep 3; key 17; sleep 3
+sleep 4; timeout 20 adb pull /sdcard/SH-flow.mp4 "$OUT/SH-flow.mp4" >/dev/null 2>&1; timeout 20 adb pull /sdcard/SH-dpad.mp4 "$OUT/SH-dpad.mp4" >/dev/null 2>&1
+log "videos: $(ls -l "$OUT"/SH-*.mp4 2>/dev/null | awk '{print $5, $9}' | tr '\n' ' ')"
 # 14. dark mode + a tall phone
 adb shell cmd uimode night yes; sleep 3; sh_tapui "Following"; sleep 4; shot SH-33-following-dark; adb shell cmd uimode night no; sleep 2
 size 1080x2400 420; restart 6; view "https://yidplus.com/shorts"; sleep 8; shot SH-34-phone-foryou; size 480x640 240

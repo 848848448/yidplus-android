@@ -276,7 +276,7 @@ fun soDeleteUpload(ctx: Context, s: Clip) {
 @Composable
 fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: String, smallScreen: Boolean, modifier: Modifier,
                    onTab: (ShortsTab) -> Unit = { Feeds.tab = it; Feeds.who = null }, onSaved: () -> Unit = {}, onFollowMore: () -> Unit = {},
-                   onWhoBack: () -> Unit = { Feeds.who = null }, onWhoFollow: () -> Unit = {}) {
+                   onWhoBack: () -> Unit = { Feeds.who = null }, onWhoFollow: () -> Unit = {}, onMore: (() -> Unit)? = null) {
     Column(modifier.fillMaxWidth()
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Black.copy(alpha = .55f), Color.Transparent)))) {
         Row(Modifier.fillMaxWidth().padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -297,7 +297,8 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
             IconBtn(Sym.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = if (smallScreen) 38.dp else 44.dp)
         }
         val chips = androidx.compose.foundation.lazy.rememberLazyListState()
-        androidx.compose.foundation.lazy.LazyRow(Modifier.fillMaxWidth().height(40.dp), state = chips, contentPadding = PaddingValues(start = 10.dp, end = 24.dp),
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        androidx.compose.foundation.lazy.LazyRow(Modifier.weight(1f).height(40.dp), state = chips, contentPadding = PaddingValues(start = 10.dp, end = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
             if (who != null) {
                 item { ShChip("‹ Back", false, onWhoBack) }
@@ -316,6 +317,8 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
                     }
                 }
             }
+        }
+        if (onMore != null) IconBtn(Sym.MoreVert, "More options", onMore, tint = Color.White, size = 38.dp)
         }
         // the chosen topic chip slides into view (site: scrollIntoView)
         LaunchedEffect(topic, who, tab) { val i = SO_SHORT_TOPICS.indexOfFirst { it.first == topic }; if (who == null && i > 2) runCatching { chips.animateScrollToItem(i) } }
@@ -398,7 +401,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                     Text("Sign in to comment", Modifier.weight(1f)); PrimaryButton("Sign in", { onDismiss(); Nav.go(Tab.Profile) })
                 }
             } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(text, { if (it.length <= (if (s.fromSrc) 300 else 200)) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
+                OutlinedTextField(text, { if (it.length <= (if (s.fromSrc) 300 else 200)) text = it }, Modifier.weight(1f), placeholder = { Text("Add a comment") }, maxLines = 3,
                     textStyle = TextStyle(textDirection = TextDirection.Content), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { post() }))
                 IconBtn(Sym.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)
             }

@@ -7,12 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Recomposer
-import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.platform.AndroidUiDispatcher
-import androidx.compose.ui.platform.ComposeView
-import com.yidplus.app.ui.LookPrefs
-import com.yidplus.app.ui.UiPrefs
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -32,15 +27,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-/**
- * Settings → Reduce motion (the site's comfort.js yp_reduced_motion): every Compose animation in the app reads this
- * scale when it starts, so 0 makes them all jump to the end, app-wide. Otherwise it follows the phone's own animation scale.
- */
-object YidMotion : MotionDurationScale {
-    @Volatile var system = 1f
-    override val scaleFactor: Float get() = if (LookPrefs.reduceMotion) 0f else system
-}
-
 class MainActivity : ComponentActivity() {
     companion object {
         const val ACTION_CHECK_UPDATE = "com.yidplus.app.CHECK_UPDATE"
@@ -59,15 +45,6 @@ class MainActivity : ComponentActivity() {
             val host = u.host?.lowercase() ?: ""
             if (host != "yidplus.com" && host != "www.yidplus.com") { com.yidplus.app.ui.openUrl(ctx, url); return }
             val path = (u.path ?: "/").trimEnd('/').lowercase()
-            // The site's own link parameters: ?join=CODE (group invite), ?goto=explore|settings|chats, ?signin / ?invite.
-            val join = u.getQueryParameter("join")?.takeIf { it.isNotBlank() }
-            if (join != null) { Nav.go(Tab.Chats); Nav.open(com.yidplus.app.ui.ChJoinLink(join)); return }
-            when (u.getQueryParameter("goto")?.lowercase()) {
-                "explore", "channels", "home" -> { Nav.go(Tab.Home); return }
-                "settings", "profile" -> { Nav.go(Tab.Profile); return }
-                "chats", "chat" -> { Nav.go(Tab.Chats); return }
-            }
-            if (u.getQueryParameter("signin") != null || u.getQueryParameter("invite") != null) { Nav.go(Tab.Profile); return }
             when {
                 path == "" || path == "/index" || path == "/index.html" -> Nav.go(Nav.start)
                 path == "/chat" || path == "/yidplus-chat" || path == "/chats" -> Nav.go(Tab.Chats)
@@ -84,15 +61,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val cfg = resources.configuration
         if (cfg.navigation == Configuration.NAVIGATION_DPAD || cfg.keyboard == Configuration.KEYBOARD_12KEY) Keys.keypad = true
-        LookPrefs.init(this); UiPrefs.init(this)
-        YidMotion.system = runCatching { android.provider.Settings.Global.getFloat(contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) }.getOrDefault(1f)
-        // Our own recomposer (same as Compose's window recomposer) so Reduce motion reaches every animation.
-        val recomposer = Recomposer(AndroidUiDispatcher.CurrentThread + YidMotion)
-        lifecycleScope.launch(AndroidUiDispatcher.CurrentThread + YidMotion) { recomposer.runRecomposeAndApplyChanges() }
-        setContentView(ComposeView(this).apply {
-            setParentCompositionContext(recomposer)
-            setContent { AppRoot(onExit = { finish() }) }
-        })
+        setContent { AppRoot(onExit = { finish() }) }
         // On a keypad phone the very first arrow press only leaves "touch mode" (Android eats that press). Catch it
         // here so the screen's first item gets the focus, instead of whatever Android picks (the top bar's search icon).
         window.decorView.viewTreeObserver.addOnTouchModeChangeListener { inTouch -> if (!inTouch) Keys.keypad = true }
@@ -110,19 +79,6 @@ class MainActivity : ComponentActivity() {
         handle(intent)
     }
 
-    private fun qaLook(i: Intent) {
-        i.getStringExtra("color")?.toIntOrNull()?.let { LookPrefs.putColor(it) }
-        i.getStringExtra("text")?.toIntOrNull()?.let { UiPrefs.setText(it) }
-        i.getStringExtra("contrast")?.let { LookPrefs.putHighContrast(it == "1") }
-        i.getStringExtra("motion")?.let { LookPrefs.putReduceMotion(it == "1") }
-        i.getStringExtra("wallpaper")?.let { LookPrefs.putWallpaper(it) }
-        i.getStringExtra("bar")?.let { LookPrefs.putLightBar(it == "light") }
-        i.getStringExtra("dark")?.toIntOrNull()?.let { com.yidplus.app.data.Prefs.setThemeMode(it) }
-        if (i.getStringExtra("demo") != null) Nav.open(com.yidplus.app.ui.DsDemoPage())
-        i.getStringExtra("snack")?.let { com.yidplus.app.ui.Snack.show(it, "Undo") { toast(this, "Undone") } }
-        android.util.Log.i("YidLook", "color=${LookPrefs.colorTheme} text=${UiPrefs.textSize} contrast=${LookPrefs.highContrast} reduceMotion=${LookPrefs.reduceMotion} motionScale=${YidMotion.scaleFactor} lightBar=${LookPrefs.lightBar}")
-    }
-
     private fun handle(i: Intent?) {
         i ?: return
         when (i.action) {
@@ -130,8 +86,6 @@ class MainActivity : ComponentActivity() {
             ACTION_OPEN_PLAYER -> Nav.open(Screen.Player)
             ACTION_OPEN_CHATS -> Nav.go(Tab.Chats)
             "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
-            // QA (helper DS): set a look setting exactly as Settings does, to prove it changes the screens.
-            "com.yidplus.app.QA_LOOK" -> qaLook(i)
             "com.yidplus.app.QA_FEATURES" -> com.yidplus.app.data.SiteConfig.qaShowAll = i.getBooleanExtra("all", false)
             "com.yidplus.app.QA_UPDATE_NOTIFY" -> UpdateWorker.now(this)
             "com.yidplus.app.QA_FIXTURE" -> { com.yidplus.app.data.Fixture.set(this, i.getBooleanExtra("on", true)); com.yidplus.app.data.Store.clear(); lifecycleScope.launch { Session.refresh() } }

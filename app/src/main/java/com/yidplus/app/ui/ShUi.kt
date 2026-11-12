@@ -94,12 +94,18 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
     DisposableEffect(Unit) { onDispose { ShCreatorsState.q = q; ShCreatorsState.first = state.firstVisibleItemIndex; ShCreatorsState.offset = state.firstVisibleItemScrollOffset } }
     val n = Feeds.follows.size
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        if (title != null) Text(title, Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp), style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+        val small = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 560
+        if (title != null) Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = if (small) 4.dp else 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(title, Modifier.weight(1f), style = if (small) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground, maxLines = 2)
+            if (inline) TextButton({ onBackToForYou() }) { Text("For You ›", fontWeight = FontWeight.SemiBold) }
+        }
         if (all.size > 12 || dir == null) {
-            val shape = RoundedCornerShape(22.dp)
-            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp).height(44.dp).clip(shape).background(MaterialTheme.colorScheme.surfaceVariant, shape)
-                .padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            // the same look as the shared SearchPill (WhatsApp 2024), but you type right here
+            val shape = RoundedCornerShape(50)
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = if (small) 4.dp else 6.dp).height(if (small) 40.dp else 44.dp).clip(shape)
+                .background(if (isDark()) Color(0xFF202C33) else Color(0xFFF0F2F5), shape)
+                .padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Sym.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Box(Modifier.weight(1f)) {
@@ -118,10 +124,10 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                 else -> LazyColumn(state = state, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 8.dp)) {
                     items(view, key = { it.keys.joinToString(",") }) { x ->
                         val fol = ShDir.isFollowed(x.keys).also { tick.let { } }
-                        Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(start = 12.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(Modifier.fillMaxWidth().heightIn(min = if (small) 54.dp else 60.dp).padding(start = 12.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                             Row(Modifier.weight(1f).tap(RoundedCornerShape(12.dp)) { onWho(x.keys, x.name) }.padding(vertical = 8.dp, horizontal = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically) {
-                                ShAvatar(x.avatar, x.name, 44.dp)
+                                ShAvatar(x.avatar, x.name, if (small) 40.dp else 44.dp)
                                 Spacer(Modifier.width(12.dp))
                                 Text(x.name, Modifier.weight(1f, fill = false), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                                     color = MaterialTheme.colorScheme.onBackground, style = TextStyle(textDirection = TextDirection.Content))
@@ -143,9 +149,8 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                 }
             }
         }
-        if (inline) Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            if (n > 0) PrimaryButton("See their videos · $n followed", { onSeeFollowed() }, Modifier.fillMaxWidth())
-            TextButton({ onBackToForYou() }) { Text("Back to For You") }
+        if (inline && n > 0) Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 6.dp)) {
+            PrimaryButton("See their videos · $n followed", { onSeeFollowed() }, Modifier.fillMaxWidth())
         }
     }
 }
@@ -314,7 +319,9 @@ fun ShCommentsPanel(title: String, onDismiss: () -> Unit, body: @Composable Colu
     var dragY by remember { mutableFloatStateOf(0f) }
     Box(Modifier.fillMaxSize().imePadding()) {
         Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .35f)).pointerInputTap(onDismiss))
-        Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(0.75f).offset { IntOffset(0, dragY.coerceAtLeast(0f).toInt()) },
+        // with the keyboard up the panel takes all the room left, so the newest comments stay in sight above the box
+        val ime = WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
+        Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(if (ime) 1f else 0.75f).offset { IntOffset(0, dragY.coerceAtLeast(0f).toInt()) },
             shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp), color = MaterialTheme.colorScheme.background, tonalElevation = 2.dp) {
             Column(Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxWidth().pointerInput(Unit) {
@@ -324,7 +331,7 @@ fun ShCommentsPanel(title: String, onDismiss: () -> Unit, body: @Composable Colu
                     Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(title, Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground)
-                        IconBtn(Sym.Close, "Close comments", onDismiss)
+                        IconBtn(Sym.Close, "Close comments", onDismiss, modifier = Modifier.firstFocus())
                     }
                 }
                 body()

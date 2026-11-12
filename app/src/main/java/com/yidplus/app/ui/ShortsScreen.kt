@@ -352,6 +352,7 @@ fun ShortsScreen() {
     var buffering by remember { mutableStateOf(false) }
     var firstFrame by remember { mutableStateOf(false) }
     var videoShape by remember { mutableFloatStateOf(0f) }
+    var failedKey by remember { mutableStateOf<String?>(null) }
     var flashIcon by remember { mutableStateOf<ImageVector?>(null) }
     var flashAt by remember { mutableLongStateOf(0L) }
     var scrubbing by remember { mutableStateOf(false) }
@@ -391,7 +392,7 @@ fun ShortsScreen() {
             override fun onPlayerError(error: PlaybackException) {
                 // site: an outside video that fails is tried once more through /api/src-media; an upload once more after 0.7 s
                 val s = itemsNow.value.getOrNull(pager.settledPage) ?: return
-                if (!retried.add(s.key)) return
+                if (!retried.add(s.key)) { failedKey = s.key; buffering = false; return }
                 scope.launch {
                     delay(700)
                     val u = if (s.fromSrc) Api.BASE + "/api/src-media?u=" + URLEncoder.encode(s.video, "UTF-8") else s.video
@@ -439,7 +440,7 @@ fun ShortsScreen() {
             if (s == null) { player.pause(); if (page >= items.size && items.isNotEmpty()) { if (who == null && (tab == ShortsTab.ForYou)) feed.loadMore() }; return@collect }
             if (lastSettled?.key != s.key) { settle(lastSettled); lastSettled = s }
             swipeAt[0] = android.os.SystemClock.elapsedRealtime()
-            firstFrame = false; buffering = true; videoShape = 0f; paused = false; flashIcon = null
+            firstFrame = false; buffering = true; videoShape = 0f; paused = false; flashIcon = null; failedKey = null
             player.setMediaItem(MediaItem.fromUri(s.video)); player.prepare(); player.playWhenReady = true
             player.setPlaybackParameters(PlaybackParameters(ShPrefs.speed))
             if (s.fromSrc) ShKeys.shown(s)
@@ -580,7 +581,7 @@ fun ShortsScreen() {
         val top = if (smallScreen) 78.dp else 92.dp
         val nm = Feeds.whoName.ifBlank { "this creator" }
         when {
-            pickList -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(top = top)) {
+            pickList -> Box(Modifier.fillMaxSize().padding(top = top)) {
                 ShCreatorList("Follow creators to see them here", inline = true,
                     onWho = { ks, n -> Feeds.openWho(ks, n, "list") },
                     onSeeFollowed = { Feeds.pick = false; Feeds.following.clear() },
@@ -631,7 +632,9 @@ fun ShortsScreen() {
                         }
                     } else {
                         val current = page == pager.settledPage
-                        ShortPage(s, current = current, player = player, paused = paused && current, loading = current && (!firstFrame || buffering) && !paused,
+                        ShortPage(s, current = current, player = player, paused = paused && current, loading = current && (!firstFrame || buffering) && !paused && failedKey != s.key,
+                            failed = current && failedKey == s.key, onSkip = { go(1) }, onRetry = { failedKey = null; retried.remove(s.key); firstFrame = false; buffering = true
+                                player.setMediaItem(MediaItem.fromUri(s.video)); player.prepare(); player.playWhenReady = true },
                             videoShape = if (current) videoShape else 0f, flashIcon = if (current) flashIcon else null, flashAt = flashAt, topPad = top,
                             onTap = { o -> onTap(s, o) }, onLike = { like(s) }, onComments = { ShRank.learn(s, 1.0); commentsFor = s }, onSave = { toggleSave(s) },
                             onFollow = { follow(s) }, onShare = { ShRank.learn(s, 4.0); shShare(c, s) }, onMore = { optionsFor = s }, onCreator = { openCreator(s) },
@@ -648,7 +651,8 @@ fun ShortsScreen() {
             onSaved = { if (tab == ShortsTab.Saved) Feeds.tab = Feeds.savedFrom else { Feeds.savedFrom = if (tab == ShortsTab.Saved) Feeds.savedFrom else tab; Feeds.who = null; Feeds.tab = ShortsTab.Saved } },
             onFollowMore = { creatorsSheet = true },
             onWhoBack = { if (Feeds.whoBack() == "sheet") creatorsSheet = true },
-            onWhoFollow = { ShDir.setFollow(c, Feeds.whoKeys, !ShDir.isFollowed(Feeds.whoKeys), Feeds.whoName) })
+            onWhoFollow = { ShDir.setFollow(c, Feeds.whoKeys, !ShDir.isFollowed(Feeds.whoKeys), Feeds.whoName) },
+            onMore = if (smallScreen && !pickList && items.isNotEmpty()) ({ optionsFor = items.getOrNull(pager.settledPage) }) else null)
         if (ShPrefs.speed != 1f && items.isNotEmpty() && !pickList) Text(fmtSpeed(ShPrefs.speed), Modifier.align(Alignment.TopEnd).padding(top = top + 4.dp, end = 10.dp)
             .background(Color.Black.copy(alpha = .5f), RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 2.dp), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
         if (Prefs.muted && items.isNotEmpty() && !pickList && pager.settledPage < items.size) Row(Modifier.align(Alignment.TopCenter).padding(top = top + 6.dp)
@@ -714,7 +718,7 @@ private fun ShSkeletonSlide() {
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
-private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplayer.ExoPlayer, paused: Boolean, loading: Boolean, videoShape: Float,
+private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplayer.ExoPlayer, paused: Boolean, loading: Boolean, failed: Boolean, onSkip: () -> Unit, onRetry: () -> Unit, videoShape: Float,
                       flashIcon: ImageVector?, flashAt: Long, topPad: androidx.compose.ui.unit.Dp,
                       onTap: (Offset) -> Unit, onLike: () -> Unit, onComments: () -> Unit, onSave: () -> Unit, onFollow: () -> Unit, onShare: () -> Unit,
                       onMore: () -> Unit, onCreator: () -> Unit, onScrub: (Boolean) -> Unit, bursts: List<ShBurstAt>, onBurstDone: (ShBurstAt) -> Unit) {
@@ -735,6 +739,17 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                 (LayoutInflater.from(ctx).inflate(R.layout.short_player, null) as PlayerView).also { it.player = player }
             }, update = { it.player = player; it.resizeMode = if (fill) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FIT }, modifier = Modifier.fillMaxSize())
             if (paused) Icon(Sym.PlayArrowFill, "Paused", tint = Color.White.copy(alpha = .85f), modifier = Modifier.align(Alignment.Center).size(76.dp))
+            else if (failed) Column(Modifier.align(Alignment.Center).padding(horizontal = 40.dp).background(Color.Black.copy(alpha = .55f), RoundedCornerShape(16.dp)).padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Sym.ErrorOutline, null, tint = Color.White, modifier = Modifier.size(30.dp))
+                Text("This video can’t play right now", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp))
+                Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Try again", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.tap(RoundedCornerShape(16.dp), onClick = onRetry)
+                        .border(1.dp, Color.White.copy(alpha = .6f), RoundedCornerShape(16.dp)).padding(horizontal = 14.dp, vertical = 7.dp))
+                    Text("Next video", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.tap(RoundedCornerShape(16.dp), onClick = onSkip)
+                        .background(Green, RoundedCornerShape(16.dp)).padding(horizontal = 14.dp, vertical = 7.dp))
+                }
+            }
             else if (loading) CircularProgressIndicator(color = Color.White.copy(alpha = .8f), strokeWidth = 3.dp, modifier = Modifier.align(Alignment.Center).size(34.dp))
             if (flashIcon != null) key(flashAt) { ShFlash(flashIcon, Modifier.align(Alignment.Center)) }
             for (b in bursts) key(b.id) {
@@ -746,12 +761,12 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                 .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .62f)))))
 
             // Right side actions (site: the rail) — all of them, also at 480x640.
-            Column(Modifier.align(Alignment.BottomEnd).padding(end = 4.dp, bottom = if (small) 24.dp else 40.dp), horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(if (small) 2.dp else 8.dp)) {
+            Column(Modifier.align(Alignment.BottomEnd).padding(end = 2.dp, bottom = if (small) 14.dp else 40.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(if (small) 0.dp else 8.dp)) {
                 val keys = if (s.fromSrc) listOf(s.creatorId) else emptyList()
                 val following = s.fromSrc && (s.creatorId in Feeds.follows || ShDir.isFollowed(keys))
-                Box(Modifier.padding(bottom = 6.dp)) {
-                    Box(Modifier.tap(CircleShape, onClick = onCreator).semantics { contentDescription = "Creator’s videos" }.border(1.5.dp, Color.White, CircleShape)) { ShAvatar(s.avatar, s.creator, if (small) 36.dp else 46.dp) }
+                Box(Modifier.padding(bottom = if (small) 10.dp else 6.dp)) {
+                    Box(Modifier.tap(CircleShape, onClick = onCreator).semantics { contentDescription = "Creator’s videos" }.border(1.5.dp, Color.White, CircleShape)) { ShAvatar(s.avatar, s.creator, if (small) 34.dp else 46.dp) }
                     if (s.fromSrc) Box(Modifier.align(Alignment.BottomCenter).offset(y = 8.dp).size(if (small) 18.dp else 20.dp).clip(CircleShape)
                         .background(if (following) Green else Color(0xFFFF3B5C)).tap(CircleShape, onClick = onFollow), contentAlignment = Alignment.Center) {
                         Icon(if (following) Sym.Check else Sym.Add, if (following) "Unfollow" else "Follow", tint = Color.White, modifier = Modifier.size(14.dp))
@@ -762,8 +777,9 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                 val isSaved = Feeds.isSaved(s)
                 Action(if (isSaved) Sym.BookmarkFill else Sym.Bookmark, "Save", if (isSaved) Gold else Color.White, small, if (isSaved) "Remove from saved" else "Save", onClick = onSave)
                 Action(Sym.ShareFill, "Share", Color.White, small, "Share", mirror = false, onClick = onShare)
-                Action(if (Prefs.muted) Sym.VolumeOff else Sym.VolumeUp, "", Color.White, small, if (Prefs.muted) "Sound off" else "Sound on") { Prefs.setMute(!Prefs.muted) }
-                Action(Sym.MoreHoriz, "", Color.White, small, "More options", onClick = onMore)
+                // at 480x640 sound is the tap / "Tap for sound" and ⋯ sits at the end of the chips row, so the rail never runs into the top bar
+                if (!small) Action(if (Prefs.muted) Sym.VolumeOff else Sym.VolumeUp, "", Color.White, small, if (Prefs.muted) "Sound off" else "Sound on") { Prefs.setMute(!Prefs.muted) }
+                if (!small) Action(Sym.MoreHoriz, "", Color.White, small, "More options", onClick = onMore)
                 if (!s.fromSrc) ShMeta.views[s.key]?.let { v -> Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Sym.Visibility, "Views", tint = Color.White.copy(alpha = .85f), modifier = Modifier.size(13.dp))
                     Text(" " + soNum(v), color = Color.White.copy(alpha = .85f), fontSize = 11.sp) } }
@@ -804,9 +820,9 @@ private fun ShFlash(icon: ImageVector, modifier: Modifier) {
 private fun Action(icon: ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, pop: Boolean = false, mirror: Boolean = false, onClick: () -> Unit) {
     val sc = remember { androidx.compose.animation.core.Animatable(1f) }
     LaunchedEffect(pop) { if (pop) { sc.snapTo(0.7f); sc.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.35f, stiffness = 600f)) } }
-    Column(Modifier.widthIn(min = 52.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(vertical = if (small) 2.dp else 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 28.dp else 32.dp).scale(sc.value).then(if (mirror) Modifier.scale(scaleX = -1f, scaleY = 1f) else Modifier))
-        if (label.isNotBlank()) Text(label, color = Color.White, fontSize = if (small) 11.sp else 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
+    Column(Modifier.widthIn(min = if (small) 48.dp else 52.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(vertical = if (small) 2.dp else 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 26.dp else 32.dp).scale(sc.value).then(if (mirror) Modifier.scale(scaleX = -1f, scaleY = 1f) else Modifier))
+        if (label.isNotBlank()) Text(label, color = Color.White, fontSize = if (small) 10.sp else 12.sp, lineHeight = if (small) 12.sp else 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
             style = TextStyle(shadow = Shadow(Color.Black.copy(alpha = .6f), blurRadius = 3f)))
     }
 }
