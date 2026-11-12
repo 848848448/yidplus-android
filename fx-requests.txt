@@ -1,0 +1,48 @@
+--------- beginning of main
+--------- beginning of kernel
+--------- beginning of system
+11-12 06:12:00.313  2570  2604 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 06:12:17.820  2570  2605 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-12 06:13:24.180  3278  3314 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 06:14:10.697  3446  3481 I YidFx   : POST /api/telegram-read {"username":"fxnews"}
+11-12 06:14:10.720  3446  3481 I YidFx   : GET-unfixtured /api/telegram-ingest?username=fxnews&limit=15&before=101
+11-12 06:14:21.000  3706  3706 I YidFx   : LK-STEP react-tg
+11-12 06:14:27.051  3446  3482 I YidFx   : POST /api/telegram-reactions {"username":"fxnews","tg_msg_id":104,"emoji":"👍"}
+11-12 06:14:31.030  3774  3774 I YidFx   : LK-STEP share-tg
+11-12 06:14:40.009  3857  3857 I YidFx   : LK-STEP join-tg
+11-12 06:14:53.962  3446  3483 I YidFx   : POST /api/telegram-read {"username":"fxnews"}
+11-12 06:14:53.981  3446  3481 I YidFx   : GET-unfixtured /api/telegram-ingest?username=fxnews&limit=15&before=101
+11-12 06:15:20.642  4029  4029 I YidFx   : LK-STEP like-post
+11-12 06:15:22.224  3446  3481 I YidFx   : PUT /api/posts {"id":"fxp1","like":true}
+11-12 06:15:26.201  4065  4065 I YidFx   : LK-STEP comment-post
+11-12 06:15:36.513  4132  4132 I YidFx   : LK-STEP send-comment
+11-12 06:15:38.105  3446  3481 I YidFx   : POST /api/posts/comments {"post_id":"fxp1","text":"Shkoyach"}
+11-12 06:16:54.987  4591  4591 I YidFx   : LK-STEP new-post
+11-12 06:17:04.645  3446  3483 I YidFx   : POST /api/posts {"caption":"Test post from the app","content":""}
+11-12 06:17:27.921  4745  4745 I YidFx   : LK-STEP new-photo-post
+11-12 06:18:00.458  3446  3446 I YidFx   : LK-QA picked qa-pick.png 899 bytes
+11-12 06:18:04.137  3446  3481 I YidFx   : POST /api/posts multipart/form-data caption=Photo post,file=upload.png (image/png, 899 bytes)
+11-12 06:18:16.817  3446  4673 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-12 06:18:26.788  5015  5015 I YidFx   : LK-STEP like-short
+11-12 06:18:36.440  5082  5082 I YidFx   : LK-STEP comment-short
+11-12 06:19:02.777  5258  5258 I YidFx   : LK-STEP swipe-short
+11-12 06:19:25.907  5356  5356 I YidFx   : LK-STEP like-upload
+11-12 06:19:35.467  5415  5415 I YidFx   : LK-STEP save-upload
+11-12 06:19:46.394  5494  5494 I YidFx   : LK-STEP follow-creator
+11-12 06:20:20.517  5697  5697 I YidFx   : LK-STEP comment-upload
+11-12 06:20:46.757  5863  5863 I YidFx   : LK-STEP upload-short
+11-12 06:23:29.331  6495  6538 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-12 06:23:34.371  6495  6530 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-12 06:23:36.329  6495  6538 I YidFx   : PUT /api/statuses {"view":true,"id":"st-d-1"}
+11-12 06:23:50.058  6495  6530 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-deal"}
+11-12 06:23:50.058  6495  6538 I YidFx   : POST /api/chat {"room_id":"fx-787334068714","type":"text","text":"❤️ (reacted to your status)"}
+11-12 06:23:52.674  6495  6530 I YidFx   : PUT /api/statuses {"view":true,"id":"st-c-1"}
+11-12 06:23:57.753  6495  6530 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-chaim"}
+11-12 06:23:57.754  6495  6530 I YidFx   : POST /api/chat {"room_id":"fx-795029130550","type":"text","text":"↩️ Amazing"}
+11-12 06:24:15.256  6495  6539 I YidFx   : PUT /api/statuses {"viewers":true,"id":"st-me-2"}
+11-12 06:24:33.447  6495  6530 I YidFx   : PUT /api/statuses {"action":"delete","id":"st-me-1"}
+11-12 06:25:02.563  6495  6538 I YidFx   : POST /api/statuses {"type":"text","text":"Gut Shabbos from the app","bg":"linear-gradient(135deg,#1b4332,#40916c)","privacy":"followers"}
+11-12 06:25:16.435  6495  6530 I YidFx   : DELETE /api/saves?item_type=short&item_id=77e14f2a-e196-4ff3-915d-21ffa29f468c < 0 bytes>
+11-12 06:25:20.674  6495  7470 I YidFx   : POST /api/saves {"item_type":"short","item_id":"77e14f2a-e196-4ff3-915d-21ffa29f468c"}
+11-12 06:25:24.419  6495  7470 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
+11-12 06:25:46.346  6495  7470 I YidFx   : DELETE /api/history < 0 bytes>
