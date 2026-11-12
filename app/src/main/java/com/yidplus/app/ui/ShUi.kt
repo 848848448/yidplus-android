@@ -193,7 +193,7 @@ fun ShOptionsSheet(s: Clip, speed: Float, onSpeed: (Float) -> Unit, onDismiss: (
                 }
             }
             Spacer(Modifier.height(6.dp))
-            SettingRow(Sym.ArrowUpward, "Auto-scroll to the next video", switch = ShPrefs.auto) { ShPrefs.setAuto(!ShPrefs.auto) }
+            SettingRow(Sym.ArrowUpward, "Auto-scroll to the next video", switch = ShPrefs.auto) { ShPrefs.changeAuto(!ShPrefs.auto) }
             if (s.fromSrc) SettingRow(Sym.Block, "Not interested") { onDismiss(); onNotInterested() }
             if (s.fromSrc) SettingRow(Sym.VisibilityOff, "Don’t show videos from " + s.creator.ifBlank { "this creator" }) { onDismiss(); onHide() }
             SettingRow(Sym.AccountCircle, s.creator.ifBlank { "This creator" } + "’s videos") { onDismiss(); onCreator() }
@@ -223,8 +223,8 @@ object ShPrefs {
         swipeHint = sp.getBoolean("swipeHint", false); likeHint = sp.getBoolean("likeHint", false)
         ShStore.init(c)
     }
-    fun setSpeed(v: Float) { speed = v; p?.edit()?.putFloat("speed", v)?.apply() }
-    fun setAuto(v: Boolean) { auto = v; p?.edit()?.putBoolean("auto", v)?.apply() }
+    fun changeSpeed(v: Float) { speed = v; p?.edit()?.putFloat("speed", v)?.apply() }
+    fun changeAuto(v: Boolean) { auto = v; p?.edit()?.putBoolean("auto", v)?.apply() }
     fun hintDone() { swipeHint = true; p?.edit()?.putBoolean("swipeHint", true)?.apply() }
     fun likeHintDone() { likeHint = true; p?.edit()?.putBoolean("likeHint", true)?.apply() }
     fun lastTab(): String = p?.getString("tab", "") ?: ""

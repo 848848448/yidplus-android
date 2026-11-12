@@ -677,7 +677,7 @@ fun ShortsScreen() {
         onCount = { n -> shUpdate(s.copy(comments = n)) }) }
     optionsFor?.let { s ->
         val canDelete = !s.fromSrc && (Session.me?.id == s.creatorId || SoUser.isAdmin)
-        ShOptionsSheet(s, ShPrefs.speed, { ShPrefs.setSpeed(it) }, onDismiss = { optionsFor = null; scope.launch { delay(100); runCatching { focus.requestFocus() } } },
+        ShOptionsSheet(s, ShPrefs.speed, { ShPrefs.changeSpeed(it) }, onDismiss = { optionsFor = null; scope.launch { delay(100); runCatching { focus.requestFocus() } } },
             onNotInterested = { notInterested(s) }, onHide = { hideCreator(s) }, onCopy = { soCopy(c, s.shareUrl) },
             onSaved = { Feeds.savedFrom = if (tab == ShortsTab.Saved) Feeds.savedFrom else tab; Feeds.who = null; Feeds.tab = ShortsTab.Saved },
             onReset = { ShRank.reset(); ShKeys.resetAll(); Feeds.hidden.clear(); Feeds.persist(c); Feeds.forYou.reset(); Feeds.refresh++; toast(c, "For You starts fresh") },
@@ -725,7 +725,8 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
         val screenShape = w.value / maxHeight.value
         // site: fit() — a video close to the screen's shape fills it (like Reels), any other keeps its whole picture
         val fill = videoShape > 0f && Math.abs(videoShape - screenShape) / screenShape < 0.28f
-        Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { onTap(it) }) }) {
+        val tapNow by rememberUpdatedState(onTap)
+        Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { tapNow(it) }) }) {
             if (s.poster != null) {
                 AsyncImage(s.poster, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().alpha(0.35f))
                 AsyncImage(s.poster, null, contentScale = if (fill) ContentScale.Crop else ContentScale.Fit, modifier = Modifier.fillMaxSize())
