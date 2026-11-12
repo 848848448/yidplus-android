@@ -1,0 +1,56 @@
+first start: TotalTime: 2130
+first start: WaitTime: 2144
+cold start 1 (before profile compile): TotalTime: 698
+cold start 2 (before profile compile): TotalTime: 717
+cold start 3 (before profile compile): TotalTime: 706
+cold start 1 (baseline profile compiled): TotalTime: 660
+cold start 2 (baseline profile compiled): TotalTime: 669
+cold start 3 (baseline profile compiled): TotalTime: 704
+Total frames rendered: 3
+Janky frames: 2 (66.67%)
+50th percentile: 113ms
+90th percentile: 150ms
+95th percentile: 150ms
+99th percentile: 150ms
+Number Slow UI thread: 0
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 2
+50th gpu percentile: 22ms
+90th gpu percentile: 4950ms
+95th gpu percentile: 4950ms
+99th gpu percentile: 4950ms
+push: 11-12 08:08:09.839 11732 11732 I YidplusPush: probe: token ok (142 chars)
+11-12 07:55:15.032  5021  5021 I YidPerf : Shorts video playing 354 ms after swipe
+11-12 07:56:40.116  5021  5021 I YidPerf : Shorts video playing 262 ms after swipe
+11-12 07:56:47.377  5021  5021 I YidPerf : Home content 40 ms after open
+11-12 07:58:28.171  5021  5021 I YidPerf : Shorts content 70 ms after open
+11-12 07:58:28.289  5021  5021 I YidPerf : Shorts video playing 120 ms after swipe
+11-12 07:58:39.969  5021  5021 I YidPerf : Creator content 112 ms after open
+11-12 07:58:45.299  5021  5021 I YidPerf : Shorts content 77 ms after open
+11-12 07:58:45.586  5021  5021 I YidPerf : Shorts video playing 288 ms after swipe
+11-12 07:58:56.592  5021  5021 I YidPerf : Shorts video playing 143 ms after swipe
+11-12 07:59:07.619  5021  5021 I YidPerf : Shorts content 8900 ms after open
+11-12 07:59:07.785  5021  5021 I YidPerf : Shorts video playing 168 ms after swipe
+11-12 07:59:27.762  5021  5021 I YidPerf : Shorts content 68 ms after open
+11-12 07:59:27.903  5021  5021 I YidPerf : Shorts video playing 141 ms after swipe
+11-12 07:59:44.908  5021  5021 I YidPerf : Shorts video playing 202 ms after swipe
+11-12 08:02:23.888  5021  5021 I YidPerf : Home content 31 ms after open
+11-12 08:03:04.531  9903  9903 I YidPerf : Home content 56 ms after open
+11-12 08:03:12.416 10066 10066 I YidPerf : Home content 726 ms after process start
+11-12 08:03:21.189 10142 10142 I YidPerf : Home content 729 ms after process start
+11-12 08:03:29.991 10214 10214 I YidPerf : Home content 751 ms after process start
+11-12 08:03:42.336 10297 10297 I YidPerf : Home content 646 ms after process start
+11-12 08:03:51.441 10373 10373 I YidPerf : Home content 1015 ms after process start
+11-12 08:04:00.277 10450 10450 I YidPerf : Home content 1096 ms after process start
+11-12 08:04:47.355 11029 11029 I YidPerf : Home content 1131 ms after process start
+11-12 08:05:07.494 11029 11029 I YidPerf : Shorts content 620 ms after open
+11-12 08:05:07.834 11029 11029 I YidPerf : Shorts video playing 756 ms after swipe
+11-12 08:05:48.047 11243 11243 I YidPerf : Shorts video playing 540 ms after swipe
+11-12 08:05:50.416 11243 11243 I YidPerf : Shorts content 3144 ms after open
+11-12 08:06:12.613 11399 11399 I YidPerf : Shorts video playing 690 ms after swipe
+11-12 08:06:13.580 11399 11399 I YidPerf : Shorts content 3677 ms after process start
+11-12 08:06:25.406 11399 11399 I YidPerf : Shorts video playing 387 ms after swipe
+11-12 08:06:39.239 11399 11399 I YidPerf : Shorts content 86 ms after open
+11-12 08:06:39.602 11399 11399 I YidPerf : Shorts video playing 364 ms after swipe
+11-12 08:07:41.260 11732 11732 I YidPerf : Shorts content 502 ms after open
+11-12 08:07:41.677 11732 11732 I YidPerf : Shorts video playing 769 ms after swipe
