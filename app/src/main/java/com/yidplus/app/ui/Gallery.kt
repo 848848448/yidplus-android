@@ -138,7 +138,7 @@ fun GalleryScreen(items: List<GItem>, start: Int) {
     val bus = remember { ZoomBus() }
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    LaunchedEffect(pager.currentPage) { zoomed = false; dragY = 0f }
+    LaunchedEffect(pager.currentPage) { zoomed = false; dragY = 0f; bus.cmd = "" }
     // QA only (the fixture account is on): `adb shell am broadcast -a com.yidplus.app.QA_GESTURE --es g pinch|dtap|pinchin`
     // plays a real two-finger MotionEvent sequence through this window, so the gesture code itself is proved in CI.
     val qaView = androidx.compose.ui.platform.LocalView.current
@@ -311,10 +311,12 @@ private fun ZoomPhoto(url: String, bus: ZoomBus?, onZoom: (Boolean) -> Unit, onD
     fun animTo(to: Float, at: Offset, why: String) { val from = scale
         scope.launch { animate(from, to, animationSpec = tween(200)) { v, _ -> zoomTo(v, at) }; Log.i("YidGallery", "$why zoom " + "%.2f".format(scale)) } }
     // Keypad commands from the viewer (OK/5, 2, 8, arrows while zoomed)
+    // A command is used once: a photo that becomes the current page must not replay the last key (it opened zoomed in 2.0 QA).
     if (bus != null) LaunchedEffect(bus.seq) {
-        if (bus.seq == 0) return@LaunchedEffect
+        if (bus.seq == 0 || bus.cmd.isEmpty()) return@LaunchedEffect
+        val cmd = bus.cmd; bus.cmd = ""
         val mid = Offset(box.width / 2f, box.height / 2f); val step = 80.dp.value * c.resources.displayMetrics.density
-        when (bus.cmd) {
+        when (cmd) {
             "toggle" -> animTo(if (scale > 1.2f) 1f else 2.5f, mid, "key")
             "in" -> animTo((scale + 0.75f).coerceAtMost(5f), mid, "key")
             "out" -> animTo((scale - 0.75f).coerceAtLeast(1f), mid, "key")

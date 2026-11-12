@@ -392,7 +392,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                 Column(Modifier.weight(1f).padding(start = 10.dp)) {
                     Text(if (isMine) "My status" else user.nick, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
                         overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-                    Text(stAgo(slide.createdAt) + if (isMine && slide.privacy.isNotBlank()) " · " + Statuses.privacyLabel(slide.privacy) else "",
+                    Text(stAgo(slide.createdAt),
                         color = Color.White.copy(alpha = .8f), fontSize = 13.sp, maxLines = 1)
                 }
                 if (paused && (held || keyPaused)) Text("Paused", color = Color.White.copy(alpha = .8f), fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))

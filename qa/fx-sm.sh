@@ -34,7 +34,9 @@ sm_tap "Search music"; sleep 1; timeout 10 adb shell input text "zzqq" ; sleep 2
 sm_mark play
 sm_tap "Singles"; sleep 2; shot SM-04b-music-singles
 sm_rec SM-video-music 30
-sm_tap "א נייע ניגון" 6; shot SM-05-player; sm_texts player
+sm_tap "א נייע ניגון" 4; shot SM-05-song-playing-miniplayer
+sm_tap "Pause" 1; sm_tap "Play" 1
+sm_open player 4; shot SM-05b-player; sm_texts player
 timeout 10 adb shell input swipe 240 520 240 160 400; sleep 1; shot SM-06-player-scrolled-upnext
 sm_tap "Shuffle off"; sm_tap "Repeat off"; sleep 1; shot SM-07-player-shuffle-repeat
 key 22; key 22; sleep 1; check sm-player-keys
@@ -46,7 +48,7 @@ sm_tap "Save"; sleep 2; key 4
 sm_mark album
 sm_open album 5; shot SM-10-album-page; sm_tap "Shuffle"; sleep 3; shot SM-11-album-shuffle; key 4; sleep 1
 sm_mark music-video
-tab Music; sleep 3; sm_tap "Music videos"; sm_tap "YID PLUS Theme (video)" 5; sm_tap "Video" 6; shot SM-12-player-video; key 4; sleep 1
+tab Music; sleep 3; sm_tap "Music videos"; sm_tap "YID PLUS Theme (video)" 4; sm_open player 4; sm_tap "Video" 6; shot SM-12-player-video; key 4; sleep 1
 sm_mark music-upload
 sm_open upload 4; shot SM-13-music-upload-empty
 timeout 20 adb shell am broadcast -a com.yidplus.app.QA_PICK --es kind video >/dev/null 2>&1; sleep 2
@@ -61,30 +63,30 @@ sm_mark updates
 sm_open updates 5; shot SM-16-updates-page; sm_texts updates
 sm_mark status-other
 sm_rec SM-video-status 30
-nw_open2 status 5; shot SM-17-status-other; key 23; sleep 1; shot SM-17b-status-paused
-timeout 10 adb shell input swipe 240 470 240 200 250; sleep 1; shot SM-18-status-react-bar
-key 22; key 22; key 22; key 22; key 22; key 22; sleep 1; key 23; sleep 2; shot SM-19-status-reacted
+nw_open2 status 2; shot SM-17-status-other; key 23; sleep 1; shot SM-17b-status-paused
+timeout 10 adb shell input swipe 240 380 240 130 250; sleep 1; shot SM-18-status-react-bar
+sm_tap "React 🔥" 2; shot SM-19-status-reacted
 key 82; sleep 1; shot SM-20-status-menu-other
-key 23; sleep 2
+sm_tap "Save to Highlights" 2
 timeout 10 adb shell input tap 400 320; sleep 2; shot SM-21-status-next-slide
 timeout 10 adb shell input tap 60 320; sleep 1; timeout 10 adb shell input tap 60 320; sleep 1; shot SM-22-status-prev
 timeout 10 adb shell input swipe 240 200 240 560 300; sleep 2; shot SM-24-status-swiped-down-closed; check sm-status-other
 sm_pull SM-video-status 2
 sm_mark mute
-nw_open2 status 5; key 23; key 22; key 22; sleep 1
+nw_open2 status 2; key 23; sleep 1
 key 82; sleep 1; sm_texts mute-menu
 timeout -k 2 12 adb shell uiautomator dump /sdcard/sm.xml >/dev/null 2>&1
 M=$(timeout 20 adb shell cat /sdcard/sm.xml 2>/dev/null | grep -oE 'text="Mute [^"]+"' | head -1 | cut -d'"' -f2)
-key 20; key 20; key 23; sleep 2; log "SM muted via menu item 3 ($M)"; key 4; sleep 1
+[ -n "$M" ] && sm_tap "$M" 2; key 4; sleep 1
 sm_open updates 5; timeout 10 adb shell input swipe 240 520 240 200 300; sleep 1; sm_tap "Muted updates (1)"; sleep 1; shot SM-25-updates-muted
 sm_open highlights 4; shot SM-26-highlights
 sm_tap "Remove"; sleep 1; shot SM-27-highlights-removed; key 4
 sm_mark status-mine
-nw_open2 status_me 5; shot SM-28-status-mine; key 23
+nw_open2 status_me 2; key 23; sleep 1; shot SM-28-status-mine
 key 82; sleep 1; shot SM-29-status-menu-mine
-key 20; key 20; key 23; sleep 1; shot SM-30-status-privacy; key 4; sleep 1
-timeout 10 adb shell input swipe 240 470 240 200 250; sleep 2; shot SM-31-status-viewers; key 4; sleep 1
-key 82; sleep 1; key 20; key 20; key 20; key 23; sleep 1; shot SM-32-status-delete-confirm; key 4; sleep 1; key 4
+sm_tap "Privacy: Followers only" 1; shot SM-30-status-privacy; key 4; sleep 1
+timeout 10 adb shell input swipe 240 380 240 130 250; sleep 2; shot SM-31-status-viewers; key 4; sleep 1
+key 82; sleep 1; sm_tap "Delete" 1; shot SM-32-status-delete-confirm; key 4; sleep 1; key 4
 sm_mark post-text
 nw_open2 post_status 4; timeout 10 adb shell input text "Gut%sMorgen"; sleep 1; shot SM-33-post-text-keyboard
 key 4; sleep 1; shot SM-34-post-text-chips

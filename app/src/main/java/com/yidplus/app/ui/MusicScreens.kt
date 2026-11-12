@@ -274,6 +274,12 @@ private fun MusicTabBody(tab: String, all: List<SmTrack>, setTab: (String) -> Un
 @Composable
 fun MiniPlayer() {
     if (!Music.hasItem) return
+    // Full-screen pages (status viewer, posting a status, highlights player) keep the whole screen, like the photo viewer.
+    if ((Nav.stack.lastOrNull() as? PageScreen)?.immersive == true) return
+    // While typing (search, upload form) the keyboard needs the room; the bar comes back when it closes.
+    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+    val smImeUp = androidx.compose.foundation.layout.WindowInsets.isImeVisible
+    if (smImeUp) return
     var pos by remember { mutableLongStateOf(0L) }
     var len by remember { mutableLongStateOf(0L) }
     LaunchedEffect(Unit) { while (isActive) { Music.controller?.let { pos = it.currentPosition; len = it.duration.coerceAtLeast(0) }; delay(1000) } }
