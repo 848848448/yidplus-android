@@ -145,7 +145,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                 Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("@" + name.ifBlank { "yidplus" }, fontSize = 18.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                        if (verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
+                        if (verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
                     }
                     Text("${clips.size} videos", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -161,7 +161,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
             }
             when {
                 loading -> SoSkeleton(rows = 3)
-                clips.isEmpty() -> SoEmpty(Icons.Filled.Movie, "No videos yet")
+                clips.isEmpty() -> SoEmpty(Sym.Movie, "No videos yet")
                 else -> LazyVerticalGrid(GridCells.Adaptive(104.dp), Modifier.fillMaxSize(), contentPadding = PaddingValues(2.dp),
                     horizontalArrangement = Arrangement.spacedBy(2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     items(clips.size, key = { clips[it].key }) { i ->
@@ -173,7 +173,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                         }) {
                             SoVideoPoster(s.poster, "", s.duration, Modifier.fillMaxSize(), fit = ContentScale.Crop)
                             if (s.likes > 0) Row(Modifier.align(Alignment.BottomEnd).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.Favorite, null, tint = Color.White, modifier = Modifier.size(13.dp))
+                                Icon(Sym.Favorite, null, tint = Color.White, modifier = Modifier.size(13.dp))
                                 Text(" " + soNum(s.likes), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
@@ -201,7 +201,14 @@ class SoUploadShortPage : PageScreen() {
                 if (len > 100L * 1024 * 1024) toast(c, "That video is over 100 MB") else { file = u; sizeMb = if (len > 0) len / 1048576f else 0f }
             }
         }
-        LaunchedEffect(Unit) { if (Session.me != null && file == null && SoQaPick.uri == null) runCatching { pick.launch("video/*") } }
+        // Record with the camera (site: capture="environment" on the phone's file box)
+        val record = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+            val u = r.data?.data
+            if (r.resultCode == android.app.Activity.RESULT_OK && u != null) { file = u
+                sizeMb = (runCatching { c.contentResolver.openAssetFileDescriptor(u, "r")?.use { it.length } }.getOrNull() ?: 0L) / 1048576f }
+        }
+        fun camera() { runCatching { record.launch(android.content.Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE).putExtra(android.provider.MediaStore.EXTRA_DURATION_LIMIT, 180)) }
+            .onFailure { toast(c, "No camera app on this phone") } }
         LaunchedEffect(SoQaPick.uri) { SoQaPick.uri?.let { u -> file = u; sizeMb = runCatching { java.io.File(u.path!!).length() / 1048576f }.getOrDefault(0f); SoQaPick.uri = null } }
         fun send() {
             val f = file ?: run { pick.launch("video/*"); return }
@@ -222,19 +229,24 @@ class SoUploadShortPage : PageScreen() {
             TopBar("Upload a Short", onBack = { if (progress == null) Nav.back() }) {
                 if (Session.me != null && file != null) TextButton({ send() }, enabled = progress == null) { Text("Upload", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (progress == null) Color.White else Color.White.copy(alpha = .5f)) }
             }
-            if (Session.me == null) { SoEmpty(Icons.Filled.Upload, "Sign in to upload Shorts", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
+            if (Session.me == null) { SoEmpty(Sym.Upload, "Sign in to upload Shorts", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
             val short = LocalConfiguration.current.screenHeightDp < 560
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(16.dp)) {
                 Box(Modifier.fillMaxWidth().height(if (short) 104.dp else 150.dp).clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp)) { if (progress == null) pick.launch("video/*") }
                     .background(if (file == null) MaterialTheme.colorScheme.surfaceVariant else Green.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(if (file == null) Icons.Filled.VideoLibrary else Icons.Filled.CheckCircle, null, tint = Green, modifier = Modifier.size(44.dp))
+                        Icon(if (file == null) Sym.VideoLibrary else Sym.CheckCircle, null, tint = Green, modifier = Modifier.size(44.dp))
                         Text(if (file == null) "Choose a video (up to 100 MB)" else "Video ready" + (if (sizeMb > 0) " · %.1f MB".format(sizeMb) else "") + " · tap to change",
                             fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp), textAlign = TextAlign.Center)
                     }
                 }
+                if (progress == null) Row(Modifier.fillMaxWidth().padding(top = 8.dp).height(44.dp).clip(RoundedCornerShape(12.dp)).tap(RoundedCornerShape(12.dp)) { camera() }
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Sym.Videocam, null, tint = Green, modifier = Modifier.size(22.dp)); Spacer(Modifier.width(8.dp))
+                    Text("Record with camera", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
+                }
                 Spacer(Modifier.height(if (short) 10.dp else 14.dp))
-                OutlinedTextField(caption, { caption = it.take(300) }, Modifier.fillMaxWidth().heightIn(min = if (short) 64.dp else 90.dp), placeholder = { Text("Write a caption (optional)") },
+                OutlinedTextField(caption, { caption = it.take(200) }, Modifier.fillMaxWidth().heightIn(min = if (short) 64.dp else 90.dp), placeholder = { Text("Write a caption (optional)") }, supportingText = { Text("${caption.length}/200") },
                     textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                 Spacer(Modifier.height(16.dp))
                 progress?.let { v ->
@@ -257,48 +269,57 @@ fun soDeleteUpload(ctx: Context, s: Clip) {
     }
 }
 
-/** Shorts' one top row: search, the feeds (sideways scroll if they don't fit), topics (small screens), upload; then the creator / topic line. */
+/**
+ * Shorts' top (site: .shorts-topbar + the chips row): search, the feeds Following · For You · Uploads, upload;
+ * then the chips: Saved, "+ Follow more" (Following), the topics; on a creator's page ‹ Back, the creator ✕, Follow.
+ */
 @Composable
-fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: String, smallScreen: Boolean, modifier: Modifier) {
-        // One row on top: search, the feeds (scroll sideways if they don't fit), topics (small screens), upload.
+fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: String, smallScreen: Boolean, modifier: Modifier,
+                   onTab: (ShortsTab) -> Unit = { Feeds.tab = it; Feeds.who = null }, onSaved: () -> Unit = {}, onFollowMore: () -> Unit = {},
+                   onWhoBack: () -> Unit = { Feeds.who = null }, onWhoFollow: () -> Unit = {}) {
     Column(modifier.fillMaxWidth()
-            .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Black.copy(alpha = .45f), Color.Transparent)))) {
-            Row(Modifier.fillMaxWidth().padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.Filled.Search, "Search Shorts", { Nav.open(SoSearchPage(4)) }, tint = Color.White, size = if (smallScreen) 34.dp else 40.dp)
-                // The feeds always fit at 480 px (For You · Following · Uploads · Saved); on a small screen the topics
-                // button rides at the end of the same row instead of taking room from the names.
-                androidx.compose.foundation.lazy.LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    items(tabs.size) { ti ->
-                        val t = tabs[ti]
-                        Column(Modifier.tap(RoundedCornerShape(14.dp)) { Feeds.tab = t; Feeds.who = null }.padding(horizontal = if (smallScreen) 5.dp else 8.dp, vertical = 4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(t.label, color = if (t == tab) Color.White else Color.White.copy(alpha = .7f), fontWeight = if (t == tab) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = if (smallScreen) 13.sp else 15.sp, maxLines = 1, softWrap = false,
-                                style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)))
-                            Box(Modifier.padding(top = 2.dp).size(width = 18.dp, height = 2.dp).background(if (t == tab) Color.White else Color.Transparent, RoundedCornerShape(1.dp)))
-                        }
-                    }
-                    if (tab == ShortsTab.ForYou && smallScreen && who == null) item {
-                        Box {
-                            var topicsOpen by remember { mutableStateOf(false) }
-                            IconBtn(Icons.Filled.Tune, "Topics", { topicsOpen = true }, tint = if (topic == "All") Color.White else Gold, size = 34.dp)
-                            DropdownMenu(topicsOpen, { topicsOpen = false }) {
-                                for ((v, label) in SO_SHORT_TOPICS) DropdownMenuItem(text = { Text((if (v == topic) "✓ " else "   ") + label) }, onClick = { SoShortTopics.topic = v; topicsOpen = false })
-                            }
-                        }
+            .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Black.copy(alpha = .55f), Color.Transparent)))) {
+        Row(Modifier.fillMaxWidth().padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconBtn(Sym.Search, "Search Shorts", { Nav.open(SoSearchPage(4)) }, tint = Color.White, size = if (smallScreen) 38.dp else 44.dp)
+            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                val shown = if (tab == ShortsTab.Saved) Feeds.savedFrom else tab
+                for (t in tabs) {
+                    val on = t == shown && who == null && tab != ShortsTab.Saved
+                    Column(Modifier.tap(RoundedCornerShape(14.dp)) { onTab(t) }.padding(horizontal = if (smallScreen) 7.dp else 10.dp, vertical = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(t.label, color = if (on) Color.White else Color.White.copy(alpha = .72f), fontWeight = if (on) FontWeight.Bold else FontWeight.Medium,
+                            fontSize = if (smallScreen) 15.sp else 16.sp, maxLines = 1, softWrap = false,
+                            style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)))
+                        Box(Modifier.padding(top = 3.dp).size(width = 22.dp, height = 2.5.dp).background(if (on) Color.White else Color.Transparent, RoundedCornerShape(2.dp)))
                     }
                 }
-                IconBtn(Icons.Filled.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = if (smallScreen) 36.dp else 40.dp)
             }
-            if (who != null) Row(Modifier.padding(start = 12.dp, bottom = 4.dp).tap(RoundedCornerShape(16.dp)) { Feeds.who = null }
-                .background(Color.White.copy(alpha = .2f), RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("@" + Feeds.whoName.ifBlank { "creator" }, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                Icon(Icons.Filled.Close, "Show everyone", tint = Color.White, modifier = Modifier.padding(start = 6.dp).size(16.dp))
-            }
-            else if (tab == ShortsTab.ForYou && !smallScreen) SoChips(SO_SHORT_TOPICS.map { it.second }, SO_SHORT_TOPICS.indexOfFirst { it.first == topic }.coerceAtLeast(0),
-                { SoShortTopics.topic = SO_SHORT_TOPICS[it].first }, dark = true)
+            IconBtn(Sym.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = if (smallScreen) 38.dp else 44.dp)
         }
+        val chips = androidx.compose.foundation.lazy.rememberLazyListState()
+        androidx.compose.foundation.lazy.LazyRow(Modifier.fillMaxWidth().height(40.dp), state = chips, contentPadding = PaddingValues(start = 10.dp, end = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (who != null) {
+                item { ShChip("‹ Back", false, onWhoBack) }
+                item { ShChip(Feeds.whoName.ifBlank { "Creator" }, true, onWhoBack, trailing = Sym.Close,
+                    lead = { val i = ShDir.info(who); ShAvatar(i?.second, Feeds.whoName, 22.dp) }) }
+                item { val f = ShDir.isFollowed(Feeds.whoKeys); ShChip(if (f) "Following" else "Follow", false, onWhoFollow, icon = if (f) Sym.Check else Sym.Add) }
+            } else {
+                item { ShChip("Saved", tab == ShortsTab.Saved, onSaved, icon = if (tab == ShortsTab.Saved) Sym.BookmarkFill else Sym.Bookmark, trailing = if (tab == ShortsTab.Saved) Sym.Close else null) }
+                if (tab == ShortsTab.Following && Feeds.follows.isNotEmpty() && !Feeds.pick) item { ShChip("Follow more", false, onFollowMore, icon = Sym.Add) }
+                if (tab == ShortsTab.ForYou || (tab == ShortsTab.Following && Feeds.follows.isNotEmpty() && !Feeds.pick)) {
+                    items(SO_SHORT_TOPICS.size) { i ->
+                        val (v, label) = SO_SHORT_TOPICS[i]
+                        ShChip(if (v == "All") "All" else label, v == topic, {
+                            SoShortTopics.topic = v; if (v != "All") ShRank.topic(v, 0.5)
+                        })
+                    }
+                }
+            }
+        }
+        // the chosen topic chip slides into view (site: scrollIntoView)
+        LaunchedEffect(topic, who, tab) { val i = SO_SHORT_TOPICS.indexOfFirst { it.first == topic }; if (who == null && i > 2) runCatching { chips.animateScrollToItem(i) } }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -310,6 +331,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
     var loading by remember { mutableStateOf(true) }
     var canDelete by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
+    var loadFailed by remember { mutableStateOf(false) }
     suspend fun load() {
         loading = true
         try {
@@ -323,25 +345,36 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                 list.clear(); list.addAll(j.optJSONArray("comments").objects().reversed().map { Comment(it.str("id"), it.str("user_id"), it.str("nickname"), Api.abs(it.strOrNull("photo_url")), it.str("text"), it.strOrNull("created_at"), it.str("user_id") == Session.me?.id) })
             }
             onCount(list.size)
-        } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { loading = false }
+            loadFailed = false
+        } catch (e: Exception) { loadFailed = list.isEmpty(); if (!loadFailed) toast(c, Api.friendly(e)) } finally { loading = false }
     }
     LaunchedEffect(s.key) { load() }
+    val pending = remember { mutableStateListOf<String>() }
     fun post() {
         val t = text.trim(); if (t.isEmpty()) return
+        val max = if (s.fromSrc) 300 else 200
+        if (t.length > max) { toast(c, "Comment too long ($max max)"); return }
         text = ""
+        // the comment shows at once, "posting…", like the site; it is replaced by the server's copy
+        val tmp = Comment("tmp" + System.currentTimeMillis(), Session.me?.id ?: "", Session.me?.nickname ?: "you", Session.me?.photo, t, null, true)
+        pending.add(tmp.id); list.add(0, tmp)
         scope.launch {
             try {
-                if (s.fromSrc) Api.post("/api/src-comments", JSONObject().put("vid", s.key).put("text", t))
+                val j = if (s.fromSrc) Api.post("/api/src-comments", JSONObject().put("vid", s.key).put("text", t))
                 else Api.post("/api/shorts/comments", JSONObject().put("short_id", s.key).put("text", t))
+                if (j.optBoolean("queued")) { list.remove(tmp); text = t; toast(c, "Comments are paused for a little while — please try again later"); return@launch }
+                ShRank.learn(s, 3.0)
                 load()
-            } catch (e: Exception) { toast(c, Api.friendly(e)); text = t }
+            } catch (e: Exception) { list.remove(tmp); text = t; toast(c, if (Api.isOffline(e)) "Couldn’t post — check your connection" else Api.friendly(e)) }
+            finally { pending.remove(tmp.id) }
         }
     }
-    SoCommentsPanel(if (list.isEmpty()) "Comments" else if (list.size == 1) "1 comment" else "${list.size} comments", onDismiss) {
+    ShCommentsPanel(if (list.isEmpty()) "Comments" else if (list.size == 1) "1 comment" else "${list.size} comments", onDismiss) {
         run {
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (loading && list.isEmpty()) SoSkeleton(rows = 3, avatar = 36.dp)
-                else if (list.isEmpty()) SoEmpty(Icons.Filled.ChatBubbleOutline, "No comments yet. Be the first.")
+                else if (list.isEmpty() && loadFailed) SoEmpty(Sym.ErrorOutline, "Couldn’t load comments.", action = "Try again", onAction = { scope.launch { load() } })
+                else if (list.isEmpty()) SoEmpty(Sym.ChatBubbleOutline, "No comments yet. Be the first to say something.")
                 else LazyColumn {
                     items(list, key = { it.id }) { cm ->
                         Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) {}.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -354,7 +387,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                                 }
                                 Text(cm.text, Modifier.padding(top = 2.dp), style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left))
                             }
-                            if (s.fromSrc && (cm.mine || canDelete)) IconBtn(Icons.Filled.Delete, "Delete", {
+                            if (s.fromSrc && (cm.mine || canDelete)) IconBtn(Sym.Delete, "Delete", {
                                 scope.launch { runCatching { Api.delete("/api/src-comments?vid=" + URLEncoder.encode(s.key, "UTF-8") + "&id=" + URLEncoder.encode(cm.id, "UTF-8")) }; load() } }, size = 32.dp)
                         }
                     }
@@ -365,9 +398,9 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                     Text("Sign in to comment", Modifier.weight(1f)); PrimaryButton("Sign in", { onDismiss(); Nav.go(Tab.Profile) })
                 }
             } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(text, { if (it.length <= 300) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
+                OutlinedTextField(text, { if (it.length <= (if (s.fromSrc) 300 else 200)) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
                     textStyle = TextStyle(textDirection = TextDirection.Content), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { post() }))
-                IconBtn(Icons.AutoMirrored.Filled.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)
+                IconBtn(Sym.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)
             }
         }
     }

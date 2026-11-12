@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
             when {
                 path == "" || path == "/index" || path == "/index.html" -> Nav.go(Nav.start)
                 path == "/chat" || path == "/yidplus-chat" || path == "/chats" -> Nav.go(Tab.Chats)
-                path == "/shorts" || path == "/yidplus-shorts" -> { Nav.go(Tab.Shorts); u.getQueryParameter("v")?.let { Nav.shortsDeepLink = it } }
+                path == "/shorts" || path == "/yidplus-shorts" -> { Nav.go(Tab.Shorts); (u.getQueryParameter("v") ?: u.fragment?.takeIf { it.isNotBlank() }?.let { "#$it" })?.let { Nav.shortsDeepLink = it } }
                 path == "/music" || path == "/yidplus-music" -> Nav.go(Tab.Music)
                 else -> Nav.open(Screen.Web(url))
             }
