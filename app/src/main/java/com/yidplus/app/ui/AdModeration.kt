@@ -346,3 +346,34 @@ class AdStatusesModPage : PageScreen() {
         AdDialogs(a)
     }
 }
+
+
+/** Music (site music-mod is a static sample with no data): the real library from GET /api/music, remove = DELETE /api/music?id= (music.js onRequestDelete, admins allowed, audit-logged). */
+class AdMusicModPage : PageScreen() {
+    override val perfName = "AdMusicMod"
+    override fun equals(other: Any?) = other is AdMusicModPage
+    override fun hashCode() = 3308
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope(); val a = rememberAsk()
+        var tick by remember { mutableIntStateOf(0) }
+        val res = adRes("/api/music", tick)
+        var q by remember { mutableStateOf("") }
+        AdPanel("🎵 Music library", sub = "Remove any track", res = res) { j ->
+            item { AdminSearchField(q, { q = it }, "Search title, artist or uploader…") }
+            val all = j.arr("tracks")
+            val l = all.filter { t -> q.isBlank() || (t.s("title") + " " + t.s("artist") + " " + t.s("owner_nick")).contains(q.trim(), true) }
+            item { AdHint(all.size.toString() + " tracks" + if (q.isNotBlank()) " · " + l.size + " match" else "") }
+            if (l.isEmpty()) adEmpty("No tracks", Sym.MusicNote)
+            items(l, key = { it.s("id") }) { t ->
+                AdRow(t.s("title").ifBlank { "(untitled)" }, sub = listOf(t.s("artist"), "@" + t.s("owner_nick").ifBlank { "?" }).filter { it.isNotBlank() }.joinToString(" · "),
+                    sub2 = (if (t.s("video_url").isNotBlank()) "🎬 video · " else "") + adminN(t.n("plays")) + " plays · " + adWhen(t.s("created_at")),
+                    photo = t.s("cover_url"), letter = t.s("title").ifBlank { "♪" }, trail = "🗑") {
+                    a.sure("Remove track?", "Remove \u201C" + t.s("title") + "\u201D from YID PLUS? The audio and cover are deleted too.") {
+                        adminDo(c, scope, "🗑 Track removed.", { tick++ }) { Api.delete("/api/music?id=" + adEnc(t.s("id"))) }
+                    }
+                }
+            }
+        }
+        AdDialogs(a)
+    }
+}
