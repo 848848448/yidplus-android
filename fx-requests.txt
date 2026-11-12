@@ -1,0 +1,24 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of kernel
+11-12 07:50:40.824  2571  2632 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-12 07:50:45.794  2571  2640 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-12 07:51:10.846  2571  2632 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-12 07:51:52.326  2571  2640 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-12 07:52:18.837  3274  3308 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-12 07:54:41.860  3436  3471 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-12 07:55:12.875  3436  3471 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-12 07:55:31.777  3436  3471 I YidFx   : POST /api/chat/read {"room_id":"r-dm2","receipts":true}
+11-12 07:58:22.610  3436  3476 I YidFx   : PUT /api/chat/rooms {"room_id":"r-dm1","muted":true}
+11-12 07:58:40.390  3436  3476 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-12 07:59:06.509  3436  3478 I YidFx   : DELETE /api/chat/rooms?room_id=r-dm3 < 0 bytes>
+11-12 08:00:21.357  3436  3476 I YidFx   : POST /api/chat/folders {"name":"Family and friends","icon":"📁","filter":"custom","room_ids":[],"sort_order":1}
+11-12 08:00:31.621  3436  3471 I YidFx   : DELETE /api/chat/folders?id=cl-f1 < 0 bytes>
+11-12 08:01:29.253  3436  3478 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-12 08:01:54.639  3436  3478 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-12 08:02:03.244  3436  6518 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-12 08:02:55.359  3436  3471 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-12 08:03:51.876  3436  8163 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-12 08:04:13.244  3436  6518 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-12 08:07:12.395  3436  9681 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-12 08:07:28.063  3436  8163 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
