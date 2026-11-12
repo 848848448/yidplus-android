@@ -1,0 +1,157 @@
+[00:32:12] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[00:32:15] screen 480x640 @ 240 dpi
+[00:32:15] ---- Signed in (QA fixture account) ----
+[00:32:19] fixture true
+[00:32:28] shot F01-home-signedin
+[00:32:28] open https://yidplus.com/chat
+[00:32:33] shot F02-chats-list
+[00:32:35] chat list texts:  text="Chats"  text="All"  text="16"  text="Private"  text="3"  text="Groups"  text="12"  text="YK"  text="Yossi Klein"  text="Yesterday"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="חפ"  text="חברים פון שול"  text="Yesterday"  text="System message"  text="12"  text="YW"  text="Yanky Weiss"  text="Yesterday"  text="16"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:32:42] shot F03-chat-dm
+[00:32:44] shot F03b-chat-dm-up
+[00:32:48] open https://yidplus.com/chat
+[00:33:02] shot F04-chat-group
+[00:33:04] shot F04b-group-up
+[00:33:05] shot F04c-group-top
+[00:33:09] shot F05-message-actions
+[00:33:19] shot F06-notifications
+[00:33:21] tab Home
+[00:33:24] shot F07-home-header
+[00:33:24] open https://yidplus.com/shorts
+[00:33:34] shot F08-shorts-signedin
+[00:33:34] tab Profile
+[00:33:37] shot F09-profile-signedin
+[00:33:48] shot F09b-profile-scrolled
+[00:34:02] open https://yidplus.com/chat
+[00:34:06] shot F10-chats-dark
+[00:34:13] shot F11-chat-dark
+[00:34:19] screen 1080x2400 @ 420 dpi
+[00:34:28] open https://yidplus.com/chat
+[00:34:32] shot F12-phone-chats
+[00:34:38] shot F13-phone-chat
+[00:34:42] screen 480x640 @ 240 dpi
+[00:34:42] ---- qa/fx-ad.sh ----
+[00:34:49] ---- AD: Settings (signed in) ----
+[00:34:49] tab Profile
+[00:34:53] shot AD-01-settings-top
+[00:34:56] shot AD-02-settings-reading
+[00:34:58] shot AD-03-settings-appearance-color
+[00:35:00] shot AD-04-settings-stats-account
+[00:35:02] shot AD-05-settings-verify-share
+[00:35:07] shot AD-06-settings-bottom
+[00:35:07] tab Profile
+[00:35:32] adfind tapped after 3 swipes
+[00:35:34] PROOF colour theme: LOOK color_theme=1 Ocean Blue
+[00:35:56] adfind tapped after 3 swipes
+[00:35:58] shot AD-07-ocean-blue-large-text
+[00:36:03] shot AD-07c-after-large-text-scroll
+[00:36:43] adfind: 'Emerald Teal' not found; screen has: Settings|מ|Change photo|משה'לע|Verified|Owner|@משה'לע|owner@example.com|Edit Profile|Saved Items|Messages, posts and Shorts you saved|Chats|16|Chats|Shorts|Shorts|Channels|Channels|Settings|Settings|
+[00:37:24] adfind: 'M' not found; screen has: Settings|מ|Change photo|משה'לע|Verified|Owner|@משה'לע|owner@example.com|Edit Profile|Saved Items|Messages, posts and Shorts you saved|Chats|16|Chats|Shorts|Shorts|Channels|Channels|Settings|Settings|
+[00:37:30] ad page EditProfile
+[00:37:30] shot AD-07b-edit-profile
+[00:37:37] adfind tapped after 1 swipes
+[00:37:44] adt '370'
+[00:37:47] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[00:37:51] ad page Privacy
+[00:37:52] shot AD-08-privacy
+[00:37:55] adt '96'
+[00:37:57] PROOF private account: PUT /api/profile {"is_private":1}
+[00:38:04] adfind tapped after 1 swipes
+[00:38:06] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[00:38:12] ad page NotifPrefs
+[00:38:15] adt '96'
+[00:38:17] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[00:38:17] shot AD-09-notif-prefs
+[00:38:23] ad page ChatSettings
+[00:38:26] adt '160'
+[00:38:27] shot AD-10-chat-settings
+[00:38:29] ---- AD: Notifications page ----
+[00:38:34] shot AD-11-notifications
+[00:38:37] adt '357'
+[00:38:39] PROOF mark all read: POST /api/notifications {"read":"all"}
+[00:38:39] shot AD-13-notifications-all-read
+[00:38:58] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[00:38:58] shot AD-12-notification-opened
+[00:39:02] ---- AD: Admin (native) ----
+[00:39:08] ad page Admin
+[00:39:08] shot AD-20-admin-dashboard
+[00:39:10] shot AD-21-admin-manage
+[00:39:12] shot AD-22-admin-features
+[00:39:27] adfind tapped after 3 swipes
+[00:39:29] PROOF feature switch: PUT /api/settings {"key":"feat_music","value":"on"}
+[00:39:29] shot AD-23-admin-music-switched
+[00:39:33] adt '96'
+[00:39:37] shot AD-24-admin-web-sections
+[00:39:43] ad page AdminUsers
+[00:39:43] shot AD-25-admin-users
+[00:39:45] adtap text
+[00:39:50] shot AD-26-admin-users-search
+[00:39:57] ad page AdminUser
+[00:39:57] shot AD-27-admin-user
+[00:40:00] adt '96'
+[00:40:02] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[00:40:21] adfind tapped after 2 swipes
+[00:40:26] adt '96'
+[00:40:29] PROOF mute user: POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+[00:40:47] adfind tapped after 2 swipes
+[00:40:49] shot AD-28-admin-block-confirm
+[00:40:53] adt '363'
+[00:40:55] PROOF block user: PUT /api/admin/users {"id":"u-yanky","blocked":true}
+[00:41:02] adfind tapped after 1 swipes
+[00:41:08] adt '380'
+[00:41:10] PROOF promote: PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+[00:41:10] shot AD-29-admin-user-after
+[00:41:16] ad page AdminReports
+[00:41:16] shot AD-30-admin-reports
+[00:41:20] adt '226'
+[00:41:22] PROOF dismiss report: DELETE /api/reports?id=r1 < 0 bytes>
+[00:41:25] adt '129'
+[00:41:31] adt '349'
+[00:41:33] PROOF ban from report: PUT /api/admin/users {"id":"u-mendy","blocked":true}
+[00:41:39] ad page AdminVerify
+[00:41:40] shot AD-31-admin-verify
+[00:41:43] adt '236'
+[00:41:45] PROOF approve verify: PUT /api/verify-request {"id":"v1","action":"approve"}
+[00:41:52] ad page AdminChannels
+[00:41:53] shot AD-32-admin-channels
+[00:41:56] adt '303'
+[00:41:58] PROOF verify channel: PUT /api/admin/users {"id":"u-chan1","verified":true}
+[00:42:05] ad page AdminTelegram
+[00:42:06] shot AD-33-admin-telegram
+[00:42:08] adtap text
+[00:42:15] adt '172'
+[00:42:18] PROOF add telegram channel: POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+[00:42:24] ad page AdminBroadcast
+[00:42:24] shot AD-34-admin-broadcast
+[00:42:26] adtap text
+[00:42:34] adt '186'
+[00:42:36] shot AD-35-broadcast-confirm
+[00:42:40] adt '369'
+[00:42:43] PROOF broadcast: POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+[00:42:49] ad page AdminBadWords
+[00:42:49] shot AD-36-admin-word-filter
+[00:42:51] adtap text
+[00:42:59] adt '389'
+[00:43:01] PROOF add bad word: POST /api/admin/bad-words {"word":"testbadword"}
+[00:43:05] adt '42'
+[00:43:07] PROOF remove bad word: DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+[00:43:13] ad page AdminWeb
+[00:43:13] shot AD-37-admin-web-pin
+[00:43:22] dump failed: ERROR: null root node returned by UiTestAutomationBridge.
+[00:43:22] adt: 'Unlock' not on screen; screen has: Back|Word filter|Blurred for everyone, with a warning while typing|Words|Phrases|Add a word|Add|spamword|Remove|badword|Remove|scam|Remove|Tap a word to take it off the list. Pasting a long list at once is on the website's admin page.|
+[00:43:29] PROOF admin pin: POST /api/admin/verify-pin {"pin":"1234"}
+[00:43:29] shot AD-38-admin-web-after-pin
+[00:43:31] ---- AD: dark mode ----
+[00:43:34] tab Profile
+[00:43:37] shot AD-40-settings-dark
+[00:43:42] ad page Admin
+[00:43:42] shot AD-41-admin-dark
+[00:43:47] shot AD-42-notifications-dark
+AdminWeb: --------- beginning of system
+AdminWeb: --------- beginning of main
+AdminWeb: --------- beginning of kernel
+AdminWeb: 11-12 00:43:15.424  5274  5274 I YidAdminWeb: webview 83.0.4103.120
+AdminWeb: 11-12 00:43:16.509  5274  5274 I YidAdminWeb: LOG An <img> element was lazyloaded with loading=lazy, but had no dimensions specified. Specifying dimensions improves performance. See https://crbug.com/954323 @:67
+[00:43:52] fixture writes the app would have sent: 27
+[00:43:56] fixture false
