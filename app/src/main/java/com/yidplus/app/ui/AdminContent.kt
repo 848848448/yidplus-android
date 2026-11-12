@@ -110,6 +110,8 @@ class AdminTelegramPage : PageScreen() {
         var title by remember { mutableStateOf("") }
         var priv by remember { mutableStateOf(false) }
         var allowed by remember { mutableStateOf("") }
+        var photo by remember { mutableStateOf<android.net.Uri?>(null) }
+        val pickPhoto = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { photo = it }
         val kb = LocalSoftwareKeyboardController.current
         AdminList("Telegram channels", sub = "Shown in the Channels tab", res = res, tick = tick, header = {
             SettingsCard("Add a public Telegram channel") {
@@ -121,11 +123,15 @@ class AdminTelegramPage : PageScreen() {
                         Switch(priv, { priv = it })
                     }
                     if (priv) OutlinedTextField(allowed, { allowed = it }, Modifier.fillMaxWidth(), minLines = 2, label = { Text("Allowed people, one @username or email per line") })
+                    AdminPill(if (photo == null) "🖼 Channel photo (optional)" else "🖼 Photo chosen ✓") { pickPhoto.launch("image/*") }
                     PrimaryButton("Add channel", {
                         if (user.isBlank()) { toast(c, "Enter a @username"); return@PrimaryButton }
                         kb?.hide()
-                        adminDo(c, scope, if (priv) "✅ Private channel added" else "✅ Channel added", { user = ""; title = ""; priv = false; allowed = ""; tick++ }) {
-                            Api.post("/api/telegram-channels", JSONObject().put("username", user.trim()).put("title", title.trim()).put("is_private", priv).put("allowed_users", allowed))
+                        adminDo(c, scope, if (priv) "✅ Private channel added" else "✅ Channel added", { user = ""; title = ""; priv = false; allowed = ""; photo = null; tick++ }) {
+                            val p = photo
+                            val r = if (p != null) adMultipart(c, "/api/telegram-channels", listOf("username" to user.trim(), "title" to title.trim(), "is_private" to (if (priv) "1" else "0"), "allowed_users" to allowed), "photo", p)
+                                else Api.post("/api/telegram-channels", JSONObject().put("username", user.trim()).put("title", title.trim()).put("is_private", priv).put("allowed_users", allowed))
+                            if (r.has("ok") && !r.optBoolean("ok")) error(r.optString("error").ifBlank { "Failed" })
                         }
                     }, Modifier.fillMaxWidth())
                 }
