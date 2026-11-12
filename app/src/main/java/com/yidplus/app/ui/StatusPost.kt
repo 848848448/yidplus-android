@@ -201,7 +201,7 @@ private fun PostStatus(startMedia: Boolean) {
         }
     }
     val fieldColors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
-        focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
+        focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = smCursor(Color.White),
         focusedTextColor = Color.White, unfocusedTextColor = Color.White)
     val ime = WindowInsets.isImeVisible
     Box(Modifier.fillMaxSize().then(if (media == null) Modifier.background(Statuses.brush(Statuses.BGS[bg])) else Modifier.background(Color.Black))) {
@@ -246,7 +246,7 @@ private fun PostStatus(startMedia: Boolean) {
                 placeholder = { Text("Add a caption…", color = Color.White.copy(alpha = .7f)) }, singleLine = true, shape = RoundedCornerShape(24.dp),
                 textStyle = TextStyle(fontSize = 16.sp, color = Color.White, textDirection = TextDirection.Content),
                 colors = TextFieldDefaults.colors(focusedContainerColor = Color(0x80000000), unfocusedContainerColor = Color(0x59000000),
-                    focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = smCursor(Color.White),
                     focusedTextColor = Color.White, unfocusedTextColor = Color.White))
             if (up.running) Box(Modifier.padding(horizontal = 12.dp)) { SmProgress(up, dark = true) }
             Spacer(Modifier.height(10.dp))

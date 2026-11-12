@@ -331,11 +331,11 @@ class SmMusicUploadPage : PageScreen() {
         Column(Modifier.fillMaxSize()) {
             TopBar("Upload music", onBack = { if (up.running) up.cancel() else Nav.back() })
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(title, { title = it }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Track title") }, singleLine = true,
+                OutlinedTextField(title, { title = it }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Track title") }, singleLine = true, colors = OutlinedTextFieldDefaults.colors(cursorColor = smCursor(MaterialTheme.colorScheme.primary)),
                     textStyle = TextStyle(textDirection = TextDirection.Content, fontSize = 16.sp), enabled = !up.running)
-                OutlinedTextField(artist, { artist = it }, Modifier.fillMaxWidth(), label = { Text("Artist name") }, placeholder = { Text(Session.me?.nickname ?: "Artist") },
+                OutlinedTextField(artist, { artist = it }, Modifier.fillMaxWidth(), label = { Text("Artist name") }, colors = OutlinedTextFieldDefaults.colors(cursorColor = smCursor(MaterialTheme.colorScheme.primary)), placeholder = { Text(Session.me?.nickname ?: "Artist") },
                     singleLine = true, textStyle = TextStyle(textDirection = TextDirection.Content, fontSize = 16.sp), enabled = !up.running)
-                OutlinedTextField(album, { album = it }, Modifier.fillMaxWidth(), label = { Text("Album (optional)") }, singleLine = true,
+                OutlinedTextField(album, { album = it }, Modifier.fillMaxWidth(), label = { Text("Album (optional)") }, singleLine = true, colors = OutlinedTextFieldDefaults.colors(cursorColor = smCursor(MaterialTheme.colorScheme.primary)),
                     textStyle = TextStyle(textDirection = TextDirection.Content, fontSize = 16.sp), enabled = !up.running)
                 SmFileRow(Sym.AudioFile, "Audio file", "MP3, M4A, WAV, FLAC…", audio, required = true, { runCatching { pickAudio.launch("audio/*") }.onFailure { toast(c, "No file app found") } }) { audio = null }
                 SmFileRow(Sym.VideoFile, "Music video (optional)", "MP4, MOV…", video, required = false, { runCatching { pickVideo.launch("video/*") }.onFailure { toast(c, "No file app found") } }) { video = null }

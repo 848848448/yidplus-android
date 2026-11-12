@@ -207,7 +207,8 @@ fun MusicScreen() {
             OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp).focusRequester(searchFocus), singleLine = true,
                 placeholder = { Text("Search songs, artists, albums…") }, leadingIcon = { Icon(Sym.Search, null) },
                 trailingIcon = { if (q.isNotEmpty()) IconBtn(Sym.Close, "Clear search", { q = "" }) },
-                textStyle = TextStyle(textDirection = TextDirection.Content, fontSize = 16.sp), shape = RoundedCornerShape(24.dp))
+                textStyle = TextStyle(textDirection = TextDirection.Content, fontSize = 16.sp), shape = RoundedCornerShape(24.dp),
+                colors = OutlinedTextFieldDefaults.colors(cursorColor = smCursor(MaterialTheme.colorScheme.primary)))
         } else {
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 24.dp, top = 8.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("all" to "All", "albums" to "Albums", "singles" to "Singles", "videos" to "Music videos", "liked" to "Liked").forEach { (k, l) -> SmChip(l, tab == k) { tab = k } }

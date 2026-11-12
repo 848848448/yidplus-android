@@ -316,7 +316,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
     Box(Modifier.fillMaxSize()
         .graphicsLayer(translationY = dragY.coerceAtLeast(0f), alpha = (1f - dragY.coerceAtLeast(0f) / 900f).coerceIn(0.35f, 1f))
         .onPreviewKeyEvent { e ->
-            if (e.type != KeyEventType.KeyDown || typing || sheet || menu) false
+            if (e.type != KeyEventType.KeyDown || typing || sheet || menu || reactBar || confirmDel || privacyInfo) false
             else when (e.key) {
                 Key.DirectionLeft -> { if (rtl) next() else prev(); true }
                 Key.DirectionRight -> { if (rtl) prev() else next(); true }
@@ -454,7 +454,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                         placeholder = { Text("Reply…", color = Color.White.copy(alpha = .75f)) }, singleLine = true, shape = RoundedCornerShape(24.dp),
                         textStyle = TextStyle(fontSize = 16.sp, color = Color.White, textDirection = TextDirection.Content),
                         colors = TextFieldDefaults.colors(focusedContainerColor = Color(0x80000000), unfocusedContainerColor = Color(0x59000000),
-                            focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
+                            focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = smCursor(Color.White),
                             focusedTextColor = Color.White, unfocusedTextColor = Color.White),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { sendReply() }))
                     Spacer(Modifier.width(4.dp))

@@ -203,3 +203,6 @@ suspend fun smShareFile(ctx: Context, url: String, name: String, mime: String) {
 }
 
 fun smIsAdmin(): Boolean { val me = com.yidplus.app.data.Session.me ?: return false; return me.isOwner || me.role in setOf("owner", "co_owner", "admin", "admin_super", "super_admin", "moderator") }
+
+/** QA only: with the fixture account on, text fields draw no blinking cursor, so the test's screen reader dump finds an idle screen. */
+fun smCursor(c: Color): Color = if (com.yidplus.app.data.Fixture.on) Color.Unspecified else c
