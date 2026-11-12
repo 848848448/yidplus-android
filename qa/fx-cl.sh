@@ -17,10 +17,10 @@ clnot() { local p; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL WRONG: '$1' is 
 clfx() { local l; l=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400); if [ -n "$l" ]; then echo "  YidFx: $l" >> "$OUT/qa.log"; log "CL ok: sent $1"; else log "CL MISSING: no request with '$1'"; fi; }
 clopen() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
 cltexts() { timeout 20 adb shell uiautomator dump /sdcard/clt.xml >/dev/null 2>&1; log "CL texts $1: $(timeout 20 adb shell cat /sdcard/clt.xml 2>/dev/null | grep -oE ' (text|content-desc)="[^"]+"' | head -70 | tr '\n' ' ' | cut -c1-1500)"; }
-clup() { adb shell input swipe 240 520 240 160 400; sleep 1; }
+clup() { adb shell input swipe 240 420 240 150 400; sleep 1; }
 cldown() { adb shell input swipe 240 160 240 560 300; sleep 1; }
 clseek() { # scroll up (content moves up) until $1 is on screen, max 7 swipes; $2 = x of the swipe (default 240)
-  local i p t0=$(date +%s); for i in 1 2 3 4 5 6 7; do p=$(clpos "$1"); [ -n "$p" ] && { echo "$p"; return 0; }; timeout 10 adb shell input swipe ${2:-240} 520 ${2:-240} 250 500 >>"$OUT/qa.log" 2>&1; sleep 1; done
+  local i p t0=$(date +%s); for i in 1 2 3 4 5 6 7; do p=$(clpos "$1"); [ -n "$p" ] && { echo "$p"; return 0; }; timeout 10 adb shell input swipe ${2:-240} 420 ${2:-240} 170 500 >>"$OUT/qa.log" 2>&1; sleep 1; done
   echo "  clseek '$1': 7 swipes in $(( $(date +%s) - t0 )) s; screen texts: $(timeout 20 adb shell cat /sdcard/cl.xml 2>/dev/null | grep -oE ' (text|content-desc)="[^"]+"' | head -25 | tr '\n' ' ' | cut -c1-600)" >> "$OUT/qa.log"; return 0; }
 clst() { local p w="$1"; p=$(clseek "$1" "$2"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not found after scrolling"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w' (scrolled)"; }
 clsl() { local p; p=$(clseek "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1' not found after scrolling"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
@@ -95,8 +95,8 @@ cltap "Menu"; sleep 2; clst "Chat settings" 100; sleep 2; shot CL-13-chat-settin
 # ── Video 2 (30 s): long-press select → mute choices → group info → edit switches ──
 adb shell rm -f /sdcard/CL-manage.mp4; (timeout 40 adb shell screenrecord --size 480x640 --bit-rate 1000000 --time-limit 30 /sdcard/CL-manage.mp4 >/dev/null 2>&1 &)
 view "https://yidplus.com/chat"; sleep 3; cllong "Yossi Klein"; sleep 1; cltap "Mute"; sleep 2; cltap "Cancel"; key 4; sleep 1
-clopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 3; cltap "More"; cltap "Group info"; sleep 2; adb shell input swipe 240 500 240 200 600; sleep 1.5
-cltap "Edit"; sleep 2; adb shell input swipe 240 500 240 200 600; sleep 1.5; key 4; sleep 1; key 4; sleep 1; key 4
+clopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 3; cltap "More"; cltap "Group info"; sleep 2; adb shell input swipe 240 420 240 170 600; sleep 1.5
+cltap "Edit"; sleep 2; adb shell input swipe 240 420 240 170 600; sleep 1.5; key 4; sleep 1; key 4; sleep 1; key 4
 sleep 5; timeout 20 adb pull /sdcard/CL-manage.mp4 "$OUT/CL-manage.mp4" >/dev/null 2>&1; log "CL video 2: $(ls -la "$OUT/CL-manage.mp4" 2>/dev/null | awk '{print $5}') bytes"
 
 # ── Group info (r-g1, I'm its owner): photo, mute, disappearing, invite, Media/Files/Links/Voice, members with titles ──
