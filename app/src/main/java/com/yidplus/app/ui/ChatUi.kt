@@ -111,7 +111,7 @@ import org.json.JSONObject
 internal object ChatLook {
     val bar: Color @Composable get() = topBarColor()
     val unread = Color(0xFF25A45A)
-    val tick = Color(0xFF34B7F1)
+    val tick = Color(0xFF53BDEB)  // WhatsApp 2024 read-tick blue (DS P8)
     @Composable fun dark() = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     @Composable fun wall() = if (dark()) Color(0xFF0B141A) else Color(0xFFEDE7DE)
     @Composable fun mine() = if (dark()) Color(0xFF005C4B) else Color(0xFFD9FDD3)

@@ -25,8 +25,9 @@ clseek() { # scroll up (content moves up) until $1 is on screen, max 7 swipes; $
 clst() { local p w="$1"; p=$(clseek "$1" "$2"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not found after scrolling"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w' (scrolled)"; }
 clsl() { local p; p=$(clseek "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1' not found after scrolling"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
 cltop() { local i; for i in 1 2 3 4 5 6; do adb shell input swipe ${1:-240} 200 ${1:-240} 470 250; done; sleep 2.5; }
-chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && return 0; set -- $p; adb shell input swipe 440 $2 30 $2 400; sleep 1; }
-chipback() { local p; p=$(clpos "All"); [ -z "$p" ] && p="240 120"; set -- $p; adb shell input swipe 30 $2 440 $2 300; sleep 1; }
+# chip swipes stay 70 px away from the screen edges: with gesture navigation an edge swipe is BACK (it left the app in run 43170366208)
+chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && p=$(clpos "Groups"); [ -z "$p" ] && { log "CL chipswipe: no chips row on screen"; return 0; }; set -- $p; adb shell input swipe 410 $2 70 $2 400; sleep 1; }
+chipback() { local p; p=$(clpos "Groups"); [ -z "$p" ] && p=$(clpos "All"); [ -z "$p" ] && { log "CL chipback: no chips row on screen"; return 0; }; set -- $p; adb shell input swipe 70 $2 410 $2 300; sleep 1; }
 size 480x640 240
 
 # ── 2.1.0 BLOCKERS at 480x640 (each shot is checked by eye): 5+ chat rows, the FAB covers no row, no pencil,
@@ -42,7 +43,7 @@ clrows() { # full-width chat rows (52 dp = 78 px at 240 dpi) wholly between the 
   [ "${n:-0}" -ge 5 ] && log "CL ok: 5+ rows at 480x640" || log "CL WRONG: only ${n:-0} rows at 480x640"
 }
 # The Qin F21 has hardware keys and no on-screen nav bar; this emulator draws a 48 dp 3-button bar. Use the thin gesture bar
-# for the 480x640 blocker shots so the screen height matches the phone more closely (logged; restored at the end of the block).
+# for the whole CL block so the screen height matches the phone more closely (no swipe starts within 70 px of a side edge).
 timeout 20 adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural >/dev/null 2>&1; sleep 3; log "CL nav mode: $(timeout 10 adb shell settings get secure navigation_mode 2>&1)"
 look --es dark 0 --es color 0 --es bar dark; view "https://yidplus.com/chat"; sleep 7; cltop; sleep 3
 shot CL-B01-list-480x640; clrows top; clnot "New chat"; clnot "Edit"; clhas "Search chats"; clhas "Start new chat"; clhas "Status"; clhas "AI chat"; cltexts blockers-list
@@ -59,13 +60,12 @@ clopen r-dm1 private "Yossi Klein" ",\"other_user_id\":\"u-yossi\"" 5; shot CL-B
 look --es dark 0; view "https://yidplus.com/chat"; sleep 3; cltop; sleep 3
 key 20; sleep 0.7; key 20; sleep 0.7; key 20; sleep 0.7; key 20; sleep 0.7; shot CL-B09-dpad-focus-row; key 23; sleep 3; shot CL-B10-dpad-ok-opened-chat; key 4; sleep 1.5
 alive && log "CL ok: app alive after blockers" || log "CL WRONG: app not running after blockers"
-timeout 20 adb shell cmd overlay enable com.android.internal.systemui.navbar.threebutton >/dev/null 2>&1; sleep 2
 
 # ── Video 1 (30 s, D-pad + touch): list → search field → chips → open a chat → back → side menu ──
 adb shell rm -f /sdcard/CL-flow.mp4; (timeout 40 adb shell screenrecord --size 480x640 --bit-rate 1000000 --time-limit 30 /sdcard/CL-flow.mp4 >/dev/null 2>&1 &)
 view "https://yidplus.com/chat"; sleep 4; key 20; sleep 0.6; key 20; sleep 0.6; key 20; sleep 0.6; key 19; sleep 0.6; key 23; sleep 3; key 4; sleep 2
 adb shell input swipe 240 500 240 200 500; sleep 1.5; adb shell input swipe 240 200 240 520 500; sleep 1.5
-cltap "Search chats"; adb shell input text "Yo"; sleep 2; key 4; sleep 0.5; key 4; sleep 1.5; cltap "Groups"; sleep 1.5; cltap "All"; sleep 1; cltap "Menu"; sleep 2; key 4
+cltap "Search chats"; adb shell input text "Yo"; sleep 2; key 4; sleep 0.5; key 4; sleep 1.5; cltap "Private"; sleep 1.5; cltap "All"; sleep 1; cltap "Menu"; sleep 2; key 4
 sleep 6; timeout 20 adb pull /sdcard/CL-flow.mp4 "$OUT/CL-flow.mp4" >/dev/null 2>&1; log "CL video: $(ls -la "$OUT/CL-flow.mp4" 2>/dev/null | awk '{print $5}') bytes"
 
 # ── The list: tabs + folder chips, Telegram channels as rows, empty private chats hidden, compact status + AI rows at 480x640 ──

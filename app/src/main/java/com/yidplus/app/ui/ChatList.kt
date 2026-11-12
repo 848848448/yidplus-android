@@ -223,7 +223,7 @@ fun ChatsScreen() {
         // Gap 5: the chips scroll sideways with room at the end, so none is ever cut mid-word at 480 px. Folders (chat.js renderChatFoldersRow) follow the tabs.
         // 480x640: the chips row slides away with the search on scroll-down and comes back on scroll-up, so 5+ chats show.
         if (me != null) AnimatedVisibility(!compact || headerShown, enter = expandVertically(), exit = shrinkVertically()) {
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 20.dp, top = if (compact) 2.dp else 8.dp, bottom = if (compact) 3.dp else 8.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 20.dp, top = if (compact) 1.dp else 8.dp, bottom = if (compact) 2.dp else 8.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 8.dp), verticalAlignment = Alignment.CenterVertically) {
             if (compact && tab == "all" && folder == null) ClStatusChip(stUsers.orEmpty())
             CHAT_TABS.forEach { (k, label) ->
                 val n = list?.let { l -> l.filter { matchTab(it, k) && !it.muted }.sumOf { it.room.unread } } ?: 0
@@ -336,7 +336,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
     val focused by src.collectIsFocusedAsState()
     val sel = Nav.chatDetail?.room?.id == r.id
     Column(Modifier.background(when { selected -> ChatLook.unread.copy(alpha = .16f); sel -> MaterialTheme.colorScheme.primaryContainer; else -> Color.Transparent })) {
-        Row(modifier.fillMaxWidth().height(if (compact) 50.dp else 72.dp).restoreFocus("room:" + r.id)
+        Row(modifier.fillMaxWidth().height(if (compact) 49.dp else 72.dp).restoreFocus("room:" + r.id)
             .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold) else Modifier)
             .onPreviewKeyEvent { e -> if (e.type == KeyEventType.KeyUp && e.key == Key.Menu && onLong != null) { onLong(); true } else false }
             .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onLongClick = onLong, onClick = open)
