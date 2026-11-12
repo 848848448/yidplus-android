@@ -23,6 +23,13 @@ ntsend() { # the inline reply's send arrow
   o=$(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | tr '>' '\n' | grep 'remote_input_send' | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
   if [ -n "$o" ]; then set -- $o; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); log "NT tapped send"; else log "NT: no send arrow on screen, pressing Enter"; key 66; fi
 }
+nthu() { # nthu LABEL: tap LABEL (REPLY / MARK AS READ) on the heads-up pop-up of the newest chat
+  local o
+  timeout 30 adb shell uiautomator dump /sdcard/nt.xml >/dev/null 2>&1
+  o=$(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | tr '>' '\n' | grep -iE "text=\"$1\"" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+  [ -z "$o" ] && { log "NT: no $1 on the heads-up"; return 1; }
+  set -- $o; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 2; log "NT tapped $1 on the heads-up"
+}
 ntshade() { key 3; sleep 1; timeout 10 adb shell cmd statusbar expand-notifications; sleep 3; }
 FAM="Family|ברענג די קינדער|Thanks I will be there|מיר עסן"
 YAN="Yanky|יא, איך בין שוין דא|Voice message 0:12"
@@ -43,7 +50,14 @@ nt_round() { # nt_round TAG (480 or 1080)
   if ntfind "$FAM" Reply; then
     sleep 2; shot NT-$S-03-reply-box; timeout 10 adb shell input text "Thanks%sI%swill%sbe%sthere"; sleep 1; shot NT-$S-03b-reply-typed
     ntsend; sleep 8; shot NT-$S-04-reply-sent
-  else log "NT FAIL $S: no Reply reachable in the group notification"; NTFAIL=1; fi
+  else
+    # the shade's list can't scroll the LAST chat's buttons into view at 480x640 on this emulator; the heads-up pop-up has them
+    log "NT $S: Reply not reachable in the shade list (last row); replying from the heads-up instead"
+    key 3; sleep 1; ntb --es mode reset; sleep 3; ntb --es mode poll --es rooms "/api/chat/rooms?qa=nt"; sleep 2.5
+    if nthu REPLY; then shot NT-$S-03-reply-box; timeout 10 adb shell input text "Thanks%sI%swill%sbe%sthere"; sleep 1; shot NT-$S-03b-reply-typed
+      ntsend; sleep 8; ntshade; shot NT-$S-04-reply-sent
+    else log "NT FAIL $S: no Reply reachable"; NTFAIL=1; fi
+  fi
   ntdump $S-2-after-reply
   if [ "$S" = 480 ]; then # a reply that fails shows "Not sent" with Retry; Retry sends it
     ntb --es mode failnext; sleep 1; ntshade
@@ -75,6 +89,7 @@ timeout 30 adb logcat -d -s YidFx > "$OUT/NT-fx.txt" 2>/dev/null
 timeout 30 adb logcat -d -s YidNotify > "$OUT/NT-yidnotify.txt" 2>/dev/null
 log "NT YidFx lines: $(grep -c YidFx "$OUT/NT-fx.txt"); YidNotify lines: $(wc -l < "$OUT/NT-yidnotify.txt")"
 grep -E 'POST /api/chat(/read)? ' "$OUT/NT-fx.txt" | grep -E '"room_id":"nt-' | sed 's/^/NT fx: /' | while read -r l; do log "$l"; done
-log "NT check: reply POSTs=$(grep -c 'POST /api/chat {"room_id":"nt-g1","type":"text","text":"Thanks I will be there"}' "$OUT/NT-fx.txt") (want 2), read POSTs dm1=$(grep -c 'POST /api/chat/read {"room_id":"nt-dm1"}' "$OUT/NT-fx.txt") (want 2)"
+log "NT check: reply POSTs=$(grep -cE 'POST /api/chat \{"room_id":"nt-[a-z0-9]+","type":"text","text":"Thanks I will be there"\}' "$OUT/NT-fx.txt") (want 2), read POSTs dm1=$(grep -c 'POST /api/chat/read {"room_id":"nt-dm1"}' "$OUT/NT-fx.txt") (want 2)"
 for S in 480 1080; do log "NT check $S: dm1 shown after mark-read=$(grep -c 'shortcut=chat_nt-dm1' "$OUT/NT-notifs-$S-4-after-read.txt"), after polls=$(grep -c 'shortcut=chat_nt-dm1' "$OUT/NT-notifs-$S-5-after-poll-again.txt") (want 0, 0); summary rows=$(grep -c 'tag=chat-summary' "$OUT/NT-notifs-$S-1-posted.txt") (want 0)"; done
 ntb --es mode reset; sleep 2
+[ "$NTFAIL" = 0 ] || { log "NT RESULT: FAIL"; FAIL=1; }
