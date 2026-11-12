@@ -105,11 +105,12 @@ clopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d
 cltap "More"; cltap "Group info"; sleep 3; shot CL-14-group-info; cltexts info
 clst "Mute notifications"; sleep 1; shot CL-14b-mute; cltap "1 week"; cltap "OK"; sleep 2; clfx '"room_id":"r-g1","muted":true'
 clst "Disappearing messages"; sleep 1; shot CL-18-disappearing; cltap "1 day"; sleep 2; clfx '"auto_delete_minutes":1440'
-clst "Invite link"; sleep 2; shot CL-19-invite; cltap "Revoke link"; sleep 1; cltap "Revoke"; sleep 2; clfx '"revoke_invite":true'; cltap "Close"
+clst "Invite link"; sleep 2; shot CL-19-invite; cltap "Revoke link"; sleep 1.5; shot CL-19b-revoke-confirm; cltexts revoke; cltap "Revoke"; sleep 2; clfx '"revoke_invite":true'; cltap "Close"
 clst "Files"; shot CL-15-info-media-tab; cltap "Files"; sleep 1; shot CL-15b-files; cltap "Links"; sleep 1; shot CL-15c-links; cltap "Voice"; sleep 1; shot CL-15d-voice; cltap "Media"
 clst "Yanky Weiss"; sleep 1; shot CL-17-member-sheet; cltap "Set title"; sleep 1; adb shell input text "Gabbai"; key 4; sleep 1; shot CL-17a-title; cltap "Save"; sleep 2; clfx '"member_title":"Gabbai"'
 clst "Shaya"; sleep 1; cltap "Remove from group"; sleep 1; shot CL-17b-remove-confirm; cltap "Remove"; sleep 2; clfx '"remove":true'
-shot CL-16-members; clst "Report group"; sleep 1; log "CL (owner sees no Report on own group)"; key 4; sleep 1; cltop
+shot CL-16-members; clst "Report group"; sleep 1; log "CL (owner sees no Report on own group)"; cltop
+clhas "Group info"   # still on the info page: its top bar has the Edit (pencil) button
 
 # ── Edit group: every switch saves at once (chat.js _geToggle), Send Media sub-screen, Administrators ──
 cltap "Edit"; sleep 3; shot CL-20-edit-top; cltexts edit
@@ -126,9 +127,9 @@ cltap "More"; cltap "Contact info"; sleep 3; shot CL-23-contact-info; log "CL no
 clst "Report Yossi Klein"; sleep 1; shot CL-24-report; cltap "Harassment"; cltap "Submit Report"; sleep 2; clfx "/api/reports"; key 4; sleep 1; key 4; sleep 1
 
 # ── New group with photo + Everyone can write (chat.js createGroup) ──
-view "https://yidplus.com/chat"; sleep 3; cltap "Start new chat"; sleep 1; cltap "New group"; sleep 2; shot CL-25-new-group; cltap "Everyone can write"; sleep 1
+view "https://yidplus.com/chat"; sleep 3; cltap "Start new chat"; sleep 1; cltap "New group"; sleep 2; shot CL-25-new-group; log "CL new group: Everyone can write left at its default (on)"
 cltap "Group name"; adb shell input text "Q"; key 4; clst "Create group"; sleep 1; log "CL (1-letter name must not send)"; cltop
-cltap "Group name"; adb shell input text "A%sGroup"; key 4; shot CL-25b-new-group-filled; clst "Create group"; sleep 3; clfx '"name":"QA Group"'; key 4; sleep 1
+cltap "Group name"; adb shell input text "QA%sGroup"; key 4; shot CL-25b-new-group-filled; clst "Create group"; sleep 3; clfx '"name":"QA Group"'; clfx '"type":"group"'; key 4; sleep 1
 
 # ── Join by invite link: public joins, private sends a request (GET + POST /api/invite) ──
 view "https://yidplus.com/chat"; sleep 3; cltap "Start new chat"; sleep 1; cltap "Join by invite link"; sleep 2
