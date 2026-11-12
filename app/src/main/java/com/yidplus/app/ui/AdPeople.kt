@@ -103,7 +103,7 @@ class AdInvitesPage : PageScreen() {
         AdPanel("Invites", sub = "Invite codes for new members", res = res) { j ->
             adCard("🎟️ Generate an invite") {
                 Row(Modifier.fillMaxWidth()) {
-                    Box(Modifier.weight(1f)) { AdField(uses, { uses = it.filter(Char::isDigit) }, "Uses", Modifier.firstFocus(), number = true) }
+                    Box(Modifier.weight(1f)) { AdField(uses, { uses = it.filter(Char::isDigit) }, "Uses", number = true) }
                     Box(Modifier.weight(1f)) { AdField(days, { days = it.filter(Char::isDigit) }, "Days (0=never)", number = true) }
                 }
                 AdField(note, { note = it }, "Note (optional)")
@@ -256,7 +256,7 @@ class AdBannedPage : PageScreen() {
         var ip by remember { mutableStateOf("") }
         AdPanel("Banned", sub = "Banned devices / IPs", res = res) { j ->
             adCard("🚫 Ban an IP") {
-                AdField(ip, { ip = it }, "IP address (e.g. 1.2.3.4)", Modifier.firstFocus())
+                AdField(ip, { ip = it }, "IP address (e.g. 1.2.3.4)")
                 AdButton("+ Ban IP", danger = true) {
                     if (ip.isBlank()) toast(c, "Enter an IP address")
                     else adminDo(c, scope, "🚫 IP banned!", { ip = ""; tick++ }) { Api.post("/api/admin/device-bans", jo("ip" to ip.trim(), "reason" to "Admin manual ban")) }
