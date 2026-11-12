@@ -1,5 +1,7 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.core.RepeatMode
@@ -98,10 +100,12 @@ fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
     }
 }
 
-/** The members' channels directory: most followed first, or the most recently active. */
+/** The members' channels directory: most followed first, or the most recently active. Pull down to refresh. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SoSiteChannelsList(query: String, sort: Int) {
     val scope = rememberCoroutineScope()
+    var pulling by remember { mutableStateOf(false) }
     val res = remember(Session.me?.id) { Store.res("/api/channels?limit=400", SoSiteChannel::list) }
     LaunchedEffect(res, SoRefresh.tick) { res.load(force = SoRefresh.tick > 0) }
     val found = remember { mutableStateListOf<SoSiteChannel>() }
@@ -117,10 +121,12 @@ fun SoSiteChannelsList(query: String, sort: Int) {
         all == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
         all == null -> SoSkeleton()
         shown.isEmpty() -> SoEmpty(Sym.Search, if (q.isNotEmpty()) "No channels for \u201c$q\u201d" else "No channels yet")
-        else -> LazyColumn(Modifier.fillMaxSize()) {
-            items(shown, key = { it.ownerId }) { ch ->
-                SoSiteChannelRow(ch, ch == shown.first())
-                SoDivider(80.dp)
+        else -> androidx.compose.material3.pulltorefresh.PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxSize()) {
+                items(shown, key = { it.ownerId }) { ch ->
+                    SoSiteChannelRow(ch, ch == shown.first())
+                    SoDivider(80.dp)
+                }
             }
         }
     }
@@ -269,9 +275,9 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                                 Stat(soNum(j.optInt("following")), "Following") { Nav.open(HmFollowListPage(ownerId, title, false)) }
                                 Stat(soNum(j.optInt("total_views")), "Views", null); Stat(soNum(j.optInt("shorts_count").let { if (it > 0) it else shorts.size }), "Shorts") { pickTab(1) }
                             }
-                            if (mine) Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (mine) Row(Modifier.padding(top = 10.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 val priv = j.str("privacy") == "followers_only"
-                                SoPill(if (priv) "Private · tap to change" else "Public · tap to change", false, { askPrivacy = true }, icon = if (priv) Sym.Lock else Sym.Public)
+                                SoPill(if (priv) "Private" else "Public", false, { askPrivacy = true }, icon = if (priv) Sym.Lock else Sym.Public)
                                 if (askPrivacy) AlertDialog(onDismissRequest = { askPrivacy = false },
                                     title = { Text(if (priv) "Make this channel PUBLIC?" else "Make this channel PRIVATE?") },
                                     text = { Text(if (priv) "Everyone will be able to see your content." else "Only followers will see your content. New followers must be approved by you.") },
