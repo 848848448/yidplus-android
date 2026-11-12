@@ -119,6 +119,18 @@ import com.yidplus.app.data.Prefs
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.SiteConfig
 import com.yidplus.app.data.Store
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.automirrored.rounded.*
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import com.yidplus.app.data.objects
 import com.yidplus.app.data.str
 import com.yidplus.app.data.strOrNull
@@ -151,30 +163,53 @@ data class StatusViewerPage(val userId: String? = null) : PageScreen() {
     @Composable override fun Content() { StatusViewer(userId) }
 }
 
+/** Highlights saved on this phone (the site's "🔖 Highlights", localStorage yp_highlights), played like statuses but read-only. */
+data class SmHighlightViewerPage(val start: Int = 0) : PageScreen() {
+    override val perfName: String get() = "Highlights"
+    override val immersive: Boolean get() = true
+    @Composable override fun Content() {
+        val slides = SmPrefs.highlights.map { h -> StSlide(h.optString("id"), h.optString("type"), h.optString("text"), h.optString("bg"), h.optString("color"),
+            h.optString("media_url").takeIf { it.isNotBlank() && it != "null" }, h.optBoolean("is_video"), h.optString("created_at").ifBlank { null }, 0, false) }
+        val nick = SmPrefs.highlights.getOrNull(start)?.optString("nick").orEmpty()
+        Box(Modifier.fillMaxSize().background(Color.Black)) {
+            if (slides.isEmpty()) { LaunchedEffect(Unit) { Nav.back() } }
+            else StatusPlayer(listOf(StUser("highlights", "Highlights" + if (nick.isNotBlank()) " · @$nick" else "", null, slides)), null, onDeleted = { _, _ -> },
+                readOnly = true, startSlide = start)
+        }
+    }
+}
+
 @Composable
 private fun StatusViewer(startUser: String?) {
-    val c = ctx()
-    val scope = rememberCoroutineScope()
     val meId = Session.me?.id
     var users by remember { mutableStateOf<List<StUser>?>(null) }
+    SmPrefs.init(ctx())
     LaunchedEffect(Unit) {
         val r = Statuses.res
         if (r.data == null) r.load()
         val all = Statuses.ordered(r.data.orEmpty())
+        val loud = Statuses.audible(r.data.orEmpty())
         users = when {
             startUser != null && startUser == meId -> all.filter { it.userId == meId }
-            startUser != null -> all.filter { it.userId != meId }.let { l -> val i = l.indexOfFirst { it.userId == startUser }; if (i > 0) l.drop(i) + l.take(i) else l }
-            else -> all.filter { it.userId != meId }.ifEmpty { all }
+            startUser != null && SmPrefs.isMuted(startUser) -> all.filter { it.userId == startUser }
+            startUser != null -> loud.filter { it.userId != meId }.let { l -> val i = l.indexOfFirst { it.userId == startUser }; if (i > 0) l.drop(i) + l.take(i) else l }
+            else -> loud.filter { it.userId != meId }.ifEmpty { all }
         }
     }
     val list = users
     Box(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
         when {
-            list == null -> {}
-            list.isEmpty() -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("No status updates right now", color = Color.White, fontSize = 16.sp)
+            list == null -> CircularProgressIndicator(color = Color.White.copy(alpha = .6f))
+            list.isEmpty() -> Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
+                Icon(Icons.Rounded.HistoryToggleOff, null, tint = Color.White.copy(alpha = .7f), modifier = Modifier.size(56.dp))
+                Spacer(Modifier.height(10.dp))
+                Text(if (startUser != null) "This status is no longer active" else "No status updates right now", color = Color.White, fontSize = 16.sp, textAlign = TextAlign.Center)
                 Spacer(Modifier.height(16.dp))
-                PrimaryButton("Close", { Nav.back() }, Modifier.firstFocus(always = true))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (meId != null) SecondaryButton("Add status", { Nav.back(); Nav.open(PostStatusPage()) })
+                    PrimaryButton("Close", { Nav.back() }, Modifier.firstFocus(always = true))
+                }
+                LaunchedEffect(Unit) { Statuses.scope.launch { Statuses.res.load(true) } }
             }
             else -> StatusPlayer(list, meId, onDeleted = { uid, sid ->
                 val nl = list.map { u -> if (u.userId == uid) u.copy(slides = u.slides.filter { it.id != sid }) else u }.filter { it.slides.isNotEmpty() }
@@ -186,27 +221,35 @@ private fun StatusViewer(startUser: String?) {
     }
 }
 
+private val SmReactions = listOf("❤️", "😂", "😮", "😢", "🙏", "👏", "🔥")
+
 @Composable
-private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String, String) -> Unit) {
+private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String, String) -> Unit, readOnly: Boolean = false, startSlide: Int = 0) {
     val c = ctx()
+    SmPrefs.init(c)
     val scope = rememberCoroutineScope()
     var uiRaw by remember { mutableIntStateOf(0) }
-    var siRaw by remember { mutableIntStateOf(0) }
+    var siRaw by remember { mutableIntStateOf(startSlide) }
     val ui = uiRaw.coerceIn(0, users.size - 1)
     val user = users[ui]
     val si = siRaw.coerceIn(0, user.slides.size - 1)
     val slide = user.slides[si]
-    val isMine = user.userId == meId
+    val isMine = !readOnly && user.userId == meId
     var progress by remember { mutableFloatStateOf(0f) }
     var held by remember { mutableStateOf(false) }
+    var keyPaused by remember { mutableStateOf(false) }
     var typing by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
     var sheet by remember { mutableStateOf(false) }
+    var reactBar by remember { mutableStateOf(false) }
+    var confirmDel by remember { mutableStateOf(false) }
+    var privacyInfo by remember { mutableStateOf(false) }
     var ready by remember(ui, si) { mutableStateOf(slide.media == null) }
     var durMs by remember(ui, si) { mutableLongStateOf(5000L) }
     var reply by remember { mutableStateOf("") }
     var liked by remember(ui, si) { mutableStateOf(slide.reacted) }
-    val paused = held || typing || menu || sheet
+    var dragY by remember { mutableFloatStateOf(0f) }
+    val paused = held || typing || menu || sheet || reactBar || confirmDel || privacyInfo || keyPaused
     val fr = remember { FocusRequester() }
 
     fun next() {
@@ -214,16 +257,27 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
         else if (ui < users.size - 1) { uiRaw = ui + 1; siRaw = 0; progress = 0f }
         else Nav.back()
     }
+    // Like the site's svPrev: at a person's first slide, go back to the previous person's LAST slide.
     fun prev() {
         if (si > 0) { siRaw = si - 1; progress = 0f }
-        else if (ui > 0) { uiRaw = ui - 1; siRaw = 0; progress = 0f }
+        else if (ui > 0) { uiRaw = ui - 1; siRaw = users[ui - 1].slides.size - 1; progress = 0f }
         else progress = 0f
+    }
+    fun react(e: String) {
+        reactBar = false
+        if (readOnly || Session.me == null) return
+        if (e == "❤️") liked = true
+        scope.launch { try { Statuses.replyTo(user.userId, "$e (reacted to your status)"); toast(c, "$e Reacted!") } catch (x: Exception) { toast(c, Api.friendly(x)) } }
+    }
+    fun sendReply() {
+        val t = reply.trim(); if (t.isEmpty()) return; reply = ""
+        scope.launch { try { Statuses.replyTo(user.userId, "↩️ $t"); toast(c, "Reply sent") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
     }
 
     LaunchedEffect(ui, si) {
         progress = 0f
-        if (!isMine && slide.id.isNotBlank() && !Statuses.seen(slide.id)) Statuses.sendView(slide.id)
-        Statuses.markSeen(slide.id)
+        if (!readOnly && !isMine && slide.id.isNotBlank() && !Statuses.seen(slide.id)) Statuses.sendView(slide.id)
+        if (!readOnly) Statuses.markSeen(slide.id)
         runCatching { fr.requestFocus() }
     }
     LaunchedEffect(ui, si, paused, ready, durMs) {
@@ -236,15 +290,21 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
         }
         next()
     }
-    BackHandler(enabled = sheet || menu) { sheet = false; menu = false }
+    BackHandler(enabled = sheet || menu || reactBar) { sheet = false; menu = false; reactBar = false }
 
     val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val density = androidx.compose.ui.platform.LocalDensity.current
     Box(Modifier.fillMaxSize()
+        .graphicsLayer(translationY = dragY.coerceAtLeast(0f), alpha = (1f - dragY.coerceAtLeast(0f) / 900f).coerceIn(0.35f, 1f))
         .onPreviewKeyEvent { e ->
-            if (e.type != KeyEventType.KeyDown || typing || sheet) false
+            if (e.type != KeyEventType.KeyDown || typing || sheet || menu) false
             else when (e.key) {
-                Key.DirectionLeft -> { prev(); true }
-                Key.DirectionRight -> { next(); true }
+                Key.DirectionLeft -> { if (rtl) next() else prev(); true }
+                Key.DirectionRight -> { if (rtl) prev() else next(); true }
+                Key.DirectionCenter, Key.Enter, Key.Five -> { keyPaused = !keyPaused; true }
+                Key.Four -> { prev(); true }
+                Key.Six -> { next(); true }
+                Key.Zero, Key.Menu -> { menu = true; true }
                 else -> false
             }
         }.focusRequester(fr).focusable()) {
@@ -252,33 +312,47 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
         Box(Modifier.fillMaxSize()
             .pointerInput(ui, si) {
                 detectTapGestures(onPress = { held = true; tryAwaitRelease(); held = false },
-                    onTap = { o -> if (o.x < size.width / 3f) prev() else next() })
+                    onTap = { o -> if (reactBar) reactBar = false else if (o.x < size.width * 0.3f) prev() else next() })
             }
             .pointerInput(ui, si) {
-                // Drag down = close; swipe sideways = the next / previous person's statuses (WhatsApp).
-                var dx = 0f; var dy = 0f
-                detectDragGestures(onDragStart = { dx = 0f; dy = 0f }, onDragEnd = {
-                    val far = 80.dp.toPx()
-                    if (dy > 120.dp.toPx() && dy > kotlin.math.abs(dx)) Nav.back()
-                    else if (kotlin.math.abs(dx) > far && kotlin.math.abs(dx) > kotlin.math.abs(dy)) {
+                // Drag down = close (the status follows the finger and fades, like the site); sideways = next/previous person;
+                // up = viewers on my own status, the reaction row on someone else's.
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    var dx = 0f; var dy = 0f; var dir = 0 // 1 = vertical, 2 = horizontal
+                    val slop = viewConfiguration.touchSlop
+                    while (true) {
+                        val ev = awaitPointerEvent()
+                        val ch = ev.changes.firstOrNull() ?: break
+                        if (!ch.pressed) break
+                        val d = ch.positionChange(); dx += d.x; dy += d.y
+                        if (dir == 0 && (kotlin.math.abs(dx) > slop || kotlin.math.abs(dy) > slop)) dir = if (kotlin.math.abs(dy) > kotlin.math.abs(dx)) 1 else 2
+                        if (dir != 0) { ch.consume(); held = false }
+                        if (dir == 1) dragY = dy
+                    }
+                    val far = with(density) { 80.dp.toPx() }
+                    if (dir == 1 && dy > with(density) { 110.dp.toPx() }) Nav.back()
+                    else if (dir == 1 && dy < -far) { if (isMine) sheet = true else if (!readOnly && Session.me != null) reactBar = true }
+                    else if (dir == 2 && kotlin.math.abs(dx) > far) {
                         val toNext = if (rtl) dx > 0 else dx < 0
                         if (toNext) { if (ui < users.size - 1) { uiRaw = ui + 1; siRaw = 0; progress = 0f } else Nav.back() }
                         else if (ui > 0) { uiRaw = ui - 1; siRaw = 0; progress = 0f }
                     }
-                }) { ch, d -> ch.consume(); dx += d.x; dy += d.y }
+                    dragY = 0f
+                }
             }, contentAlignment = Alignment.Center) {
             when {
                 slide.media != null && slide.video -> StVideo(slide.media, paused, onDur = { durMs = it.coerceIn(1500L, 60_000L) }, onReady = { ready = true })
                 slide.media != null -> AsyncImage(slide.media, slide.text.ifBlank { "Status photo" }, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize(),
                     onSuccess = { ready = true }, onError = { ready = true })
                 else -> Box(Modifier.fillMaxSize().background(Statuses.brush(slide.bg)).padding(28.dp), contentAlignment = Alignment.Center) {
-                    Text(slide.text, color = Statuses.textColor(slide.color), fontSize = if (slide.text.length > 120) 20.sp else 26.sp, fontWeight = FontWeight.Bold,
+                    Text(smLinkify(slide.text), color = Statuses.textColor(slide.color), fontSize = if (slide.text.length > 120) 20.sp else 26.sp, fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center, lineHeight = if (slide.text.length > 120) 28.sp else 36.sp, style = TextStyle(textDirection = TextDirection.Content))
                 }
             }
             if (slide.media != null && slide.text.isNotBlank()) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                 .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xB3000000)))).padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 84.dp)) {
-                Text(slide.text, color = Color.White, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), style = TextStyle(textDirection = TextDirection.Content))
+                Text(smLinkify(slide.text), color = Color.White, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), style = TextStyle(textDirection = TextDirection.Content))
             }
         }
         // Top: progress bars + who + actions
@@ -294,42 +368,66 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
             }
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Close", { Nav.back() }, tint = Color.White)
-                Avatar(user.photo, user.nick, 38.dp)
+                IconBtn(Sym.ArrowBack, "Close", { Nav.back() }, tint = Color.White)
+                if (!readOnly) Avatar(user.photo, user.nick, 38.dp)
                 Column(Modifier.weight(1f).padding(start = 10.dp)) {
                     Text(if (isMine) "My status" else user.nick, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
                         overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-                    Text(stAgo(slide.createdAt),
-                        color = Color.White.copy(alpha = .8f), fontSize = 13.sp)
+                    Text(stAgo(slide.createdAt) + if (isMine && slide.privacy.isNotBlank()) " · " + Statuses.privacyLabel(slide.privacy) else "",
+                        color = Color.White.copy(alpha = .8f), fontSize = 13.sp, maxLines = 1)
                 }
-                if (paused && held) Text("Paused", color = Color.White.copy(alpha = .8f), fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))
-                if (isMine) {
-                    IconBtn(Icons.Filled.Add, "Add status", { Nav.open(PostStatusPage()) }, tint = Color.White)
-                    Box {
-                        IconBtn(Icons.Filled.MoreVert, "More", { menu = true }, tint = Color.White)
-                        DropdownMenu(menu, { menu = false }) {
-                            DropdownMenuItem(text = { Text("Delete", color = MaterialTheme.colorScheme.error, fontSize = 16.sp) },
-                                leadingIcon = { Icon(Icons.Filled.Delete, null, tint = MaterialTheme.colorScheme.error) },
-                                onClick = {
-                                    menu = false
-                                    scope.launch {
-                                        try { Statuses.delete(slide.id); toast(c, "Status deleted"); onDeleted(user.userId, slide.id) }
-                                        catch (e: Exception) { toast(c, Api.friendly(e)) }
-                                    }
-                                })
+                if (paused && (held || keyPaused)) Text("Paused", color = Color.White.copy(alpha = .8f), fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))
+                if (slide.video) IconBtn(if (SmPrefs.videoMuted) Sym.VolumeOff else Sym.VolumeUp,
+                    if (SmPrefs.videoMuted) "Unmute" else "Mute", { SmPrefs.setVideoMuted(!SmPrefs.videoMuted) }, tint = Color.White)
+                if (isMine) IconBtn(Sym.Add, "Add status", { Nav.open(PostStatusPage()) }, tint = Color.White)
+                Box {
+                    IconBtn(Sym.MoreVert, "More", { menu = true }, tint = Color.White)
+                    DropdownMenu(menu, { menu = false }) {
+                        if (!readOnly) {
+                            val inHl = SmPrefs.hasHighlight(slide.id)
+                            DropdownMenuItem(text = { Text(if (inHl) "In Highlights" else "Save to Highlights") }, leadingIcon = { Icon(if (inHl) Sym.BookmarkFill else Icons.Rounded.BookmarkAdd, null) },
+                                onClick = { menu = false; toast(c, if (SmPrefs.addHighlight(slide, user.nick)) "Saved to Highlights" else "Already in Highlights") }, modifier = Modifier.firstFocus(always = true))
+                        }
+                        if (slide.media != null) {
+                            DropdownMenuItem(text = { Text("Save to phone") }, leadingIcon = { Icon(Sym.Download, null) },
+                                onClick = { menu = false; smSaveToPhone(c, slide.media, "status-${slide.id.take(8)}." + if (slide.video) "mp4" else "jpg") })
+                            DropdownMenuItem(text = { Text("Share") }, leadingIcon = { Icon(Sym.Share, null) },
+                                onClick = { menu = false; scope.launch { smShareFile(c, slide.media, "status-${slide.id.take(8)}." + if (slide.video) "mp4" else "jpg", if (slide.video) "video/*" else "image/*") } })
+                        } else DropdownMenuItem(text = { Text("Share") }, leadingIcon = { Icon(Sym.Share, null) }, onClick = { menu = false; share(c, slide.text) })
+                        if (!isMine && !readOnly) {
+                            val m = SmPrefs.isMuted(user.userId)
+                            DropdownMenuItem(text = { Text(if (m) "Unmute ${user.nick}" else "Mute ${user.nick}", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                leadingIcon = { Icon(if (m) Sym.NotificationsActive else Sym.NotificationsOff, null) },
+                                onClick = { menu = false; SmPrefs.setMuted(user.userId, !m); toast(c, if (m) "${user.nick}'s status unmuted" else "${user.nick}'s status muted. You'll find it under Muted updates.") })
+                        }
+                        if (isMine) {
+                            DropdownMenuItem(text = { Text("Privacy: " + Statuses.privacyLabel(slide.privacy)) }, leadingIcon = { Icon(Sym.Lock, null) },
+                                onClick = { menu = false; privacyInfo = true })
+                            DropdownMenuItem(text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                                leadingIcon = { Icon(Sym.Delete, null, tint = MaterialTheme.colorScheme.error) },
+                                onClick = { menu = false; confirmDel = true })
                         }
                     }
                 }
             }
         }
-        // Bottom: views for mine, reply + heart for others
-        Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 10.dp, vertical = 10.dp)) {
+        // Bottom: views for mine, reply + react for others
+        if (!readOnly) Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 10.dp, vertical = 10.dp)) {
+            if (reactBar) Row(Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp).clip(RoundedCornerShape(28.dp)).background(Color(0xCC1F1F1F))
+                .padding(horizontal = 6.dp, vertical = 4.dp)) {
+                SmReactions.forEachIndexed { i, e ->
+                    Box(Modifier.size(44.dp).tap(CircleShape) { react(e) }.then(if (i == 0) Modifier.firstFocus(always = true) else Modifier), contentAlignment = Alignment.Center) {
+                        Text(e, fontSize = 24.sp, modifier = Modifier.semantics { contentDescription = "React $e" })
+                    }
+                }
+            }
             if (isMine) {
-                Row(Modifier.align(Alignment.Center).clip(RoundedCornerShape(20.dp)).background(Color(0x66000000)).tap(RoundedCornerShape(20.dp)) { sheet = true }
+                Row(Modifier.align(Alignment.CenterHorizontally).clip(RoundedCornerShape(20.dp)).background(Color(0x66000000)).tap(RoundedCornerShape(20.dp)) { sheet = true }
                     .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Visibility, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Sym.Visibility, null, tint = Color.White, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
                     Text("${slide.views} views", color = Color.White, fontSize = 15.sp)
+                    Icon(Sym.KeyboardArrowUp, null, tint = Color.White.copy(alpha = .7f), modifier = Modifier.size(20.dp))
                 }
             } else if (Session.me != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -339,25 +437,32 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                         colors = TextFieldDefaults.colors(focusedContainerColor = Color(0x80000000), unfocusedContainerColor = Color(0x59000000),
                             focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
                             focusedTextColor = Color.White, unfocusedTextColor = Color.White),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                        keyboardActions = KeyboardActions(onSend = {
-                            val t = reply.trim(); if (t.isNotEmpty()) { reply = ""; scope.launch {
-                                try { Statuses.replyTo(user.userId, "↩️ $t"); toast(c, "Reply sent") } catch (e: Exception) { toast(c, Api.friendly(e)) } } }
-                        }))
-                    Spacer(Modifier.width(6.dp))
-                    if (reply.isNotBlank()) Box(Modifier.size(48.dp).clip(CircleShape).background(Green).tap(CircleShape) {
-                        val t = reply.trim(); reply = ""
-                        scope.launch { try { Statuses.replyTo(user.userId, "↩️ $t"); toast(c, "Reply sent") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
-                    }, contentAlignment = Alignment.Center) { Icon(Icons.AutoMirrored.Filled.Send, "Send reply", tint = Color.White, modifier = Modifier.size(22.dp)) }
-                    else IconBtn(if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, "Like status", {
-                        liked = !liked
-                        if (liked) scope.launch { try { Statuses.replyTo(user.userId, "❤️ (reacted to your status)"); toast(c, "❤️ Reacted!") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
-                    }, tint = if (liked) Color(0xFFFF4D67) else Color.White, size = 48.dp)
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { sendReply() }))
+                    Spacer(Modifier.width(4.dp))
+                    if (reply.isNotBlank()) Box(Modifier.size(48.dp).clip(CircleShape).background(Green).tap(CircleShape) { sendReply() }, contentAlignment = Alignment.Center) {
+                        Icon(Sym.Send, "Send reply", tint = Color.White, modifier = Modifier.size(22.dp)) }
+                    else {
+                        IconBtn(Sym.AddReaction, "React", { reactBar = !reactBar }, tint = Color.White, size = 44.dp)
+                        IconBtn(if (liked) Sym.FavoriteFill else Sym.FavoriteBorder, "Like status", { if (!liked) react("❤️") else liked = false },
+                            tint = if (liked) Color(0xFFFF4D67) else Color.White, size = 44.dp)
+                    }
                 }
             }
         }
         if (sheet) StViewersSheet(slide) { sheet = false }
     }
+    if (confirmDel) AlertDialog(onDismissRequest = { confirmDel = false }, title = { Text("Delete this status?") },
+        text = { Text(if (user.slides.size > 1) "Only this one is deleted; your other updates stay." else "It will be gone for everyone.") },
+        confirmButton = { TextButton({
+            confirmDel = false
+            scope.launch {
+                try { Statuses.delete(slide.id); toast(c, if (user.slides.size > 1) "Slide deleted" else "Status deleted"); onDeleted(user.userId, slide.id) }
+                catch (e: Exception) { toast(c, "Could not delete: " + Api.friendly(e)) }
+            } }, Modifier.firstFocus(always = true)) { Text("Delete", color = MaterialTheme.colorScheme.error) } },
+        dismissButton = { TextButton({ confirmDel = false }) { Text("Cancel") } })
+    if (privacyInfo) AlertDialog(onDismissRequest = { privacyInfo = false }, title = { Text("Who can see this") },
+        text = { Text(Statuses.privacyLabel(slide.privacy) + " — " + Statuses.privacyHint(slide.privacy) + ".\n\nThe audience is chosen when you post. To change it, post this status again with another choice and delete this one.") },
+        confirmButton = { TextButton({ privacyInfo = false }, Modifier.firstFocus(always = true)) { Text("OK") } })
 }
 
 @Composable
@@ -371,7 +476,7 @@ private fun StViewersSheet(slide: StSlide, onClose: () -> Unit) {
             Column(Modifier.navigationBarsPadding()) {
                 Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(viewers?.let { "Viewed by ${it.size}" } ?: "Viewed by", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                    IconBtn(Icons.Filled.Close, "Close", onClose, modifier = Modifier.firstFocus(always = true))
+                    IconBtn(Sym.Close, "Close", onClose, modifier = Modifier.firstFocus(always = true))
                 }
                 val v = viewers
                 when {
@@ -398,7 +503,7 @@ private fun StViewersSheet(slide: StSlide, onClose: () -> Unit) {
 @Composable
 private fun StVideo(url: String, paused: Boolean, onDur: (Long) -> Unit, onReady: () -> Unit) {
     val c = ctx()
-    val player = remember(url) { Media.player(c).apply { setMediaItem(MediaItem.fromUri(url)); prepare(); playWhenReady = true; volume = if (Prefs.muted) 0f else 1f } }
+    val player = remember(url) { Media.player(c).apply { setMediaItem(MediaItem.fromUri(url)); prepare(); playWhenReady = true; volume = if (SmPrefs.videoMuted) 0f else 1f } }
     DisposableEffect(player) {
         val l = object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_READY) { if (player.duration > 0) onDur(player.duration); onReady() } }
@@ -408,6 +513,7 @@ private fun StVideo(url: String, paused: Boolean, onDur: (Long) -> Unit, onReady
         onDispose { player.removeListener(l); player.release() }
     }
     LaunchedEffect(paused) { player.playWhenReady = !paused }
+    LaunchedEffect(SmPrefs.videoMuted) { player.volume = if (SmPrefs.videoMuted) 0f else 1f }
     AndroidView(factory = { ctx -> PlayerView(ctx).apply {
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         this.player = player; useController = false; setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)

@@ -1,0 +1,225 @@
+{
+ "/api/music": {
+  "ok": true,
+  "tracks": [
+   {
+    "id": "fxm1",
+    "title": "א נייע ניגון",
+    "artist": "Mendy Weiss",
+    "type": "single",
+    "album_id": null,
+    "album_name": null,
+    "audio_url": "/api/media/music%2F32a9be01-7448-43c7-b23d-cc89c97ce89f%2F2e93db35-416c-4b2f-9831-35f9926cb2e2_audio.mp3",
+    "video_url": null,
+    "cover_url": null,
+    "duration_sec": 200,
+    "plays": 48,
+    "trending": 1,
+    "owner_id": "u-mendy",
+    "owner_nick": "Mendy",
+    "owner_photo": null,
+    "liked": true,
+    "saved": false,
+    "created_at": "2026-11-01T10:00:00.000Z"
+   },
+   {
+    "id": "fxm2",
+    "title": "שבת פרייד",
+    "artist": "Yossi Green",
+    "type": "single",
+    "album_id": null,
+    "album_name": null,
+    "audio_url": "/api/media/music%2F32a9be01-7448-43c7-b23d-cc89c97ce89f%2F58a85ea2-a98e-47dd-99f2-b67a40a690a9_audio.mp3",
+    "video_url": null,
+    "cover_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "duration_sec": 200,
+    "plays": 22,
+    "trending": 0,
+    "owner_id": "u-mendy",
+    "owner_nick": "Mendy",
+    "owner_photo": null,
+    "liked": false,
+    "saved": false,
+    "created_at": "2026-11-02T10:00:00.000Z"
+   },
+   {
+    "id": "fxm3",
+    "title": "לכה דודי",
+    "artist": "Chaim Shmuel",
+    "type": "album_track",
+    "album_id": "alb1",
+    "album_name": "שבת זמירות",
+    "audio_url": "/api/media/music%2F32a9be01-7448-43c7-b23d-cc89c97ce89f%2F2e93db35-416c-4b2f-9831-35f9926cb2e2_audio.mp3",
+    "video_url": null,
+    "cover_url": "/api/media/avatars%2F8ea8866f-c338-4a1c-b49d-a94a8da235a8.jpg?v=1785936422705",
+    "duration_sec": 185,
+    "plays": 12,
+    "trending": 0,
+    "owner_id": "u-mendy",
+    "owner_nick": "Mendy",
+    "owner_photo": null,
+    "liked": false,
+    "saved": false,
+    "created_at": "2026-11-03T10:00:00.000Z"
+   },
+   {
+    "id": "fxm4",
+    "title": "יה ריבון",
+    "artist": "Chaim Shmuel",
+    "type": "album_track",
+    "album_id": "alb1",
+    "album_name": "שבת זמירות",
+    "audio_url": "/api/media/music%2F32a9be01-7448-43c7-b23d-cc89c97ce89f%2F58a85ea2-a98e-47dd-99f2-b67a40a690a9_audio.mp3",
+    "video_url": null,
+    "cover_url": "/api/media/avatars%2F8ea8866f-c338-4a1c-b49d-a94a8da235a8.jpg?v=1785936422705",
+    "duration_sec": 240,
+    "plays": 9,
+    "trending": 0,
+    "owner_id": "u-mendy",
+    "owner_nick": "Mendy",
+    "owner_photo": null,
+    "liked": false,
+    "saved": false,
+    "created_at": "2026-11-04T10:00:00.000Z"
+   },
+   {
+    "id": "fxm5",
+    "title": "צור משלו",
+    "artist": "Chaim Shmuel",
+    "type": "album_track",
+    "album_id": "alb1",
+    "album_name": "שבת זמירות",
+    "audio_url": "/api/media/music%2F32a9be01-7448-43c7-b23d-cc89c97ce89f%2F2e93db35-416c-4b2f-9831-35f9926cb2e2_audio.mp3",
+    "video_url": null,
+    "cover_url": "/api/media/avatars%2F8ea8866f-c338-4a1c-b49d-a94a8da235a8.jpg?v=1785936422705",
+    "duration_sec": 210,
+    "plays": 7,
+    "trending": 0,
+    "owner_id": "u-mendy",
+    "owner_nick": "Mendy",
+    "owner_photo": null,
+    "liked": false,
+    "saved": true,
+    "created_at": "2026-11-05T10:00:00.000Z"
+   },
+   {
+    "id": "fxm6",
+    "title": "YID PLUS Theme (video)",
+    "artist": "משה'לע",
+    "type": "single",
+    "album_id": null,
+    "album_name": null,
+    "audio_url": "/api/media/music%2F32a9be01-7448-43c7-b23d-cc89c97ce89f%2F58a85ea2-a98e-47dd-99f2-b67a40a690a9_audio.mp3",
+    "video_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "cover_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "duration_sec": 200,
+    "plays": 31,
+    "trending": 0,
+    "owner_id": "demo-me",
+    "owner_nick": "משה'לע",
+    "owner_photo": null,
+    "liked": false,
+    "saved": false,
+    "created_at": "2026-11-06T10:00:00.000Z"
+   }
+  ]
+ },
+ "/api/statuses": {
+  "ok": true,
+  "statuses": [
+   {
+    "user_id": "demo-me",
+    "nickname": "משה'לע",
+    "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "slides": [
+     {
+      "id": "st-me-1",
+      "type": "text",
+      "text": "גוט שבת אלע! 🕯️",
+      "bg": "linear-gradient(135deg,#1b4332,#40916c)",
+      "created_at": "2026-11-11T18:10:00.000Z",
+      "views": 14,
+      "privacy": "followers"
+     },
+     {
+      "id": "st-me-2",
+      "type": "image",
+      "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+      "text": "YID PLUS 2.0.2 🎉",
+      "created_at": "2026-11-11T19:40:00.000Z",
+      "views": 6,
+      "privacy": "followers"
+     }
+    ]
+   },
+   {
+    "user_id": "u-yanky",
+    "nickname": "Yanky",
+    "photo_url": null,
+    "slides": [
+     {
+      "id": "st-y-1",
+      "type": "text",
+      "text": "Who's coming to the shiur tonight? 📖 yidplus.com/shiur",
+      "bg": "linear-gradient(135deg,#0f3460,#533483)",
+      "created_at": "2026-11-11T17:05:00.000Z",
+      "views": 0
+     },
+     {
+      "id": "st-y-2",
+      "type": "text",
+      "text": "8:30 at the shul, bring a friend!",
+      "bg": "linear-gradient(135deg,#e85d04,#faa307)",
+      "created_at": "2026-11-11T17:06:00.000Z",
+      "views": 0
+     }
+    ]
+   },
+   {
+    "user_id": "u-deal",
+    "nickname": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "slides": [
+     {
+      "id": "st-d-1",
+      "type": "video",
+      "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+      "text": "New deals this week",
+      "created_at": "2026-11-11T12:00:00.000Z",
+      "views": 0
+     }
+    ]
+   },
+   {
+    "user_id": "u-chaim",
+    "nickname": "חיים שמואל",
+    "photo_url": null,
+    "slides": [
+     {
+      "id": "st-c-1",
+      "type": "text",
+      "text": "מזל טוב! א גרויסע שמחה ביי אונז 🎉",
+      "bg": "linear-gradient(135deg,#b5179e,#f72585)",
+      "created_at": "2026-11-11T09:30:00.000Z",
+      "views": 0
+     }
+    ]
+   },
+   {
+    "user_id": "u-baruch",
+    "nickname": "Baruch",
+    "photo_url": "/api/media/avatars%2F8ea8866f-c338-4a1c-b49d-a94a8da235a8.jpg?v=1785936422705",
+    "slides": [
+     {
+      "id": "st-b-1",
+      "type": "image",
+      "media_url": "/api/media/avatars%2F8ea8866f-c338-4a1c-b49d-a94a8da235a8.jpg?v=1785936422705",
+      "text": "",
+      "created_at": "2026-11-11T08:00:00.000Z",
+      "views": 0
+     }
+    ]
+   }
+  ]
+ }
+}

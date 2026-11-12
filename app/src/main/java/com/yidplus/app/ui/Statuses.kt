@@ -43,6 +43,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
@@ -139,7 +141,7 @@ import org.json.JSONObject
 /* ─────────────── Statuses (stories): the site's /api/statuses (home.js loadStatuses / openSV / submitStatus) ─────────────── */
 
 data class StSlide(val id: String, val type: String, val text: String, val bg: String, val color: String, val media: String?, val video: Boolean,
-                   val createdAt: String?, val views: Int, val reacted: Boolean)
+                   val createdAt: String?, val views: Int, val reacted: Boolean, val privacy: String = "")
 data class StUser(val userId: String, val nick: String, val photo: String?, val slides: List<StSlide>)
 
 object Statuses {
@@ -161,7 +163,7 @@ object Statuses {
                 val media = Api.abs(sl.strOrNull("media_url"))
                 StSlide(sl.str("id"), type, sl.str("text").ifBlank { sl.str("caption") }, sl.str("bg"), sl.str("color"), media,
                     type == "video" || sl.optBoolean("is_video") || vid.containsMatchIn(sl.str("media_key")) || (media != null && vid.containsMatchIn(media)),
-                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"))
+                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"), sl.str("privacy"))
             }.filter { it.text.isNotBlank() || it.media != null }
             val uid = s.str("user_id").ifBlank { s.str("owner_id") }
             if (slides.isEmpty() || uid.isBlank()) null else StUser(uid, s.str("nickname").ifBlank { s.str("nick").ifBlank { "User" } }, Api.abs(s.strOrNull("photo_url")), slides)
@@ -191,7 +193,22 @@ object Statuses {
         val me = Session.me?.id
         val mine = all.filter { it.userId == me }
         val others = all.filter { it.userId != me }
-        return mine + others.filter { !allSeen(it) } + others.filter { allSeen(it) }
+        val loud = others.filter { !SmPrefs.isMuted(it.userId) }
+        return mine + loud.filter { !allSeen(it) } + loud.filter { allSeen(it) } + others.filter { SmPrefs.isMuted(it.userId) }
+    }
+    /** For the strip and the "play all" order: muted people are left out (WhatsApp keeps them under "Muted updates"). */
+    fun audible(all: List<StUser>): List<StUser> = ordered(all).filter { it.userId == Session.me?.id || !SmPrefs.isMuted(it.userId) }
+    fun unseenCount(all: List<StUser>): Int = all.count { it.userId != Session.me?.id && !SmPrefs.isMuted(it.userId) && !allSeen(it) }
+    fun privacyLabel(p: String) = when (p) { "followers" -> "Followers only"; "private" -> "Only me"; "public" -> "Everyone"; else -> "Everyone" }
+    fun privacyHint(p: String) = when (p) { "followers" -> "Only people who follow you"; "private" -> "Only you can see it"; else -> "All YID PLUS users who follow you can view" }
+
+    /** A photo/video status with progress + Cancel. The site sends the caption as "caption", but functions/api/statuses.js only
+     *  reads "text", so the caption was lost; the app sends both (same server, nothing new on it). */
+    suspend fun postMediaUp(ctx: Context, up: SmUpload, uri: Uri, caption: String, privacy: String): JSONObject {
+        val mime = ctx.contentResolver.getType(uri) ?: smMimeOf(uri.lastPathSegment.orEmpty())
+        val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: uri.lastPathSegment?.substringAfterLast('.', "")?.takeIf { it.length in 2..4 } ?: if (mime.startsWith("video")) "mp4" else "jpg"
+        return up.post(ctx, "/api/statuses", listOf("type" to "media", "text" to caption, "caption" to caption, "privacy" to privacy),
+            listOf(SmUpload.Part("media", uri, "status.$ext")), maxMb = 100)
     }
 
     /** "linear-gradient(135deg,#a,#b)" or "#hex" → a brush. */
@@ -263,9 +280,11 @@ fun StatusStrip() {
     val all = res.data.orEmpty()
     if (me == null && all.isEmpty()) return
     @Suppress("UNUSED_VARIABLE") val v = Statuses.seenVersion
-    val ordered = Statuses.ordered(all)
+    SmPrefs.init(ctx())
+    val ordered = Statuses.audible(all)
     val mine = ordered.firstOrNull { it.userId == me?.id }
     val others = ordered.filter { it.userId != me?.id }
+    val unseen = Statuses.unseenCount(all)
     Column(Modifier.fillMaxWidth()) {
         LazyRow(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
             if (me != null) item(key = "me") {
@@ -275,8 +294,10 @@ fun StatusStrip() {
             }
             items(others, key = { it.userId }) { u ->
                 StatusCircle(u.nick, u.photo, u.nick, u.slides.map { Statuses.seen(it.id) }, mine = false, plus = false,
-                    onClick = { Nav.open(StatusViewerPage(u.userId)) }, onLong = null, onPlus = null)
+                    onClick = { Nav.open(StatusViewerPage(u.userId)) }, onLong = { Nav.open(SmUpdatesPage()) }, onPlus = null)
             }
+            if (SmPrefs.highlights.isNotEmpty()) item(key = "hl") { SmStripIcon("Highlights", Sym.BookmarkFill, Gold, 0) { Nav.open(SmHighlightsPage()) } }
+            item(key = "all") { SmStripIcon("All updates", Icons.AutoMirrored.Filled.List, BadgeGreen, unseen) { Nav.open(SmUpdatesPage()) } }
         }
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
     }
@@ -299,7 +320,7 @@ private fun StatusCircle(label: String, photo: String?, colorName: String, seen:
             if (plus) Box(Modifier.align(Alignment.BottomEnd).size(22.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(2.dp)
                 .clip(CircleShape).background(BadgeGreen).then(if (onPlus != null) Modifier.combinedClickable(onClick = onPlus) else Modifier),
                 contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.Add, "Add status", tint = Color.White, modifier = Modifier.size(15.dp))
+                Icon(Sym.Add, "Add status", tint = Color.White, modifier = Modifier.size(15.dp))
             }
         }
         Spacer(Modifier.height(4.dp))
@@ -309,9 +330,26 @@ private fun StatusCircle(label: String, photo: String?, colorName: String, seen:
     }
 }
 
+/** A round shortcut in the strip (Highlights, All updates) with an optional count badge like the site's 📷 badge. */
+@Composable
+private fun SmStripIcon(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, tint: Color, badge: Int, onClick: () -> Unit) {
+    Column(Modifier.width(72.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(62.dp)) {
+            Box(Modifier.align(Alignment.Center).size(54.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+                Icon(icon, null, tint = tint, modifier = Modifier.size(28.dp))
+            }
+            if (badge > 0) Box(Modifier.align(Alignment.TopEnd).clip(CircleShape).background(BadgeGreen).padding(horizontal = 6.dp, vertical = 1.dp)) {
+                Text(if (badge > 99) "99+" else "$badge", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Text(label, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(horizontal = 3.dp))
+    }
+}
+
 /** The segmented ring: one arc per slide, green = not seen yet, grey = seen, brand green for my own. */
 @Composable
-private fun StatusRing(seen: List<Boolean>, mine: Boolean, modifier: Modifier) {
+fun StatusRing(seen: List<Boolean>, mine: Boolean, modifier: Modifier) {
     if (seen.isEmpty()) return
     val unseenC = Color(0xFF25D366)
     val seenC = MaterialTheme.colorScheme.outline.copy(alpha = .55f)

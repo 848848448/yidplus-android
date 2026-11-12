@@ -57,7 +57,7 @@ fun VideoScreen(url: String, title: String) {
             this.player = player; useController = true; controllerShowTimeoutMs = 3000; setShowNextButton(false); setShowPreviousButton(false)
             requestFocus()
         } }, modifier = Modifier.fillMaxSize())
-        Box(Modifier.align(Alignment.TopStart).padding(androidx.compose.ui.unit.Dp(6f))) { IconBtn(Icons.Filled.Close, "Close", { Nav.back() }, tint = Color.White) }
+        Box(Modifier.align(Alignment.TopStart).padding(androidx.compose.ui.unit.Dp(6f))) { IconBtn(Sym.Close, "Close", { Nav.back() }, tint = Color.White) }
     }
 }
 

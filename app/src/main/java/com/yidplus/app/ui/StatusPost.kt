@@ -138,33 +138,53 @@ import okhttp3.RequestBody
 import okio.BufferedSink
 import okio.source
 import org.json.JSONArray
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.material.icons.filled.PhotoCamera
 import org.json.JSONObject
 
 /* ─────────────── Post a status ─────────────── */
 
 /** WhatsApp-style "post status": coloured text status (the site's 8 backgrounds) or a photo/video with a caption, and who sees it. */
-class PostStatusPage : PageScreen() {
+class PostStatusPage(val startMedia: Boolean = false) : PageScreen() {
     override val perfName: String get() = "PostStatus"
     override val immersive: Boolean get() = true
-    @Composable override fun Content() { PostStatus() }
+    @Composable override fun Content() { PostStatus(startMedia) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PostStatus() {
+private fun PostStatus(startMedia: Boolean) {
     val c = ctx()
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var bg by remember { mutableIntStateOf(0) }
-    var privacy by remember { mutableStateOf("public") }
+    // The site's <select id="status-privacy"> starts on its first option, "Followers only".
+    var privacy by remember { mutableStateOf("followers") }
     var media by remember { mutableStateOf<Uri?>(null) }
     var caption by remember { mutableStateOf("") }
     var posting by remember { mutableStateOf(false) }
+    val up = remember { SmUpload() }
     val fr = remember { FocusRequester() }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u -> if (u != null) media = u }
-    val isVideo = media?.let { (c.contentResolver.getType(it) ?: "").startsWith("video") } == true
-    LaunchedEffect(Unit) { kotlinx.coroutines.delay(250); runCatching { fr.requestFocus() } }
-    BackHandler(enabled = media != null) { media = null }
+    // Camera: a photo straight from the phone's camera app into the app's cache (shared through the app's FileProvider).
+    var camUri by remember { mutableStateOf<Uri?>(null) }
+    val cam = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) media = camUri }
+    fun openCamera() {
+        runCatching {
+            val dir = java.io.File(c.cacheDir, "captures").apply { mkdirs() }
+            val f = java.io.File(dir, "status-${System.currentTimeMillis()}.jpg")
+            val u = androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", f)
+            camUri = u; cam.launch(u)
+        }.onFailure { toast(c, "No camera app found") }
+    }
+    LaunchedEffect(SoQaPick.uri) { SoQaPick.uri?.let { media = it; SoQaPick.uri = null } }
+    val isVideo = media?.let { (c.contentResolver.getType(it) ?: smMimeOf(it.lastPathSegment.orEmpty())).startsWith("video") } == true
+    val mine = Statuses.res.data?.firstOrNull { it.userId == Session.me?.id }
+    LaunchedEffect(Unit) {
+        if (startMedia) runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }
+        else { kotlinx.coroutines.delay(250); runCatching { fr.requestFocus() } }
+    }
+    BackHandler(enabled = media != null || up.running) { if (up.running) up.cancel() else media = null }
     fun post() {
         if (posting) return
         if (Session.me == null) { toast(c, "Please sign in first."); return }
@@ -173,7 +193,7 @@ private fun PostStatus() {
         posting = true
         scope.launch {
             try {
-                if (m == null) Statuses.postText(text.trim(), Statuses.BGS[bg], privacy) else Statuses.postMedia(c, m, caption.trim(), privacy)
+                if (m == null) Statuses.postText(text.trim(), Statuses.BGS[bg], privacy) else Statuses.postMediaUp(c, up, m, caption.trim(), privacy)
                 toast(c, "Status posted")
                 Statuses.scope.launch { Statuses.res.load(true) }
                 Nav.back()
@@ -188,10 +208,17 @@ private fun PostStatus() {
       Column(Modifier.fillMaxSize().imePadding()) {
         // Top bar
         Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconBtn(Icons.Filled.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
+            IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
+            if (mine != null && media == null) Row(Modifier.clip(RoundedCornerShape(16.dp)).background(Color(0x40000000))
+                .tap(RoundedCornerShape(16.dp)) { Nav.back(); Nav.open(StatusViewerPage(Session.me?.id)) }.padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Icon(Sym.Visibility, null, tint = Color.White, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp))
+                Text("View mine", color = Color.White, fontSize = 13.sp)
+            }
             Spacer(Modifier.weight(1f))
-            if (media == null) IconBtn(Icons.Filled.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
-            IconBtn(Icons.Filled.PhotoLibrary, "Photo or video", {
+            IconBtn(Sym.PhotoCamera, "Camera", { openCamera() }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
+            IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
         }
@@ -204,10 +231,8 @@ private fun PostStatus() {
                     placeholder = { Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = big, textAlign = TextAlign.Center) },
                     textStyle = TextStyle(fontSize = if (text.length > 120) 18.sp else big, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center,
                         textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
-            } else if (isVideo) Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.PlayCircle, null, tint = Color.White, modifier = Modifier.size(72.dp))
-                Text("Video ready to post", color = Color.White, fontSize = 16.sp)
-            } else AsyncImage(m, "Chosen photo", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+            } else if (isVideo) SmVideoPreview(m)
+            else AsyncImage(m, "Chosen photo", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
         }
         // Bottom: colours, caption, who sees it, post
         Column(Modifier.fillMaxWidth().then(if (ime) Modifier else Modifier.navigationBarsPadding()).padding(bottom = 10.dp)) {
@@ -223,10 +248,12 @@ private fun PostStatus() {
                 colors = TextFieldDefaults.colors(focusedContainerColor = Color(0x80000000), unfocusedContainerColor = Color(0x59000000),
                     focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
                     focusedTextColor = Color.White, unfocusedTextColor = Color.White))
+            if (up.running) Box(Modifier.padding(horizontal = 12.dp)) { SmProgress(up, dark = true) }
             Spacer(Modifier.height(10.dp))
+            if (!ime) Text(Statuses.privacyHint(privacy), Modifier.padding(horizontal = 16.dp, vertical = 2.dp), color = Color.White.copy(alpha = .8f), fontSize = 13.sp)
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp), contentPadding = PaddingValues(end = 8.dp)) {
-                    items(listOf("public" to "Everyone", "followers" to "Followers", "private" to "Only me")) { (k, label) ->
+                    items(listOf("followers" to "Followers", "public" to "Everyone", "private" to "Only me")) { (k, label) ->
                         val on = privacy == k
                         Box(Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) Color.White else Color(0x4D000000)).tap(RoundedCornerShape(16.dp)) { privacy = k }
                             .padding(horizontal = 12.dp, vertical = 7.dp)) {
@@ -236,10 +263,38 @@ private fun PostStatus() {
                 }
                 Box(Modifier.size(56.dp).clip(CircleShape).background(if (posting) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { post() },
                     contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Filled.Send, "Post status", tint = Color.White, modifier = Modifier.size(24.dp))
+                    Icon(Sym.Send, "Post status", tint = Color.White, modifier = Modifier.size(24.dp))
                 }
             }
         }
       }
+    }
+}
+
+/** A chosen video shows its first frame, its length and a play sign (the site shows a muted <video> preview). */
+@Composable
+private fun SmVideoPreview(u: Uri) {
+    val c = ctx()
+    var frame by remember(u) { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+    var len by remember(u) { mutableStateOf("") }
+    LaunchedEffect(u) {
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val r = android.media.MediaMetadataRetriever()
+                try {
+                    if (u.scheme == "file") r.setDataSource(u.path) else r.setDataSource(c, u)
+                    len = dur(((r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L) / 1000).toInt())
+                    frame = r.getFrameAtTime(0)?.asImageBitmap()
+                } finally { runCatching { r.release() } }
+            }
+        }
+    }
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        frame?.let { androidx.compose.foundation.Image(it, "Chosen video", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize()) }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Sym.PlayCircle, null, tint = Color.White, modifier = Modifier.size(64.dp))
+            Text(if (len.isNotBlank()) "Video · $len" else "Video", color = Color.White, fontSize = 15.sp,
+                modifier = Modifier.background(Color(0x66000000), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 2.dp))
+        }
     }
 }
