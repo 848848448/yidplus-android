@@ -1,0 +1,21 @@
+first start: TotalTime: 779
+first start: WaitTime: 781
+cold start 1 (before profile compile): TotalTime: 375
+cold start 2 (before profile compile): TotalTime: 380
+cold start 3 (before profile compile): TotalTime: 416
+cold start 1 (baseline profile compiled): TotalTime: 402
+cold start 2 (baseline profile compiled): TotalTime: 370
+cold start 3 (baseline profile compiled): TotalTime: 383
+Total frames rendered: 17
+Janky frames: 1 (5.88%)
+50th percentile: 5ms
+90th percentile: 15ms
+95th percentile: 61ms
+99th percentile: 61ms
+Number Slow UI thread: 0
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 1
+50th gpu percentile: 3ms
+90th gpu percentile: 15ms
+95th gpu percentile: 21ms
+99th gpu percentile: 21ms
