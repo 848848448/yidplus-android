@@ -27,6 +27,21 @@ ds_look dark 0
 view "https://yidplus.com/chat?join=fxjoin123"; sleep 4; shot DS-30-deeplink-join; key 4; sleep 1
 # 6b. App-wide snackbar with Undo (above the bottom bar)
 tab Chats; sleep 2; ds_look snack "Chat archived"; sleep 1; shot DS-32-snackbar-undo; sleep 5
+# 6c. Shared pieces sample (DsDemoPage): SearchPill at the top, hides on scroll-down, back on scroll-up; last row above the FAB
+ds_look demo 1; sleep 2; shot DS-33-searchpill-top
+adb shell input swipe 240 520 240 300 300; sleep 1; shot DS-34-searchpill-hidden-on-scroll-down
+for k in 1 2 3 4 5; do adb shell input swipe 240 560 240 120 150; sleep 0.4; done; sleep 1; shot DS-35-last-row-above-fab
+adb shell input swipe 240 260 240 480 300; sleep 1; shot DS-36-searchpill-back-on-scroll-up
+key 4; sleep 1
+# 6d. Screen video (480x640): bottom bar, themes, dark, text size, D-pad
+adb shell rm -f /sdcard/DS-flow.mp4
+(timeout 40 adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit 32 /sdcard/DS-flow.mp4 >/dev/null 2>&1 &)
+sleep 1; tab Chats; sleep 2; tab Profile; sleep 2
+ds_look color 1; sleep 1; ds_look color 4; sleep 1; ds_look color 6; sleep 1; ds_look color 0
+ds_look dark 2; tab Chats; sleep 2; ds_look dark 0
+ds_look text 2; sleep 2; ds_look text 0; sleep 2; ds_look text 1
+key 20 20 20 20; sleep 1; key 22 22; sleep 1
+sleep 4; timeout 30 adb pull /sdcard/DS-flow.mp4 "$OUT/DS-flow.mp4" >/dev/null 2>&1; log "ds video $(ls -la $OUT/DS-flow.mp4 2>&1 | tail -c 80)"
 # 7. Normal phone 1080x2400
 size 1080x2400 420; tab Chats; sleep 4; shot DS-40-phone-chats; tab Profile; sleep 3; shot DS-41-phone-settings
 ds_look dark 2; tab Chats; sleep 3; shot DS-42-phone-dark-chats; ds_look dark 0
