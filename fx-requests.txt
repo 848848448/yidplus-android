@@ -1,0 +1,46 @@
+--------- beginning of main
+--------- beginning of system
+11-12 00:29:35.360  2584  2619 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 00:29:43.661  2584  2618 I YidFx   : POST /api/notifications {"read":"all"}
+11-12 00:30:35.212  2584  2617 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:30:40.242  2584  2915 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:31:01.262  3324  3375 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:31:06.265  3324  3358 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 00:31:48.586  3477  3511 I YidFx   : POST /api/telegram-read {"username":"fxnews"}
+11-12 00:31:58.945  3739  3739 I YidFx   : LK-STEP react-tg
+11-12 00:32:05.132  3477  3512 I YidFx   : POST /api/telegram-reactions {"username":"fxnews","tg_msg_id":104,"emoji":"👍"}
+11-12 00:32:09.150  3807  3807 I YidFx   : LK-STEP share-tg
+11-12 00:32:18.200  3890  3890 I YidFx   : LK-STEP join-tg
+11-12 00:32:32.397  3477  3509 I YidFx   : POST /api/telegram-read {"username":"fxnews"}
+11-12 00:32:59.264  4066  4066 I YidFx   : LK-STEP like-post
+11-12 00:33:00.909  3477  3510 I YidFx   : PUT /api/posts {"id":"fxp1","like":true}
+11-12 00:33:04.914  4102  4102 I YidFx   : LK-STEP comment-post
+11-12 00:33:15.420  4168  4168 I YidFx   : LK-STEP send-comment
+11-12 00:33:17.040  3477  3510 I YidFx   : POST /api/posts/comments {"post_id":"fxp1","text":"Shkoyach"}
+--------- beginning of kernel
+11-12 00:34:35.215  4667  4667 I YidFx   : LK-STEP new-post
+11-12 00:34:45.040  3477  3512 I YidFx   : POST /api/posts {"caption":"Test post from the app","content":""}
+11-12 00:35:08.458  4819  4819 I YidFx   : LK-STEP new-photo-post
+11-12 00:35:41.496  3477  3477 I YidFx   : LK-QA picked qa-pick.png 899 bytes
+11-12 00:35:45.223  3477  3510 I YidFx   : POST /api/posts multipart/form-data caption=Photo post,file=upload.png (image/png, 899 bytes)
+11-12 00:36:08.670  5104  5104 I YidFx   : LK-STEP like-short
+11-12 00:36:10.975  3477  3510 I YidFx   : POST /api/src-react {"vid":"1-9441f78e-ee4d-43be-a2af-1638468b106d","like":true}
+11-12 00:36:15.732  5150  5150 I YidFx   : LK-STEP comment-short
+11-12 00:36:30.787  3477  3512 I YidFx   : POST /api/src-comments {"vid":"1-9441f78e-ee4d-43be-a2af-1638468b106d","text":"Nice"}
+11-12 00:36:37.734  5263  5263 I YidFx   : LK-STEP swipe-short
+11-12 00:36:50.801  3477  3510 I YidFx   : PUT /api/shorts {"id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b","view":true}
+11-12 00:36:50.801  3477  3509 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
+11-12 00:36:59.175  5350  5350 I YidFx   : LK-STEP like-upload
+11-12 00:37:01.600  3477  3512 I YidFx   : PUT /api/shorts {"id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b","like":true}
+11-12 00:37:05.602  5383  5383 I YidFx   : LK-STEP save-upload
+11-12 00:37:19.510  5461  5461 I YidFx   : LK-STEP follow-creator
+11-12 00:37:35.003  3477  3512 I YidFx   : POST /api/follows {"user_id":"5df73439-246d-43d2-9b1e-fd72b30432e1"}
+11-12 00:37:39.152  3477  5088 I YidFx   : PUT /api/shorts {"id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b","view":true}
+11-12 00:37:39.152  3477  3509 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
+11-12 00:37:43.432  5590  5590 I YidFx   : LK-STEP comment-upload
+11-12 00:37:57.824  3477  3512 I YidFx   : POST /api/shorts/comments {"short_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b","text":"Great"}
+11-12 00:38:04.714  5697  5697 I YidFx   : LK-STEP upload-short
+11-12 00:38:31.599  3477  3477 I YidFx   : LK-QA picked qa-pick.mp4 49152 bytes
+11-12 00:38:35.310  3477  5088 I YidFx   : POST /api/shorts multipart/form-data caption=,file=upload.mp4 (video/mp4, 49152 bytes)
+11-12 00:38:35.391  3477  3509 I YidFx   : PUT /api/shorts {"id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b","view":true}
+11-12 00:38:35.395  3477  5088 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
