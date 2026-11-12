@@ -23,10 +23,13 @@ ntsend() { # the inline reply's send arrow
   o=$(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | tr '>' '\n' | grep 'remote_input_send' | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
   if [ -n "$o" ]; then set -- $o; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); log "NT tapped send"; else log "NT: no send arrow on screen, pressing Enter"; key 66; fi
 }
-nthu() { # nthu LABEL: tap LABEL (REPLY / MARK AS READ) on the heads-up pop-up of the newest chat
-  local o
-  timeout 30 adb shell uiautomator dump /sdcard/nt.xml >/dev/null 2>&1
-  o=$(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | tr '>' '\n' | grep -iE "text=\"$1\"" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+nthu() { # nthu LABEL: tap LABEL (REPLY / MARK AS READ) on the heads-up pop-up of the newest chat (waits up to ~12 s for it)
+  local o i
+  for i in 1 2 3 4 5 6 7 8; do
+    timeout 30 adb shell uiautomator dump /sdcard/nt.xml >/dev/null 2>&1
+    o=$(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | tr '>' '\n' | grep -iE "text=\"$1\"" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+    [ -n "$o" ] && break; sleep 0.5
+  done
   [ -z "$o" ] && { log "NT: no $1 on the heads-up"; return 1; }
   set -- $o; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 2; log "NT tapped $1 on the heads-up"
 }
@@ -53,7 +56,7 @@ nt_round() { # nt_round TAG (480 or 1080)
   else
     # the shade's list can't scroll the LAST chat's buttons into view at 480x640 on this emulator; the heads-up pop-up has them
     log "NT $S: Reply not reachable in the shade list (last row); replying from the heads-up instead"
-    key 3; sleep 1; ntb --es mode reset; sleep 3; ntb --es mode poll --es rooms "/api/chat/rooms?qa=nt"; sleep 2.5
+    key 3; sleep 1; ntb --es mode reset; sleep 3; ntb --es mode poll --es rooms "/api/chat/rooms?qa=nt"
     if nthu REPLY; then shot NT-$S-03-reply-box; timeout 10 adb shell input text "Thanks%sI%swill%sbe%sthere"; sleep 1; shot NT-$S-03b-reply-typed
       ntsend; sleep 8; ntshade; shot NT-$S-04-reply-sent
     else log "NT FAIL $S: no Reply reachable"; NTFAIL=1; fi
