@@ -372,7 +372,7 @@ class SettingsEditProfile : PageScreen() {
                             Field("Name", nick, { nick = it })
                             Field("Bio", bio, { bio = it.take(1000) }, lines = 3, help = "${bio.length}/1000")
                             Field("Location", location, { location = it.take(120) })
-                            Field("Birthday (YYYY-MM-DD)", birthday, { birthday = it.filter { ch -> ch.isDigit() || ch == '-' }.take(10) }, type = KeyboardType.Number)
+                            StBirthdayField(birthday) { birthday = it }
                             Field("Website", website, { website = it.take(500) }, type = KeyboardType.Uri)
                             Field("Instagram", instagram, { instagram = it.take(200) })
                             Field("YouTube", youtube, { youtube = it.take(500) }, type = KeyboardType.Uri)
@@ -433,7 +433,9 @@ class SettingsPrivacy : PageScreen() {
                     set("is_private", if (SettingsProfile.on("is_private", false)) 0 else 1)
                 }
                 RowDivider(64.dp)
-                SettingRow(Sym.PersonAdd, "Follow requests", "People who asked to follow you") { Nav.open(FollowRequestsPage()) }
+                var reqs by remember { mutableStateOf(-1) }
+                LaunchedEffect(Unit) { reqs = if (SettingsProfile.demo) 1 else runCatching { Api.get("/api/follows?requests=1").optJSONArray("requests")?.length() ?: 0 }.getOrDefault(-1) }
+                SettingRow(Sym.PersonAdd, "Follow requests", when { reqs > 0 -> "$reqs waiting"; reqs == 0 -> "No one is waiting"; else -> "People who asked to follow you" }) { Nav.open(FollowRequestsPage()) }
                 RowDivider(64.dp)
                 val see = SettingsProfile.text("privacy_profile").ifBlank { "public" }
                 SettingRow(Sym.Visibility, "Who can see my profile", value = seeOpts.firstOrNull { it.first == see }?.second ?: "Everyone") { pick = "privacy_profile" }

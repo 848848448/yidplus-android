@@ -72,7 +72,8 @@ stq Security 5; stswipe; stswipe; shot ST-60-recent-signins; stdump security; ke
 sto saved 5; stfind "מזמור לדוד"; sleep 3; shot ST-61-saved-song; stproof saved-song "PLAY music"; key 4; sleep 1
 # Settings search (WhatsApp style) and Privacy with Blocked + App lock
 stq SettingsSearch 4; shot ST-62-settings-search-empty; timeout 10 adb shell input text "pass" >/dev/null 2>&1; sleep 1.5; shot ST-63-settings-search-pass; stdump settings-search; key 4; sleep 0.8; key 4; sleep 1
-stq Privacy 4; shot ST-64-privacy-blocked-applock; key 4; sleep 1
+stq Privacy 4; shot ST-64-privacy-blocked-applock; stswipe; shot ST-65-privacy-follow-requests-count; key 4; sleep 1
+stq EditProfile 4; stfind 'Birthday, [^"]*'; sleep 1.5; shot ST-66-birthday-picker; stdump birthday; key 4; sleep 1; key 4; sleep 1
 log "---- ST videos ----"
 # 1) D-pad only: Settings top to bottom, open App lock and back, open Help & Support and pick an answer
 tab Profile; sleep 3; sttop

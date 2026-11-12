@@ -193,3 +193,36 @@ class StAppLockPage : PageScreen() {
         }
     }
 }
+
+
+/** Birthday as a date picker (the site uses <input type=date>). Starts in typing mode on small keypad phones, calendar mode otherwise. */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun StBirthdayField(value: String, onChange: (String) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    val shown = runCatching {
+        val d = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(value)
+        java.text.SimpleDateFormat("d MMMM yyyy", java.util.Locale.US).format(d!!)
+    }.getOrNull() ?: ""
+    Box(Modifier.fillMaxWidth()) {
+        androidx.compose.material3.OutlinedTextField(shown, {}, Modifier.fillMaxWidth(), readOnly = true, label = { Text("Birthday") },
+            placeholder = { Text("Not set") }, trailingIcon = { Icon(Sym.CalendarMonth, null) })
+        Box(Modifier.matchParentSize().clip(RoundedCornerShape(4.dp)).tap(RoundedCornerShape(4.dp)) { open = true }.semantics { contentDescription = "Birthday, " + shown.ifBlank { "not set" } })
+    }
+    if (open) {
+        val utc = java.util.TimeZone.getTimeZone("UTC")
+        val fmt = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).apply { timeZone = utc }
+        val init = runCatching { fmt.parse(value)?.time }.getOrNull()
+        val small = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 700
+        val st = androidx.compose.material3.rememberDatePickerState(initialSelectedDateMillis = init, yearRange = 1900..2026,
+            initialDisplayMode = if (small) androidx.compose.material3.DisplayMode.Input else androidx.compose.material3.DisplayMode.Picker)
+        androidx.compose.material3.DatePickerDialog(onDismissRequest = { open = false },
+            confirmButton = { androidx.compose.material3.TextButton({ st.selectedDateMillis?.let { onChange(fmt.format(java.util.Date(it))) }; open = false }) { Text("OK") } },
+            dismissButton = {
+                Row {
+                    if (value.isNotBlank()) androidx.compose.material3.TextButton({ onChange(""); open = false }) { Text("Clear") }
+                    androidx.compose.material3.TextButton({ open = false }) { Text("Cancel") }
+                }
+            }) { androidx.compose.material3.DatePicker(st, showModeToggle = true) }
+    }
+}
