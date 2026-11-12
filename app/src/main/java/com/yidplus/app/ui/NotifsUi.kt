@@ -29,6 +29,8 @@ import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -44,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.yidplus.app.data.Api
 import com.yidplus.app.data.Notif
 import com.yidplus.app.data.Session
@@ -147,6 +151,15 @@ fun NotifRow(n: Notif, unread: Boolean, first: Boolean, onClick: () -> Unit) {
 }
 
 /** The whole notifications page (used by the bell and by Settings → Activity). */
+/** Today / Yesterday / This week / Earlier, like WhatsApp's and Instagram's activity lists. */
+fun hmDayGroup(at: String?): String {
+    val t = parseTime(at) ?: return "Earlier"
+    val cal = java.util.Calendar.getInstance(); cal.set(java.util.Calendar.HOUR_OF_DAY, 0); cal.set(java.util.Calendar.MINUTE, 0); cal.set(java.util.Calendar.SECOND, 0); cal.set(java.util.Calendar.MILLISECOND, 0)
+    val today = cal.timeInMillis
+    return when { t >= today -> "Today"; t >= today - 86_400_000L -> "Yesterday"; t >= today - 6 * 86_400_000L -> "This week"; else -> "Earlier" }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotifsPageBody() {
     val c = ctx()
@@ -155,6 +168,7 @@ fun NotifsPageBody() {
     val readNow = remember { mutableStateListOf<String>() }
     var allRead by remember { mutableStateOf(false) }
     var confirm by remember { mutableStateOf(false) }
+    var pulling by remember { mutableStateOf(false) }
     LaunchedEffect(res) { res.load(force = true); com.yidplus.app.data.Perf.shown("Notifications") }
     val list = res.data
     LaunchedEffect(list) { list?.map { it.actor }?.distinct()?.take(25)?.forEach { NotifActors.look(it) } }
@@ -173,8 +187,14 @@ fun NotifsPageBody() {
             list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
             list == null -> SkeletonRows(rows = 7)
             list.isEmpty() -> EmptyNote(Icons.Filled.NotificationsNone, "No notifications yet", "Likes, comments and new followers show up here.")
-            else -> LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface), contentPadding = PaddingValues(bottom = 24.dp)) {
-                items(list, key = { it.id }) { n ->
+            else -> PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); SoNotifCount.refresh(true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface), contentPadding = PaddingValues(bottom = 24.dp)) {
+                var lastGroup = ""
+                for (n in list) {
+                    val g = hmDayGroup(n.at)
+                    if (g != lastGroup) { lastGroup = g; item(key = "g:$g") { Text(g, Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).padding(start = 16.dp, top = 10.dp, bottom = 6.dp),
+                        fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary) } }
+                    item(key = n.id) {
                     val unread = !allRead && !n.read && n.id !in readNow
                     NotifRow(n, unread, first = n.id == list.first().id) {
                         if (unread) {
@@ -184,7 +204,14 @@ fun NotifsPageBody() {
                         openNotif(c, n)
                     }
                     HorizontalDivider(Modifier.padding(start = 82.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    }
                 }
+                item(key = "openchats") {
+                    Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                        SoPill("Open chats", false, { Nav.go(Tab.Chats) }, icon = Icons.Filled.Forum)
+                    }
+                }
+            }
             }
         }
     }

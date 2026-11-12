@@ -134,18 +134,24 @@ sealed class SoHit(val key: String) {
     class Post(val id: String, val userId: String, val name: String, val text: String, val at: String?) : SoHit("p:$id")
     class Short(val id: String, val ownerId: String, val text: String, val at: String?) : SoHit("s:$id")
     class Feed(val clip: Clip) : SoHit("f:" + clip.key)
+    class User(val id: String, val name: String, val photo: String?, val verified: Boolean) : SoHit("m:$id")
+    class Group(val room: Room, val members: Int) : SoHit("g:" + room.id)
 }
 
 /** The header's search: channels (members), Telegram channels, posts and Shorts, in one place. */
-class SoSearchPage(val start: Int = 0) : PageScreen() {
+class SoSearchPage(val start: Int = 0, val q0: String = "") : PageScreen() {
     override val perfName = "Search"
-    override fun equals(other: Any?) = other is SoSearchPage && other.start == start
-    override fun hashCode() = 11 + start
+    override fun equals(other: Any?) = other is SoSearchPage && other.start == start && other.q0 == q0
+    override fun hashCode() = 11 + start + q0.hashCode()
     @Composable override fun Content() {
         val c = ctx()
-        var q by rememberSaveable { mutableStateOf("") }
+        var q by rememberSaveable { mutableStateOf(q0) }
         var kind by rememberSaveable { mutableIntStateOf(start) }
-        val kinds = listOf("All", "Channels", "Telegram", "Posts", "Shorts")
+        val kinds = listOf("All", "Channels", "Telegram", "Posts", "Shorts", "Users", "Groups")
+        val prefs = remember { Api.app.getSharedPreferences("social", 0) }
+        val recent = remember { mutableStateListOf<String>().also { l -> runCatching { JSONArray(prefs.getString("ypSearchHist", "[]")).let { a -> for (i in 0 until a.length()) l.add(a.getString(i)) } } } }
+        fun saveRecent(t: String) { val s = t.trim(); if (s.length < 2) return; recent.remove(s); recent.add(0, s); while (recent.size > 10) recent.removeAt(recent.lastIndex)
+            prefs.edit().putString("ypSearchHist", JSONArray(recent.toList()).toString()).apply() }
         val hits = remember { mutableStateListOf<SoHit>() }
         var busy by remember { mutableStateOf(false) }
         var err by remember { mutableStateOf<String?>(null) }
@@ -172,6 +178,15 @@ class SoSearchPage(val start: Int = 0) : PageScreen() {
                         out.add(SoHit.Post(p.str("id"), p.str("user_id"), p.str("username"), p.str("caption").ifBlank { p.str("content") }, p.strOrNull("created_at"))) }
                     if (kind != 3) j.optJSONArray("shorts").objects().forEach { s -> out.add(SoHit.Short(s.str("id"), s.str("owner_id"), s.str("caption"), s.strOrNull("created_at"))) }
                 }
+                if ((kind == 0 || kind == 5) && Session.me != null) runCatching {
+                    Api.get("/api/users/search?q=" + soEnc(t)).optJSONArray("users").objects().take(20).forEach { u ->
+                        out.add(SoHit.User(u.str("id"), u.str("nickname").ifBlank { "User" }, Api.abs(u.strOrNull("photo_url")), u.optInt("verified") == 1 || u.optBoolean("verified"))) }
+                }
+                if ((kind == 0 || kind == 6) && Session.me != null) runCatching {
+                    Api.get("/api/chat/rooms?search=" + soEnc(t)).optJSONArray("rooms").objects().filter { it.str("type") != "private" }.take(15).forEach { r ->
+                        out.add(SoHit.Group(ChatApi.roomOf(r.str("id"), r.str("type").ifBlank { "group" }, r.str("nick").ifBlank { r.str("name").ifBlank { "Group" } }, Api.abs(r.strOrNull("photo_url"))), r.optInt("members"))) }
+                }
+                if (out.isNotEmpty()) saveRecent(t)
                 err = null
             } catch (e: Exception) { err = Api.friendly(e) }
             hits.clear(); hits.addAll(out.distinctBy { it.key }); busy = false
@@ -192,7 +207,19 @@ class SoSearchPage(val start: Int = 0) : PageScreen() {
                 }
             }
             when {
-                q.trim().length < 2 -> SoEmpty(Icons.Filled.Search, "Search channels, Telegram channels, posts and Shorts")
+                q.trim().length < 2 && recent.isNotEmpty() -> LazyColumn(Modifier.fillMaxSize()) {
+                    item { Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Recent searches", Modifier.weight(1f), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                        TextButton({ recent.clear(); prefs.edit().remove("ypSearchHist").apply(); toast(c, "Search history cleared") }) { Text("Clear") } } }
+                    items(recent.toList(), key = { "r:$it" }) { s ->
+                        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).tap(RoundedCornerShape(0.dp)) { q = s }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.History, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                            Text(s, Modifier.weight(1f).padding(start = 16.dp), fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                            Icon(Icons.Filled.NorthWest, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                        }
+                    }
+                }
+                q.trim().length < 2 -> SoEmpty(Icons.Filled.Search, "Search channels, people, groups, Telegram channels, posts and Shorts")
                 busy && hits.isEmpty() -> SoSkeleton(rows = 6)
                 err != null && hits.isEmpty() -> Problem(err!!, false, { retry++ })
                 hits.isEmpty() -> SoEmpty(Icons.Filled.SearchOff, "Nothing found for \u201c${q.trim()}\u201d")
@@ -212,6 +239,8 @@ private fun HitRow(h: SoHit, c: Context) {
         is SoHit.Post -> Triple(h.name.ifBlank { "Post" }, h.text.replace('\n', ' '), "Post")
         is SoHit.Short -> Triple(h.text.ifBlank { "Short video" }, ago(h.at), "Short")
         is SoHit.Feed -> Triple(h.clip.caption.replace('\n', ' ').ifBlank { "Short video" }, "@" + h.clip.creator, "Short")
+        is SoHit.User -> Triple(h.name, "@" + h.name, "User")
+        is SoHit.Group -> Triple(h.room.name, soMembers(h.members), "Group")
     }
     Row(Modifier.fillMaxWidth().heightIn(min = 68.dp).tap(RoundedCornerShape(0.dp)) {
         when (h) {
@@ -220,6 +249,8 @@ private fun HitRow(h: SoHit, c: Context) {
             is SoHit.Post -> Nav.open(SoUserChannelPage(h.userId, h.name))
             is SoHit.Short -> soOpenUploadShort(h.id)
             is SoHit.Feed -> soOpenFeedClip(h.clip)
+            is SoHit.User -> Nav.open(HmProfilePage(h.id, h.name))
+            is SoHit.Group -> Nav.open(Screen.Chat(h.room))
         }
     }.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         when (h) {
@@ -228,12 +259,14 @@ private fun HitRow(h: SoHit, c: Context) {
             is SoHit.Post -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFF2E7D9A).copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Article, null, tint = Color(0xFF2E7D9A)) }
             is SoHit.Feed -> SoThumb(h.clip.poster, h.clip.creator, 48.dp, round = false)
             is SoHit.Short -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFE53958).copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Movie, null, tint = Color(0xFFE53958)) }
+            is SoHit.User -> SoThumb(h.photo, h.name, 48.dp)
+            is SoHit.Group -> SoThumb(h.room.photo, h.room.name, 48.dp)
         }
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(title, Modifier.weight(1f), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content))
-                if (h is SoHit.Member && h.verified) Icon(Icons.Filled.Verified, null, tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                if ((h is SoHit.Member && h.verified) || (h is SoHit.User && h.verified)) Icon(Icons.Filled.Verified, null, tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(16.dp))
                 Text(kindLabel, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
             }
             if (sub.isNotBlank()) Text(sub, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
