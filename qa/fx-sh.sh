@@ -22,7 +22,7 @@ sh_dtap() {
   local x=$(( $1 * mx / 479 )) y=$(( $2 * my / 639 )) k
   # two touches ~120 ms apart (a finger's double-tap), all inside one adb shell so no round trip sits between them
   for k in 501 502; do
-    c="$c sendevent $d 3 47 0; sendevent $d 3 57 $k; sendevent $d 3 53 $x; sendevent $d 3 54 $y; sendevent $d 3 58 60; sendevent $d 1 330 1; sendevent $d 0 0 0;"
+    c="$c sendevent $d 3 47 0; sendevent $d 3 57 $k; sendevent $d 3 53 $x; sendevent $d 3 54 $y; sendevent $d 3 58 60; sendevent $d 1 330 1; sendevent $d 0 0 0; sleep 0.03;"
     c="$c sendevent $d 3 57 -1; sendevent $d 1 330 0; sendevent $d 0 0 0;"
   done
   timeout 20 adb shell "$c"; log "double-tap at $1,$2"

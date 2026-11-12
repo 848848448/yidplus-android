@@ -337,6 +337,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
     var canDelete by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
     var loadFailed by remember { mutableStateOf(false) }
+    val cState = androidx.compose.foundation.lazy.rememberLazyListState()
     suspend fun load() {
         loading = true
         try {
@@ -363,6 +364,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
         // the comment shows at once, "posting…", like the site; it is replaced by the server's copy
         val tmp = Comment("tmp" + System.currentTimeMillis(), Session.me?.id ?: "", Session.me?.nickname ?: "you", Session.me?.photo, t, null, true)
         pending.add(tmp.id); list.add(0, tmp)
+        scope.launch { runCatching { cState.animateScrollToItem(0) } }
         scope.launch {
             try {
                 val j = if (s.fromSrc) Api.post("/api/src-comments", JSONObject().put("vid", s.key).put("text", t))
@@ -372,6 +374,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                 load()
                 // the site's list can lag behind its own write (edge cache): keep ours on top until it shows up
                 if (list.none { it.mine && it.text == t }) { list.add(0, tmp.copy(id = j.optString("id").ifBlank { tmp.id + "s" })); onCount(list.size) }
+                runCatching { cState.scrollToItem(0) }
             } catch (e: Exception) { list.remove(tmp); text = t; toast(c, if (Api.isOffline(e)) "Couldn’t post — check your connection" else Api.friendly(e)) }
             finally { pending.remove(tmp.id) }
         }
@@ -386,7 +389,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                     Text("No comments yet", Modifier.padding(top = 6.dp), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     Text("Be the first to say something.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                 }
-                else LazyColumn {
+                else LazyColumn(state = cState) {
                     items(list, key = { it.id }) { cm ->
                         Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) {}.padding(horizontal = 16.dp, vertical = 8.dp)) {
                             Avatar(cm.photo, cm.nick, 36.dp)
