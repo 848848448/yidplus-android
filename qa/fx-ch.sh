@@ -33,7 +33,7 @@ adb shell input swipe 420 125 40 125 400; sleep 1; shot CH-02-chips-scrolled
 adb shell input swipe 240 450 240 150 400; sleep 1; shot CH-02b-list-scrolled; adb shell input swipe 240 150 240 600 300; sleep 1
 chtap "Start new chat"; sleep 2; shot CH-03-fab-menu
 chtap "New group"; sleep 3; chtap "Group name"; sleep 1; adb shell input text "QA%sGroup"; sleep 1; shot CH-03b-new-group; chtap "Create"; sleep 3; chfx "/api/chat/rooms"; key 4; sleep 1; key 4; sleep 1
-restart 5; view "https://yidplus.com/chat"; sleep 4; chtap "Start new chat"; sleep 2; chtap "New chat"; sleep 4; shot CH-03c-new-chat; chtap "Dovid New"; sleep 3; chfx "other_user_id"; key 4; sleep 1; key 4; sleep 1
+restart 5; view "https://yidplus.com/chat"; sleep 4; chtap "Start new chat"; sleep 2; chtap "New chat"; sleep 4; key 111; sleep 1; shot CH-03c-new-chat; chtap "Dovid New"; sleep 3; chfx "other_user_id"; key 4; sleep 1; key 4; sleep 1
 # 10: search closes the keyboard
 restart 5; view "https://yidplus.com/chat"; sleep 3; chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; chkb "typing in search"; key 4; sleep 2; chkb "Back from search"; shot CH-04-search-closed
 
@@ -60,11 +60,12 @@ sleep 2; p=$(chpos "See you at 8 tonight"); log "bubble at: $p"
 if [ -n "$p" ]; then set -- $p; adb shell input swipe $(( $1 - 40 )) $2 $(( $1 + 200 )) $2 400; sleep 1; shot CH-13-swipe-reply; chhas "Reply to"; fi
 adb shell input text "Swipe%sreply%sOK"; sleep 1; key 111; sleep 1; chtap "Send"; sleep 1; shot CH-13b-swipe-reply-sent; chfx "reply_to_id"
 chlong "See you at 8 tonight"; shot CH-14-long-press-menu; chtap "Reply"; sleep 1; adb shell input text "Menu%sreply"; sleep 1; key 111; sleep 1; chtap "Send"; sleep 1; chfx "Menu reply"
-chlong "See you at 8 tonight"; chtap "👍"; sleep 2; chfx "/api/chat/reactions"
+chlong "See you at 8 tonight"; chtap "&#128077;"; sleep 2; shot CH-14b-reacted; chfx "/api/chat/reactions"
 chlong "See you at 8 tonight"; chtap "Forward"; sleep 3; shot CH-15-forward; chtap "Yossi Klein"; sleep 3; chfx "forwarded"; key 4; sleep 1
 chlong "See you at 8 tonight"; chtap "Pin"; sleep 2; chfx "pinned_message_id"; shot CH-16-pinned
-chlong "Swipe reply OK"; chtap "Delete"; sleep 1; chtap "Yes"; sleep 2; chfx "DELETE /api/chat?id="
 adb shell input text "Hello%sfrom%sthe%sapp"; sleep 1; key 111; sleep 1; chtap "Send"; sleep 1; shot CH-17-sent-text; chfx "Hello from the app"
+# (the fixture answers a send without the message, so a just-sent line leaves on the next pull: delete is shown on the friend's line, as owner)
+chlong "See you at 8 tonight"; chtap "Delete"; sleep 1; shot CH-17b-delete-confirm; chtap "Yes"; sleep 2; chfx "DELETE /api/chat"
 p=$(chpos "/api/media/user-avatars/392d8eda"); [ -z "$p" ] && p=$(chpos "Photo")
 if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; sleep 3; shot CH-18-photo-viewer; key 4; sleep 1; fi
 # Photo from the gallery picker, and a voice note
