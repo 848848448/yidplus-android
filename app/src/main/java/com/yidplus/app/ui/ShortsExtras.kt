@@ -320,7 +320,9 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
                 }
             }
         }
-        if (onMore != null) IconBtn(Sym.MoreVert, "More options", onMore, tint = Color.White, size = 38.dp)
+        if (onMore != null) Box(Modifier.background(androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .45f))))) {
+            IconBtn(Sym.MoreVert, "More options", onMore, tint = Color.White, size = 38.dp)
+        }
         }
         // the chosen topic chip slides into view (site: scrollIntoView)
         LaunchedEffect(topic, who, tab) { val i = SO_SHORT_TOPICS.indexOfFirst { it.first == topic }; if (who == null && i > 2) runCatching { chips.animateScrollToItem(i) } }

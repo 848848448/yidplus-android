@@ -73,7 +73,7 @@ fun ShChip(text: String, on: Boolean, onClick: () -> Unit, icon: ImageVector? = 
         if (lead != null) { lead(); Spacer(Modifier.width(6.dp)) }
         if (icon != null) { Icon(icon, null, tint = fg, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)) }
         Text(text, color = fg, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-            style = TextStyle(textDirection = TextDirection.Content), modifier = Modifier.widthIn(max = if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 400) 120.dp else 180.dp))
+            style = TextStyle(textDirection = TextDirection.Content), modifier = Modifier.widthIn(max = if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 400) 96.dp else 180.dp))
         if (trailing != null) { Spacer(Modifier.width(4.dp)); Icon(trailing, null, tint = fg, modifier = Modifier.size(15.dp)) }
     }
 }
@@ -150,7 +150,7 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                             SoPill(if (fol) "Following" else "+ Follow", !fol, {
                                 ShDir.setFollow(c, x.keys, !fol, x.name, x.avatar, x.verified, quiet = fol); tick++
                                 ShCreatorsState.changed = true
-                            }, Modifier.widthIn(min = if (narrow) 80.dp else 96.dp))
+                            }, Modifier.widthIn(min = if (narrow) 0.dp else 96.dp))
                         }
                     }
                 }
@@ -330,7 +330,7 @@ fun ShCommentsPanel(title: String, onDismiss: () -> Unit, body: @Composable Colu
         val ime = WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
         Box(Modifier.fillMaxSize().imePadding()) {
             Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .3f)).pointerInputTap(onDismiss))
-            Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(if (ime) 1f else 0.72f).navigationBarsPadding()
+            Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(if (ime) 1f else 0.8f).navigationBarsPadding()
                 .offset { IntOffset(0, dragY.coerceAtLeast(0f).toInt()) },
                 shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp), color = MaterialTheme.colorScheme.background, tonalElevation = 2.dp) {
                 Column(Modifier.fillMaxSize()) {
