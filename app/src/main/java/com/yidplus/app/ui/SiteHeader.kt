@@ -71,12 +71,12 @@ object SoNotifCount {
 
 /** Search, bell (with the unread count) and the profile picture menu, for a top bar's actions. */
 @Composable
-fun SoHeaderActions(onSearch: (() -> Unit)? = null) {
+fun SoHeaderActions(onSearch: (() -> Unit)? = null, showSearch: Boolean = true) {
     val c = ctx()
     val tint = LocalContentColor.current
     val me = Session.me
     LaunchedEffect(me?.id) { while (true) { SoNotifCount.refresh(); delay(60_000) } }
-    IconBtn(Sym.Search, "Search", { if (onSearch != null) onSearch() else Nav.open(SoSearchPage()) }, tint = tint)
+    if (showSearch) IconBtn(Sym.Search, "Search", { if (onSearch != null) onSearch() else Nav.open(SoSearchPage()) }, tint = tint)
     if (me != null) Box {
         IconBtn(Sym.Notifications, "Notifications", { Nav.open(SoNotifsPage()) }, tint = tint)
         if (SoNotifCount.unread > 0) SoBadge(SoNotifCount.unread, Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 2.dp))
@@ -228,7 +228,14 @@ class SoSearchPage(val start: Int = 0, val q0: String = "") : PageScreen() {
                 err != null && hits.isEmpty() -> Problem(err!!, false, { retry++ })
                 hits.isEmpty() -> SoEmpty(Sym.SearchOff, "Nothing found for \u201c${q.trim()}\u201d")
                 else -> LazyColumn(Modifier.fillMaxSize()) {
-                    items(hits, key = { it.key }) { h -> HitRow(h, c); SoDivider(76.dp) }
+                    // WhatsApp groups "All" results by kind under small headers; one kind needs no header.
+                    var last: String? = null
+                    val order = listOf("Your chats", "Users", "Channels", "Telegram channels", "Groups", "Posts", "Shorts")
+                    (if (kind == 0) hits.sortedBy { order.indexOf(hmHitGroup(it)) } else hits.toList()).forEach { h ->
+                        val g = hmHitGroup(h)
+                        if (kind == 0 && g != last) { last = g; item(key = "g:$g") { Text(g, Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary) } }
+                        item(key = h.key) { HitRow(h, c, q.trim()); SoDivider(76.dp) }
+                    }
                 }
             }
         }
@@ -236,7 +243,7 @@ class SoSearchPage(val start: Int = 0, val q0: String = "") : PageScreen() {
 }
 
 @Composable
-private fun HitRow(h: SoHit, c: Context) {
+private fun HitRow(h: SoHit, c: Context, q: String = "") {
     val (title, sub, kindLabel) = when (h) {
         is SoHit.Member -> Triple(h.name, h.bio.ifBlank { "${soNum(h.followers)} followers" }, "Channel")
         is SoHit.Telegram -> Triple(h.ch.title, "@" + h.ch.username + " · " + soMembers(h.ch.members), "Telegram")
@@ -271,13 +278,30 @@ private fun HitRow(h: SoHit, c: Context) {
         }
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(title, Modifier.weight(1f), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                Text(hmMark(title, q), Modifier.weight(1f), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content))
                 if ((h is SoHit.Member && h.verified) || (h is SoHit.User && h.verified)) Icon(Sym.Verified, null, tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(16.dp))
                 Text(kindLabel, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
             }
-            if (sub.isNotBlank()) Text(sub, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            if (sub.isNotBlank()) Text(hmMark(sub, q), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 style = TextStyle(textDirection = TextDirection.Content))
         }
+    }
+}
+
+private fun hmHitGroup(h: SoHit) = when (h) {
+    is SoHit.Chat -> "Your chats"; is SoHit.Telegram -> "Telegram channels"; is SoHit.Member -> "Channels"
+    is SoHit.Post -> "Posts"; is SoHit.Short, is SoHit.Feed -> "Shorts"; is SoHit.User -> "Users"; is SoHit.Group -> "Groups"
+}
+
+/** The searched words in bold, in the app's colour (WhatsApp marks the match the same way). */
+@Composable
+fun hmMark(text: String, q: String): androidx.compose.ui.text.AnnotatedString {
+    val col = MaterialTheme.colorScheme.primary
+    return androidx.compose.ui.text.buildAnnotatedString {
+        append(text)
+        val words = q.split(' ').map { it.trim() }.filter { it.length >= 2 }
+        for (w in words) { var i = text.indexOf(w, ignoreCase = true)
+            while (i >= 0) { addStyle(androidx.compose.ui.text.SpanStyle(color = col, fontWeight = FontWeight.Bold), i, i + w.length); i = text.indexOf(w, i + w.length, ignoreCase = true) } }
     }
 }

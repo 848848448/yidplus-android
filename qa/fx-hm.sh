@@ -12,6 +12,20 @@ hm_tapui() {
   if [ -z "$bb" ]; then log "hm_tapui: '$want' not on screen"; return 0; fi
   set -- $bb; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "hm_tapui '$want'"
 }
+# A chip in a sideways-scrolling chip row: find the row by its first chip ("All"), swipe it left until the chip shows, tap it.
+hm_tapchip() {
+  local want="$1" row="" y n
+  for n in 1 2 3 4; do
+    timeout 30 adb shell uiautomator dump /sdcard/hm.xml >/dev/null 2>&1
+    local x; x=$(timeout 20 adb shell cat /sdcard/hm.xml 2>/dev/null | tr '>' '\n')
+    if echo "$x" | grep -qE "(text|content-desc)=\"$want\""; then hm_tapui "$want"; return 0; fi
+    row=$(echo "$x" | grep -E '(text|content-desc)="All"' | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+    [ -z "$row" ] && { log "hm_tapchip: no chip row"; return 0; }
+    set -- $row; y=$(( ($2 + $4) / 2 ))
+    timeout 10 adb shell input swipe 420 $y 80 $y 500; sleep 1.5
+  done
+  log "hm_tapchip: '$want' not found"
+}
 # Hide the on-screen keyboard only when it is really up (a plain Back would leave the screen otherwise).
 hm_hidekb() { if timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -q 'mInputShown=true'; then key 4; sleep 1; log "hm keyboard hidden"; fi; }
 hm_swipe() { timeout 10 adb shell input swipe 240 "$1" 240 "$2" 350; sleep "${3:-2}"; }
@@ -19,13 +33,14 @@ hm_swipe() { timeout 10 adb shell input swipe 240 "$1" 240 "$2" 350; sleep "${3:
 # 0. The site's Home page as the "Feed" chip: greeting + Hebrew date, announcement, tiles, composer, Hot Shorts, Popular channels, community posts.
 tab Home; sleep 4
 hm_tapui "Feed"; sleep 7; shot HM-30-feed-top
-hm_swipe 430 150; shot HM-31-feed-shorts-channels
-hm_swipe 430 130; hm_swipe 430 130; shot HM-32-feed-posts
-hm_swipe 150 450; hm_swipe 150 450; hm_swipe 150 450; hm_swipe 430 300
+# The announcement first (it sits at the top), then the composer one short swipe down, then the rest.
+hm_mark feed-hide-announcement; hm_tapui "Hide announcement"; sleep 2; shot HM-35-feed-announcement-hidden
+hm_swipe 430 300; sleep 1
 hm_tapui "What's happening\?"; sleep 1
-timeout 10 adb shell input text "HM%stest%spost"; sleep 1; hm_hidekb; shot HM-33-feed-composer
+timeout 10 adb shell input text "HM%stest%spost"; sleep 1; hm_hidekb; sleep 1; shot HM-33-feed-composer
 hm_mark feed-post; hm_tapui "Post"; sleep 4; shot HM-34-feed-posted
-hm_mark feed-hide-announcement; hm_tapui "Hide announcement"; sleep 1; shot HM-35-feed-announcement-hidden
+hm_swipe 430 230; shot HM-31-feed-shorts-channels
+hm_swipe 430 180; hm_swipe 430 180; shot HM-32-feed-posts
 hm_tapui "Telegram"; sleep 2
 
 # 1. A Telegram channel: Telegram order (newest at the bottom), formatting, link card, album grid, day chips, live check, Join.
@@ -49,8 +64,7 @@ tab Home; sleep 3
 hm_tapui "Search"; sleep 2
 timeout 10 adb shell input text "moshe"; sleep 3
 hm_tapui "Search all of YID PLUS"; sleep 6; hm_hidekb; sleep 1; shot HM-07-search-all
-timeout 10 adb shell input swipe 420 205 60 205 300; sleep 1
-hm_tapui "Users"; sleep 5; hm_hidekb; shot HM-08-search-users
+hm_tapchip "Users"; sleep 5; hm_hidekb; shot HM-08-search-users
 hm_tapui "Moshe Fx"; sleep 6; shot HM-09-profile
 hm_mark profile-follow; hm_tapui "Follow"; sleep 4; shot HM-10-profile-followed
 hm_tapui "Message"; sleep 5; shot HM-11-profile-message; key 4; sleep 2
@@ -64,7 +78,8 @@ hm_mark profile-block; hm_tapui "Block"; sleep 3; shot HM-16-profile-blocked
 key 4; sleep 2; key 4; sleep 2
 # Recent searches (the empty search box now lists "moshe").
 tab Home; sleep 3
-hm_tapui "Search"; sleep 2; hm_tapui "Search all of YID PLUS"; sleep 3; shot HM-17-recent-searches
+hm_tapui "Search"; sleep 2; timeout 10 adb shell input text "mo"; sleep 2; hm_tapui "Search all of YID PLUS"; sleep 3
+hm_tapui "Clear"; sleep 2; hm_hidekb; sleep 1; shot HM-17-recent-searches
 key 4; sleep 1; key 4; sleep 2
 
 # 3. Member channel: Message, ⋮ menu, Profile, tabs.
@@ -103,10 +118,10 @@ key 4; sleep 2
 timeout 10 adb shell input swipe 240 250 240 250 900; sleep 2; key 4
 hm_rec_stop
 hm_rec_start HM-video-feed-profile
-hm_tapui "Feed"; sleep 4
-hm_swipe 430 150 1; hm_swipe 430 150 1; hm_swipe 150 450 1
+tab Home; sleep 2; hm_tapui "Feed"; sleep 4
+hm_swipe 430 200 1; hm_swipe 430 200 1; hm_swipe 150 450 1
 hm_tapui "Search"; sleep 1; timeout 10 adb shell input text "moshe"; sleep 1
-hm_tapui "Search all of YID PLUS"; sleep 3; hm_hidekb; timeout 10 adb shell input swipe 420 205 60 205 300; sleep 1; hm_tapui "Users"; sleep 3; hm_hidekb
+hm_tapui "Search all of YID PLUS"; sleep 3; hm_hidekb; hm_tapchip "Users"; sleep 3; hm_hidekb
 hm_tapui "Moshe Fx"; sleep 4; hm_tapui "Followers"; sleep 3; key 4
 hm_rec_stop
 key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
