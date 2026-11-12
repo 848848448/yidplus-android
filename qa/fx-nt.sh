@@ -9,34 +9,46 @@ ntdump() {
   timeout 30 adb shell dumpsys notification --noredact 2>/dev/null | grep -E "NotificationRecord.*pkg=$PKG|android\.title=|android\.text=|android\.conversationTitle=|android\.isGroupConversation=|android\.largeIcon=|actions=|shortcut=| groupKey=" > "$OUT/NT-notifs-$1.txt"
   log "NT $1: chat notifications=$(grep -E "NotificationRecord.*pkg=$PKG" "$OUT/NT-notifs-$1.txt" | grep -c 'tag=chat ') summary=$(grep -E "NotificationRecord.*pkg=$PKG" "$OUT/NT-notifs-$1.txt" | grep -c 'tag=chat-summary') rooms: $(grep -oE 'shortcut=chat_[^ ]+' "$OUT/NT-notifs-$1.txt" | sort -u | tr '\n' ' ')texts: $(grep -oE 'android\.text=String \([^)]*\)' "$OUT/NT-notifs-$1.txt" | head -4 | tr '\n' ' ')"
 }
-ntui() { # ntui ROW_TEXT TARGET: tap TARGET inside the notification that shows ROW_TEXT (1 = not on screen)
+NTN=0
+ntui() { # ntui ROW_TEXT TARGET [look]: tap TARGET inside the notification that shows ROW_TEXT (1 = not on screen; look = don't tap)
   local p
+  NTN=$((NTN + 1))
   timeout 30 adb shell uiautomator dump /sdcard/nt.xml >/dev/null 2>&1
-  p=$(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | python3 qa/nt_ui.py "$1" "$2")
-  if [ -z "$p" ]; then log "NT: no \"$2\" in the \"$1\" notification on screen"; return 1; fi
+  timeout 20 adb shell cat /sdcard/nt.xml > "$OUT/NT-ui-$(printf %02d $NTN).xml" 2>/dev/null
+  p=$(python3 qa/nt_ui.py "$1" "$2" < "$OUT/NT-ui-$(printf %02d $NTN).xml")
+  if [ -z "$p" ]; then log "NT: no \"$2\" in the \"$1\" notification on screen (ui $NTN)"; return 1; fi
+  [ "${3:-}" = look ] && return 0
   case "$p" in swipe*) set -- $p; timeout 10 adb shell input swipe $2 $3 $2 $(( $3 + 300 )) 300;; *) timeout 10 adb shell input tap $p;; esac
-  sleep 2; log "NT tapped \"$2\" in \"$1\" ($p)"
+  sleep 2; log "NT tapped \"$2\" in \"$1\" ($p, ui $NTN)"
 }
 ntrows() { timeout 30 adb shell uiautomator dump /sdcard/nt.xml >/dev/null 2>&1; log "NT shade rows: $(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | python3 qa/nt_ui.py x rows | tr '\n' ' ' | cut -c1-600)"; }
 ntshade() { key 3; sleep 1; timeout 10 adb shell cmd statusbar expand-notifications; sleep 3; }
-ntfind() { # ntfind ROW_TEXT TARGET: scroll the shade until TARGET inside that notification is on screen; expand it if needed
+ntfind() { # ntfind ROW_TEXT TARGET: get TARGET inside that notification on screen (expand it / scroll the shade), then tap it
   local i
-  for i in 1 2 3 4; do
+  for i in 1 2 3 4 5; do
     ntui "$1" "$2" && return 0
-    ntui "$1" expand && continue
-    timeout 10 adb shell input swipe 240 $(( H * 3 / 4 )) 240 $(( H / 3 )) 400; sleep 1.5
+    [ $i = 5 ] && break
+    if [ $((i % 2)) = 1 ]; then ntui "$1" expand || ntscroll
+    else ntscroll; fi
   done
   return 1
+}
+ntscroll() { timeout 10 adb shell input swipe $(( W / 2 )) $(( H * 3 / 4 )) $(( W / 2 )) $(( H * 2 / 5 )) 500; sleep 1.5; log "NT scrolled the shade"; }
+ntopen() { # ntopen ROW_TEXT: that notification expanded (Reply visible), for the photo
+  ntui "$1" Reply look && return 0
+  ntui "$1" expand; sleep 1; ntui "$1" Reply look && return 0
+  ntscroll; ntui "$1" Reply look
 }
 nt_round() { # nt_round TAG (480 or 1080)
   local S="$1"
   log "---- NT round $S ----"
-  ntb --es mode reset; sleep 3
+  ntb --es mode reset; sleep 3; ntshade; key 4; sleep 1
   ntb --es mode poll --es rooms "/api/chat/rooms?qa=nt"; sleep 14
   ntdump $S-1-posted
   ntshade; shot NT-$S-01-shade; ntrows
   # the group's own notification, expanded: group photo, each sender with photo/initial, Reply + Mark as read
-  ntui "Family" expand || true; sleep 1; shot NT-$S-02-group-expanded
+  ntopen "Family" || true; shot NT-$S-02-group-expanded
+  ntshade; ntopen "Yanky" || true; shot NT-$S-02b-dm-expanded
   # inline Reply: really sends (POST /api/chat) and my line joins the notification
   if ntfind "Family" "Reply"; then
     sleep 2; timeout 10 adb shell input text "Thanks%sI%swill%sbe%sthere"; sleep 1; shot NT-$S-03-reply-typed
@@ -66,8 +78,8 @@ nt_round() { # nt_round TAG (480 or 1080)
 }
 log "---- NT chat notifications ----"
 timeout 10 adb logcat -G 16M >/dev/null 2>&1 || true
-H=640; nt_round 480
-size 1080x2400 420; restart 5; H=2400; nt_round 1080
+W=480; H=640; nt_round 480
+size 1080x2400 420; restart 5; W=1080; H=2400; nt_round 1080
 size 480x640 240; H=640
 timeout 30 adb logcat -d -s YidFx > "$OUT/NT-fx.txt" 2>/dev/null
 timeout 30 adb logcat -d -s YidNotify > "$OUT/NT-yidnotify.txt" 2>/dev/null

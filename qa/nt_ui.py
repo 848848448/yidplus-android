@@ -22,17 +22,23 @@ if target == 'send':
     for n in root.iter():
         if n.get('resource-id', '').endswith('remote_input_send') and b(n): print(c(n)); break
     sys.exit(0)
-# innermost row that holds the text (a child row inside a bundle wins over the bundle)
-hit = [r for r in rows if any(want in t for t in texts(r))]
-hit = [r for r in hit if not any(o is not r and o in list(r.iter()) for o in hit)]
-if not hit: sys.exit(0)
-row = hit[0]
+parent = {ch: p for p in root.iter() for ch in p}
+def is_exp(n): return n.get('resource-id', '').endswith('expand_button')
+def nexp(n): return sum(1 for d in n.iter() if is_exp(d))
+# the notification row = the LARGEST ancestor of the title node that holds exactly one expand button (one per notification)
+titles = [n for n in root.iter() if want in n.get('text', '') and b(n)]
+if not titles: sys.exit(0)
+t0 = titles[0]; row = t0; cur = t0
+while cur in parent:
+    cur = parent[cur]
+    k = nexp(cur)
+    if k == 1: row = cur
+    elif k > 1: break
 if target == 'expand':
     for n in row.iter():
         if n.get('resource-id', '').endswith('expand_button') and b(n) and b(n)[2] > b(n)[0]:
-            if n.get('content-desc', '').lower() != 'collapse': print(c(n))
-            sys.exit(0)
-    x1, y1, x2, y2 = b(row); print(f"swipe {(x1 + x2) // 2} {y1 + 20}"); sys.exit(0)
+            print(c(n)); sys.exit(0)
+    x1, y1, x2, y2 = b(row); print(f"swipe {(x1 + x2) // 2} {y1 + 10}"); sys.exit(0)
 if target == 'body':
     for n in row.iter():
         if want in n.get('text', '') and b(n): print(c(n)); sys.exit(0)
