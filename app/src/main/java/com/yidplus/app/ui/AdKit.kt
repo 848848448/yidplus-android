@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yidplus.app.data.Api
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import com.yidplus.app.data.Res
 import com.yidplus.app.data.objects
 import com.yidplus.app.data.str
@@ -172,8 +174,9 @@ fun AdRow(title: String, sub: String? = null, photo: String? = null, letter: Str
 
 /** A row of pill buttons that wraps onto two lines on a 480 px screen. */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun AdPills(vararg pills: Pair<String, () -> Unit>, color: Color = MaterialTheme.colorScheme.primary) {
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         pills.forEach { (t, f) -> AdminPill(t, color = if (t.startsWith("🚫") || t.startsWith("🗑") || t.startsWith("Delete") || t.startsWith("Ban") || t.startsWith("Remove") || t.startsWith("Revoke") || t.startsWith("End")) AdRed else color, onClick = f) }
     }
 }
@@ -287,4 +290,18 @@ fun adStatusLine(r: JSONObject?): Pair<String, Color> {
     }
     if (r.has("chat_linked")) return (if (r.b("chat_linked")) "✅ Ready" + r.s("bot").let { if (it.isNotBlank()) " · @$it" else "" } else "⚠️ Open the bot and send it /start") to (if (r.b("chat_linked")) AdGreen else AdAmber)
     return (r.s("message", "status").ifBlank { "✅ OK" }) to AdGreen
+}
+
+/** POST multipart/form-data like the site's FormData uploads (api.post(path, fd, true)). */
+suspend fun adMultipart(c: android.content.Context, path: String, fields: List<Pair<String, String>>, fileField: String, file: Uri?): JSONObject {
+    val mb = okhttp3.MultipartBody.Builder().setType(okhttp3.MultipartBody.FORM)
+    fields.forEach { (k, v) -> mb.addFormDataPart(k, v) }
+    if (file != null) {
+        val type = c.contentResolver.getType(file) ?: "application/octet-stream"
+        val bytes = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { c.contentResolver.openInputStream(file)!!.use { it.readBytes() } }
+        val ext = when { type.startsWith("video") -> "mp4"; type.contains("png") -> "png"; else -> "jpg" }
+        mb.addFormDataPart(fileField, "$fileField.$ext", bytes.toRequestBody(type.toMediaType()))
+    }
+    val body = mb.build(); val buf = okio.Buffer(); body.writeTo(buf)
+    return Api.upload(path, buf.readByteArray(), body.contentType().toString())
 }
