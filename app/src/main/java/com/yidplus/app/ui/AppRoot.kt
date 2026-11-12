@@ -209,7 +209,7 @@ private fun BottomBar(dark: Boolean) {
     Surface(color = bg, shadowElevation = 8.dp) {
         Column {
             HorizontalDivider(thickness = 0.5.dp, color = if (dark) Color.White.copy(alpha = .08f) else MaterialTheme.colorScheme.outlineVariant)
-            Row(Modifier.fillMaxWidth().heightIn(min = if (smallScreen()) 50.dp else 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = if (smallScreen()) 48.dp else 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
         }

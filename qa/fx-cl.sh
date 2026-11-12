@@ -24,7 +24,7 @@ clseek() { # scroll up (content moves up) until $1 is on screen, max 7 swipes; $
   echo "  clseek '$1': 7 swipes in $(( $(date +%s) - t0 )) s; screen texts: $(timeout 20 adb shell cat /sdcard/cl.xml 2>/dev/null | grep -oE ' (text|content-desc)="[^"]+"' | head -25 | tr '\n' ' ' | cut -c1-600)" >> "$OUT/qa.log"; return 0; }
 clst() { local p w="$1"; p=$(clseek "$1" "$2"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not found after scrolling"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w' (scrolled)"; }
 clsl() { local p; p=$(clseek "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1' not found after scrolling"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
-cltop() { local i; for i in 1 2 3 4 5 6; do adb shell input swipe ${1:-240} 200 ${1:-240} 560 250; done; sleep 1; }
+cltop() { local i; for i in 1 2 3 4 5 6; do adb shell input swipe ${1:-240} 200 ${1:-240} 470 250; done; sleep 2.5; }
 chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && return 0; set -- $p; adb shell input swipe 440 $2 30 $2 400; sleep 1; }
 chipback() { local p; p=$(clpos "All"); [ -z "$p" ] && p="240 120"; set -- $p; adb shell input swipe 30 $2 440 $2 300; sleep 1; }
 size 480x640 240
@@ -41,20 +41,25 @@ clrows() { # full-width chat rows (52 dp = 78 px at 240 dpi) wholly between the 
   log "CL rows: $n full chat rows visible above the bottom bar (top of bottom bar y=${nav:-?}); FAB bounds: ${fab:-none} ($1)"
   [ "${n:-0}" -ge 5 ] && log "CL ok: 5+ rows at 480x640" || log "CL WRONG: only ${n:-0} rows at 480x640"
 }
-look --es dark 0 --es color 0 --es bar dark; view "https://yidplus.com/chat"; sleep 7; cltop; sleep 1
+# The Qin F21 has hardware keys and no on-screen nav bar; this emulator draws a 48 dp 3-button bar. Use the thin gesture bar
+# for the 480x640 blocker shots so the screen height matches the phone more closely (logged; restored at the end of the block).
+timeout 20 adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural >/dev/null 2>&1; sleep 3; log "CL nav mode: $(timeout 10 adb shell settings get secure navigation_mode 2>&1)"
+look --es dark 0 --es color 0 --es bar dark; view "https://yidplus.com/chat"; sleep 7; cltop; sleep 3
 shot CL-B01-list-480x640; clrows top; clnot "New chat"; clnot "Edit"; clhas "Search chats"; clhas "Start new chat"; clhas "Status"; clhas "AI chat"; cltexts blockers-list
-for k in 1 2 3 4 5 6 7 8; do adb shell input swipe 240 520 240 150 250; sleep 0.4; done; sleep 1.5; shot CL-B02-list-end-last-row-above-fab; clrows end
-cltop; sleep 1
+for k in 1 2 3 4 5 6 7 8 9 10; do adb shell input swipe 200 430 200 140 200; sleep 0.5; done; sleep 2; shot CL-B02-list-end-fab-hidden-while-scrolling-down; clrows end-scrolling
+adb shell input swipe 200 300 200 360 300; sleep 2; shot CL-B02b-list-end-fab-back-last-row-above-it; clrows end-fab-back
+cltop; sleep 3
 cltap "Search chats"; sleep 2; shot CL-B03-search-empty; cltexts search-empty; clhas "Close search"
 adb shell input text "Yo"; sleep 1.5; shot CL-B04-search-typing-yo
 adb shell input text "ssi"; sleep 3; key 4; sleep 1; shot CL-B05-search-results-yossi; clhas "Yossi Klein"; cltexts search-results
 key 4; sleep 1; key 4; sleep 1
-look --es color 1; view "https://yidplus.com/chat"; sleep 3; cltop; shot CL-B06-list-theme-ocean; clrows ocean
-look --es color 0 --es dark 2; view "https://yidplus.com/chat"; sleep 3; cltop; shot CL-B07-list-dark; clrows dark
+look --es color 1; view "https://yidplus.com/chat"; sleep 3; cltop; sleep 3; shot CL-B06-list-theme-ocean; clrows ocean
+look --es color 0 --es dark 2; view "https://yidplus.com/chat"; sleep 3; cltop; sleep 3; shot CL-B07-list-dark; clrows dark
 clopen r-dm1 private "Yossi Klein" ",\"other_user_id\":\"u-yossi\"" 5; shot CL-B08-chat-open-dark; key 4; sleep 1
-look --es dark 0; view "https://yidplus.com/chat"; sleep 3; cltop
+look --es dark 0; view "https://yidplus.com/chat"; sleep 3; cltop; sleep 3
 key 20; sleep 0.7; key 20; sleep 0.7; key 20; sleep 0.7; key 20; sleep 0.7; shot CL-B09-dpad-focus-row; key 23; sleep 3; shot CL-B10-dpad-ok-opened-chat; key 4; sleep 1.5
 alive && log "CL ok: app alive after blockers" || log "CL WRONG: app not running after blockers"
+timeout 20 adb shell cmd overlay enable com.android.internal.systemui.navbar.threebutton >/dev/null 2>&1; sleep 2
 
 # ── Video 1 (30 s, D-pad + touch): list → search field → chips → open a chat → back → side menu ──
 adb shell rm -f /sdcard/CL-flow.mp4; (timeout 40 adb shell screenrecord --size 480x640 --bit-rate 1000000 --time-limit 30 /sdcard/CL-flow.mp4 >/dev/null 2>&1 &)
