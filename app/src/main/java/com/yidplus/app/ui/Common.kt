@@ -171,10 +171,10 @@ fun nameInitials(name: String): String {
     val letters = name.trim().split(Regex("\\s+")).mapNotNull { firstLetterOf(it) }
     if (letters.isEmpty()) return "Y"
     val a = letters[0]
-    // A lone yod / vav reads like an apostrophe in a circle ("'" next to ישיבה): show the word's first two letters instead (יש, וו).
-    if (a == "י" || a == "ו" || a == "ן") {
+    // A lone yod / vav (or the Yiddish ײ, which looks like ״) reads like an apostrophe in a circle: show the word's first two letters (יש, ײד).
+    if (a == "י" || a == "ו" || a == "ן" || a == "ײ" || a == "ױ" || a == "װ") {
         val w = name.trim().split(Regex("\\s+")).firstOrNull { firstLetterOf(it) != null }.orEmpty()
-        val two = w.filter { it.isLetter() && it.code in 0x05D0..0x05EA }.take(2)
+        val two = w.filter { it.isLetter() && (it.code in 0x05D0..0x05EA || it.code in 0x05F0..0x05F2) }.take(2)
         if (two.length == 2) return two
     }
     // Two letters only for Latin names of two words, like Telegram; a Hebrew/Yiddish name shows its first letter, like the site.

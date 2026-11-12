@@ -246,13 +246,13 @@ fun SoCommentsPanel(title: String, onDismiss: () -> Unit, body: @Composable Colu
 /** A row of pill chips (topics, filters); the chosen one is filled green. Every chip is focusable for the keypad. */
 @Composable
 fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, dark: Boolean = false) {
-    @Composable fun Chip(i: Int, o: String, m: Modifier) {
+    @Composable fun Chip(i: Int, o: String, m: Modifier, tight: Boolean = false) {
         val on = i == selected
         val bg = if (on) Green else if (dark) Color.White.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant
         val fg = if (on) Color.White else if (dark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-        Box(m.heightIn(min = 34.dp).tap(RoundedCornerShape(17.dp)) { onSelect(i) }.background(bg, RoundedCornerShape(17.dp)).padding(horizontal = 10.dp, vertical = 7.dp),
+        Box(m.heightIn(min = 34.dp).tap(RoundedCornerShape(17.dp)) { onSelect(i) }.background(bg, RoundedCornerShape(17.dp)).padding(horizontal = if (tight) 6.dp else 10.dp, vertical = 7.dp),
             contentAlignment = Alignment.Center) {
-            Text(o, color = fg, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1, softWrap = false)
+            Text(o, color = fg, fontSize = if (tight) 13.sp else 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1, softWrap = false)
         }
     }
     // Up to four short filters share the width (they always fit at 480 px, nothing cut at the edge); more scroll
@@ -262,12 +262,16 @@ fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modif
     BoxWithConstraints(modifier.fillMaxWidth()) {
         val tm = androidx.compose.ui.text.rememberTextMeasurer()
         val d = androidx.compose.ui.platform.LocalDensity.current
-        val style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-        val need = options.map { o -> with(d) { tm.measure(o, style, maxLines = 1, softWrap = false).size.width.toDp() } + 24.dp }
         val room = maxWidth - 24.dp - 6.dp * (options.size - 1).coerceAtLeast(0)
-        val fits = options.size <= 5 && need.fold(0.dp) { s, w -> s + w } <= room
+        // Try the normal chip, then a slightly tighter one (13 sp, less padding) before falling back to scrolling.
+        fun needs(sp: Int, pad: Dp) = options.map { o -> with(d) { tm.measure(o, TextStyle(fontSize = sp.sp, fontWeight = FontWeight.SemiBold), maxLines = 1, softWrap = false).size.width.toDp() } + pad * 2 + 4.dp }
+        val n14 = needs(14, 10.dp); val n13 = needs(13, 6.dp)
+        val sum = { l: List<Dp> -> l.fold(0.dp) { s, w -> s + w } }
+        val tight = sum(n14) > room
+        val need = if (tight) n13 else n14
+        val fits = options.size <= 5 && sum(need) <= room
         if (fits) Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            options.forEachIndexed { i, o -> Chip(i, o, Modifier.weight(need[i].value)) }
+            options.forEachIndexed { i, o -> Chip(i, o, Modifier.weight(need[i].value), tight) }
         } else LazyRow(Modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             itemsIndexed(options) { i, o -> Chip(i, o, Modifier.padding(horizontal = 2.dp)) }
         }
