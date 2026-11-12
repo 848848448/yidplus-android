@@ -12,12 +12,31 @@ hm_tapui() {
   if [ -z "$bb" ]; then log "hm_tapui: '$want' not on screen"; return 0; fi
   set -- $bb; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "hm_tapui '$want'"
 }
+# Hide the on-screen keyboard only when it is really up (a plain Back would leave the screen otherwise).
+hm_hidekb() { if timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -q 'mInputShown=true'; then key 4; sleep 1; log "hm keyboard hidden"; fi; }
 hm_swipe() { timeout 10 adb shell input swipe 240 "$1" 240 "$2" 350; sleep "${3:-2}"; }
+
+# 0. The site's Home page as the "Feed" chip: greeting + Hebrew date, announcement, tiles, composer, Hot Shorts, Popular channels, community posts.
+tab Home; sleep 4
+hm_tapui "Feed"; sleep 7; shot HM-30-feed-top
+hm_swipe 560 220; shot HM-31-feed-shorts-channels
+hm_swipe 560 160; hm_swipe 560 160; shot HM-32-feed-posts
+hm_swipe 160 600; hm_swipe 160 600; hm_swipe 160 600
+hm_tapui "What's happening\?"; sleep 1
+timeout 10 adb shell input text "HM%stest%spost"; sleep 1; hm_hidekb; shot HM-33-feed-composer
+hm_mark feed-post; hm_tapui "Post"; sleep 4; shot HM-34-feed-posted
+hm_mark feed-hide-announcement; hm_tapui "Hide announcement"; sleep 1; shot HM-35-feed-announcement-hidden
+hm_tapui "Telegram"; sleep 2
 
 # 1. A Telegram channel: Telegram order (newest at the bottom), formatting, link card, album grid, day chips, live check, Join.
 tab Home; sleep 4
 hm_tapui "Telegram"; sleep 3
+timeout 10 adb shell input swipe 240 250 240 250 1000; sleep 2; shot HM-38-tg-row-longpress-menu
+hm_mark tg-row-markread; hm_tapui "Mark as read"; sleep 2; shot HM-39-tg-row-read
 hm_tapui "'?שיעורים יומיים"; sleep 8; shot HM-01-tg-newest-at-bottom
+hm_tapui "Post options"; sleep 1; shot HM-36-tg-post-menu; key 4; sleep 1
+hm_tapui "Search in channel"; sleep 1; timeout 10 adb shell input text "wikipedia"; sleep 2; shot HM-37-tg-search-in-channel
+hm_hidekb; hm_tapui "Search in channel"; sleep 2
 hm_swipe 220 560; shot HM-02-tg-album-linkcard
 hm_swipe 200 600; hm_swipe 200 600; shot HM-03-tg-older-daychips
 hm_tapui "Newest posts"; sleep 2; shot HM-04-tg-jump-newest
@@ -59,6 +78,8 @@ key 4; sleep 2
 tab Home; sleep 3
 hm_tapui "Notifications"; sleep 5; shot HM-21-notifications
 hm_swipe 200 560 3; shot HM-22-notifications-pulled
+timeout 10 adb shell input swipe 240 200 240 200 1000; sleep 2; shot HM-24-notification-longpress
+hm_mark notif-markread; hm_tapui "Mark as read"; sleep 2
 hm_mark notifs-readall; hm_tapui "Mark all read"; sleep 3; shot HM-23-notifications-read
 key 4; sleep 2
 check hm-done

@@ -230,5 +230,269 @@
  "/api/telegram-reactions?username=fxshiurim": {
   "ok": true,
   "reactions": {}
+ },
+ "/api/posts?limit=20": {
+  "ok": true,
+  "posts": [
+   {
+    "id": "fxp9",
+    "username": "Moshe Fx",
+    "nickname": "Moshe Fx",
+    "user_id": "fxu1",
+    "photo_url": null,
+    "verified": 1,
+    "caption": "א גוטן מארגן אלעמען! היינט אווענט א נייער ניגון 🎶 #ניגון",
+    "content": "",
+    "likes": 31,
+    "comments": 0,
+    "views": 410,
+    "created_at": "2026-11-12T03:30:00.000Z",
+    "liked": true
+   },
+   {
+    "id": "fxp1",
+    "username": "משה'לע",
+    "user_id": "demo-me",
+    "caption": "גוט מארגן! א נייע ווערסיע פון דער אפ קומט היינט 🎉",
+    "content": "",
+    "likes": 12,
+    "comments": 2,
+    "created_at": "2026-11-11T18:15:16.490Z",
+    "liked": false,
+    "nickname": "משה'לע"
+   },
+   {
+    "id": "fxp2",
+    "username": "משה'לע",
+    "user_id": "demo-me",
+    "caption": "א בילד פון היינט",
+    "content": "avatars/32a9be01-7448-43c7-b23d-cc89c97ce89f.png",
+    "likes": 5,
+    "comments": 0,
+    "created_at": "2026-11-10T12:02:00.000Z",
+    "liked": true,
+    "nickname": "משה'לע"
+   },
+   {
+    "id": "fxp3",
+    "username": "משה'לע",
+    "user_id": "demo-me",
+    "caption": "ווידעא",
+    "content": "shorts/5df73439-246d-43d2-9b1e-fd72b30432e1/1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "likes": 3,
+    "comments": 1,
+    "created_at": "2026-11-09T09:31:26.393Z",
+    "liked": false,
+    "nickname": "משה'לע"
+   }
+  ]
+ },
+ "/api/shorts?limit=6": {
+  "ok": true,
+  "shorts": [
+   {
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 172,
+    "comments": 0,
+    "created_at": "2026-08-23T09:31:26.393Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "6630b5bb-e297-417b-bc25-fdd9d23836d9",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 66,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:13.056Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664752750_9f8a7c54-32f9-41fa-807a-a2c2a7d801db.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5e56e09b-5e91-45f9-8050-fe3fdc1b2dbb",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 53,
+    "comments": 0,
+    "created_at": "2026-08-02T09:59:04.668Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664744352_fdfd8d82-e9c6-43af-b79a-7ec42554c92c.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "62644202-0563-4309-9d49-3c1fbb726af6",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 46,
+    "comments": 0,
+    "created_at": "2026-08-02T09:58:54.413Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785664734151_b0cbc4e4-f0c5-4a72-bf15-270a3b766033.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "5619e488-7ae0-488d-a3fa-5152f974c6dd",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 2,
+    "views": 50,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:48.714Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534528381_ad0aa0cc-73aa-4b01-8a4b-3398d13e43ab.mp4",
+    "liked": false,
+    "saved": false
+   },
+   {
+    "id": "32edd03e-3407-4ef8-8fbb-ce959445ad6d",
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nick": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": true,
+    "caption": "",
+    "likes": 3,
+    "views": 48,
+    "comments": 0,
+    "created_at": "2026-07-31T21:48:32.634Z",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1785534511982_43f067fd-b777-4268-8993-f3c8a653a22b.mp4",
+    "liked": false,
+    "saved": false
+   }
+  ]
+ },
+ "/api/channels?limit=6": {
+  "ok": true,
+  "channels": [
+   {
+    "owner_id": "fxu1",
+    "nickname": "Moshe Fx",
+    "photo_url": null,
+    "verified": 1,
+    "bio": "ניגונים",
+    "followers": 128,
+    "last_post_at": "2026-11-12T03:30:00.000Z"
+   },
+   {
+    "owner_id": "demo-me",
+    "nickname": "משה'לע",
+    "photo_url": null,
+    "verified": 0,
+    "bio": "",
+    "followers": 12,
+    "last_post_at": "2026-11-11T18:15:16.490Z"
+   },
+   {
+    "owner_id": "5df73439-246d-43d2-9b1e-fd72b30432e1",
+    "nickname": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "verified": 1,
+    "bio": "Deals",
+    "followers": 540,
+    "last_post_at": "2026-11-10T10:00:00.000Z"
+   }
+  ]
+ },
+ "/api/broadcasts?limit=1": {
+  "ok": true,
+  "broadcasts": [
+   {
+    "id": "fxb1",
+    "text": "📢 דער נייער YID PLUS אפ 2.1 קומט באלד – מיט אלע קאנאלן און פאסטס!",
+    "created_at": "2026-11-12T02:00:00.000Z"
+   }
+  ]
+ },
+ "/api/channels?limit=20&search=moshe": {
+  "ok": true,
+  "channels": [
+   {
+    "owner_id": "fxu1",
+    "nickname": "Moshe Fx",
+    "photo_url": null,
+    "verified": 1,
+    "bio": "ניגונים",
+    "followers": 128
+   }
+  ]
+ },
+ "/api/search?q=moshe": {
+  "ok": true,
+  "posts": [
+   {
+    "id": "fxp9",
+    "user_id": "fxu1",
+    "username": "Moshe Fx",
+    "caption": "א גוטן מארגן אלעמען! היינט אווענט א נייער ניגון 🎶",
+    "created_at": "2026-11-12T03:30:00.000Z"
+   }
+  ],
+  "shorts": []
+ },
+ "/api/chat/rooms?search=moshe": {
+  "ok": true,
+  "rooms": [
+   {
+    "id": "fxg-moshe",
+    "type": "group",
+    "name": "Moshe's friends",
+    "photo_url": null,
+    "members": 14
+   }
+  ]
+ },
+ "/api/channels?owner_id=fxu1": {
+  "ok": true,
+  "channels": [
+   {
+    "owner_id": "fxu1",
+    "nickname": "Moshe Fx",
+    "photo_url": null,
+    "verified": 1,
+    "bio": "ניגונים",
+    "followers": 128
+   }
+  ]
+ },
+ "/api/posts?user_id=fxu1": {
+  "ok": true,
+  "posts": [
+   {
+    "id": "fxp9",
+    "username": "Moshe Fx",
+    "nickname": "Moshe Fx",
+    "user_id": "fxu1",
+    "photo_url": null,
+    "verified": 1,
+    "caption": "א גוטן מארגן אלעמען! היינט אווענט א נייער ניגון 🎶 #ניגון",
+    "content": "",
+    "likes": 31,
+    "comments": 0,
+    "views": 410,
+    "created_at": "2026-11-12T03:30:00.000Z",
+    "liked": true
+   }
+  ]
  }
 }
