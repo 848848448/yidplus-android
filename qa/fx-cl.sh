@@ -10,7 +10,7 @@ clpos() { # centre of the LAST node (drawn on top: an open page over the list, a
   b=$(echo "$n" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
   [ -z "$b" ] && return 0; set -- $b; echo "$(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))"
 }
-cltap() { local p; p=$(clpos "$1"); if [ -z "$p" ]; then log "CL MISSING tap: '$1' not on screen"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$1'"; }
+cltap() { local p w="$1"; p=$(clpos "$1"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not on screen"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w'"; }
 cllong() { sleep 1; local p; p=$(clpos "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1'"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
 clhas() { local p; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL ok: '$1' on screen"; else log "CL MISSING: '$1' not on screen"; fi; }
 clnot() { local p; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL WRONG: '$1' is on screen"; else log "CL ok: '$1' not shown"; fi; }
@@ -20,13 +20,41 @@ cltexts() { timeout 20 adb shell uiautomator dump /sdcard/clt.xml >/dev/null 2>&
 clup() { adb shell input swipe 240 520 240 160 400; sleep 1; }
 cldown() { adb shell input swipe 240 160 240 560 300; sleep 1; }
 clseek() { # scroll up (content moves up) until $1 is on screen, max 7 swipes; $2 = x of the swipe (default 240)
-  local i p; for i in 1 2 3 4 5 6 7; do p=$(clpos "$1"); [ -n "$p" ] && { echo "$p"; return 0; }; adb shell input swipe ${2:-240} 520 ${2:-240} 250 500; sleep 1; done; return 0; }
-clst() { local p; p=$(clseek "$1" "$2"); if [ -z "$p" ]; then log "CL MISSING tap: '$1' not found after scrolling"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$1' (scrolled)"; }
+  local i p t0=$(date +%s); for i in 1 2 3 4 5 6 7; do p=$(clpos "$1"); [ -n "$p" ] && { echo "$p"; return 0; }; timeout 10 adb shell input swipe ${2:-240} 520 ${2:-240} 250 500 >>"$OUT/qa.log" 2>&1; sleep 1; done
+  echo "  clseek '$1': 7 swipes in $(( $(date +%s) - t0 )) s; screen texts: $(timeout 20 adb shell cat /sdcard/cl.xml 2>/dev/null | grep -oE ' (text|content-desc)="[^"]+"' | head -25 | tr '\n' ' ' | cut -c1-600)" >> "$OUT/qa.log"; return 0; }
+clst() { local p w="$1"; p=$(clseek "$1" "$2"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not found after scrolling"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w' (scrolled)"; }
 clsl() { local p; p=$(clseek "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1' not found after scrolling"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
 cltop() { local i; for i in 1 2 3 4 5 6; do adb shell input swipe ${1:-240} 200 ${1:-240} 560 250; done; sleep 1; }
 chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && return 0; set -- $p; adb shell input swipe 440 $2 30 $2 400; sleep 1; }
 chipback() { local p; p=$(clpos "All"); [ -z "$p" ] && p="240 120"; set -- $p; adb shell input swipe 30 $2 440 $2 300; sleep 1; }
 size 480x640 240
+
+# ── 2.1.0 BLOCKERS at 480x640 (each shot is checked by eye): 5+ chat rows, the FAB covers no row, no pencil,
+#    search empty / typing / results, a non-green theme, dark mode (list + an open chat), the D-pad, no crash ──
+look() { timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_LOOK "$@" >/dev/null 2>&1; sleep 2; }
+clrows() { # full-width chat rows (52 dp = 78 px at 240 dpi) wholly between the top bar and the bottom bar; and what the FAB overlaps
+  timeout 30 adb shell uiautomator dump /sdcard/clr.xml >/dev/null 2>&1
+  local x; x=$(timeout 20 adb shell cat /sdcard/clr.xml 2>/dev/null | tr '>' '\n')
+  local fab; fab=$(echo "$x" | grep -F 'content-desc="Start new chat"' | grep -oE 'bounds="[^"]+"' | head -1 | grep -oE '[0-9]+' | tr '\n' ' ')
+  local nav; nav=$(echo "$x" | grep -F 'content-desc="Chats' | grep -oE 'bounds="[^"]+"' | head -1 | grep -oE '[0-9]+' | sed -n 2p)
+  local n; n=$(echo "$x" | grep -oE 'bounds="\[0,[0-9]+\]\[480,[0-9]+\]"' | grep -oE '[0-9]+' | paste - - - - | awk -v nb="${nav:-560}" '{h=$4-$2; if (h>=70 && h<=96 && $2>=110 && $4<=nb+2) c++} END{print c+0}')
+  log "CL rows: $n full chat rows visible above the bottom bar (top of bottom bar y=${nav:-?}); FAB bounds: ${fab:-none} ($1)"
+  [ "${n:-0}" -ge 5 ] && log "CL ok: 5+ rows at 480x640" || log "CL WRONG: only ${n:-0} rows at 480x640"
+}
+look --es dark 0 --es color 0 --es bar dark; view "https://yidplus.com/chat"; sleep 7; cltop; sleep 1
+shot CL-B01-list-480x640; clrows top; clnot "New chat"; clnot "Edit"; clhas "Search chats"; clhas "Start new chat"; clhas "Status"; clhas "AI chat"; cltexts blockers-list
+for k in 1 2 3 4 5 6 7 8; do adb shell input swipe 240 520 240 150 250; sleep 0.4; done; sleep 1.5; shot CL-B02-list-end-last-row-above-fab; clrows end
+cltop; sleep 1
+cltap "Search chats"; sleep 2; shot CL-B03-search-empty; cltexts search-empty; clhas "Close search"
+adb shell input text "Yo"; sleep 1.5; shot CL-B04-search-typing-yo
+adb shell input text "ssi"; sleep 3; key 4; sleep 1; shot CL-B05-search-results-yossi; clhas "Yossi Klein"; cltexts search-results
+key 4; sleep 1; key 4; sleep 1
+look --es color 1; view "https://yidplus.com/chat"; sleep 3; cltop; shot CL-B06-list-theme-ocean; clrows ocean
+look --es color 0 --es dark 2; view "https://yidplus.com/chat"; sleep 3; cltop; shot CL-B07-list-dark; clrows dark
+clopen r-dm1 private "Yossi Klein" ",\"other_user_id\":\"u-yossi\"" 5; shot CL-B08-chat-open-dark; key 4; sleep 1
+look --es dark 0; view "https://yidplus.com/chat"; sleep 3; cltop
+key 20; sleep 0.7; key 20; sleep 0.7; key 20; sleep 0.7; key 20; sleep 0.7; shot CL-B09-dpad-focus-row; key 23; sleep 3; shot CL-B10-dpad-ok-opened-chat; key 4; sleep 1.5
+alive && log "CL ok: app alive after blockers" || log "CL WRONG: app not running after blockers"
 
 # ── Video 1 (30 s, D-pad + touch): list → search field → chips → open a chat → back → side menu ──
 adb shell rm -f /sdcard/CL-flow.mp4; (timeout 40 adb shell screenrecord --size 480x640 --bit-rate 1000000 --time-limit 30 /sdcard/CL-flow.mp4 >/dev/null 2>&1 &)

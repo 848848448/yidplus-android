@@ -8,6 +8,14 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -297,5 +305,52 @@ internal fun ClSearchPill(compact: Boolean, onOpen: () -> Unit) {
         .tap(shape, onClick = onOpen).semantics { contentDescription = "Search chats" }.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(Sym.Search, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Text("Search…", Modifier.padding(start = 12.dp), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+    }
+}
+
+
+/**
+ * 480x640 (Qin F21, ~427 dp tall): the bar IS the search field, so the chat list keeps room for 5 rows.
+ * One 52 dp bar row: a rounded pill with ☰ (menu) at the start, "Search chats" in the middle (opens the search) and
+ * the AI chat avatar at the end. Three D-pad stops. No pencil (the green button starts a chat).
+ */
+@Composable
+internal fun ClCompactSearchBar(onMenu: (() -> Unit)?, onSearch: () -> Unit, onAi: (() -> Unit)?) {
+    val ink = barContent()
+    val shape = RoundedCornerShape(22.dp)
+    val pillBg = if (ink.luminance() > .5f) Color.White.copy(alpha = .17f) else (if (ChatLook.dark()) Color(0xFF202C33) else Color(0xFFF0F2F5))
+    Surface(color = ChatLook.bar, contentColor = ink, shadowElevation = 2.dp) {
+        Row(Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 8.dp, vertical = 6.dp).clip(shape).background(pillBg),
+            verticalAlignment = Alignment.CenterVertically) {
+            if (onMenu != null) Box(Modifier.size(40.dp).tap(CircleShape, onClick = onMenu).semantics { contentDescription = "Menu" }, contentAlignment = Alignment.Center) {
+                Icon(Sym.Menu, null, tint = ink, modifier = Modifier.size(22.dp)) }
+            else Spacer(Modifier.width(8.dp))
+            Row(Modifier.weight(1f).fillMaxHeight().tap(shape, onClick = onSearch).semantics { contentDescription = "Search chats" }.padding(horizontal = 6.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Icon(Sym.Search, null, Modifier.size(20.dp), tint = ink.copy(alpha = .85f))
+                Text("Search chats", Modifier.padding(start = 10.dp), fontSize = 15.sp, color = ink.copy(alpha = .85f), maxLines = 1)
+            }
+            if (onAi != null) Box(Modifier.size(40.dp).tap(CircleShape, onClick = onAi).semantics { contentDescription = "AI chat" }, contentAlignment = Alignment.Center) {
+                AiAvatar(28.dp) }
+        }
+    }
+}
+
+/** 480x640: the Status entry as the first chip (WhatsApp keeps statuses out of the chat list too): a ring dot when there is something new. */
+@Composable
+internal fun ClStatusChip(all: List<StUser>) {
+    val me = Session.me ?: return
+    val others = all.filter { it.userId != me.id && it.slides.isNotEmpty() }
+    val mine = all.firstOrNull { it.userId == me.id && it.slides.isNotEmpty() }
+    val unseen = others.filter { !Statuses.allSeen(it) }
+    val shape = RoundedCornerShape(16.dp)
+    Row(Modifier.height(28.dp).clip(shape).background(MaterialTheme.colorScheme.surfaceVariant).tap(shape) {
+            val first = unseen.firstOrNull() ?: others.firstOrNull()
+            if (first != null) Nav.open(StatusViewerPage(first.userId)) else if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+        }.semantics { contentDescription = "Status" + if (unseen.isNotEmpty()) ", ${unseen.size} new" else "" }.padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(14.dp).clip(CircleShape).border(2.dp, if (unseen.isNotEmpty()) ChatLook.unread else MaterialTheme.colorScheme.outline, CircleShape))
+        Text("Status", Modifier.padding(start = 6.dp), fontSize = 13.5.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+        if (unseen.isNotEmpty()) { Spacer(Modifier.width(5.dp)); ChBadge(unseen.size) }
     }
 }
