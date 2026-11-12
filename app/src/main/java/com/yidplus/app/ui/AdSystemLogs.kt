@@ -144,7 +144,7 @@ class AdCodeErrorsPage : PageScreen() {
             if (l.isEmpty()) adEmpty("No errors 🎉", Icons.Filled.BugReport)
             items(l, key = { "e" + it.s("id") }) { e ->
                 val text = e.s("message") + "\n" + e.s("source") + ":" + e.s("line") + ":" + e.s("col") + "\n" + e.s("page") + "\n" + e.s("stack")
-                AdRow(e.s("message").take(160), sub = e.s("source") + (if (e.s("line").isNotBlank()) ":" + e.s("line") else "") + " · " + e.s("page"),
+                AdRow(e.s("source").ifBlank { "page" } + (if (e.s("line").isNotBlank()) ":" + e.s("line") else "") + " · " + e.s("page"), sub = e.s("message").take(300),
                     sub2 = (if (e.n("count") > 1) "×" + e.n("count") + " · " else "") + e.s("nickname").let { if (it.isNotBlank()) "@$it · " else "" } + adWhen(e.s("created_at")),
                     icon = Icons.Filled.BugReport, iconTint = if (e.s("level") == "warn") AdAmber else AdRed) {
                     clip.setText(AnnotatedString(text)); toast(c, "📋 Copied")
@@ -245,7 +245,7 @@ class AdAuditLogsPage : PageScreen() {
             if (l.isEmpty()) adEmpty("No admin actions yet", Sym.History)
             items(l, key = null) { x ->
                 val role = when (x.s("actor_role")) { "owner" -> "👑"; "admin_super" -> "🛡"; else -> "🔒" }
-                AdRow((auditIcons[x.s("action")] ?: "📋") + " " + role + " @" + x.s("actor_nick").ifBlank { "unknown" } + " " + x.s("action").replace('_', ' '), sub = x.s("details"), trail = adWhen(x.s("created_at")))
+                AdRow(role + " @" + x.s("actor_nick").ifBlank { "unknown" }, sub = (auditIcons[x.s("action")] ?: "📋") + " " + x.s("action").replace('_', ' ') + x.s("details").let { if (it.isNotBlank()) " · $it" else "" }, trail = adWhen(x.s("created_at")))
             }
         }
     }
@@ -320,7 +320,7 @@ class AdFeaturesMorePage : PageScreen() {
         AdPanel("Auto-moderation & speed", res = res) { j ->
             if (th == null && j.has("settings")) th = (j.optJSONObject("settings") ?: JSONObject()).s("automod_threshold").ifBlank { "0" }
             adCard("🛡️ Auto-moderation", hint = "Hide a post automatically after this many reports (0 = off).") {
-                AdField(th ?: "", { th = it.filter(Char::isDigit) }, "Reports before auto-hide", Modifier.firstFocus(), number = true)
+                AdField(th ?: "", { th = it.filter(Char::isDigit) }, "Reports before auto-hide", number = true)
                 AdButton("Save") { val v = ((th ?: "0").toIntOrNull() ?: 0).coerceAtLeast(0); adminDo(c, scope, if (v > 0) "🛡️ Auto-hide after $v reports" else "Auto-moderation off", { tick++ }) { Api.put("/api/settings", jo("key" to "automod_threshold", "value" to v.toString())) } }
             }
             adCard("⚡ Database speed", hint = "Adds the indexes the site needs to stay fast as it grows.") {
