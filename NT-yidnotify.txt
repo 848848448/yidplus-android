@@ -1,0 +1,68 @@
+--------- beginning of kernel
+--------- beginning of main
+--------- beginning of system
+11-12 09:07:54.674  2536  2536 I YidNotify: fast check on for 30 min
+11-12 09:08:21.843  2536  2536 I YidNotify: fast check on for 30 min
+11-12 09:09:30.837  3253  3295 I YidNotify: check done: 13 rooms, 0 shown
+11-12 09:09:57.439  3411  3446 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:09:57.439  3411  3446 I YidNotify: qa reset done
+11-12 09:10:01.268  3411  3411 I YidNotify: fast check on for 30 min
+11-12 09:10:08.247  3411  3446 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-12 09:10:08.380  3411  3446 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-12 09:10:08.455  3411  3446 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-12 09:10:08.456  3411  3446 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-12 09:10:08.456  3411  3446 I YidNotify: qa poll done
+11-12 09:10:46.276  3411  3455 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:11:46.307  3411  3446 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:12:29.545  3411  4205 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:12:29.545  3411  4205 I YidNotify: qa reset done
+11-12 09:12:32.575  3411  4205 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-12 09:12:32.586  3411  4205 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-12 09:12:32.596  3411  4205 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-12 09:12:32.597  3411  4205 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-12 09:12:32.597  3411  4205 I YidNotify: qa poll done
+11-12 09:12:46.359  3411  3447 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:12:48.979  3411  3447 I YidNotify: qa failnext done
+11-12 09:13:36.490  3411  3447 I YidNotify: reply room=nt-g3 sent=false (IOException: QA: simulated network failure)
+11-12 09:13:36.560  3411  3447 I YidNotify: fast check on for 15 min
+11-12 09:13:46.383  3411  3447 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:14:19.718  3411  5017 I YidNotify: reply room=nt-g3 sent=true
+11-12 09:14:19.736  3411  5017 I YidNotify: fast check on for 15 min
+11-12 09:14:46.432  3411  4205 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:15:09.553  3411  4205 I YidNotify: mark read room=nt-dm1 site=true
+11-12 09:15:18.581  3411  4646 I YidNotify: check done: 3 rooms, 0 shown (chats only)
+11-12 09:15:18.581  3411  4646 I YidNotify: qa poll done
+11-12 09:15:28.601  3411  4646 I YidNotify: qa forget done
+11-12 09:15:29.621  3411  4646 I YidNotify: room nt-g3: nothing new to alert
+11-12 09:15:29.621  3411  4646 I YidNotify: room nt-dm1: already seen up to 2026-11-11T19:31:00.000Z
+11-12 09:15:29.633  3411  4646 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-12 09:15:29.633  3411  4646 I YidNotify: check done: 3 rooms, 1 shown (chats only)
+11-12 09:15:29.633  3411  4646 I YidNotify: qa poll done
+11-12 09:15:46.475  3411  4205 I YidNotify: room r-dm1: already seen up to 2026-11-11T19:26:00.000Z
+11-12 09:15:46.475  3411  4205 I YidNotify: room r-g1: already seen up to 2026-11-11T19:19:00.000Z
+11-12 09:15:46.475  3411  4205 I YidNotify: room r-links: already seen up to 2026-11-11T19:24:00.000Z
+11-12 09:15:46.475  3411  4205 I YidNotify: room r-c1: already seen up to 2026-11-11T18:25:00.000Z
+11-12 09:15:46.476  3411  4205 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:15:59.915  3411  3411 I YidNotify: fast check on for 30 min
+11-12 09:16:11.434  5710  5746 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:16:11.434  5710  5746 I YidNotify: qa reset done
+11-12 09:16:15.285  5710  5710 I YidNotify: fast check on for 30 min
+11-12 09:16:22.284  5710  5746 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-12 09:16:22.298  5710  5746 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-12 09:16:22.310  5710  5746 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-12 09:16:22.310  5710  5746 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-12 09:16:22.310  5710  5746 I YidNotify: qa poll done
+11-12 09:17:00.336  5710  5753 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:17:30.749  5710  5753 I YidNotify: reply room=nt-g1 sent=true
+11-12 09:17:30.908  5710  5753 I YidNotify: fast check on for 15 min
+11-12 09:17:53.404  5710  5745 I YidNotify: mark read room=nt-dm1 site=true
+11-12 09:18:00.387  5710  5745 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-12 09:18:02.600  5710  5753 I YidNotify: check done: 3 rooms, 0 shown (chats only)
+11-12 09:18:02.600  5710  5753 I YidNotify: qa poll done
+11-12 09:18:12.623  5710  5753 I YidNotify: qa forget done
+11-12 09:18:13.649  5710  5753 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-12 09:18:13.649  5710  5753 I YidNotify: room nt-dm1: already seen up to 2026-11-11T19:31:00.000Z
+11-12 09:18:13.649  5710  5753 I YidNotify: room nt-g1: already seen up to 2026-11-11T19:40:00.000Z
+11-12 09:18:13.649  5710  5753 I YidNotify: check done: 3 rooms, 1 shown (chats only)
+11-12 09:18:13.649  5710  5753 I YidNotify: qa poll done
+11-12 09:18:51.467  5710  5710 I YidNotify: fast check on for 30 min
