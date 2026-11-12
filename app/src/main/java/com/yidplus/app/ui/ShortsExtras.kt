@@ -377,7 +377,11 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (loading && list.isEmpty()) SoSkeleton(rows = 3, avatar = 36.dp)
                 else if (list.isEmpty() && loadFailed) SoEmpty(Sym.ErrorOutline, "Couldn’t load comments.", action = "Try again", onAction = { scope.launch { load() } })
-                else if (list.isEmpty()) SoEmpty(Sym.ChatBubbleOutline, "No comments yet. Be the first to say something.")
+                else if (list.isEmpty()) Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                    Icon(Sym.ChatBubbleOutline, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(34.dp))
+                    Text("No comments yet", Modifier.padding(top = 6.dp), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                    Text("Be the first to say something.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+                }
                 else LazyColumn {
                     items(list, key = { it.id }) { cm ->
                         Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) {}.padding(horizontal = 16.dp, vertical = 8.dp)) {

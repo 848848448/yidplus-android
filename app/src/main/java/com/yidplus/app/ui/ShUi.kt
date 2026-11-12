@@ -138,7 +138,7 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                             }
                             val vs = RoundedCornerShape(17.dp)
                             // narrow phones: ▶ alone (the row itself opens the videos too), so the name keeps its room
-                            if (narrow) Box(Modifier.padding(start = 2.dp).size(34.dp).tap(CircleShape) { onWho(x.keys, x.name) }.border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                            if (narrow) Box(Modifier.padding(start = 2.dp).size(30.dp).tap(CircleShape) { onWho(x.keys, x.name) }.border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
                                 .semantics { contentDescription = "Videos" }, contentAlignment = Alignment.Center) {
                                 Icon(Sym.PlayArrow, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                             } else Row(Modifier.padding(start = 4.dp).height(34.dp).tap(vs) { onWho(x.keys, x.name) }.border(1.dp, MaterialTheme.colorScheme.outline, vs).padding(horizontal = 10.dp),
@@ -150,7 +150,7 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                             SoPill(if (fol) "Following" else "+ Follow", !fol, {
                                 ShDir.setFollow(c, x.keys, !fol, x.name, x.avatar, x.verified, quiet = fol); tick++
                                 ShCreatorsState.changed = true
-                            }, Modifier.widthIn(min = if (narrow) 88.dp else 96.dp))
+                            }, Modifier.widthIn(min = if (narrow) 80.dp else 96.dp))
                         }
                     }
                 }

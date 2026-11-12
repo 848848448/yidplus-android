@@ -118,6 +118,8 @@ object Feeds {
     val saved = mutableStateListOf<Clip>()
     var loadedPrefs = false
     val hidden = HashSet<String>()
+    /** uploads counted as viewed in this app run (one view per video per run, like one page view on the site) */
+    val viewed = HashSet<String>()
     private var seen: MutableList<String>? = null
     private var unsaved = 0
     fun seenSet(): Set<String> = (seen ?: Prefs.seen().also { seen = it }).toHashSet()
@@ -252,8 +254,13 @@ class ShortFeed(private val src: Boolean) {
                     if (stage == 0) withContext(Dispatchers.IO) { Disk.write("shorts-first", j) }
                     cursor = j.strOrNull("next")
                     stage = if (stage == 0 && !j.optBoolean("more")) 2 else stage + 1
-                    val page = ShRank.rank(Clip.srcPage(j).filter(::fresh))
-                    val counted = withContext(Dispatchers.IO) { counts(page) }
+                    val all = Clip.srcPage(j)
+                    val page = ShRank.rank(all.filter(::fresh))
+                    // the counts also refresh videos already on screen from the cached first page (they came without likes/comments)
+                    val shown = all.filter { a -> a.key !in page.map { it.key } && items.any { it.key == a.key } }
+                    val byKey = withContext(Dispatchers.IO) { counts(page + shown) }.associateBy { it.key }
+                    for (i in items.indices) byKey[items[i].key]?.let { u -> if (u.likes != items[i].likes || u.comments != items[i].comments || u.liked != items[i].liked) items[i] = u }
+                    val counted = page.map { byKey[it.key] ?: it }
                     items.addAll(counted)
                     if (cursor == null && stage >= 2) { end = true; ended = true; break }
                     if (counted.isNotEmpty()) { emptyRun = 0; break }
@@ -449,7 +456,7 @@ fun ShortsScreen() {
             Perf.shown("Shorts")
             Feeds.markSeen(s.video)
             // Like the site (shorts.js): an upload you see counts a view (not your own; signed out too), and goes into your History when signed in.
-            if (!s.fromSrc && s.creatorId != Session.me?.id && retried.add("v:" + s.key)) launch {
+            if (!s.fromSrc && s.creatorId != Session.me?.id && Feeds.viewed.add(s.key)) launch {
                 runCatching { Api.put("/api/shorts", JSONObject().put("id", s.key).put("view", true)) }.getOrNull()?.let { r -> if (r.has("views")) ShMeta.views[s.key] = r.optInt("views") }
                 if (Session.me != null) runCatching { Api.post("/api/history", JSONObject().put("item_type", "short").put("item_id", s.key)) }
             }
@@ -533,7 +540,8 @@ fun ShortsScreen() {
     var undo by remember { mutableStateOf<(() -> Unit)?>(null) }
     fun onTap(s: Clip, o: Offset) {
         val now = android.os.SystemClock.uptimeMillis()
-        if (now - tapState[0] < 300) {
+        if (com.yidplus.app.data.Fixture.on) android.util.Log.i("YidSh", "tap dt=${now - tapState[0]} muted=${Prefs.muted} paused=$paused first=$firstFrame buf=$buffering")
+        if (now - tapState[0] < 350) {
             tapState[0] = 0L; undo?.invoke(); undo = null
             bursts.add(ShBurstAt(now, o.x, o.y, (Math.random() * 30 - 15).toFloat()))
             if (!s.liked) like(s, true)

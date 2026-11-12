@@ -20,9 +20,10 @@ sh_dtap() {
   local d mx my c=""; d=$(sh_dev); [ -z "$d" ] && { timeout 5 adb shell "input tap $1 $2; input tap $1 $2"; return 0; }
   mx=$(sh_max "$d" ABS_MT_POSITION_X); my=$(sh_max "$d" ABS_MT_POSITION_Y); mx=${mx:-479}; my=${my:-639}
   local x=$(( $1 * mx / 479 )) y=$(( $2 * my / 639 )) k
+  # two touches ~120 ms apart (a finger's double-tap), all inside one adb shell so no round trip sits between them
   for k in 501 502; do
-    c="$c sendevent $d 3 47 0; sendevent $d 3 57 $k; sendevent $d 3 53 $x; sendevent $d 3 54 $y; sendevent $d 3 58 60; sendevent $d 1 330 1; sendevent $d 0 0 0;"
-    c="$c sendevent $d 3 57 -1; sendevent $d 1 330 0; sendevent $d 0 0 0;"
+    c="$c sendevent $d 3 47 0; sendevent $d 3 57 $k; sendevent $d 3 53 $x; sendevent $d 3 54 $y; sendevent $d 3 58 60; sendevent $d 1 330 1; sendevent $d 0 0 0; sleep 0.04;"
+    c="$c sendevent $d 3 57 -1; sendevent $d 1 330 0; sendevent $d 0 0 0; sleep 0.08;"
   done
   timeout 20 adb shell "$c"; log "double-tap at $1,$2"
 }
@@ -57,7 +58,10 @@ sh_tapui "1.5×"; sleep 1; shot SH-11-options-speed; key 4; sleep 2; shot SH-12-
 sh_tapui "More options"; sleep 2; sh_tapui "Normal"; key 4; sleep 1
 # 6. save, share sheet (subject + text), follow from the rail
 sh_mark save; sh_tapui "Save"; sleep 2; shot SH-13-saved-toast
-sh_mark share; sh_tapui "Share"; sleep 3; shot SH-14-share-sheet; key 4; sleep 2
+sh_mark share; sh_tapui "Share"; sleep 3; shot SH-14-share-sheet
+# close the system share sheet with one Back only if it is in front (a second Back would leave Shorts)
+timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -qi 'chooser\|resolver\|intentresolver' && { key 4; sleep 2; }
+timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus' | grep -q 'com.yidplus.app' || { view "https://yidplus.com/shorts"; sleep 4; log "share: back in Shorts by link"; }
 sh_mark follow-rail; sh_tapui "Follow"; sleep 2; shot SH-15-followed-from-rail
 # 7. swipe on; creator name -> that creator's own videos (chips: Back, name, Follow)
 sh_mark swipe; sh_up; shot SH-16-swiped; sh_up; shot SH-17-swiped2
@@ -96,4 +100,5 @@ log "videos: $(ls -l "$OUT"/SH-*.mp4 2>/dev/null | awk '{print $5, $9}' | tr '\n
 adb shell cmd uimode night yes; sleep 3; sh_tapui "Following"; sleep 4; shot SH-33-following-dark; adb shell cmd uimode night no; sleep 2
 size 1080x2400 420; restart 6; view "https://yidplus.com/shorts"; sleep 8; shot SH-34-phone-foryou; size 480x640 240
 log "unfixtured GETs from Shorts: $(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -o 'GET-unfixtured [^ ]*' | sort | uniq -c | sort -rn | head -30 | tr '\n' ';')"
+log "taps: $(timeout 20 adb logcat -d -s YidSh 2>/dev/null | grep -o 'tap dt=.*' | head -12 | tr '\n' ';')"
 log "Shorts perf: $(timeout 20 adb logcat -d -s YidPerf 2>/dev/null | grep -o 'Shorts video playing [0-9]* ms' | tail -8 | tr '\n' ';')"
