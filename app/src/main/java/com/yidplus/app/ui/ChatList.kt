@@ -104,6 +104,10 @@ import org.json.JSONObject
 import com.yidplus.app.data.TgChannel
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -165,6 +169,14 @@ fun ChatsScreen() {
     val selRooms = list.orEmpty().filter { it.room.id in sel }
     // The Qin F21 (480x640, ~427 dp tall): status circles + AI row + chips left no room for a single chat. There they shrink to one 56 dp row each.
     val compact = LocalConfiguration.current.screenHeightDp < 600
+    val listState = rememberLazyListState()
+    var pillShown by remember { mutableStateOf(true) }
+    val pillScroll = remember { object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+        override fun onPreScroll(available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): androidx.compose.ui.geometry.Offset {
+            if (available.y < -4f) pillShown = false else if (available.y > 4f) pillShown = true
+            return androidx.compose.ui.geometry.Offset.Zero
+        }
+    } }
 
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
@@ -187,12 +199,11 @@ fun ChatsScreen() {
                 },
                 onDelete = { delAsk = selRooms },
                 onInfo = { selRooms.firstOrNull()?.let { Nav.open(ChInfo(it.room)) }; sel.clear() })
-            searching -> ChSearchField(q, { q = it }, "Search chats, people, messages", { closeSearch() })
+            searching -> Unit
+            // Avrumy 05:02: no pencil and no small search icon up here — the green button starts a chat, the wide "Search…" field sits under the bar.
             else -> ChBar("Chats", sub = if (me == null) "Guest · featured groups" else null,
                 lead = if (me != null) ({ Box(Modifier.size(40.dp).tap(CircleShape) { drawer = true }.semantics { contentDescription = "Menu" }, contentAlignment = Alignment.Center) {
-                    Icon(Sym.Menu, null, tint = LocalContentColor.current, modifier = Modifier.size(24.dp)) } }) else null) {
-                ChIcon(Sym.Search, "Search chats", { searching = true })
-            }
+                    Icon(Sym.Menu, null, tint = LocalContentColor.current, modifier = Modifier.size(24.dp)) } }) else null)
         }
         if (me == null) {
             Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -200,7 +211,11 @@ fun ChatsScreen() {
                 PrimaryButton("Sign in", { Nav.go(Tab.Profile) })
             }
         }
-        if (searching) { ChSearchResults(q, list ?: emptyList()); return@Column }
+        if (searching) { ClSearchScreen(list ?: emptyList()) { closeSearch() }; return@Column }
+        // WhatsApp's rounded "Search…" field: hides while you scroll down the list, comes back as soon as you scroll up (or are at the top).
+        AnimatedVisibility(pillShown || listState.firstVisibleItemIndex == 0, enter = expandVertically(), exit = shrinkVertically()) {
+            ClSearchPill(compact) { searching = true }
+        }
         // Gap 5: the chips scroll sideways with room at the end, so none is ever cut mid-word at 480 px. Folders (chat.js renderChatFoldersRow) follow the tabs.
         if (me != null) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 20.dp, top = if (compact) 4.dp else 8.dp, bottom = if (compact) 4.dp else 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CHAT_TABS.forEach { (k, label) ->
@@ -234,7 +249,7 @@ fun ChatsScreen() {
                                 .sortedBy { val p = pins.indexOf(it.room.id); if (p < 0) Int.MAX_VALUE else p }
                         }
                         val tg = if (f == null && (tab == "all" || tab == "channels" || tab == "unread")) tgRes.data.orEmpty().filter { (it.joined || me == null) && (tab != "unread" || it.unread > 0) }.sortedByDescending { it.lastAt ?: "" } else emptyList()
-                        LazyColumn(Modifier.fillMaxSize(), state = rememberLazyListState(), contentPadding = PaddingValues(bottom = if (me != null) 88.dp else 8.dp)) {
+                        LazyColumn(Modifier.fillMaxSize().nestedScroll(pillScroll), state = listState, contentPadding = PaddingValues(bottom = if (me != null) 104.dp else 8.dp)) {
                             if (me != null && tab == "all" && f == null && q.isBlank()) item(key = "nw-status") { if (compact) ClStatusRow(stUsers.orEmpty()) else StatusStrip() }
                             if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank()) item(key = "nw-ai") { AiChatRow(compact) { Nav.open(AiChatPage()) } }
                             if (shown.isEmpty() && tg.isEmpty()) item {
@@ -271,28 +286,7 @@ fun ChatsScreen() {
     }
     ClDrawer(drawer) { drawer = false }
     }
-    muteAsk?.let { rs ->
-        ClMuteDialog(if (rs.size == 1) "Mute \"${rs[0].room.name}\"?" else "Mute ${rs.size} chats?", onPick = { ms ->
-            muteAsk = null
-            scope.launch {
-                rs.forEach { ri -> runCatching { ChatApi.mute(ri.room.id, true) }.onSuccess { ClLocal.setMuteUntil(c, ri.room.id, if (ms > 0) System.currentTimeMillis() + ms else 0) } }
-                toast(c, "🔇 Muted"); sel.clear(); res.load(true)
-            }
-        }, onDismiss = { muteAsk = null })
-    }
-    delAsk?.let { rs ->
-        AlertDialog(onDismissRequest = { delAsk = null },
-            text = { Text(if (rs.size == 1) (if (rs[0].isPrivate) "Delete chat with \"${rs[0].room.name}\"? This removes it from your list." else "Leave \"${rs[0].room.name}\"?") else "Delete ${rs.size} chats? This removes them from your list.", fontSize = 16.sp) },
-            confirmButton = { TextButton({
-                delAsk = null
-                scope.launch {
-                    var ok = 0; rs.forEach { ri -> runCatching { ClApi.deleteChat(ri.room.id) }.onSuccess { ok++ }.onFailure { toast(c, Api.friendly(it)) } }
-                    if (ok > 0) toast(c, if (rs.size == 1 && !rs[0].isPrivate) "🚪 You left the group." else "🗑 Chat removed")
-                    sel.clear(); res.load(true)
-                }
-            }) { Text(if (rs.size == 1 && !rs[0].isPrivate) "Leave" else if (rs.size == 1) "Delete chat" else "Delete ${rs.size} chats", color = Color(0xFFD32F2F)) } },
-            dismissButton = { TextButton({ delAsk = null }) { Text("Cancel") } })
-    }
+    ClListDialogs(muteAsk, delAsk, { muteAsk = null }, { delAsk = null }) { sel.clear(); scope.launch { res.load(true) } }
 }
 
 @Composable
@@ -368,3 +362,32 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
 /** Row text sits at the row's leading edge whatever script it is in (a Yiddish name in an English UI starts at the left, like WhatsApp), so it never drifts over to the time. */
 @Composable
 internal fun chLeadAlign(): TextAlign = if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Ltr) TextAlign.Left else TextAlign.Right
+
+
+/** The list's two confirm dialogs (kept out of ChatsScreen so that function stays small for ART on API 30). */
+@Composable
+private fun ClListDialogs(muteAsk: List<ChatRoomInfo>?, delAsk: List<ChatRoomInfo>?, clearMute: () -> Unit, clearDel: () -> Unit, done: () -> Unit) {
+    val c = ctx(); val scope = rememberCoroutineScope()
+    muteAsk?.let { rs ->
+        ClMuteDialog(if (rs.size == 1) "Mute \"${rs[0].room.name}\"?" else "Mute ${rs.size} chats?", onPick = { ms ->
+            clearMute()
+            scope.launch {
+                rs.forEach { ri -> runCatching { ChatApi.mute(ri.room.id, true) }.onSuccess { ClLocal.setMuteUntil(c, ri.room.id, if (ms > 0) System.currentTimeMillis() + ms else 0) } }
+                toast(c, "🔇 Muted"); done()
+            }
+        }, onDismiss = { clearMute() })
+    }
+    delAsk?.let { rs ->
+        AlertDialog(onDismissRequest = { clearDel() },
+            text = { Text(if (rs.size == 1) (if (rs[0].isPrivate) "Delete chat with \"${rs[0].room.name}\"? This removes it from your list." else "Leave \"${rs[0].room.name}\"?") else "Delete ${rs.size} chats? This removes them from your list.", fontSize = 16.sp) },
+            confirmButton = { TextButton({
+                clearDel()
+                scope.launch {
+                    var ok = 0; rs.forEach { ri -> runCatching { ClApi.deleteChat(ri.room.id) }.onSuccess { ok++ }.onFailure { toast(c, Api.friendly(it)) } }
+                    if (ok > 0) toast(c, if (rs.size == 1 && !rs[0].isPrivate) "🚪 You left the group." else "🗑 Chat removed")
+                    done()
+                }
+            }) { Text(if (rs.size == 1 && !rs[0].isPrivate) "Leave" else if (rs.size == 1) "Delete chat" else "Delete ${rs.size} chats", color = Color(0xFFD32F2F)) } },
+            dismissButton = { TextButton({ clearDel() }) { Text("Cancel") } })
+    }
+}

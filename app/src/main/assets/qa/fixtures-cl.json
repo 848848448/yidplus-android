@@ -210,5 +210,239 @@
  "/api/chat/drafts": {
   "ok": true,
   "drafts": []
+ },
+ "/api/chat?search=Mendy": {
+  "ok": true,
+  "messages": []
+ },
+ "/api/users/search?q=YID": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat?search=Yo": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "sy1",
+    "room_id": "r-dm1",
+    "room_name": "Yossi Klein",
+    "room_type": "private",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "type": "text",
+    "text": "Yossi here — see you at the simcha tonight",
+    "created_at": "2026-11-11T21:10:00.000Z"
+   },
+   {
+    "id": "sy2",
+    "room_id": "r-g1",
+    "room_name": "חברים פון שול",
+    "room_type": "group",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "type": "text",
+    "text": "Did anyone ask Yossi about the minyan time?",
+    "created_at": "2026-11-10T18:02:00.000Z"
+   }
+  ]
+ },
+ "/api/users/search?q=Yo": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat/rooms?search=Yo": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=Yossi": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "sy1",
+    "room_id": "r-dm1",
+    "room_name": "Yossi Klein",
+    "room_type": "private",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "type": "text",
+    "text": "Yossi here — see you at the simcha tonight",
+    "created_at": "2026-11-11T21:10:00.000Z"
+   },
+   {
+    "id": "sy2",
+    "room_id": "r-g1",
+    "room_name": "חברים פון שול",
+    "room_type": "group",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "type": "text",
+    "text": "Did anyone ask Yossi about the minyan time?",
+    "created_at": "2026-11-10T18:02:00.000Z"
+   }
+  ]
+ },
+ "/api/users/search?q=Yossi": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat/rooms?search=Yossi": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=Yoss": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "sy1",
+    "room_id": "r-dm1",
+    "room_name": "Yossi Klein",
+    "room_type": "private",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "type": "text",
+    "text": "Yossi here — see you at the simcha tonight",
+    "created_at": "2026-11-11T21:10:00.000Z"
+   },
+   {
+    "id": "sy2",
+    "room_id": "r-g1",
+    "room_name": "חברים פון שול",
+    "room_type": "group",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "type": "text",
+    "text": "Did anyone ask Yossi about the minyan time?",
+    "created_at": "2026-11-10T18:02:00.000Z"
+   }
+  ]
+ },
+ "/api/users/search?q=Yoss": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat/rooms?search=Yoss": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=zzqx": {
+  "ok": true,
+  "messages": []
+ },
+ "/api/users/search?q=zzqx": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat/rooms?search=zzqx": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=zz": {
+  "ok": true,
+  "messages": []
+ },
+ "/api/users/search?q=zz": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat/rooms?search=zz": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=zzq": {
+  "ok": true,
+  "messages": []
+ },
+ "/api/users/search?q=zzq": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat/rooms?search=zzq": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=Me": {
+  "ok": true,
+  "messages": []
+ },
+ "/api/users/search?q=Me": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-mendy",
+    "nickname": "Mendy Gold",
+    "photo_url": null
+   }
+  ]
+ },
+ "/api/chat/rooms?search=Me": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=Men": {
+  "ok": true,
+  "messages": []
+ },
+ "/api/users/search?q=Men": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-mendy",
+    "nickname": "Mendy Gold",
+    "photo_url": null
+   }
+  ]
+ },
+ "/api/chat/rooms?search=Men": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=Mend": {
+  "ok": true,
+  "messages": []
+ },
+ "/api/users/search?q=Mend": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-mendy",
+    "nickname": "Mendy Gold",
+    "photo_url": null
+   }
+  ]
+ },
+ "/api/chat/rooms?search=Mend": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/chat?search=YI": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "m-s1",
+    "room_id": "r-g1",
+    "room_name": "חברים פון שול",
+    "sender_nick": "Yossi Klein",
+    "text": "Did you see the new YID PLUS app?",
+    "created_at": "2026-11-11T18:00:00.000Z",
+    "type": "text"
+   }
+  ]
+ },
+ "/api/users/search?q=YI": {
+  "ok": true,
+  "users": []
+ },
+ "/api/chat/rooms?search=YI": {
+  "ok": true,
+  "rooms": [
+   {
+    "id": "r-pub1",
+    "type": "group",
+    "nick": "YID PLUS Community",
+    "members": 340,
+    "photo_url": null,
+    "visibility": "public"
+   }
+  ]
  }
 }

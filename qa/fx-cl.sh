@@ -28,6 +28,13 @@ chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && return 0; set -- $p; adb
 chipback() { local p; p=$(clpos "All"); [ -z "$p" ] && p="240 120"; set -- $p; adb shell input swipe 30 $2 440 $2 300; sleep 1; }
 size 480x640 240
 
+# ── Video 1 (30 s, D-pad + touch): list → search field → chips → open a chat → back → side menu ──
+adb shell rm -f /sdcard/CL-flow.mp4; (timeout 40 adb shell screenrecord --size 480x640 --bit-rate 1000000 --time-limit 30 /sdcard/CL-flow.mp4 >/dev/null 2>&1 &)
+view "https://yidplus.com/chat"; sleep 4; key 20; sleep 0.6; key 20; sleep 0.6; key 20; sleep 0.6; key 19; sleep 0.6; key 23; sleep 3; key 4; sleep 2
+adb shell input swipe 240 500 240 200 500; sleep 1.5; adb shell input swipe 240 200 240 520 500; sleep 1.5
+cltap "Search chats"; adb shell input text "Yo"; sleep 2; key 4; sleep 0.5; key 4; sleep 1.5; cltap "Groups"; sleep 1.5; cltap "All"; sleep 1; cltap "Menu"; sleep 2; key 4
+sleep 6; timeout 20 adb pull /sdcard/CL-flow.mp4 "$OUT/CL-flow.mp4" >/dev/null 2>&1; log "CL video: $(ls -la "$OUT/CL-flow.mp4" 2>/dev/null | awk '{print $5}') bytes"
+
 # ── The list: tabs + folder chips, Telegram channels as rows, empty private chats hidden, compact status + AI rows at 480x640 ──
 view "https://yidplus.com/chat"; sleep 8; shot CL-01-list; cltexts list
 clnot "Empty Chat"; clhas "Menu"; clhas "Status"
@@ -51,6 +58,13 @@ cltap "Menu"; sleep 2; cltap "Chat Folders"; sleep 3; shot CL-12-folders; clhas 
 cltap "Folder name"; sleep 1; adb shell input text "Family%sand%sfriends"; key 4; clst "Python"; shot CL-12b-folder-new; cltop; cltap "Create"; sleep 2; clfx '"name":"Family and friends"'
 cltap "Delete folder Work"; sleep 1; shot CL-12c-folder-delete; cltap "Delete"; sleep 2; clfx "DELETE /api/chat/folders?id=cl-f1"; key 4; sleep 1
 cltap "Menu"; sleep 2; clst "Chat settings" 100; sleep 2; shot CL-13-chat-settings; cltap "Large"; sleep 1; shot CL-13b-font-large; cltap "Read receipts"; sleep 1; cltap "Medium"; key 4; sleep 1
+
+# ── Video 2 (30 s): long-press select → mute choices → group info → edit switches ──
+adb shell rm -f /sdcard/CL-manage.mp4; (timeout 40 adb shell screenrecord --size 480x640 --bit-rate 1000000 --time-limit 30 /sdcard/CL-manage.mp4 >/dev/null 2>&1 &)
+view "https://yidplus.com/chat"; sleep 3; cllong "Yossi Klein"; sleep 1; cltap "Mute"; sleep 2; cltap "Cancel"; key 4; sleep 1
+clopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 3; cltap "More"; cltap "Group info"; sleep 2; adb shell input swipe 240 500 240 200 600; sleep 1.5
+cltap "Edit"; sleep 2; adb shell input swipe 240 500 240 200 600; sleep 1.5; key 4; sleep 1; key 4; sleep 1; key 4
+sleep 5; timeout 20 adb pull /sdcard/CL-manage.mp4 "$OUT/CL-manage.mp4" >/dev/null 2>&1; log "CL video 2: $(ls -la "$OUT/CL-manage.mp4" 2>/dev/null | awk '{print $5}') bytes"
 
 # ── Group info (r-g1, I'm its owner): photo, mute, disappearing, invite, Media/Files/Links/Voice, members with titles ──
 clopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 6
@@ -87,11 +101,19 @@ view "https://yidplus.com/chat"; sleep 3; cltap "Start new chat"; sleep 1; cltap
 adb shell input text "https://yidplus.com/chat?join=clpriv"; key 4; sleep 3; shot CL-26-invite-private; clhas "Request to join"; clst "Request to join"; sleep 2; clfx '"code":"clpriv"'; shot CL-26b-request-sent; key 4; sleep 1
 
 # ── Search, then a non-green theme and dark mode (the bars follow the colour theme: DS P6) ──
-view "https://yidplus.com/chat"; sleep 3; cltap "Search chats"; sleep 1; adb shell input text "YID"; sleep 3; key 4; shot CL-27-search; key 4; sleep 1
+view "https://yidplus.com/chat"; sleep 3; cltap "Search chats"; sleep 2; shot CL-31-search-open; chkb_cl() { log "CL keyboard after search opens: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }; chkb_cl
+adb shell input text "Yo"; sleep 1; shot CL-31b-search-typing; adb shell input text "ssi"; sleep 3; key 4; shot CL-31c-search-results; cltexts search-yossi
+cltap "Clear"; sleep 1; adb shell input text "YID"; sleep 3; key 4; shot CL-27-search; cltexts search-yid
+cltap "Clear"; sleep 1; adb shell input text "Mendy"; sleep 3; key 4; shot CL-27b-search-people; clhas "Contacts"; clhas "Mendy Gold"
+cltap "Clear"; sleep 1; key 4; shot CL-31d-search-recent; clhas "Recent searches"
+cltap "Unread"; sleep 1; shot CL-31e-chip-unread; cltap "Unread"; cltap "Photos"; sleep 1; shot CL-31f-chip-photos; cltap "Photos"; cltap "Links"; sleep 1; shot CL-31g-chip-links; cltap "Links"
+cltap "Clear all"; sleep 1; adb shell input text "zzqx"; sleep 3; key 4; shot CL-31h-no-results; clhas "No results found"
+cltap "Clear"; adb shell input text "Mendy"; sleep 3; key 4; cltap "Mendy Gold"; sleep 2; clfx '"other_user_id":"u-mendy"'; key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
 adb shell cmd uimode night yes; sleep 3; view "https://yidplus.com/chat"; sleep 3; shot CL-28-list-dark; cltap "Menu"; sleep 1; shot CL-28b-drawer-dark; key 4; sleep 1
 clopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 5; cltap "More"; cltap "Group info"; sleep 2; shot CL-28c-info-dark; key 4; key 4; adb shell cmd uimode night no; sleep 2
 # a non-green colour theme (Ocean / preset 1) and the light bar: the chat bars must follow it
 look() { timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_LOOK "$@" >/dev/null 2>&1; sleep 2; }
 look --es color 1; view "https://yidplus.com/chat"; sleep 3; shot CL-29-list-theme1; cllong "Yossi Klein"; shot CL-29b-select-theme1; key 4
 look --es bar light; sleep 1; shot CL-29c-list-lightbar; cltap "Menu"; sleep 1; shot CL-29d-drawer-lightbar; key 4; look --es bar dark --es color 0; sleep 1
+size 1080x2400 420; view "https://yidplus.com/chat"; sleep 4; shot CL-30-list-1080; cltap "Menu"; sleep 1; shot CL-30b-drawer-1080; key 4; size 480x640 240; sleep 2
 log "CL all writes: $(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c YidFx)"

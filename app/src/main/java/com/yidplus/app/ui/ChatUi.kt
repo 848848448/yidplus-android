@@ -243,13 +243,19 @@ internal fun ChRow(title: String, sub: String?, lead: @Composable () -> Unit, mo
 internal fun ChSearchResults(q: String, rooms: List<ChatRoomInfo>) {
     var msgs by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var groups by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
+    var people by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var busy by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope(); val c = ctx()
+    // runtime-reliability.js global search: Telegram channels and people too (the list of joined Telegram channels is already loaded for the chat list).
+    val tg = remember(q) { com.yidplus.app.data.Store.res("/api/telegram-channels", com.yidplus.app.data.TgChannel::list).data.orEmpty()
+        .filter { q.trim().length >= 2 && (it.title.contains(q.trim(), true) || it.username.contains(q.trim(), true)) } }
     LaunchedEffect(q) {
-        msgs = emptyList(); groups = emptyList()
+        msgs = emptyList(); groups = emptyList(); people = emptyList()
         if (q.trim().length < 2 || Session.me == null) return@LaunchedEffect
         delay(400); busy = true
         runCatching { msgs = chObjs(Api.get("/api/chat?search=" + chEnc(q.trim())).optJSONArray("messages")).take(40) }
         runCatching { val mine = rooms.map { it.room.id }.toSet(); groups = chObjs(Api.get("/api/chat/rooms?search=" + chEnc(q.trim())).optJSONArray("rooms")).filter { it.chStr("id") !in mine } }
+        runCatching { people = chObjs(Api.get("/api/users/search?q=" + chEnc(q.trim())).optJSONArray("users")).filter { it.chStr("id") != Session.me?.id }.take(20) }
         busy = false
     }
     val hits = remember(q, rooms) { if (q.isBlank()) rooms else rooms.filter { it.room.name.contains(q.trim(), true) || it.room.preview.contains(q.trim(), true) } }
@@ -264,6 +270,17 @@ internal fun ChSearchResults(q: String, rooms: List<ChatRoomInfo>) {
                 }
             }
         }
+        if (people.isNotEmpty()) {
+            item { ChSection("People") }
+            items(people, key = { "u" + it.chStr("id") }) { u ->
+                ChRow(u.chStr("nickname"), "Tap to message", { ChAvatar(Api.abs(u.chStr("photo_url").ifBlank { null }), u.chStr("nickname"), u.chStr("id"), 44.dp) }) {
+                    scope.launch { runCatching { ChatApi.openDm(u.chStr("id")) }.onSuccess { id -> Nav.open(Screen.Chat(ChatApi.roomOf(id, "private", u.chStr("nickname"), Api.abs(u.chStr("photo_url").ifBlank { null }), u.chStr("id")))) }.onFailure { toast(c, Api.friendly(it)) } }
+                }
+            }
+        }
+        if (tg.isNotEmpty()) { item { ChSection("Telegram channels") }; items(tg, key = { "t" + it.username }) { t -> ClTgRow(t, if (t.joined) null else ({
+            // chat.js tgQuickJoin: POST /api/telegram-join {username}
+            scope.launch { runCatching { Api.post("/api/telegram-join", JSONObject().put("username", t.username)) }.onSuccess { toast(c, "✅ Joined") }.onFailure { toast(c, Api.friendly(it)) } } })) } }
         if (msgs.isNotEmpty()) {
             item { ChSection("Messages") }
             items(msgs, key = { "m" + it.chStr("id") }) { m ->
@@ -274,7 +291,7 @@ internal fun ChSearchResults(q: String, rooms: List<ChatRoomInfo>) {
                 }
             }
         }
-        if (q.trim().length >= 2 && !busy && hits.isEmpty() && msgs.isEmpty() && groups.isEmpty()) item { ChEmpty(Icons.Filled.SearchOff, "Nothing found for “$q”") }
+        if (q.trim().length >= 2 && !busy && hits.isEmpty() && msgs.isEmpty() && groups.isEmpty() && people.isEmpty() && tg.isEmpty()) item { ChEmpty(Sym.SearchOff, "Nothing found for “$q”") }
     }
 }
 

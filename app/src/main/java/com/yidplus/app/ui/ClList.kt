@@ -287,3 +287,15 @@ internal fun ClStatusRow(all: List<StUser>) {
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
     }
 }
+
+/** The wide rounded "Search…" field at the top of the chat list (current WhatsApp). One tap / D-pad OK opens the search. 40 dp on 480x640, 48 dp elsewhere. */
+@Composable
+internal fun ClSearchPill(compact: Boolean, onOpen: () -> Unit) {
+    val shape = RoundedCornerShape(24.dp)
+    Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = if (compact) 6.dp else 8.dp, bottom = 2.dp).height(if (compact) 40.dp else 48.dp)
+        .clip(shape).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (ChatLook.dark()) .55f else .8f))
+        .tap(shape, onClick = onOpen).semantics { contentDescription = "Search chats" }.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(Sym.Search, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Search…", Modifier.padding(start = 12.dp), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+    }
+}
