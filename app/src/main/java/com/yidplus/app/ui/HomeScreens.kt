@@ -83,26 +83,28 @@ fun HomeScreen() {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (searching) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.Filled.ArrowBack, "Close search", { kb?.hide(); searching = false; q = "" })
+                IconBtn(Sym.ArrowBack, "Close search", { kb?.hide(); searching = false; q = "" })
                 TextField(q, { q = it.take(80) }, Modifier.weight(1f).firstFocus(always = true), singleLine = true,
                     placeholder = { Text("Search channels") }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent))
-                if (q.isNotEmpty()) IconBtn(Icons.Filled.Close, "Clear", { q = "" })
+                if (q.isNotEmpty()) IconBtn(Sym.Close, "Clear", { q = "" })
             }
         } else TopBar("Channels") {
-            if (SoUser.isSuper && view <= 1) IconBtn(Icons.Filled.Add, "Add a Telegram channel", { adding = true }, tint = LocalContentColor.current)
+            if (SoUser.isSuper && view <= 1) IconBtn(Sym.Add, "Add a Telegram channel", { adding = true }, tint = LocalContentColor.current)
             SoHeaderActions(onSearch = { searching = true })
         }
-        SoChips(views, view, { view = it; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", it).apply() } })
-        if (searching && q.trim().length >= 2) Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(SoSearchPage()) }
+        // "Feed" (the site's Home page) is shown first but saved as view 4, so the saved Telegram/Joined/Members/Recent numbers stay the same.
+        SoChips(listOf("Feed") + views, if (view == 4) 0 else view + 1, { d -> val v = if (d == 0) 4 else d - 1; view = v; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", v).apply() } })
+        if (searching && q.trim().length >= 2) Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(SoSearchPage(q0 = q.trim())) }
             .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.TravelExplore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+            Icon(Sym.TravelExplore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             Text("Search all of YID PLUS", Modifier.padding(start = 12.dp), color = MaterialTheme.colorScheme.primary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
         }
         Box(Modifier.weight(1f)) {
-            if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
+            if (view == 4) HmFeed(onSeeChannels = { view = 2; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", 2).apply() } })
+            else if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
             else PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
                 when {
                     list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
@@ -115,7 +117,7 @@ fun HomeScreen() {
                             .sortedWith(compareByDescending<TgChannel> { it.joined && it.unread > 0 }.thenByDescending { parseTime(it.lastAt) ?: 0L })
                         val state = rememberLazyListState()
                         LazyColumn(Modifier.fillMaxSize(), state = state) {
-                            if (shown.isEmpty()) item { SoEmpty(if (view == 1) Icons.Filled.Campaign else Icons.Filled.Search,
+                            if (shown.isEmpty()) item { SoEmpty(if (view == 1) Sym.Campaign else Sym.Search,
                                 if (view == 1) "You haven't joined a channel yet. Open one and tap Join." else "No channels found") }
                             items(shown, key = { it.username }) { ch ->
                                 ChannelRow(ch, Modifier.then(if (ch == shown.first() && !searching) Modifier.firstFocus() else Modifier))
@@ -135,12 +137,26 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
     val c = ctx(); val scope = rememberCoroutineScope()
     val selected = Nav.homeDetail?.ch?.username == ch.username
     var joined by remember(ch.username, ch.joined) { mutableStateOf(ch.joined) }
+    var rowMenu by remember { mutableStateOf(false) }
+    var readNow by remember(ch.username) { mutableStateOf(false) }
     // Like the site's channel list / WhatsApp's Updates: photo, name and time on one line, the last post under it,
     // then the unread number (joined) or a small Join button. Members count when there is no post yet.
     Row(modifier.fillMaxWidth().heightIn(min = 68.dp).background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-        .restoreFocus("ch:" + ch.username).tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "ch:" + ch.username; Nav.open(Screen.Channel(ch.copy(joined = joined))) }
+        .restoreFocus("ch:" + ch.username).hmTapLong(RoundedCornerShape(0.dp), onLong = { rowMenu = true }) { Nav.lastOpened = "ch:" + ch.username; Nav.open(Screen.Channel(ch.copy(joined = joined))) }
         .padding(horizontal = 16.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-        SoThumb(ch.photo, ch.title, 50.dp)
+        Box {
+            SoThumb(ch.photo, ch.title, 50.dp)
+            // Telegram's long-press menu on a channel row.
+            DropdownMenu(rowMenu, { rowMenu = false }) {
+                DropdownMenuItem(text = { Text("Open") }, leadingIcon = { Icon(Sym.OpenInNew, null) }, onClick = { rowMenu = false; Nav.open(Screen.Channel(ch.copy(joined = joined))) })
+                if (joined && ch.unread > 0 && !readNow) DropdownMenuItem(text = { Text("Mark as read") }, leadingIcon = { Icon(Sym.DoneAll, null) }, onClick = { rowMenu = false; readNow = true
+                    scope.launch { runCatching { Api.post("/api/telegram-read", JSONObject().put("username", ch.username)) }; Badges.channels = (Badges.channels - ch.unread).coerceAtLeast(0) } })
+                DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Sym.Logout else Sym.Add, null) },
+                    onClick = { rowMenu = false; scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } })
+                DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Sym.Info, null) }, onClick = { rowMenu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined))) })
+                DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { rowMenu = false; soCopy(c, soTgLink(ch.username)) })
+            }
+        }
         Column(Modifier.weight(1f).padding(start = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Left-aligned even for a Yiddish name (like WhatsApp), so the name never runs into the time.
@@ -155,7 +171,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
                 val prev = when { text.isNotEmpty() && media.isNotEmpty() -> media.substringBefore(' ') + " " + text; text.isNotEmpty() -> text; media.isNotEmpty() -> media; else -> soMembers(ch.members) }
                 Text(prev, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left), maxLines = 1, overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (joined) SoBadge(ch.unread, Modifier.padding(start = 8.dp))
+                if (joined) SoBadge(if (readNow) 0 else ch.unread, Modifier.padding(start = 8.dp))
                 // A small outlined Join (like Telegram's), so the row keeps WhatsApp's height.
                 else Box(Modifier.padding(start = 8.dp).heightIn(min = 28.dp).soTouchOnly().tap(RoundedCornerShape(14.dp)) { scope.launch { soTgToggleJoin(c, ch.username)?.let { joined = it.first } } }
                     .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 3.dp), contentAlignment = Alignment.Center) {
@@ -187,6 +203,8 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
     var members by remember(ch.username) { mutableIntStateOf(ch.members) }
     var joining by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
+    var findOpen by remember { mutableStateOf(false) }
+    var find by remember { mutableStateOf("") }
     val cacheKey = "tg-posts|" + ch.username
 
     /** Never the same post twice: by id, and by the same file posted again. */
@@ -260,17 +278,23 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
         TopBar(ch.title, onBack = { Nav.back() }, sub = soMembers(members), lead = {
             Box(Modifier.tap(CircleShape) { Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) }) { SoThumb(ch.photo, ch.title, 36.dp) }
         }) {
-            IconBtn(Icons.Filled.Share, "Share channel", { share(c, ch.title + "\n" + soTgLink(ch.username)) }, tint = LocalContentColor.current)
+            IconBtn(Sym.Search, "Search in channel", { findOpen = !findOpen; if (!findOpen) find = "" }, tint = LocalContentColor.current)
+            IconBtn(Sym.Share, "Share channel", { share(c, ch.title + "\n" + soTgLink(ch.username)) }, tint = LocalContentColor.current)
             Box {
-                IconBtn(Icons.Filled.MoreVert, "More", { menu = true }, tint = LocalContentColor.current)
+                IconBtn(Sym.MoreVert, "More", { menu = true }, tint = LocalContentColor.current)
                 DropdownMenu(menu, { menu = false }) {
-                    DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Icons.Filled.Info, null) }, onClick = { menu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) })
-                    DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Icons.Filled.Logout else Icons.Filled.Add, null) },
+                    DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Sym.Info, null) }, onClick = { menu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) })
+                    DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Sym.Logout else Sym.Add, null) },
                         onClick = { menu = false; toggleJoin() })
-                    DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Icons.Filled.Link, null) }, onClick = { menu = false; soCopy(c, soTgLink(ch.username)) })
-                    DropdownMenuItem(text = { Text("Open in Telegram") }, leadingIcon = { Icon(Icons.AutoMirrored.Filled.Send, null) }, onClick = { menu = false; openUrl(c, "https://t.me/" + ch.username) })
+                    DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { menu = false; soCopy(c, soTgLink(ch.username)) })
+                    DropdownMenuItem(text = { Text("Open in Telegram") }, leadingIcon = { Icon(Sym.Send, null) }, onClick = { menu = false; openUrl(c, "https://t.me/" + ch.username) })
                 }
             }
+        }
+        if (findOpen) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
+            OutlinedTextField(find, { find = it.take(60) }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp).firstFocus(always = true), singleLine = true,
+                placeholder = { Text("Search this channel") }, leadingIcon = { Icon(Sym.Search, null) },
+                trailingIcon = { if (find.isNotEmpty()) IconBtn(Sym.Close, "Clear", { find = "" }) }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
         }
         val state = listState
         LaunchedEffect(state, posts.size) {
@@ -281,15 +305,20 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
             when {
                 posts.isEmpty() && error != null -> Problem(error!!, offline, { scope.launch { refresh() } })
                 posts.isEmpty() && (loading || !end) -> PostSkeleton()
-                posts.isEmpty() -> SoEmpty(Icons.Filled.HourglassTop, "Fetching posts from Telegram. A new channel takes a few minutes.")
+                posts.isEmpty() -> SoEmpty(Sym.HourglassTop, "Fetching posts from Telegram. A new channel takes a few minutes.")
                 // Telegram order: newest at the bottom, scroll up for older (reverseLayout keeps index 0 = newest).
                 else -> LazyColumn(Modifier.fillMaxSize(), state = state, reverseLayout = true, contentPadding = PaddingValues(vertical = 6.dp)) {
-                    val units = hmGroupPosts(ch.username, posts.toList())
+                    val f = find.trim()
+                    val units = hmGroupPosts(ch.username, posts.toList()).let { all -> if (f.length < 2) all else all.filter { u -> u.any { it.text.contains(f, true) || it.title.contains(f, true) } } }
                     val gallery = { url: String -> openGallery(posts.filter { it.isPhoto || it.isVideo }.sortedBy { it.id }.mapNotNull { q -> q.media?.let { GItem(it, q.isVideo, if (q.isVideo) q.thumb else null, q.title) } }, url) }
                     units.forEachIndexed { ui, u ->
                         val main = u.firstOrNull { it.text.isNotBlank() } ?: u.first()
                         item(key = "p" + u.first().id) { PostCard(main, ch, reacts, if (ui == 0) Modifier.firstFocus() else Modifier,
-                            onMedia = gallery, onDeleted = { posts.removeAll { q -> u.any { it.id == q.id } } }, album = if (u.size > 1) u else emptyList()) }
+                            onMedia = gallery, onDeleted = { posts.removeAll { q -> u.any { it.id == q.id } } }, album = if (u.size > 1) u else emptyList(),
+                            // Audio plays in the app's music player, and the channel's next audio plays after it (the site's _tgPlayNext).
+                            onAudio = { a -> val auds = posts.filter { it.isAudio && it.media != null }.sortedBy { it.id }
+                                Music.play(c, auds.map { q -> Track("tg:" + ch.username + ":" + q.id, q.title.ifBlank { q.fileName.ifBlank { "Audio" } }, q.performer.ifBlank { ch.title },
+                                    HmTgExtras.of(ch.username, q.id)?.thumb ?: ch.photo, q.media, ch.title, ch.photo, 0, false) }, auds.indexOfFirst { it.id == a.id }.coerceAtLeast(0)) }) }
                         val older = units.getOrNull(ui + 1)
                         val day = hmDayKey(u.last().postedAt)
                         if ((older == null && end) || (older != null && hmDayKey(older.last().postedAt) != day))
@@ -302,7 +331,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
                 Surface(Modifier.align(Alignment.BottomEnd).padding(12.dp).tap(RoundedCornerShape(20.dp)) { scope.launch { listState.animateScrollToItem(0); newCount = 0 } },
                     shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.primary, shadowElevation = 4.dp) {
                     Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.KeyboardArrowDown, "Newest posts", tint = Color.White)
+                        Icon(Sym.KeyboardArrowDown, "Newest posts", tint = Color.White)
                         if (newCount > 0) Text(" $newCount new", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
@@ -310,7 +339,7 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
         }
         if (!joined) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 6.dp) {
             Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), contentAlignment = Alignment.Center) {
-                SoPill(if (joining) "Joining…" else "Join channel", true, { toggleJoin() }, Modifier.fillMaxWidth(), icon = Icons.Filled.Add, enabled = !joining)
+                SoPill(if (joining) "Joining…" else "Join channel", true, { toggleJoin() }, Modifier.fillMaxWidth(), icon = Sym.Add, enabled = !joining)
             }
         }
     }
@@ -331,10 +360,11 @@ private fun PostSkeleton() {
 }
 
 @Composable
-private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Modifier, onMedia: (String) -> Unit = { }, onDeleted: () -> Unit = {}, album: List<TgPost> = emptyList()) {
+private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Modifier, onMedia: (String) -> Unit = { }, onDeleted: () -> Unit = {}, album: List<TgPost> = emptyList(), onAudio: ((TgPost) -> Unit)? = null) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     var revealed by remember { mutableStateOf(false) }
+    var opts by remember { mutableStateOf(false) }
     val ents = HmTgExtras.of(ch.username, p.id)?.entities.orEmpty()
     val linkC = MaterialTheme.colorScheme.primary; val spoilC = MaterialTheme.colorScheme.onSurfaceVariant
     val styled = remember(p.text, ents, revealed) { hmTgFormat(p.text, ents, linkC, spoilC, revealed) }
@@ -351,11 +381,12 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Mod
                     e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_0 -> { share(c, listOf(ch.title, p.text.take(200), soTgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n")); true }
                     else -> false
                 }
-            }.tap(RoundedCornerShape(14.dp)) {
+            }.hmTapLong(RoundedCornerShape(14.dp), onLong = { opts = true }) {
                 when {
                     hmHasSpoiler(ents) && !revealed -> revealed = true
                     album.isNotEmpty() -> expanded = !expanded
                     p.isVideo || p.isPhoto -> onMedia(p.media!!)
+                    p.isAudio && onAudio != null -> onAudio(p)
                     p.isAudio -> Nav.open(Screen.Video(p.media!!, p.title.ifBlank { p.author }))
                     p.text.length > 280 && !expanded -> expanded = true
                     firstUrl != null -> openUrl(c, firstUrl)
@@ -378,7 +409,7 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Mod
                 } else if (p.isAudio || (p.media != null && p.mediaType.isNotBlank())) {
                     Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
-                            Icon(if (p.isAudio) Icons.Filled.MusicNote else Icons.Filled.Description, null, tint = Color.White)
+                            Icon(if (p.isAudio) Sym.MusicNote else Sym.Description, null, tint = Color.White)
                         }
                         Column(Modifier.padding(start = 12.dp)) {
                             Text(p.title.ifBlank { p.fileName.ifBlank { if (p.isAudio) "Audio" else "File" } }, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -394,14 +425,31 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Mod
             cardUrl?.let { u -> Box(Modifier.padding(horizontal = 8.dp)) { ChLinkCard(u, false) { } } }
             SoTgReactionRow(p.id, reacts, Modifier.padding(horizontal = 10.dp, vertical = 2.dp))
             Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 2.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                if (p.views > 0) { Icon(Icons.Filled.Visibility, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (p.views > 0) { Icon(Sym.Visibility, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(" " + soNum(p.views), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 Text((if (p.views > 0) "  ·  " else "") + ago(p.postedAt), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.weight(1f))
-                if (SoUser.isSuper) IconBtn(Icons.Filled.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
-                IconBtn(Icons.Filled.Share, "Share post", {
+                if (SoUser.isSuper) IconBtn(Sym.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
+                IconBtn(Sym.Share, "Share post", {
                     share(c, listOf(ch.title, p.text.take(200), soTgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n"))
                 }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
+                // Telegram's post menu: react, copy text, copy link, share, open in Telegram, delete (admins).
+                Box {
+                    IconBtn(Sym.MoreVert, "Post options", { opts = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
+                    DropdownMenu(opts, { opts = false }) {
+                        Row(Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                            SO_TG_QUICK.take(6).forEach { e -> Box(Modifier.size(36.dp).tap(CircleShape) { opts = false; scope.launch { reacts.react(c, p.id, e) } }, contentAlignment = Alignment.Center) { Text(e, fontSize = 20.sp) } }
+                        }
+                        HorizontalDivider()
+                        if (p.text.isNotBlank()) DropdownMenuItem(text = { Text("Copy text") }, leadingIcon = { Icon(Sym.ContentCopy, null) }, onClick = { opts = false; soCopy(c, p.text, "Text copied") })
+                        DropdownMenuItem(text = { Text("Copy post link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { opts = false; soCopy(c, "https://t.me/" + ch.username + "/" + p.id, "Link copied") })
+                        DropdownMenuItem(text = { Text("Share") }, leadingIcon = { Icon(Sym.Share, null) }, onClick = { opts = false
+                            share(c, listOf(ch.title, p.text.take(200), soTgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n")) })
+                        DropdownMenuItem(text = { Text("Open in Telegram") }, leadingIcon = { Icon(Sym.OpenInNew, null) }, onClick = { opts = false; openUrl(c, "https://t.me/" + ch.username + "/" + p.id) })
+                        if (SoUser.isSuper) DropdownMenuItem(text = { Text("Delete for everyone", color = MaterialTheme.colorScheme.error) }, leadingIcon = { Icon(Sym.DeleteOutline, null, tint = MaterialTheme.colorScheme.error) },
+                            onClick = { opts = false; ask = true })
+                    }
+                }
             }
         }
     }
