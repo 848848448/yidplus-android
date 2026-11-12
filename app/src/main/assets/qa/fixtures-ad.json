@@ -1254,14 +1254,63 @@
   "notes": [
    {
     "id": "n1",
-    "text": "Asked for verification twice",
-    "author": "owner",
-    "created_at": "2026-11-12T02:20:00.000Z"
+    "note": "Asked for verification twice",
+    "author_nick": "owner",
+    "created_at": "2026-11-12T03:30:00.000Z"
    }
   ]
  },
  "/api/admin/feature-blocks": {
   "ok": true,
   "blocks": []
+ },
+ "/api/admin/room-control": {
+  "ok": true,
+  "disabled": [
+   "r-2"
+  ]
+ },
+ "/api/music": {
+  "ok": true,
+  "tracks": [
+   {
+    "id": "m1",
+    "title": "Nigun Simcha",
+    "artist": "Moshe K",
+    "owner_nick": "Moshe K",
+    "plays": 1200,
+    "created_at": "2026-11-12T03:30:00.000Z"
+   },
+   {
+    "id": "m2",
+    "title": "Shabbos Medley",
+    "artist": "Yanky",
+    "owner_nick": "Yanky",
+    "plays": 340,
+    "video_url": "/api/media/x.mp4",
+    "created_at": "2026-11-12T03:50:00.000Z"
+   }
+  ]
+ },
+ "/api/support-chats?chat_id=sc-1&admin=1": {
+  "ok": true,
+  "status": "open",
+  "user_id": "u-leah",
+  "user_nick": "Leah",
+  "user_email": "leah@example.com",
+  "messages": [
+   {
+    "sender_type": "user",
+    "sender_nick": "Leah",
+    "text": "I forgot my password and the email doesn't come",
+    "created_at": "2026-11-12T03:07:00.000Z"
+   },
+   {
+    "sender_type": "admin",
+    "sender_nick": "משה'לע",
+    "text": "Checking now — what email did you use?",
+    "created_at": "2026-11-12T03:06:00.000Z"
+   }
+  ]
  }
 }
