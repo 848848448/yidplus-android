@@ -83,7 +83,7 @@ class AdminPage : PageScreen() {
         val role = when { Session.me?.isOwner == true || Session.me?.role == "owner" -> "👑 Owner"; Session.me?.role == "admin_super" -> "🛡 Super admin"; SettingsProfile.demo -> "👑 Owner"; else -> "🔒 Moderator" }
         SettingsPage("Admin", sub = "$role · YID PLUS control center") {
             // ── Right now (admin.js _loadNow: GET /api/admin/insights) ──
-            SettingsCard("Right now") {
+            SettingsCard("At a glance · right now") {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Tile(now?.optInt("online_now") ?: s?.optInt("online") ?: 0, "Online", Modifier.weight(1f), live = true)
@@ -107,25 +107,8 @@ class AdminPage : PageScreen() {
                     if (growth.isNotEmpty()) GrowthBars(growth)
                 }
             }
-            // ── The sections the app has natively ──
-            SettingsCard("Manage") {
-                SettingRow(Icons.Filled.People, "Users", "Search, verify, mute, block, roles", value = s?.optInt("users")?.takeIf { it > 0 }?.let { adminN(it) }, modifier = Modifier.firstFocus()) { Nav.open(AdminUsersPage()) }
-                RowDivider(64.dp)
-                val rep = s?.optInt("open_reports") ?: 0
-                SettingRow(Icons.Filled.Flag, "Reports", if (rep > 0) "$rep open" else "Nothing open", value = if (rep > 0) rep.toString() else null) { Nav.open(AdminReportsPage()) }
-                RowDivider(64.dp)
-                SettingRow(Icons.Filled.Verified, "Verification requests", "Approve or deny the ✅ mark") { Nav.open(AdminVerifyPage()) }
-                if (owner) {
-                    RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Campaign, "Channels", "Member channels: verify or delete", value = s?.optInt("channels")?.takeIf { it > 0 }?.toString()) { Nav.open(AdminChannelsPage()) }
-                    RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Send, "Telegram channels", "Add or remove the channels in the Channels tab") { Nav.open(AdminTelegramPage()) }
-                    RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Podcasts, "Broadcast", "A message to every member, with a phone notification") { Nav.open(AdminBroadcastPage()) }
-                    RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Block, "Word filter", "Words and phrases blurred for everyone") { Nav.open(AdminBadWordsPage()) }
-                }
-            }
+            // ── 2.1: search + the site's 5 categories, every panel native (AdHome.kt) ──
+            AdHomeSections(s)
             // ── Features (admin.js buildFeaturesPanel / toggleFeature: PUT /api/settings {key, value:'on'|'off'}) ──
             SettingsCard("Features") {
                 featureFlags.forEachIndexed { i, (key, label, desc) ->
@@ -149,15 +132,6 @@ class AdminPage : PageScreen() {
             }
             if (flagsOk == false) SettingsHint("⚠ yidplus.com didn't send the current switches, so they're locked to avoid saving the wrong value. Tap a switch to try again.")
             SettingsHint("Off = the tab disappears from the bottom bar for everyone, on the site and in the app.")
-            // ── Rare sections stay on the website's admin page ──
-            if (owner) SettingsCard("More on the website") {
-                webSections.forEachIndexed { i, (id, label, icon) ->
-                    if (i > 0) RowDivider(64.dp)
-                    SettingRow(icon, label, null) { Nav.open(AdminWebPage(id)) }
-                }
-                RowDivider(64.dp)
-                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open the full admin panel", "Every section of the website's admin page") { Nav.open(AdminWebPage(null)) }
-            }
         }
         allowFor?.let { key ->
             var v by remember(key) { mutableStateOf(flags[key + "_allow"] ?: "") }

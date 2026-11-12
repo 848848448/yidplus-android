@@ -37,6 +37,8 @@ adtap() {
 }
 proof() { local l; l=$(adlog "$2"); if [ -n "$l" ]; then log "PROOF $1: $l"; else log "PROOF $1: (no request logged for '$2')"; fi; }
 
+# 2.0.2 settings + old admin pages: skipped on the quick branch-only run (qa/QUICK), so the 2.1 admin block gets the time.
+if [ ! -f qa/QUICK ]; then
 log "---- AD: Settings (signed in) ----"
 tab Profile; sleep 4; shot AD-01-settings-top
 adswipe; shot AD-02-settings-reading
@@ -79,7 +81,7 @@ adtop; adfind "Mute"; sleep 2; adt "24 hours"; sleep 2; proof "mute user" "POST 
 adtop; adfind "Block"; sleep 2; shot AD-28-admin-block-confirm; adt "Block"; sleep 2; proof "block user" "\"blocked\":true"
 adfind "Promote to super admin"; sleep 2; adt "Yes"; sleep 2; proof "promote" "\"role\":\"admin_super\""
 shot AD-29-admin-user-after; key 4
-adq AdminReports 5; shot AD-30-admin-reports; adt "Dismiss"; sleep 2; proof "dismiss report" "DELETE /api/reports"
+adq AdminReports 5; shot AD-30-admin-reports; adt "✓ Resolve"; sleep 2; proof "resolve report (old page)" "PUT /api/reports"
 adt "Ban"; sleep 2; adt "Ban"; sleep 2; proof "ban from report" "\"blocked\":true"; key 4
 adq AdminVerify 5; shot AD-31-admin-verify; adt "Approve"; sleep 2; proof "approve verify" "PUT /api/verify-request"; key 4
 adq AdminChannels 6; shot AD-32-admin-channels; adt "Verify"; sleep 2; proof "verify channel" "u-chan1"; key 4
@@ -97,4 +99,62 @@ adq Admin 5; shot AD-41-admin-dark; key 4
 timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_NOTIFS >/dev/null 2>&1; sleep 4; shot AD-42-notifications-dark; key 4
 adb shell cmd uimode night no; sleep 3
 timeout 20 adb logcat -d -s YidAdminWeb 2>/dev/null | tail -15 | sed 's/^/AdminWeb: /' >> "$OUT/qa.log"
+fi
 # ==== [/AD] ====
+
+# ==== [AD 2.1] every site admin panel natively: home (search + 5 categories) and one real action per panel ====
+adx() { timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page "x:Admin" --es qa_ad "$1" >/dev/null 2>&1; sleep "${2:-5}"; log "ad panel $1"; }
+log "---- AD 2.1: admin home ----"
+adq Admin 5; shot AD-50-home-glance; adfind "Overview"; sleep 1; shot AD-51-home-overview-open
+adtop; adtap "Search admin…" 240 330; adtype "att"; adhidekb; sleep 1; shot AD-52-home-search; key 4
+log "---- AD 2.1: Overview ----"
+adx god-mode; shot AD-53-god-mode; key 4
+adx calls; shot AD-54-calls; adt "Yanky → Leah"; sleep 1; adt "OK"; sleep 2; proof "end call" "\"action\":\"end\""; key 4
+adx now; shot AD-55-now; key 4
+adx analytics; shot AD-56-analytics; key 4
+adx growth; shot AD-57-growth; key 4
+adx leaderboard; shot AD-58-leaderboard; key 4
+adx health; shot AD-59-storage; key 4
+log "---- AD 2.1: People ----"
+adx access-control; shot AD-60-access; key 4
+adx invite-codes; shot AD-61-invites; key 4
+adx warnings; shot AD-62-warnings; key 4
+adx sessions; shot AD-63-sessions; key 4
+adx banned-devices; shot AD-64-banned; key 4
+adx badges; shot AD-65-badges; key 4
+adx ad-exempt; shot AD-66-ad-free; key 4
+adq AdminUser 6; adfind "Devices & IPs"; shot AD-67-user-more; key 4
+log "---- AD 2.1: Moderation ----"
+adx reports; shot AD-68-reports; adt "Moshe K"; sleep 1; shot AD-69-report-actions; adt "✓ Resolve"; sleep 2; proof "resolve report" "PUT /api/reports"; key 4
+adx feedback; shot AD-70-feedback; key 4
+adx support-chats; shot AD-71-support; key 4
+adx support-thread; shot AD-72-support-thread; key 4
+adx chat-watch; shot AD-73-chats; key 4
+adx room-read; shot AD-74-room-read; key 4
+adx shorts-mod; shot AD-75-shorts-mod; key 4
+adx statuses-mod; shot AD-76-statuses-mod; key 4
+log "---- AD 2.1: Content ----"
+adx announcements; shot AD-77-announcements; adtap "Type announcement..." 240 200; adtype "Shalom_all"; adhidekb; adt "Post announcement"; sleep 1; adt "OK"; sleep 2; proof "announcement" "POST /api/admin/announcements"; key 4
+adx broadcast; shot AD-78-broadcast-schedule; key 4
+adx email-blast; shot AD-79-email-blast; key 4
+adx ai; shot AD-80-ai; key 4
+adx email-templates; shot AD-81-email-settings; key 4
+adx featured; shot AD-82-featured; adt "⭐ Feature"; sleep 2; proof "feature post" "POST /api/admin/feature"; key 4
+adx telegram; shot AD-83-telegram; adswipe; adswipe; shot AD-84-telegram-more; key 4
+log "---- AD 2.1: System ----"
+adx features; shot AD-85-automod; key 4
+adx app-settings; shot AD-86-app; key 4
+adx maintenance; shot AD-87-maintenance; key 4
+adx antispam; shot AD-88-antispam; key 4
+adx ads; shot AD-89-ads; key 4
+adx security; shot AD-90-attacks; key 4
+adx diagnostics; shot AD-91-health-check; key 4
+adx code-errors; shot AD-92-code-errors; key 4
+adx app-config; shot AD-93-config; key 4
+adx ip-logs; shot AD-94-ip-logs; key 4
+adx audit-logs; shot AD-95-audit-logs; key 4
+adx export; shot AD-96-export; key 4
+adx nuclear; shot AD-97-nuclear; key 4
+adx admin-settings; shot AD-98-admin-settings; key 4
+check "AD 2.1 admin panels"
+# ==== [/AD 2.1] ====
