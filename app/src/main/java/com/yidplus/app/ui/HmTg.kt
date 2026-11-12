@@ -68,6 +68,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.ui.composed
 
 // ───────────────────────── HM: Telegram post extras — formatting (entities), albums, day chips, link cards ─────────────────────────
 
@@ -97,7 +103,8 @@ fun hmTgFormat(text: String, entities: String, link: Color, spoilerBg: Color, re
         if (ents.isEmpty()) {
             hmUrlRe.findAll(text).forEach { m -> val u = m.value.trimEnd('.', ',', ';', ':', '!', '?', ')', ']')
                 if (!hmIsTme(u)) addLink(LinkAnnotation.Url(u, TextLinkStyles(SpanStyle(color = link, textDecoration = TextDecoration.Underline))), m.range.first, m.range.first + u.length) }
-            Regex("""(^|\s)([@#][^\s<]+)""").findAll(text).forEach { m -> val g = m.groups[2]!!; addStyle(SpanStyle(color = link), g.range.first, g.range.last + 1) }
+            Regex("""(^|\s)([@#][^\s<]+)""").findAll(text).forEach { m -> val g = m.groups[2]!!
+                if (g.value.startsWith("#")) hmTagLink(this, g.value, link, g.range.first, g.range.last + 1) else addStyle(SpanStyle(color = link), g.range.first, g.range.last + 1) }
             return@buildAnnotatedString
         }
         for (e in ents) {
@@ -113,10 +120,15 @@ fun hmTgFormat(text: String, entities: String, link: Color, spoilerBg: Color, re
                 "messageEntitySpoiler" -> if (!revealed) addStyle(SpanStyle(color = spoilerBg, background = spoilerBg), a, b)
                 "messageEntityTextUrl" -> { val u = e.str("url"); if (u.isNotBlank() && !hmIsTme(u)) addLink(LinkAnnotation.Url(u, TextLinkStyles(SpanStyle(color = link, textDecoration = TextDecoration.Underline))), a, b) }
                 "messageEntityUrl" -> { val u = text.substring(a, b).trim(); if (!hmIsTme(u)) addLink(LinkAnnotation.Url(if (u.startsWith("http")) u else "https://$u", TextLinkStyles(SpanStyle(color = link, textDecoration = TextDecoration.Underline))), a, b) }
-                "messageEntityMention", "messageEntityHashtag", "messageEntityCashtag", "messageEntityBotCommand" -> addStyle(SpanStyle(color = link), a, b)
+                "messageEntityHashtag" -> hmTagLink(this, text.substring(a, b), link, a, b)
+                "messageEntityMention", "messageEntityCashtag", "messageEntityBotCommand" -> addStyle(SpanStyle(color = link), a, b)
             }
         }
     }
+}
+/** A #hashtag that opens YID PLUS search for it (the site's searchHashtag). */
+fun hmTagLink(b: AnnotatedString.Builder, tag: String, link: Color, start: Int, end: Int) {
+    b.addLink(LinkAnnotation.Clickable("tag:$tag", TextLinkStyles(SpanStyle(color = link))) { Nav.open(SoSearchPage(q0 = tag)) }, start, end)
 }
 fun hmHasSpoiler(entities: String) = entities.contains("messageEntitySpoiler")
 /** The first link worth a card (not t.me, not a YID PLUS chat link — the site skips those). */
@@ -160,7 +172,7 @@ fun HmAlbumGrid(items: List<TgPost>, onOpen: (TgPost) -> Unit) {
                     Box(Modifier.weight(1f).aspectRatio(if (row.size == 1) 1.4f else 1f).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(0.dp)) { onOpen(p) }) {
                         AsyncImage(p.thumb, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                         if (p.isVideo) Box(Modifier.align(Alignment.Center).size(40.dp).clip(CircleShape).background(Color.Black.copy(alpha = .5f)), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Filled.PlayArrow, "Play", tint = Color.White) }
+                            Icon(Sym.PlayArrow, "Play", tint = Color.White) }
                         if (p.isVideo && p.duration > 0) Text(dur(p.duration), Modifier.align(Alignment.BottomStart).padding(4.dp).background(Color.Black.copy(alpha = .55f), RoundedCornerShape(6.dp)).padding(horizontal = 5.dp),
                             color = Color.White, fontSize = 11.sp)
                     }
@@ -179,4 +191,17 @@ fun hmGroupPosts(user: String, posts: List<TgPost>): List<List<TgPost>> {
             out.add(posts.subList(i, j).sortedBy { it.id }); i = j } else { out.add(listOf(posts[i])); i++ }
     }
     return out
+}
+
+
+/** Like Common.kt's tap() (same keypad focus ring), plus long-press — and the keypad Menu key — for the item's menu (WhatsApp/Telegram long-press). */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+fun Modifier.hmTapLong(shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(10.dp), onLong: () -> Unit, onClick: () -> Unit): Modifier = composed {
+    val src = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val focused by src.collectIsFocusedAsState()
+    this
+        .clip(shape)
+        .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold, shape) else Modifier)
+        .onKeyEvent { e -> if (e.type == KeyEventType.KeyDown && e.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_MENU) { onLong(); true } else false }
+        .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onLongClick = onLong, onClick = onClick)
 }

@@ -29,6 +29,9 @@ import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material3.HorizontalDivider
@@ -92,13 +95,13 @@ object NotifActors {
 fun notifsRes() = Store.res("/api/notifications") { j -> j.optJSONArray("notifications").objects().map(Notif::from).distinctBy { it.id } }
 
 private fun notifBadge(t: String): Pair<ImageVector, Color> = when (t) {
-    "like" -> Icons.Filled.Favorite to Color(0xFFE53958)
-    "follow", "follow_request", "follow_accept" -> Icons.Filled.PersonAdd to Color(0xFF2E7D9A)
-    "comment", "reply" -> Icons.Filled.ChatBubble to Color(0xFF1F6F5C)
-    "mention" -> Icons.Filled.AlternateEmail to Color(0xFF7B5EA7)
-    "channel_post" -> Icons.Filled.Campaign to Color(0xFFB7892B)
-    "verified", "verify" -> Icons.Filled.Verified to Color(0xFF25A36F)
-    else -> Icons.Filled.Notifications to Color(0xFF607D8B)
+    "like" -> Sym.Favorite to Color(0xFFE53958)
+    "follow", "follow_request", "follow_accept" -> Sym.PersonAdd to Color(0xFF2E7D9A)
+    "comment", "reply" -> Sym.ChatBubble to Color(0xFF1F6F5C)
+    "mention" -> Sym.AlternateEmail to Color(0xFF7B5EA7)
+    "channel_post" -> Sym.Campaign to Color(0xFFB7892B)
+    "verified", "verify" -> Sym.Verified to Color(0xFF25A36F)
+    else -> Sym.Notifications to Color(0xFF607D8B)
 }
 
 /** "Yanky liked your short" → ("Yanky", "liked your short"); a text without the name keeps the whole text as the action. */
@@ -120,14 +123,14 @@ fun openNotif(c: Context, n: Notif) {
 }
 
 @Composable
-fun NotifRow(n: Notif, unread: Boolean, first: Boolean, onClick: () -> Unit) {
+fun NotifRow(n: Notif, unread: Boolean, first: Boolean, onLong: (() -> Unit)? = null, onClick: () -> Unit) {
     val (who, action) = notifParts(n)
     val actor = NotifActors.known[who]
     val (ic, col) = notifBadge(n.type)
     val hi = MaterialTheme.colorScheme.primary.copy(alpha = if (isDark()) 0.16f else 0.08f)
     Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).background(if (unread) hi else Color.Transparent)
         .then(if (first) Modifier.firstFocus() else Modifier)
-        .tap(RoundedCornerShape(0.dp), onClick = onClick)
+        .then(if (onLong != null) Modifier.hmTapLong(RoundedCornerShape(0.dp), onLong = onLong, onClick = onClick) else Modifier.tap(RoundedCornerShape(0.dp), onClick = onClick))
         .padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(52.dp)) {
             Avatar(actor?.second, who.ifBlank { "YID PLUS" }, 50.dp)
@@ -175,18 +178,18 @@ fun NotifsPageBody() {
     val anyUnread = !allRead && list?.any { !it.read && it.id !in readNow } == true
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar("Notifications", onBack = { Nav.back() }) {
-            if (anyUnread) IconBtn(Icons.Filled.DoneAll, "Mark all read", {
+            if (anyUnread) IconBtn(Sym.DoneAll, "Mark all read", {
                 allRead = true; SoNotifCount.unread = 0
                 scope.launch { runCatching { Api.post("/api/notifications", JSONObject().put("read", "all")) } }
                 toast(c, "All marked as read")
             }, tint = LocalContentColor.current)
-            if (!list.isNullOrEmpty()) IconBtn(Icons.Filled.DeleteSweep, "Clear all", { confirm = true }, tint = LocalContentColor.current)
+            if (!list.isNullOrEmpty()) IconBtn(Sym.DeleteSweep, "Clear all", { confirm = true }, tint = LocalContentColor.current)
         }
         when {
-            Session.me == null -> EmptyNote(Icons.Filled.Notifications, "Sign in to see your notifications", action = "Sign in", onAction = { Nav.go(Tab.Profile) })
+            Session.me == null -> EmptyNote(Sym.Notifications, "Sign in to see your notifications", action = "Sign in", onAction = { Nav.go(Tab.Profile) })
             list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
             list == null -> SkeletonRows(rows = 7)
-            list.isEmpty() -> EmptyNote(Icons.Filled.NotificationsNone, "No notifications yet", "Likes, comments and new followers show up here.")
+            list.isEmpty() -> EmptyNote(Sym.NotificationsNone, "No notifications yet", "Likes, comments and new followers show up here.")
             else -> PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); SoNotifCount.refresh(true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
             LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface), contentPadding = PaddingValues(bottom = 24.dp)) {
                 var lastGroup = ""
@@ -196,19 +199,24 @@ fun NotifsPageBody() {
                         fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary) } }
                     item(key = n.id) {
                     val unread = !allRead && !n.read && n.id !in readNow
-                    NotifRow(n, unread, first = n.id == list.first().id) {
-                        if (unread) {
-                            readNow.add(n.id); SoNotifCount.unread = (SoNotifCount.unread - 1).coerceAtLeast(0)
-                            scope.launch { runCatching { Api.post("/api/notifications", JSONObject().put("read", n.id)) } }
+                    var nMenu by remember { mutableStateOf(false) }
+                    fun markRead() { if (unread) {
+                        readNow.add(n.id); SoNotifCount.unread = (SoNotifCount.unread - 1).coerceAtLeast(0)
+                        scope.launch { runCatching { Api.post("/api/notifications", JSONObject().put("read", n.id)) } } } }
+                    Box {
+                        NotifRow(n, unread, first = n.id == list.first().id, onLong = { nMenu = true }) { markRead(); openNotif(c, n) }
+                        // Long-press (or the keypad Menu key): Open / Mark as read.
+                        DropdownMenu(nMenu, { nMenu = false }) {
+                            DropdownMenuItem(text = { Text("Open") }, leadingIcon = { Icon(Sym.OpenInNew, null) }, onClick = { nMenu = false; markRead(); openNotif(c, n) })
+                            if (unread) DropdownMenuItem(text = { Text("Mark as read") }, leadingIcon = { Icon(Sym.DoneAll, null) }, onClick = { nMenu = false; markRead() })
                         }
-                        openNotif(c, n)
                     }
                     HorizontalDivider(Modifier.padding(start = 82.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     }
                 }
                 item(key = "openchats") {
                     Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                        SoPill("Open chats", false, { Nav.go(Tab.Chats) }, icon = Icons.Filled.Forum)
+                        SoPill("Open chats", false, { Nav.go(Tab.Chats) }, icon = Sym.Forum)
                     }
                 }
             }
