@@ -222,7 +222,6 @@ data class AdminUserPage(val id: String, val rowJson: String) : PageScreen() {
                     }
                 }
             }
-            if (!protected) AdUserMore(id, nick, u, detail)
             if (protected) SettingsHint("This is the owner's account. It can't be changed here.") else {
                 SettingsCard("Actions") {
                     SettingRow(Icons.Filled.Verified, if (verified) "Remove verified mark" else "Verify", if (verified) "The ✅ goes away" else "Gives the green ✅ mark", modifier = Modifier.firstFocus()) {
@@ -255,6 +254,7 @@ data class AdminUserPage(val id: String, val rowJson: String) : PageScreen() {
                         SettingRow(Icons.Filled.DeleteForever, "Delete account", "Removes them and everything they posted", danger = true) { ask = "delete" }
                     }
                 }
+                AdUserMore(id, nick, u, detail)
             }
         }
         when (ask) {
