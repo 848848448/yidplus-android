@@ -355,8 +355,13 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }
     val state = rememberLazyListState()
     // A text message with no words and no file is dropped, like the site drops contentless bubbles (never an empty green bubble).
-    fun itemsNow() = buildItems(groupJoinsC(msgs.asReversed().filterNot { it.type == "text" && it.text.isBlank() && it.media == null && !it.deleted }))
+    fun itemsNow(): List<ChItem> {
+        val al = csAlbums(msgs.toList())
+        val tail = al.values.flatMap { it.drop(1) }.map { it.id }.toHashSet()
+        return buildItems(groupJoinsC(msgs.asReversed().filterNot { (it.type == "text" && it.text.isBlank() && it.media == null && !it.deleted) || it.id in tail }))
+    }
     val rows = remember(msgs.toList()) { itemsNow() }
+    val albums = remember(msgs.toList()) { csAlbums(msgs.toList()) }
     val matches = remember(sq, rows) { if (sq.trim().length < 2) emptyList() else rows.withIndex().filter { (_, it) -> it is ChItem.M && it.m.text.contains(sq.trim(), true) && !it.m.isVoice }.map { it.index } }
     LaunchedEffect(matches, hit) { matches.getOrNull(hit)?.let { state.animateScrollToItem(it) } }
     LaunchedEffect(msgs.size) { if (msgs.isNotEmpty() && !searchOn && state.firstVisibleItemIndex < 3) state.scrollToItem(0) }
@@ -397,7 +402,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         when { selecting -> { selecting = false; selected.clear() }; recording -> stopRec(false); attachOpen -> attachOpen = false; emojiOpen -> emojiOpen = false; searchOn -> { searchOn = false; sq = "" }
             else -> { if (editing != null) text = ""; editing = null; replyTo = null } }
     }
-    Column(Modifier.fillMaxSize().imePadding().background(ChatLook.wall())) {
+    val csHeader: @Composable ColumnScope.() -> Unit = {
         if (selecting) {
             val sel = msgs.filter { it.id in selected }
             CsSelectBar(selected.size, canDelete = sel.isNotEmpty() && sel.all { it.senderId == me?.id || chIsSiteAdmin() || info?.canManage == true },
@@ -448,25 +453,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 }
             }
         }
-        if (pinned != null) {
-            Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).tap(RoundedCornerShape(0.dp)) { scrollTo(pinned.id) }.padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(3.dp).height(32.dp).background(ChatLook.bar))
-                Column(Modifier.weight(1f).padding(start = 10.dp)) {
-                    Text("Pinned message", fontSize = 13.sp, color = ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it }, fontWeight = FontWeight.SemiBold)
-                    Text(pinned.preview, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-                }
-                ChIcon(Sym.ViewList, "All pinned messages", { pinsOpen = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (info?.canManage == true) ChIcon(Sym.Close, "Unpin", { scope.launch { runCatching { ChatApi.pin(room.id, null) }.onSuccess { info = info?.copy(pinnedId = null); roomsRes.load(true) } } }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                else Icon(Sym.PushPin, null, Modifier.padding(10.dp).size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            HorizontalDivider(thickness = 0.5.dp)
-        }
-        if (callOn > 0 && !selecting) Row(Modifier.fillMaxWidth().background(Color(0xFF2E7D32)).tap(RoundedCornerShape(0.dp)) { Nav.open(ChCall(room, "audio")) }.padding(horizontal = 16.dp, vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Icon(Sym.Call, null, Modifier.size(18.dp), tint = Color.White)
-            Text("  Call in progress · $callOn on the call — tap to join", fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
-        }
+    }
+    val csList: @Composable ColumnScope.() -> Unit = {
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
                 msgs.isEmpty() && error != null -> Problem(error!!, !Net.online, { scope.launch { pull() } })
@@ -498,7 +486,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                                         onReact = { e -> if (me != null) reactTo(m, e) }, onReplyTap = { rid -> jumpTo(rid) },
                                         onNick = if (room.type != "private" && m.senderId != me?.id) ({ personFor = m }) else null,
                                         onMention = { u -> scope.launch { csOpenMention(c, u) } },
-                                        selected = if (selecting) m.id in selected else null,
+                                        selected = if (selecting) m.id in selected else null, album = albums[m.id],
                                         onSelect = { if (m.id in selected) selected.remove(m.id) else if (!m.pending && !m.isCentred) selected.add(m.id); if (selected.isEmpty()) selecting = false })
                                 }
                             }
@@ -516,6 +504,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 }
             }
         }
+    }
+    val csComposer: @Composable ColumnScope.() -> Unit = {
         when {
             canWrite -> {
                 val ctxBar = editing ?: replyTo
@@ -579,7 +569,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             }
         }
     }
-
+    val csDialogs: @Composable () -> Unit = {
     actionFor?.let { m ->
         val mine = m.senderId == me?.id
         // The site: only a site admin or a group admin pins; "allow saving" off hides copy/forward/save/share of others' messages.
@@ -630,6 +620,33 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             confirmButton = { TextButton({ confirm = null; scope.launch { runCatching { act() }.onFailure { toast(c, Api.friendly(it)) } } }, Modifier.firstFocus(always = true)) { Text("Yes", color = Color(0xFFD32F2F)) } },
             dismissButton = { TextButton({ confirm = null }) { Text("Cancel") } })
     }
+    }
+    // ChatScreen is split into lambdas: one huge composable method failed ART verification after R8 (CI 43156298868, VerifyError on API 30).
+    Column(Modifier.fillMaxSize().imePadding().background(ChatLook.wall()).chatWallpaper()) {
+        csHeader()
+        if (pinned != null) {
+            Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).tap(RoundedCornerShape(0.dp)) { scrollTo(pinned.id) }.padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.width(3.dp).height(32.dp).background(ChatLook.bar))
+                Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                    Text("Pinned message", fontSize = 13.sp, color = ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it }, fontWeight = FontWeight.SemiBold)
+                    Text(pinned.preview, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                }
+                ChIcon(Sym.ViewList, "All pinned messages", { pinsOpen = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (info?.canManage == true) ChIcon(Sym.Close, "Unpin", { scope.launch { runCatching { ChatApi.pin(room.id, null) }.onSuccess { info = info?.copy(pinnedId = null); roomsRes.load(true) } } }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                else Icon(Sym.PushPin, null, Modifier.padding(10.dp).size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            HorizontalDivider(thickness = 0.5.dp)
+        }
+        if (callOn > 0 && !selecting) Row(Modifier.fillMaxWidth().background(Color(0xFF2E7D32)).tap(RoundedCornerShape(0.dp)) { Nav.open(ChCall(room, "audio")) }.padding(horizontal = 16.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Icon(Sym.Call, null, Modifier.size(18.dp), tint = Color.White)
+            Text("  Call in progress · $callOn on the call — tap to join", fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
+        }
+        csList()
+        csComposer()
+    }
+    csDialogs()
 }
 
 private fun buildItems(rev: List<ChatMsg>): List<ChItem> {

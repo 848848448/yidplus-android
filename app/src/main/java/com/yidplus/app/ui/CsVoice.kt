@@ -119,6 +119,9 @@ internal fun CsMicButton(canSend: Boolean, editing: Boolean, busy: Boolean, r: C
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
     val send by rememberUpdatedState(canSend)
+    val isBusy by rememberUpdatedState(busy)
+    val doSend by rememberUpdatedState(onSend); val doStart by rememberUpdatedState(onStart)
+    val doRelease by rememberUpdatedState(onRelease); val doCancel by rememberUpdatedState(onCancel)
     Box(Modifier.size(48.dp).clip(CircleShape).background(if (r.mode == 1) Color(0xFFE53935) else ChatLook.bar)
         .then(if (focused) Modifier.border(2.dp, Color(0xFFFFD54F), CircleShape) else Modifier)
         .onKeyEvent { e -> if (e.type == KeyEventType.KeyUp && (e.key == Key.DirectionCenter || e.key == Key.Enter || e.key == Key.NumPadEnter)) { if (send) onSend() else if (!busy) onStart(true); true } else false }
@@ -126,11 +129,11 @@ internal fun CsMicButton(canSend: Boolean, editing: Boolean, busy: Boolean, r: C
         .pointerInput(Unit) {
             awaitEachGesture {
                 val down = awaitFirstDown()
-                if (send) { if (waitForUpOrCancellation() != null) onSend(); return@awaitEachGesture }
-                if (busy) return@awaitEachGesture
+                if (send) { if (waitForUpOrCancellation() != null) doSend(); return@awaitEachGesture }
+                if (isBusy) return@awaitEachGesture
                 val up = withTimeoutOrNull(260) { waitForUpOrCancellation() }
-                if (up != null) { onStart(true); return@awaitEachGesture } // a tap: locked recording (keypad-friendly)
-                onStart(false); hap.performHapticFeedback(HapticFeedbackType.LongPress)
+                if (up != null) { doStart(true); return@awaitEachGesture } // a tap: locked recording (keypad-friendly)
+                doStart(false); hap.performHapticFeedback(HapticFeedbackType.LongPress)
                 var done = false
                 while (!done) {
                     val ev = awaitPointerEvent()
@@ -140,7 +143,7 @@ internal fun CsMicButton(canSend: Boolean, editing: Boolean, busy: Boolean, r: C
                     r.cancelArmed = dx < -cancelPx
                     r.lockNear = dy < -lockPx / 2
                     if (dy < -lockPx) { r.mode = 2; hap.performHapticFeedback(HapticFeedbackType.LongPress); done = true; break }
-                    if (!ch.pressed) { done = true; if (r.cancelArmed) onCancel() else onRelease() }
+                    if (!ch.pressed) { done = true; if (r.cancelArmed) doCancel() else doRelease() }
                 }
             }
         }, contentAlignment = Alignment.Center) {

@@ -113,7 +113,7 @@ import org.json.JSONObject
 internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean, reacts: ChReact?, reply: ChatMsg?, highlight: Boolean, privateChat: Boolean, modifier: Modifier,
                    onMedia: (String) -> Unit, onLong: () -> Unit, onReact: (String) -> Unit, onReplyTap: (String) -> Unit,
                    onSwipeReply: (() -> Unit)? = null, onJoin: (String) -> Unit = {},
-                   onNick: (() -> Unit)? = null, onMention: (String) -> Unit = {}, selected: Boolean? = null, onSelect: (() -> Unit)? = null) {
+                   onNick: (() -> Unit)? = null, onMention: (String) -> Unit = {}, selected: Boolean? = null, onSelect: (() -> Unit)? = null, album: List<ChatMsg>? = null) {
     val c = ctx()
     if (m.isCentred) { ChCentredLine(m, modifier); return }
     val bg = if (mine) ChatLook.mine() else ChatLook.theirs()
@@ -196,6 +196,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                         Icon(if (m.isVoice) Sym.MicOff else Sym.BrokenImage, null, Modifier.size(20.dp), tint = ChatLook.sub())
                         Text("  " + if (m.isVoice) "Voice message unavailable" else m.caption.ifBlank { "Media unavailable" }, fontSize = 14.sp, color = ChatLook.sub(), style = TextStyle(textDirection = TextDirection.Content))
                     }
+                    album != null && album.size > 1 -> CsAlbumGrid(album, maxW, onMedia)
                     m.isImage -> AsyncImage(m.media ?: m.local, "Photo", contentScale = ContentScale.Crop, modifier = Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF263238)))
                     m.isVideo -> ChVideoThumb(m.media ?: m.local!!, maxW)
                     m.isAudio -> CsVoiceBubble(m)

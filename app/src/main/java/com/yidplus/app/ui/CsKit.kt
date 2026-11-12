@@ -411,3 +411,42 @@ data class CsForwardMany(val list: List<ChatMsg>) : PageScreen() {
         }
     }
 }
+
+
+/** The site's _groupMediaAlbums: a run of photos/videos from one sender (later ones without a caption, at most 10) is one album bubble. */
+internal fun csAlbums(chrono: List<ChatMsg>): Map<String, List<ChatMsg>> {
+    val out = HashMap<String, List<ChatMsg>>()
+    fun ok(m: ChatMsg) = (m.isImage || m.isVideo) && m.media != null && !m.viewOnce && !m.deleted && !m.pending && !m.failed
+    var i = 0
+    while (i < chrono.size) {
+        val m = chrono[i]
+        if (ok(m)) {
+            var j = i + 1
+            val g = arrayListOf(m)
+            while (j < chrono.size && g.size < 10) { val n = chrono[j]; if (ok(n) && n.senderId == m.senderId && n.caption.isBlank()) { g.add(n); j++ } else break }
+            if (g.size > 1) { out[m.id] = g; i = j; continue }
+        }
+        i++
+    }
+    return out
+}
+
+/** Album grid inside one bubble: 2 columns for 2, else 3; videos carry a play mark; each tile opens the viewer at itself. */
+@Composable
+internal fun CsAlbumGrid(list: List<ChatMsg>, maxW: androidx.compose.ui.unit.Dp, onMedia: (String) -> Unit) {
+    val cols = if (list.size == 2 || list.size == 4) 2 else 3
+    val w = maxW.coerceAtMost(300.dp)
+    Column(Modifier.width(w).clip(RoundedCornerShape(10.dp)), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        list.chunked(cols).forEach { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                row.forEach { m ->
+                    Box(Modifier.weight(1f).aspectRatio(1f).background(Color.Black).clickable { m.media?.let(onMedia) }) {
+                        if (m.isVideo) { Box(Modifier.fillMaxSize().background(Color(0xFF222222))); Icon(Sym.PlayCircle, "Video", Modifier.align(Alignment.Center).size(30.dp), tint = Color.White) }
+                        else AsyncImage(m.media, "Photo", Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+                    }
+                }
+                repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
+            }
+        }
+    }
+}

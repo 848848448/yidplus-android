@@ -4,6 +4,11 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -45,6 +50,8 @@ object LookPrefs {
     var reduceMotion by mutableStateOf(false); private set
     var wallpaper by mutableStateOf("default"); private set
     var silentCalls by mutableStateOf(false); private set
+    /** Top bar style: false = the brand-green bar (default), true = WhatsApp-2024 light bar with a coloured title. */
+    var lightBar by mutableStateOf(false); private set
 
     fun init(c: Context) {
         if (ctx != null) return
@@ -55,15 +62,28 @@ object LookPrefs {
         reduceMotion = s.getBoolean("reduceMotion", false)
         wallpaper = s.getString("wallpaper", "default") ?: "default"
         silentCalls = s.getBoolean("silentCalls", false)
+        lightBar = s.getBoolean("lightBar", false)
     }
     fun putColor(i: Int) { colorTheme = i.coerceIn(0, ColorPresets.size - 1); p()?.edit()?.putInt("colorTheme", colorTheme)?.apply() }
     fun putHighContrast(v: Boolean) { highContrast = v; p()?.edit()?.putBoolean("highContrast", v)?.apply() }
     fun putReduceMotion(v: Boolean) { reduceMotion = v; p()?.edit()?.putBoolean("reduceMotion", v)?.apply() }
     fun putWallpaper(id: String) { wallpaper = id; p()?.edit()?.putString("wallpaper", id)?.apply() }
+    fun putLightBar(v: Boolean) { lightBar = v; p()?.edit()?.putBoolean("lightBar", v)?.apply() }
     fun putSilentCalls(v: Boolean) { silentCalls = v; p()?.edit()?.putBoolean("silentCalls", v)?.apply() }
 
     /** The chosen colour theme. Theme.kt: primary = preset.accent (light) / preset.accentLight (dark); Midnight forces dark. */
     val preset: ColorPreset get() = ColorPresets[colorTheme]
     /** The chosen chat wallpaper, or null for the default background. */
     val chatWallpaper: Wallpaper? get() = ChatWallpapers.firstOrNull { it.id == wallpaper && it.from != null }
+}
+
+/**
+ * The chosen chat wallpaper (js/theme.js applyChatWallpaper: a 160° gradient behind the messages). Put it on the
+ * message list's container in the chat screen: `Modifier.fillMaxSize().chatWallpaper()`. Default = no change.
+ */
+fun Modifier.chatWallpaper(): Modifier = composed {
+    val w = LookPrefs.chatWallpaper
+    val from = w?.from; val to = w?.to
+    if (from != null && to != null) this.background(Brush.linearGradient(listOf(from, to), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)))
+    else this
 }
