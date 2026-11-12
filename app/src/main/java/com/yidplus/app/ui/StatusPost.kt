@@ -207,8 +207,10 @@ private fun PostStatus(startMedia: Boolean) {
     Box(Modifier.fillMaxSize().then(if (media == null) Modifier.background(Statuses.brush(Statuses.BGS[bg])) else Modifier.background(Color.Black))) {
       Column(Modifier.fillMaxSize().imePadding()) {
         // Top bar
-        Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
+        // With the keyboard up on a 480x640 phone only ~110 dp are left: a slimmer bar keeps the text visible.
+        val barBtn = if (ime) 40.dp else 48.dp
+        Row(Modifier.fillMaxWidth().padding(if (ime) 0.dp else 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = barBtn)
             if (mine != null && media == null && !ime) Row(Modifier.clip(RoundedCornerShape(16.dp)).background(Color(0x40000000))
                 .tap(RoundedCornerShape(16.dp)) { Nav.back(); Nav.open(StatusViewerPage(Session.me?.id)) }.padding(horizontal = 10.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically) {
@@ -218,11 +220,11 @@ private fun PostStatus(startMedia: Boolean) {
             Spacer(Modifier.weight(1f))
             // While typing on a small screen the keyboard takes most of it: the text keeps the room, Send moves up here.
             if (!ime) IconBtn(Sym.PhotoCamera, "Camera", { openCamera() }, tint = Color.White, size = 48.dp)
-            if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = barBtn)
             if (!ime) IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
-            if (ime) Box(Modifier.padding(start = 4.dp).size(42.dp).clip(CircleShape).background(BadgeGreen).tap(CircleShape) { post() }, contentAlignment = Alignment.Center) {
+            if (ime) Box(Modifier.padding(start = 4.dp, end = 4.dp).size(36.dp).clip(CircleShape).background(BadgeGreen).tap(CircleShape) { post() }, contentAlignment = Alignment.Center) {
                 Icon(Sym.Send, "Post status", tint = Color.White, modifier = Modifier.size(20.dp))
             }
         }
@@ -230,7 +232,7 @@ private fun PostStatus(startMedia: Boolean) {
         Box(Modifier.weight(1f).fillMaxWidth().clipToBounds(), contentAlignment = Alignment.Center) {
             val m = media
             if (m == null) {
-                val big = if (ime) 22.sp else 28.sp
+                val big = if (ime) 20.sp else 28.sp
                 TextField(text, { if (it.length <= 700) text = it }, Modifier.fillMaxWidth().padding(horizontal = 20.dp).focusRequester(fr),
                     placeholder = { Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = big, textAlign = TextAlign.Center) },
                     textStyle = TextStyle(fontSize = if (text.length > 120) 18.sp else big, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center,
@@ -239,7 +241,7 @@ private fun PostStatus(startMedia: Boolean) {
             else AsyncImage(m, "Chosen photo", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
         }
         // Bottom: colours, caption, who sees it, post
-        Column(Modifier.fillMaxWidth().then(if (ime) Modifier else Modifier.navigationBarsPadding()).padding(bottom = 10.dp)) {
+        Column(Modifier.fillMaxWidth().then(if (ime) Modifier else Modifier.navigationBarsPadding()).padding(bottom = if (ime) 4.dp else 10.dp)) {
             if (media == null) { if (!ime) LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 itemsIndexed(Statuses.BGS) { i, b ->
                     Box(Modifier.size(30.dp).clip(CircleShape).background(Statuses.brush(b))
@@ -253,7 +255,7 @@ private fun PostStatus(startMedia: Boolean) {
                     focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = smCursor(Color.White),
                     focusedTextColor = Color.White, unfocusedTextColor = Color.White))
             if (up.running) Box(Modifier.padding(horizontal = 12.dp)) { SmProgress(up, dark = true) }
-            Spacer(Modifier.height(10.dp))
+            if (!ime) Spacer(Modifier.height(10.dp))
             if (!ime) Text(Statuses.privacyHint(privacy), Modifier.padding(horizontal = 16.dp, vertical = 2.dp), color = Color.White.copy(alpha = .8f), fontSize = 13.sp)
             if (!ime) Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(end = 6.dp)) {

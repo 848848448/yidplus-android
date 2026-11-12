@@ -65,7 +65,8 @@ sm_mark status-other
 sm_rec SM-video-status 30
 nw_open2 status 2; shot SM-17-status-other; key 23; sleep 1; shot SM-17b-status-paused
 timeout 10 adb shell input swipe 240 380 240 130 250; sleep 1; shot SM-18-status-react-bar
-sm_tap "React 🔥" 2; shot SM-19-status-reacted
+# 🔥 is the 7th of the 7 reactions (uiautomator writes emoji as surrogate pairs, so tap by position on the 480x640 screen)
+timeout 10 adb shell input tap 420 418; sleep 2; shot SM-19-status-reacted
 key 82; sleep 1; shot SM-20-status-menu-other
 sm_tap "Save to Highlights" 2
 timeout 10 adb shell input tap 400 320; sleep 2; shot SM-21-status-next-slide
