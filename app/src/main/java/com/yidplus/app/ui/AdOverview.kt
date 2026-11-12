@@ -47,7 +47,7 @@ class AdGodModePage : PageScreen() {
         }
         fun bulk(action: String) {
             val verb = when (action) { "verify" -> "Verify"; "block" -> "Block"; else -> "Unblock" }
-            a.sure("$verb ${sel.size} users?", "$verb ${sel.size} selected user(s)?", danger = action == "block") {
+            a.sure("$verb ${sel.size} users?", "$verb ${sel.size} selected user(s)?", danger = action == "block", okLabel = verb) {
                 val ids = sel.toList()
                 scope.launch {
                     var failed = 0
@@ -252,7 +252,7 @@ class AdLeaderboardPage : PageScreen() {
             listOf(Triple("shorts", "Videos (Shorts)", "vids"), Triple("music", "Music uploads", "tracks"), Triple("messages", "Messages sent", "msgs")).forEach { (k, t, unit) ->
                 val l = j.arr(k)
                 if (l.isNotEmpty()) { any = true
-                    adCard(t) { l.forEachIndexed { i, u -> AdRow("#${i + 1}  " + u.s("uid", "nickname").ifBlank { "unknown" }, trail = adminN(u.n("cnt")) + " " + unit) { u.s("uid").let { adOpenUser(it) } } } }
+                    adCard(t) { l.forEachIndexed { i, u -> AdRow("\u200E#${i + 1}  \u2068" + u.s("uid", "nickname").ifBlank { "unknown" } + "\u2069", trail = adminN(u.n("cnt")) + " " + unit) { u.s("uid").let { adOpenUser(it) } } } }
                 }
             }
             if (!any) adEmpty("No data yet", Icons.Filled.EmojiEvents)
