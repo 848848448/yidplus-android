@@ -22,7 +22,7 @@ adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS 2>/dev/null || tru
 size 480x640 240
 source qa/signedin.sh
 fx true; restart 7; shot NT-00-app-signedin; check nt-start
-source qa/fx-nt.sh; check fx-nt
+source qa/fx-nt.sh; check fx-nt; [ "${NTFAIL:-0}" = 0 ] || FAIL=1
 timeout 60 adb logcat -d > "$OUT/logcat.txt" 2>/dev/null
 grep -E "FATAL EXCEPTION" -A8 "$OUT/logcat.txt" | head -40 >> "$OUT/qa.log"
 adb shell wm size reset; adb shell wm density reset

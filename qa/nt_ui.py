@@ -1,57 +1,91 @@
 #!/usr/bin/env python3
-"""Helper NT: act on ONE chat notification in the open shade (uiautomator dump on stdin).
-usage: nt_ui.py ROW_TEXT TARGET   -> prints "x y" to tap, or nothing.
-ROW_TEXT: a text that appears inside the notification (e.g. its title). TARGET: an action button label
-("Reply", "Mark as read", "Retry"), "expand" (the row's expand button, else a point to swipe down from), "body" (the
-row's title), "send" (the inline reply send button, anywhere), "rows" (list each notification row's texts)."""
-import sys, re, xml.etree.ElementTree as ET
-raw = sys.stdin.read(); raw = raw[raw.find('<'):raw.rfind('>') + 1]
-try: root = ET.fromstring(raw)
-except Exception: sys.exit(0)
-want, target = sys.argv[1], sys.argv[2]
+"""Helper NT QA: drive ONE chat notification in the open shade (Android 11), with adb.
+usage: nt_ui.py find "ROW" TARGET   ROW = "A|B|C", texts that identify the notification (its title or a message line).
+TARGET: an action label ("Reply", "Mark as read", "Retry"), "expand" (show it expanded), "body" (tap its title).
+At 480x640 the shade's list is ~150 px tall under the quick settings, shorter than one expanded chat, so the title and
+the buttons are never on screen together. So: every other expanded chat is collapsed first (collapsed rows show no
+buttons), then the list is scrolled in small steps until the button of THIS chat is inside the visible part; it is tapped.
+Exit 0 = tapped (or already expanded), 1 = not reachable. Each dump is kept in $OUT/NT-ui-*.xml."""
+import sys, re, os, time, subprocess, xml.etree.ElementTree as ET
+OUT = os.environ.get('OUT', 'qa/out')
+def sh(*a, t=30):
+    try: return subprocess.run(['adb', 'shell', *a], capture_output=True, timeout=t).stdout.decode('utf8', 'replace')
+    except Exception: return ''
+N = [int(os.environ.get('NTN', '0'))]
+def dump():
+    sh('uiautomator', 'dump', '/sdcard/nt.xml'); raw = sh('cat', '/sdcard/nt.xml')
+    N[0] += 1; open(f"{OUT}/NT-ui-{N[0]:02d}.xml", 'w').write(raw)
+    raw = raw[raw.find('<'):raw.rfind('>') + 1]
+    try: return ET.fromstring(raw)
+    except Exception: return None
 def b(n):
     m = re.findall(r'\d+', n.get('bounds', '')); return [int(v) for v in m] if len(m) == 4 else None
-def c(n):
-    x1, y1, x2, y2 = b(n); return f"{(x1 + x2) // 2} {(y1 + y2) // 2}"
-def texts(n): return [d.get('text', '') for d in n.iter() if d.get('text')] + [d.get('content-desc', '') for d in n.iter() if d.get('content-desc')]
-rows = [n for n in root.iter() if n.get('resource-id', '').endswith('expandableNotificationRow')] or [root]
-if target == 'rows':
-    for r in rows: print(b(r), ' | '.join(t for t in texts(r) if t)[:200])
-    sys.exit(0)
-if target == 'scroller':  # the shade's notification list: "x y_from y_to" for one upward scroll inside it
-    for n in root.iter():
-        if n.get('resource-id', '').endswith('notification_stack_scroller') and b(n):
-            x1, y1, x2, y2 = b(n)
-            rows_top = min([b(r)[1] for r in root.iter() if r.get('resource-id', '').endswith('backgroundNormal') and b(r)] or [y1])
-            yf = y2 - 12; yt = max(rows_top + 5, yf - max(120, (y2 - y1) // 3))
-            print(f"{(x1 + x2) // 2} {yf} {yt}"); break
-    sys.exit(0)
-if target == 'send':
-    for n in root.iter():
-        if n.get('resource-id', '').endswith('remote_input_send') and b(n): print(c(n)); break
-    sys.exit(0)
-parent = {ch: p for p in root.iter() for ch in p}
-def is_exp(n): return n.get('resource-id', '').endswith('expand_button')
-def nexp(n): return sum(1 for d in n.iter() if is_exp(d))
-# the notification row = the LARGEST ancestor of the title node that holds exactly one expand button (one per notification)
-titles = [n for n in root.iter() if want in n.get('text', '') and b(n)]
-if not titles: sys.exit(0)
-t0 = titles[0]; row = t0; cur = t0
-while cur in parent:
-    cur = parent[cur]
-    k = nexp(cur)
-    if k == 1: row = cur
-    elif k > 1: break
-if target == 'expand':
-    if any(n.get('content-desc', '').lower() == 'collapse' for n in row.iter()): sys.exit(0)  # already expanded
-    for n in row.iter():
-        if n.get('resource-id', '').endswith('expand_button') and b(n) and b(n)[2] > b(n)[0]:
-            print(c(n)); sys.exit(0)
-    x1, y1, x2, y2 = b(row); print(f"swipe {(x1 + x2) // 2} {y1 + 10}"); sys.exit(0)
-if target == 'body':
-    for n in row.iter():
-        if want in n.get('text', '') and b(n): print(c(n)); sys.exit(0)
-    sys.exit(0)
-for n in row.iter():
-    if (n.get('text', '') or n.get('content-desc', '')).strip().lower() == target.lower() and b(n) and b(n)[3] > b(n)[1]:
-        print(c(n)); sys.exit(0)
+def ctr(n): x1, y1, x2, y2 = b(n); return (x1 + x2) // 2, (y1 + y2) // 2
+def label(n): return (n.get('text') or n.get('content-desc') or '').strip()
+def say(m): print(m, flush=True)
+def layout(root):
+    scr = next((n for n in root.iter() if n.get('resource-id', '').endswith('notification_stack_scroller') and b(n)), None)
+    if scr is None: return None
+    shelfy = [b(r)[1] for r in scr if b(r) and any(d.get('content-desc', '').startswith(('YID PLUS notification', 'Android System notification')) for d in r.iter())]
+    rows = [r for r in scr if b(r) and any(d.get('resource-id', '').endswith('backgroundNormal') for d in r.iter()) and b(r)[1] not in shelfy]
+    top = max([b(scr)[1]] + [b(n)[3] for n in root.iter() if n.get('resource-id', '').endswith(('quick_settings_container', 'header_label')) and b(n)])
+    bottom = min([b(scr)[3]] + shelfy)
+    return scr, rows, top, bottom
+def visible(n, top, bottom):
+    if not b(n) or b(n)[3] <= b(n)[1]: return False
+    y = ctr(n)[1]; return top + 6 <= y <= bottom - 6
+def tap(n, why): x, y = ctr(n); sh('input', 'tap', str(x), str(y)); say(f"tap {why} at {x} {y} (ui {N[0]})"); time.sleep(1.5)
+def scroll(scr, top, bottom, d):
+    d = max(-110, min(110, d)); x = (b(scr)[0] + b(scr)[2]) // 2
+    if d >= 0: y0 = bottom - 8; y1 = y0 - d - 14
+    else: y0 = top + 8; y1 = y0 - d + 14
+    sh('input', 'swipe', str(x), str(y0), str(x), str(y1), '700'); time.sleep(1.2)
+def find(want, target):
+    want = [w for w in want.split('|') if w]
+    seen = False; stall = 0
+    for step in range(16):
+        root = dump()
+        lay = root is not None and layout(root)
+        if not lay: say('no shade list'); return 1
+        scr, rows, top, bottom = lay
+        acted = False
+        for r in rows:
+            labs = [label(d) for d in r.iter() if label(d)]
+            mine = any(w in l for l in labs for w in want)
+            coll = next((d for d in r.iter() if d.get('content-desc', '').lower() == 'collapse'), None)
+            exp = next((d for d in r.iter() if d.get('resource-id', '').endswith('expand_button') and visible(d, top, bottom)), None)
+            if not mine and coll is not None and exp is not None: tap(exp, 'collapse other chat'); acted = True; break
+            if mine:
+                seen = True
+                if coll is None and exp is not None:
+                    tap(exp, 'expand'); acted = True; break
+                if target == 'expand' and coll is not None: say('expanded'); return 0
+        if acted: continue
+        if target in ('expand', 'body'):
+            for r in rows:
+                if any(w in label(d) for d in r.iter() for w in want):
+                    t = next((d for d in r.iter() if d.get('resource-id', '').endswith(('conversation_text', 'title')) and b(d)), None)
+                    if t is not None and visible(t, top, bottom):
+                        if target == 'body': tap(t, 'title'); return 0
+                    elif t is not None: scroll(scr, top, bottom, ctr(t)[1] - (top + bottom) // 2); break
+            else:
+                scroll(scr, top, bottom, 100)
+            continue
+        # the button: in the row that shows the chat, else (title scrolled away) the first row with buttons after it
+        cands = []
+        idx = [i for i, r in enumerate(rows) if any(w in label(d) for d in r.iter() for w in want)]
+        for i, r in enumerate(rows):
+            if idx and i < idx[0]: continue
+            mine = i in idx
+            btn = next((d for d in r.iter() if label(d).lower() == target.lower() and b(d) and b(d)[3] > b(d)[1]), None)
+            if btn is not None and (mine or seen): cands.append((mine, btn))
+        cands.sort(key=lambda c: not c[0])
+        if cands:
+            btn = cands[0][1]
+            if visible(btn, top, bottom): tap(btn, target); return 0
+            scroll(scr, top, bottom, ctr(btn)[1] - (top + bottom) // 2); continue
+        scroll(scr, top, bottom, 100)
+    say('not reachable'); return 1
+if __name__ == '__main__':
+    rc = find(sys.argv[2], sys.argv[3]) if sys.argv[1] == 'find' else 1
+    open(f"{OUT}/.ntn", 'w').write(str(N[0])); sys.exit(rc)
