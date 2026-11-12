@@ -71,7 +71,9 @@ fun hmOpenDm(c: Context, scope: kotlinx.coroutines.CoroutineScope, userId: Strin
     if (Session.me?.id == userId) { toast(c, "That's you 🙂"); return }
     toast(c, "Opening chat…")
     scope.launch {
-        runCatching { ChatApi.openDm(userId) }
+        // The site answers {room_id}; some answers carry {room:{id}} or {id} instead, so read all three.
+        runCatching { Api.post("/api/chat/rooms", JSONObject().put("type", "private").put("other_user_id", userId)).let { r ->
+            r.str("room_id").ifBlank { r.optJSONObject("room")?.str("id").orEmpty() }.ifBlank { r.str("id") } } }
             .onSuccess { id -> if (id.isNotBlank()) Nav.open(Screen.Chat(ChatApi.roomOf(id, "private", nick, photo, userId))) else toast(c, "Could not open the chat") }
             .onFailure { toast(c, Api.friendly(it)) }
     }

@@ -143,6 +143,8 @@ hm_rec_stop
 hm_rec_start HM-video-feed-profile
 tab Home; sleep 2; hm_top; hm_tapui "Feed"; sleep 4
 hm_swipe 430 200 1; hm_swipe 430 200 1; hm_swipe 150 450 1; hm_top
+hm_rec_stop
+hm_rec_start HM-video-search-profile
 hm_tapui "Search"; sleep 1; timeout 10 adb shell input text "moshe"; sleep 1
 hm_tapui "Search all of YID PLUS"; sleep 3; hm_hidekb; hm_tapchip "Users"; sleep 3; hm_hidekb
 hm_tapui "Moshe Fx"; sleep 4; hm_find "Followers"; sleep 3; key 4
