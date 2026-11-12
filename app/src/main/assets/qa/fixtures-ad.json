@@ -91,7 +91,42 @@
    "groups_joined": 9,
    "music": 0,
    "telegram_channels": 3
-  }
+  },
+  "devices": [
+   {
+    "ip": "198.51.100.7",
+    "fingerprint": "fp9a8b7c6d5e",
+    "hits": 14,
+    "last_seen": "2026-11-12T03:08:00.000Z",
+    "banned": 0
+   },
+   {
+    "ip": "203.0.113.20",
+    "fingerprint": "",
+    "hits": 2,
+    "last_seen": "2026-11-12T03:55:00.000Z",
+    "banned": 1
+   }
+  ],
+  "login_history": [
+   {
+    "action": "login",
+    "ip": "198.51.100.7",
+    "created_at": "2026-11-12T03:08:00.000Z"
+   },
+   {
+    "action": "fail",
+    "ip": "203.0.113.20",
+    "created_at": "2026-11-12T03:40:00.000Z"
+   }
+  ],
+  "audit_as_target": [
+   {
+    "action": "mute_user",
+    "actor_nick": "mod1",
+    "created_at": "2026-11-12T03:50:00.000Z"
+   }
+  ]
  },
  "/api/admin/insights": {
   "ok": true,
