@@ -120,7 +120,8 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
     val fg = ChatLook.ink()
     val link = remember(m.text) { if (m.isCentred || m.deleted || m.isSticker || m.isVoice || m.isVoiceText) null else urlRegex.find(m.text)?.value?.trimEnd('.', ',', ')', '!', '?') }
     val maxW = (LocalConfiguration.current.screenWidthDp * 0.82f).dp.coerceAtMost(440.dp)
-    val tail = 4.dp; val r = 14.dp
+    // WhatsApp: ~8dp corners; the first bubble of a run has a square top corner plus a small drawn tail (csTail).
+    val tail = 0.dp; val r = 10.dp
     val shape = if (mine) RoundedCornerShape(r, if (first) tail else r, r, r) else RoundedCornerShape(if (first) tail else r, r, r, r)
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
@@ -168,7 +169,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
             if (selected != null) Icon(if (selected) Sym.CheckCircle else Sym.RadioButtonUnchecked, if (selected) "Selected" else "Not selected",
                 Modifier.padding(end = 6.dp, top = 6.dp).size(22.dp).clickable { onSelect?.invoke() }, tint = if (selected) ChatLook.bar else ChatLook.sub())
             if (!mine && group) { if (first) ChAvatar(m.photo, m.nick, m.senderId, 30.dp) else Spacer(Modifier.width(30.dp)); Spacer(Modifier.width(6.dp)) }
-            Column(modifier.widthIn(min = 72.dp, max = maxW).clip(shape).background(if (highlight) Color(0xFFFFF59D) else if (m.isSticker) Color.Transparent else bg)
+            Column(modifier.widthIn(min = 72.dp, max = maxW).csTail(first && !m.isSticker && !highlight && selected != true, mine, bg).clip(shape).background(if (highlight) Color(0xFFFFF59D) else if (m.isSticker) Color.Transparent else bg)
                 .then(if (focused && Keys.keypad) Modifier.border(2.dp, Gold, shape) else Modifier)
                 .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onClick = { if (onSelect != null && selected != null) onSelect() else open() }, onLongClick = { if (onSelect != null && selected != null) onSelect() else onLong() },
                     onDoubleClick = if (selected == null && !m.pending && !m.failed && !m.deleted) ({ onReact("❤️") }) else null)

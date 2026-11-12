@@ -21,6 +21,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -163,6 +164,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var pendingMedia by remember { mutableStateOf<List<Uri>>(emptyList()) }
     val unreadAtOpen = remember(room.id) { room.unread }
     var unreadAnchor by remember(room.id) { mutableStateOf<String?>(null) }
+    var didAnchorG by remember(room.id) { mutableStateOf(false) }
     var callOn by remember(room.id) { mutableStateOf(0) }
 
     suspend fun pull() {
@@ -201,7 +203,13 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             fresh.isNotEmpty()
         } catch (e: Exception) { toast(c, Api.friendly(e)); false } finally { loadingOlder = false }
     }
-    suspend fun pullReacts() { if (me != null) runCatching { reacts = withContext(Dispatchers.IO) { ChatApi.reactions(room.id) } } }
+    // Reactions: one full read when the room opens, then only what changed (&since=), merged over what we have.
+    var reactsAt by remember(room.id) { mutableStateOf<String?>(null) }
+    suspend fun pullReacts() {
+        if (me == null) return
+        val t0 = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date(System.currentTimeMillis() - 15_000))
+        runCatching { withContext(Dispatchers.IO) { ChatApi.reactions(room.id, reactsAt) } }.onSuccess { r -> reacts = if (reactsAt == null) r else reacts + r; reactsAt = t0 }
+    }
     LaunchedEffect(room.id) {
         if (msgs.isNotEmpty()) Perf.shown("Chat", fromCache = true)
         if (info == null) launch { roomsRes.load() }
@@ -364,7 +372,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val albums = remember(msgs.toList()) { csAlbums(msgs.toList()) }
     val matches = remember(sq, rows) { if (sq.trim().length < 2) emptyList() else rows.withIndex().filter { (_, it) -> it is ChItem.M && it.m.text.contains(sq.trim(), true) && !it.m.isVoice }.map { it.index } }
     LaunchedEffect(matches, hit) { matches.getOrNull(hit)?.let { state.animateScrollToItem(it) } }
-    LaunchedEffect(msgs.size) { if (msgs.isNotEmpty() && !searchOn && state.firstVisibleItemIndex < 3) state.scrollToItem(0) }
+    LaunchedEffect(msgs.size) { if (msgs.isNotEmpty() && !searchOn && state.firstVisibleItemIndex < 3 && (unreadAnchor == null || didAnchorG)) state.scrollToItem(0) }
     /** Jump to a message (reply quote, pinned bar, pinned list): older pages load until it is found, then it flashes like the site's highlight. */
     fun jumpTo(id: String) {
         scope.launch {
@@ -380,12 +388,21 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val nearTop by remember { derivedStateOf { val li = state.layoutInfo; li.totalItemsCount > 0 && (li.visibleItemsInfo.lastOrNull()?.index ?: 0) >= li.totalItemsCount - 3 } }
     LaunchedEffect(nearTop, hasMore) { if (nearTop && hasMore && loaded) loadOlder() }
     // Open at the first unread message, under an "N unread messages" line.
-    var didAnchor by remember(room.id) { mutableStateOf(false) }
     LaunchedEffect(unreadAnchor, rows.size) {
         val a = unreadAnchor ?: return@LaunchedEffect
-        if (didAnchor) return@LaunchedEffect
-        val i = rows.indexOfFirst { it is ChItem.M && it.m.id == a }
-        if (i > 3) { didAnchor = true; state.scrollToItem(i, -200) } else if (i >= 0) didAnchor = true
+        if (didAnchorG) return@LaunchedEffect
+        delay(80) // after the "stick to the newest" scroll of the same refresh
+        val i = itemsNow().indexOfFirst { it is ChItem.M && it.m.id == a }
+        if (i >= 0) {
+            didAnchorG = true
+            if (i > 2) {
+                state.scrollToItem(i)
+                // reverse layout puts item i at the bottom; move it up so the unread messages below the line are in view
+                val li = state.layoutInfo; val sz = li.visibleItemsInfo.firstOrNull { it.index == i }?.size ?: 0
+                val room0 = (li.viewportEndOffset - li.viewportStartOffset) - sz - 80
+                if (room0 > 0) state.scrollBy(-room0.toFloat())
+            }
+        }
     }
     // A group call running in this room (the site's banner "Call in progress · N on the call — tap to join").
     LaunchedEffect(room.id, me?.id) {
@@ -405,13 +422,19 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val csHeader: @Composable ColumnScope.() -> Unit = {
         if (selecting) {
             val sel = msgs.filter { it.id in selected }
+            val one = sel.singleOrNull()
             CsSelectBar(selected.size, canDelete = sel.isNotEmpty() && sel.all { it.senderId == me?.id || chIsSiteAdmin() || info?.canManage == true },
                 canSave = sel.all { it.senderId == me?.id } || info?.allowSaving != false || info?.canManage == true,
                 onClose = { selecting = false; selected.clear() },
-                onCopy = { chCopy(c, sel.joinToString("\n") { "[" + chatTime(it.createdAt) + "] " + it.nick + ": " + (if (it.type == "text") it.text else it.preview) }); selecting = false; selected.clear() },
+                onCopy = { chCopy(c, if (sel.size == 1) (if (sel[0].type == "text") sel[0].text else sel[0].preview) else sel.joinToString("\n") { "[" + chatTime(it.createdAt) + "] " + it.nick + ": " + (if (it.type == "text") it.text else it.preview) }); selecting = false; selected.clear() },
                 onForward = { if (sel.isNotEmpty()) Nav.open(CsForwardMany(sel)); selecting = false; selected.clear() },
                 onDelete = { val ids = sel.map { it.id }; confirm = (if (ids.size == 1) "Delete this message for everyone?" else "Delete ${ids.size} messages for everyone?") to suspend {
-                    ids.forEach { id -> runCatching { ChatApi.delete(id) }; msgs.removeAll { it.id == id }; older.removeAll { it.id == id } }; selecting = false; selected.clear(); Unit } })
+                    ids.forEach { id -> runCatching { ChatApi.delete(id) }; msgs.removeAll { it.id == id }; older.removeAll { it.id == id } }; selecting = false; selected.clear(); Unit } },
+                onReply = if (canWrite && one != null && !one.deleted) ({ replyTo = one; editing = null; selecting = false; selected.clear(); runCatching { inputFocus.requestFocus() }; kb?.show() }) else null,
+                onStar = if (me != null && one != null) ({ scope.launch { runCatching { ChatApi.save(one.id, room.id) }.onSuccess { toast(c, "⭐ Saved") }.onFailure { toast(c, Api.friendly(it)) } }; selecting = false; selected.clear() }) else null,
+                onMore = if (one != null) ({ actionFor = one; selecting = false; selected.clear() }) else null)
+            if (one != null && me != null && !one.deleted) CsReactStrip(reacts[one.id]?.mine, onReact = { e -> reactTo(one, e); selecting = false; selected.clear() },
+                onMore = { actionFor = one; selecting = false; selected.clear() })
         } else if (searchOn) {
             Surface(color = ChatLook.bar, contentColor = Color.White) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -480,7 +503,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                                     ChBubble(m, mine = m.senderId == me?.id, group = room.type != "private", first = it0.first, reacts = reacts[m.id],
                                         reply = m.replyToId?.let { rid -> msgs.firstOrNull { it.id == rid } }, highlight = hl || flash == m.id, privateChat = room.type == "private",
                                         modifier = if (it0 === firstReal) Modifier.firstFocus() else Modifier,
-                                        onMedia = { url -> openGallery(gallery.ifEmpty { listOf(GItem(url, m.isVideo, null, m.nick)) }, url) }, onLong = { if (!m.pending && !m.isCentred) actionFor = m },
+                                        onMedia = { url -> openGallery(gallery.ifEmpty { listOf(GItem(url, m.isVideo, null, m.nick)) }, url) }, onLong = { if (!m.pending && !m.isCentred) { if (m.failed || Keys.keypad) actionFor = m else { selecting = true; selected.clear(); selected.add(m.id) } } },
                                         onSwipeReply = if (canWrite && !m.pending && !m.isCentred && !m.deleted) ({ replyTo = m; editing = null; runCatching { inputFocus.requestFocus() }; kb?.show() }) else null,
                                         onJoin = { code -> scope.launch { runCatching { ChatApi.join(null, code) }.onSuccess { id -> toast(c, "Joined"); roomsRes.load(true); Nav.open(Screen.Chat(ChatApi.info(id)?.room ?: ChatApi.roomOf(id, "group", "Group"))) }.onFailure { toast(c, Api.friendly(it)) } } },
                                         onReact = { e -> if (me != null) reactTo(m, e) }, onReplyTap = { rid -> jumpTo(rid) },
@@ -501,6 +524,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                             .padding(horizontal = 6.dp, vertical = 1.dp), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                     if (loadingOlder) LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter), color = ChatLook.bar)
+                    // WhatsApp's floating date while scrolled back: the day of the top visible message.
+                    val topDay by remember(rows) { derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index?.let { i -> (rows.getOrNull(i) as? ChItem.M)?.m?.createdAt?.let { chatDay(it) } } ?: "" } }
+                    if (showDown && topDay.isNotEmpty()) Text(topDay, Modifier.align(Alignment.TopCenter).padding(top = 8.dp).clip(RoundedCornerShape(8.dp)).background(ChatLook.theirs().copy(alpha = .95f))
+                        .padding(horizontal = 12.dp, vertical = 4.dp), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = ChatLook.sub())
                 }
             }
         }

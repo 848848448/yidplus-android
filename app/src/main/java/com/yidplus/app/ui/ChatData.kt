@@ -127,16 +127,18 @@ object ChatApi {
     fun info(id: String): ChatRoomInfo? = rooms.data?.firstOrNull { it.room.id == id }
 
     suspend fun messages(roomId: String, view: Boolean = false): Pair<JSONObject, List<ChatMsg>> {
-        val j = Api.get("/api/chat?room_id=" + chEnc(roomId) + if (view) "&view=1" else "")
+        // limit=100 (coordinator 05:27Z: the server's read budget; never the whole room per poll)
+        val j = Api.get("/api/chat?room_id=" + chEnc(roomId) + "&limit=100" + if (view) "&view=1" else "")
         return j to chObjs(j.optJSONArray("messages")).map(ChatMsg::from)
     }
     /** The site's loadOlderMessages: GET /api/chat?room_id&before&before_id → {messages, next_cursor, has_more}. */
     suspend fun older(roomId: String, before: String, beforeId: String): Pair<JSONObject, List<ChatMsg>> {
-        val j = Api.get("/api/chat?room_id=" + chEnc(roomId) + "&before=" + chEnc(before) + "&before_id=" + chEnc(beforeId))
+        val j = Api.get("/api/chat?room_id=" + chEnc(roomId) + "&before=" + chEnc(before) + "&before_id=" + chEnc(beforeId) + "&limit=100")
         return j to chObjs(j.optJSONArray("messages")).map(ChatMsg::from)
     }
-    suspend fun reactions(roomId: String): Map<String, ChReact> {
-        val j = Api.get("/api/chat/reactions?room_id=" + chEnc(roomId)).optJSONObject("reactions") ?: return emptyMap()
+    /** since = only what changed after that moment (ISO); the caller merges it over what it has. */
+    suspend fun reactions(roomId: String, since: String? = null): Map<String, ChReact> {
+        val j = Api.get("/api/chat/reactions?room_id=" + chEnc(roomId) + (if (since != null) "&since=" + chEnc(since) else "")).optJSONObject("reactions") ?: return emptyMap()
         val out = HashMap<String, ChReact>()
         j.keys().forEach { id -> val o = j.optJSONObject(id) ?: return@forEach; val c = o.optJSONObject("counts") ?: JSONObject()
             out[id] = ChReact(c.keys().asSequence().associateWith { c.optInt(it) }.filterValues { it > 0 }, o.strOrNull("my_reaction")) }

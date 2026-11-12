@@ -188,7 +188,7 @@ internal fun CsPollBubble(id: String) {
         if (!closed && p.optBoolean("allow_add_options") && Session.me != null) TextButton({ suggest = true }) { Text("+ Suggest an option") }
         Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             val n = p.optInt("total_voters")
-            val closes = if (closed) " · Closed" else p.strOrNull("closes_at")?.let { at -> val ms = (parseTime(at) ?: 0L) - System.currentTimeMillis(); if (ms > 0) { val m = ms / 60000; if (m >= 60) " · Closes in ${m / 60}h" else " · Closes in ${m}m" } else "" } ?: ""
+            val closes = if (closed) " · Closed" else p.strOrNull("closes_at")?.let { at -> val ms = (parseTime(at) ?: 0L) - System.currentTimeMillis(); if (ms > 0) { val m = ms / 60000; when { m >= 2880 -> " · Closes in ${m / 1440}d"; m >= 60 -> " · Closes in ${m / 60}h"; else -> " · Closes in ${m}m" } } else "" } ?: ""
             Text("$n voter" + (if (n != 1) "s" else "") + closes, Modifier.weight(1f), fontSize = 12.sp, color = ChatLook.sub())
             if (!closed && p.str("creator_id") == Session.me?.id && Session.me != null)
                 Text("Close Poll", Modifier.clip(RoundedCornerShape(8.dp)).tap(RoundedCornerShape(8.dp)) { scope.launch { runCatching { ChatApi.pollClose(id) }.onFailure { toast(c, Api.friendly(it)) }; load() } }.padding(horizontal = 8.dp, vertical = 4.dp),

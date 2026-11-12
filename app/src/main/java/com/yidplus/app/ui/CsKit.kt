@@ -30,6 +30,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
@@ -313,18 +316,36 @@ internal fun CsPinnedList(roomId: String, onJump: (String) -> Unit, onClose: () 
     }, confirmButton = { TextButton(onClose) { Text("Close") } })
 }
 
-/** Select mode bar (the site's select-action-bar): ✕, "N selected", Copy, Forward, Delete. */
+/** Select mode bar = WhatsApp's long-press bar: ✕, count, then Reply · Star · Copy · Forward · Delete · ⋮ (one message) or Copy · Forward · Delete (several). */
 @Composable
-internal fun CsSelectBar(n: Int, canDelete: Boolean, canSave: Boolean, onClose: () -> Unit, onCopy: () -> Unit, onForward: () -> Unit, onDelete: () -> Unit) {
+internal fun CsSelectBar(n: Int, canDelete: Boolean, canSave: Boolean, onClose: () -> Unit, onCopy: () -> Unit, onForward: () -> Unit, onDelete: () -> Unit,
+                         onReply: (() -> Unit)? = null, onStar: (() -> Unit)? = null, onMore: (() -> Unit)? = null) {
     Surface(color = ChatLook.bar, contentColor = Color.White) {
         Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             ChIcon(Sym.Close, "Cancel selection", onClose)
-            Text("$n selected", Modifier.weight(1f).padding(start = 8.dp), fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+            Text("$n", Modifier.weight(1f).padding(start = 8.dp), fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+            if (n == 1 && onReply != null) ChIcon(Sym.Reply, "Reply", onReply)
+            if (n == 1 && onStar != null && canSave) ChIcon(Sym.Star, "Star", onStar)
             if (canSave) ChIcon(Sym.ContentCopy, "Copy", onCopy)
             if (canSave) ChIcon(Sym.Forward, "Forward", onForward)
             if (canDelete) ChIcon(Sym.Delete, "Delete", onDelete)
+            if (n == 1 && onMore != null) ChIcon(Sym.MoreVert, "More actions", onMore)
         }
     }
+}
+
+/** WhatsApp's reaction strip under the long-press bar: the quick reactions and "+" for any emoji. */
+@Composable
+internal fun CsReactStrip(myReact: String?, onReact: (String) -> Unit, onMore: () -> Unit) {
+    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+        CHAT_QUICK_REACTS.forEach { e ->
+            Box(Modifier.size(40.dp).clip(CircleShape).background(if (myReact == e) ChatLook.bar.copy(alpha = .2f) else Color.Transparent).tap(CircleShape) { onReact(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
+        }
+        Box(Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { onMore() }, contentAlignment = Alignment.Center) {
+            Icon(Sym.Add, "More reactions", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+    HorizontalDivider(thickness = 0.5.dp)
 }
 
 /** "N unread messages" line (the site's _insertUnreadSeparator, which the site never shows; WhatsApp does). */
@@ -449,4 +470,17 @@ internal fun CsAlbumGrid(list: List<ChatMsg>, maxW: androidx.compose.ui.unit.Dp,
             }
         }
     }
+}
+
+
+/** WhatsApp's bubble tail: a small triangle at the top outer corner of the first bubble in a run (drawn outside the bubble, before the clip). */
+internal fun Modifier.csTail(on: Boolean, mine: Boolean, color: Color): Modifier = if (!on) this else drawBehind {
+    val t = 8.dp.toPx(); val h = 10.dp.toPx()
+    val right = mine != (layoutDirection == LayoutDirection.Rtl)
+    val p = Path().apply {
+        if (right) { moveTo(size.width - 1f, 0f); lineTo(size.width + t, 0f); lineTo(size.width - 1f, h) }
+        else { moveTo(1f, 0f); lineTo(-t, 0f); lineTo(1f, h) }
+        close()
+    }
+    drawPath(p, color)
 }

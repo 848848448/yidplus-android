@@ -1,5 +1,5 @@
 {
- "/api/chat?room_id=r-cs": {
+ "/api/chat?room_id=r-cs&limit=100": {
   "ok": true,
   "messages": [
    {
@@ -73,7 +73,7 @@
     "text": "0:12|20,40,60,80,50,30,70,90,40,20,30,60,80,40,20,50,70,30,40,60",
     "created_at": "2026-11-11T10:10:00.000Z",
     "read": 1,
-    "media_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    "media_url": "https://raw.githubusercontent.com/848848448/yidplus-android/feat-21cs/app/src/main/assets/qa/cs-voice.m4a"
    },
    {
     "id": "cs13",
@@ -85,7 +85,7 @@
     "text": "0:07|30,50,70,40,20,60,80,50,30,40",
     "created_at": "2026-11-11T10:11:00.000Z",
     "read": 1,
-    "media_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    "media_url": "https://raw.githubusercontent.com/848848448/yidplus-android/feat-21cs/app/src/main/assets/qa/cs-voice.m4a"
    },
    {
     "id": "cs14",
@@ -97,7 +97,7 @@
     "text": "Niggun.mp3",
     "created_at": "2026-11-11T10:20:00.000Z",
     "read": 1,
-    "media_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "media_url": "https://raw.githubusercontent.com/848848448/yidplus-android/feat-21cs/app/src/main/assets/qa/cs-voice.m4a",
     "media_key": "chat/r-cs/Niggun.mp3"
    },
    {
@@ -181,7 +181,7 @@
   "has_more": true,
   "next_cursor": "2026-11-11T10:00:00.000Z"
  },
- "/api/chat?room_id=r-cs&before=2026-11-11T10%3A00%3A00.000Z&before_id=cs10": {
+ "/api/chat?room_id=r-cs&before=2026-11-11T10%3A00%3A00.000Z&before_id=cs10&limit=100": {
   "ok": true,
   "messages": [
    {
@@ -395,5 +395,744 @@
   "description": "Chat",
   "image": null,
   "site_name": "yidplus.com"
+ },
+ "/api/chat?room_id=r-dm2&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "y1",
+    "room_id": "r-dm2",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "sender_photo": null,
+    "type": "text",
+    "text": "האסטו געזען דעם נייעם שיעור?",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-10T18:40:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "y2",
+    "room_id": "r-dm2",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "יא! זייער שיין",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-10T18:45:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "y3",
+    "room_id": "r-dm2",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "sender_photo": null,
+    "type": "voice",
+    "text": "0:12|20,40,60,30,50,70,40,30,20,50,60,40",
+    "media_key": "chat/voice_y3.m4a",
+    "media_url": "/api/media/chat%2Fvoice_y3.m4a",
+    "created_at": "2026-11-11T18:52:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-dm4&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "s1",
+    "room_id": "r-dm4",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "Shaya, קענסטו רופן?",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-10T18:20:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "s2",
+    "room_id": "r-dm4",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "call",
+    "text": "📞 Missed voice call",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-10T18:30:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-g2&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "f1",
+    "room_id": "r-g2",
+    "sender_id": "u-mom",
+    "sender_nick": "Mommy",
+    "sender_photo": null,
+    "type": "text",
+    "text": "מיר עסן 7 אזייגער",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T14:20:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "f2",
+    "room_id": "r-g2",
+    "sender_id": "u-dad",
+    "sender_nick": "Tatty",
+    "sender_photo": null,
+    "type": "call",
+    "text": "📞 Group voice call · 12 min",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T14:30:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-g3&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "p1m",
+    "room_id": "r-g3",
+    "sender_id": "u-shim",
+    "sender_nick": "Shimel'a",
+    "sender_photo": null,
+    "type": "text",
+    "text": "ווער קען העלפן?",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-08T08:10:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-spy&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "z1",
+    "room_id": "r-spy",
+    "sender_id": "u-moshe",
+    "sender_nick": "Moshe",
+    "sender_photo": null,
+    "type": "text",
+    "text": "ביסט דא?",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-07T09:50:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "z2",
+    "room_id": "r-spy",
+    "sender_id": "u-leib",
+    "sender_nick": "Leib",
+    "sender_photo": null,
+    "type": "text",
+    "text": "יא, איך קום באלד",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-07T09:55:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "z3",
+    "room_id": "r-spy",
+    "sender_id": "",
+    "sender_nick": "",
+    "sender_photo": null,
+    "type": "system",
+    "text": "Leib blocked a user",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-07T10:00:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-g4&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "b1",
+    "room_id": "r-g4",
+    "sender_id": "u-leib",
+    "sender_nick": "Leib",
+    "sender_photo": null,
+    "type": "text",
+    "text": "א גוטן שבת",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-06T10:00:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-links&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "l0",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "text",
+    "text": "גוט מארגן",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-10T09:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "l1",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "text",
+    "text": "קוק דעם ווידעא https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T19:10:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "l2",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "text",
+    "text": "קום אין אונזער גרופע: https://yidplus.com/chat?join=abc123",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T19:12:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "l3",
+    "room_id": "r-links",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "א דאנק! https://t.me/yidplusnews",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T19:15:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "l4",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "media_key": "chat/photo_l4.png",
+    "media_url": "/api/media/user-avatars/392d8eda-e0dd-44ea-a51e-f55ead12fb0c_1785879385829.png",
+    "created_at": "2026-11-11T19:20:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "l5",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "text",
+    "text": "דאס איז געווען א שיינע שמחה",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T19:21:00.000Z",
+    "read": 1,
+    "reply_to_id": "l4",
+    "forwarded": true
+   },
+   {
+    "id": "l6",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "deleted",
+    "text": "",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T19:22:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "l7",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "media",
+    "text": "__once__",
+    "media_key": "chat/once.jpg",
+    "media_url": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "created_at": "2026-11-11T19:23:00.000Z",
+    "read": 1,
+    "view_once": 1
+   },
+   {
+    "id": "l8",
+    "room_id": "r-links",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "file",
+    "text": "Niggun.mp3",
+    "media_key": "chat/Niggun.mp3",
+    "media_url": "/api/media/chat%2FNiggun.mp3",
+    "created_at": "2026-11-11T19:23:30.000Z",
+    "read": 1,
+    "edited_at": "2026-11-11T19:24:00.000Z"
+   },
+   {
+    "id": "l9",
+    "room_id": "r-links",
+    "sender_id": "u-berel",
+    "sender_nick": "Berel Links",
+    "sender_photo": null,
+    "type": "text",
+    "text": "See you at 8 tonight",
+    "media_key": null,
+    "media_url": null,
+    "created_at": "2026-11-11T19:24:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=nt-dm1&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "nd1",
+    "room_id": "nt-dm1",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "ביסטו שוין אינדערהיים?",
+    "created_at": "2026-11-11T19:10:00.000Z",
+    "read": 1,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "nd2",
+    "room_id": "nt-dm1",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "sender_photo": "/api/media/avatars%2F40da7cf5-4cb2-47d8-b652-eb4f5ec9c376.png?v=1784164780024",
+    "type": "text",
+    "text": "יא, איך בין שוין דא 🙂",
+    "created_at": "2026-11-11T19:30:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "nd3",
+    "room_id": "nt-dm1",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky Weiss",
+    "sender_photo": "/api/media/avatars%2F40da7cf5-4cb2-47d8-b652-eb4f5ec9c376.png?v=1784164780024",
+    "type": "voice_text",
+    "text": "0:12|20,40,60,30,50,70,40,20",
+    "created_at": "2026-11-11T19:31:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   }
+  ]
+ },
+ "/api/chat?room_id=nt-g1&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "ng0",
+    "room_id": "nt-g1",
+    "sender_id": "u-tatty",
+    "sender_nick": "Tatty",
+    "sender_photo": null,
+    "type": "text",
+    "text": "גוט מארגן",
+    "created_at": "2026-11-11T08:00:00.000Z",
+    "read": 1,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng1",
+    "room_id": "nt-g1",
+    "sender_id": "system",
+    "sender_nick": "",
+    "sender_photo": null,
+    "type": "system",
+    "text": "Mommy added Shaya",
+    "created_at": "2026-11-11T19:00:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng2",
+    "room_id": "nt-g1",
+    "sender_id": "u-mommy",
+    "sender_nick": "Mommy",
+    "sender_photo": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "type": "text",
+    "text": "מיר עסן 7 אזייגער",
+    "created_at": "2026-11-11T19:05:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng3",
+    "room_id": "nt-g1",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "created_at": "2026-11-11T19:10:00.000Z",
+    "read": 0,
+    "media_url": "/api/media/tgchan/ZemelVIN.jpeg",
+    "media_key": "tgchan/b.jpg"
+   },
+   {
+    "id": "ng4",
+    "room_id": "nt-g1",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "sticker",
+    "text": "https://yidplus.com/images/apple-touch-icon.png",
+    "created_at": "2026-11-11T19:15:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng5",
+    "room_id": "nt-g1",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "איך קום",
+    "created_at": "2026-11-11T19:20:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng6",
+    "room_id": "nt-g1",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "text",
+    "text": "",
+    "created_at": "2026-11-11T19:25:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null,
+    "deleted": 1
+   },
+   {
+    "id": "ng7",
+    "room_id": "nt-g1",
+    "sender_id": "u-mommy",
+    "sender_nick": "Mommy",
+    "sender_photo": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "type": "call",
+    "text": "📞 Missed voice call",
+    "created_at": "2026-11-11T19:30:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   },
+   {
+    "id": "ng8",
+    "room_id": "nt-g1",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "file",
+    "text": "menu.pdf",
+    "created_at": "2026-11-11T19:35:00.000Z",
+    "read": 0,
+    "media_url": "/api/media/chat%2Ffiles%2F1_menu.pdf",
+    "media_key": "chat/files/1_menu.pdf"
+   },
+   {
+    "id": "ng9",
+    "room_id": "nt-g1",
+    "sender_id": "u-mommy",
+    "sender_nick": "Mommy",
+    "sender_photo": "/api/media/user-avatars/cd33c19b-44ba-47f0-bba4-67937a863bdc_1785879385637.jpg",
+    "type": "text",
+    "text": "ברענג די קינדער 🍰",
+    "created_at": "2026-11-11T19:40:00.000Z",
+    "read": 0,
+    "media_url": null,
+    "media_key": null
+   }
+  ]
+ },
+ "/api/chat?room_id=r-dm1&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "m1",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "שלום עליכם! וואס הערט זיך?",
+    "created_at": "2026-11-11T18:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m2",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עליכם שלום! ב״ה גוט. און ביי דיר?",
+    "created_at": "2026-11-11T18:02:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m3",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "created_at": "2026-11-11T18:30:00.000Z",
+    "read": 1,
+    "media_url": "/api/media/tgchan/YeshivagedolahTelegramChannel.jpeg",
+    "media_key": "tgchan/a.jpg"
+   },
+   {
+    "id": "m4",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "קוק וואס איך האב געזען היינט 😄",
+    "created_at": "2026-11-11T18:31:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m5",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "וואו, שיין! וואו איז דאס?",
+    "created_at": "2026-11-11T18:50:00.000Z",
+    "read": 1,
+    "reply_to_id": "m4",
+    "reply_to": {
+     "id": "m4",
+     "sender_nick": "משה'לע",
+     "text": "קוק וואס איך האב געזען היינט 😄"
+    }
+   },
+   {
+    "id": "m6",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "voice",
+    "text": "",
+    "created_at": "2026-11-11T19:00:00.000Z",
+    "read": 1,
+    "media_key": "voice/demo.ogg",
+    "media_url": null,
+    "duration": 14
+   },
+   {
+    "id": "m7",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "Ok, I'll be there at 8 👍",
+    "created_at": "2026-11-11T19:20:00.000Z",
+    "read": 1,
+    "reactions": {
+     "👍": 1,
+     "❤️": 2
+    }
+   },
+   {
+    "id": "m8",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "גוט מארגן! ווען קומסטו?",
+    "created_at": "2026-11-11T19:26:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat?room_id=r-g1&limit=100": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "m19",
+    "sender_id": "system",
+    "sender_nick": "",
+    "sender_photo": null,
+    "type": "system",
+    "text": "Yanky joined the group",
+    "created_at": "2026-11-11T16:10:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m20",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "ווער קומט מארגן צום שיעור?",
+    "created_at": "2026-11-11T17:30:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m21",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "text",
+    "text": "איך! 🙋",
+    "created_at": "2026-11-11T17:32:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m22",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "איך אויך, בעז״ה",
+    "created_at": "2026-11-11T17:40:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m23",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "sticker",
+    "text": "https://yidplus.com/images/apple-touch-icon.png",
+    "created_at": "2026-11-11T18:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m24",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "poll",
+    "text": "p1",
+    "created_at": "2026-11-11T18:10:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m25",
+    "sender_id": "u-chaim",
+    "sender_nick": "חיים",
+    "sender_photo": null,
+    "type": "file",
+    "text": "schedule.pdf",
+    "created_at": "2026-11-11T18:20:00.000Z",
+    "read": 1,
+    "media_key": "chat/files/123_schedule.pdf",
+    "media_url": "/api/media/chat%2Ffiles%2F123_schedule.pdf"
+   },
+   {
+    "id": "m26",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "voice_text",
+    "text": "0:12|20,40,60,30,50,70,40,20",
+    "created_at": "2026-11-11T18:30:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m27",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "call",
+    "text": "📞 Missed voice call",
+    "created_at": "2026-11-11T18:40:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "m28",
+    "sender_id": "u-shaya",
+    "sender_nick": "Shaya",
+    "sender_photo": null,
+    "type": "media",
+    "text": "",
+    "created_at": "2026-11-11T19:00:00.000Z",
+    "read": 1,
+    "media_url": "/api/media/tgchan/ZemelVIN.jpeg",
+    "media_key": "tgchan/b.jpg"
+   },
+   {
+    "id": "m29",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "",
+    "created_at": "2026-11-11T19:15:00.000Z",
+    "read": 1,
+    "deleted": 1
+   },
+   {
+    "id": "m30",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אזוי אז מיר קענען זיך צוגרייטן.",
+    "created_at": "2026-11-11T19:19:00.000Z",
+    "read": 1
+   }
+  ]
+ },
+ "/api/chat/reactions": {
+  "ok": true,
+  "reactions": {}
  }
 }

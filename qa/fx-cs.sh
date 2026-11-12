@@ -20,16 +20,12 @@ cshas() { local p; p=$(cspos "$1"); if [ -n "$p" ]; then log "CS ok: '$1' on scr
 cslong() { sleep 1; local p; p=$(cspos "$1"); [ -z "$p" ] && { log "cslong: '$1' not found"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press $*"; }
 csopen() { # csopen ID TYPE NAME-JSON-ESCAPED [extra json]
   timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
-csfx() { 
-# D-pad / keypad video: move focus with the arrows, OK on the mic = hands-free recording, OK on Send
-csroom 5; csrec CS-flow-dpad 28
-for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
-p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; key 22; sleep 0.6; key 23; sleep 3; shot CS-23-dpad-voice-sent; csfx "type=voice"
-sleep 14; cspull CS-flow-dpad
-timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400 | sed 's/^/  YidFx: /' | tee -a "$OUT/qa.log" >/dev/null; }
+csfx() { timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400 | sed 's/^/  YidFx: /' | tee -a "$OUT/qa.log" >/dev/null; }
 cskb() { log "keyboard shown after $1: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }
 csdbl() { local p; p=$(cspos "$1"); [ -z "$p" ] && { log "csdbl: '$1' not found"; return 0; }; set -- $p; adb shell input tap $1 $2; adb shell input tap $1 $2; sleep 2; log "double-tap $*"; }
 csmic() { cspos "Record voice message"; }
+csfind() { local n=0; while [ $n -lt ${2:-6} ]; do [ -n "$(cspos "$1")" ] && return 0; adb shell input swipe 240 260 240 470 400; sleep 1; n=$((n+1)); done; log "csfind: '$1' not found"; }
+csfindup() { local n=0; while [ $n -lt ${2:-6} ]; do [ -n "$(cspos "$1")" ] && return 0; adb shell input swipe 240 470 240 260 400; sleep 1; n=$((n+1)); done; log "csfindup: '$1' not found"; }
 adb shell pm grant $PKG android.permission.RECORD_AUDIO 2>/dev/null
 adb shell pm grant $PKG android.permission.CAMERA 2>/dev/null
 csrec() { (adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit "${2:-30}" "/sdcard/$1.mp4" >/dev/null 2>&1 &); sleep 1; log "screenrecord $1 started"; }
@@ -40,13 +36,13 @@ csroom() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.a
 csrec CS-flow-touch 30
 # 6: opens at the first unread message under "5 unread messages"; formatting, @mention, bare domain, music card, voice, polls
 csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
-adb shell input swipe 240 220 240 560 300; sleep 1; shot CS-02-formatting-voice-music
-adb shell input swipe 240 220 240 560 300; sleep 3; shot CS-03-older-page-loaded; cshas "עלטערע מעסעדזש 1"
+csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
+for n in 1 2 3 4 5; do adb shell input swipe 240 200 240 600 250; sleep 0.6; done; sleep 3; shot CS-03-older-page-loaded; csfind "עלטערע מעסעדזש 1" 4; cshas "עלטערע מעסעדזש 1"
 # 4: polls (percentages hidden until I vote; quiz with correct/wrong marks; Close Poll for the creator)
-csroom 4; adb shell input swipe 240 300 240 520 300; sleep 2; shot CS-04-polls; cshas "+ Suggest an option"; cshas "Close Poll"
-cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted
+csroom 4; csfind "פלאפל"; shot CS-04-polls; csfindup "+ Suggest an option" 2; cshas "+ Suggest an option"
+cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted; csfindup "Close Poll" 3; shot CS-05b-quiz-close-poll; cshas "Close Poll"
 # 9: voice: play, speed, seek
-cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
+csroom 4; csfind "0:12" 4; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
 # 1: voice note recording — tap = hands-free (pause, stop to listen, send)
 key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked; cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
@@ -55,11 +51,12 @@ cspull CS-flow-touch
 p=$(csmic); if [ -n "$p" ]; then set -- $p; (adb shell input swipe $1 $2 $1 $2 3500 &) ; sleep 2; shot CS-08-voice-holding; sleep 3; csfx "type=voice"; fi
 # hold + slide left = cancel (nothing sent)
 p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input swipe $1 $2 $(( $1 - 260 )) $2 2500; sleep 2; shot CS-08b-voice-slid-cancel; fi
-# long-press sheet (reactions row + every action), then select mode
-cslong "ווער קומט היינט ביינאכט?"; shot CS-09-long-press-sheet; cshas "Select"; cstap "Select"; sleep 1; cstap "יא, זייער גוט"; sleep 1; shot CS-10-select-2
-cstap "Copy"; sleep 1; cslong "יא, זייער גוט"; cstap "Select"; sleep 1; cstap "Forward"; sleep 3; shot CS-11-forward-many; cstap "Yossi Klein"; sleep 3; csfx "forwarded"; key 4; sleep 1
+# long-press = WhatsApp's top action bar + reaction strip; ⋮ = every action; tap more messages to select several
+cslong "ווער קומט היינט ביינאכט?"; shot CS-09-long-press-bar; cshas "More actions"; cstap "More actions"; sleep 1; shot CS-09b-long-press-all-actions; key 4; sleep 1
+cslong "ווער קומט היינט ביינאכט?"; cstap "יא, זייער גוט"; sleep 1; shot CS-10-select-2; cshas "2"
+cstap "Copy"; sleep 1; cslong "יא, זייער גוט"; cstap "זאל זיין מיט מזל"; sleep 1; cstap "Forward"; sleep 3; shot CS-11-forward-many; cstap "Yossi Klein"; sleep 3; csfx "forwarded"; key 4; sleep 1
 # 10: report with details (the site's modal)
-csroom 4; cslong "מיר טרעפן זיך 8:00"; cstap "Report"; sleep 1; cstap "Harassment"; shot CS-12-report; cstap "Submit Report"; sleep 2; csfx "/api/reports"
+csroom 4; cslong "מיר טרעפן זיך 8:00"; cstap "More actions"; sleep 1; cstap "Report"; sleep 1; cstap "Harassment"; shot CS-12-report; cstap "Submit Report"; sleep 2; csfx "/api/reports"
 # 9: double-tap = ❤️; tap a name = person card
 csdbl "זאל זיין מיט מזל"; csfx "/api/chat/reactions"; shot CS-13-double-tap-heart
 cstap "Yanky"; sleep 1; shot CS-14-person-card; key 4; sleep 1
@@ -75,5 +72,10 @@ csroom 4; cstap "Emoji"; sleep 2; shot CS-18-emoji-recent; cstap "Stickers"; sle
 cschopen() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-g1\",\"type\":\"group\",\"nick\":\"G1\"}'" >/dev/null 2>&1; sleep 6; log "open chat r-g1"; }
 cschopen; shot CS-19-group-call-banner; cshas "Call in progress"; cstap "More"; sleep 1; shot CS-20-menu; cstap "Pinned messages"; sleep 3; shot CS-21-pinned-list; key 4; sleep 1
 cstap "More"; sleep 1; cstap "Copy invite link"; sleep 1; csfx "generate_invite"; key 4; sleep 1
+# D-pad / keypad video: move focus with the arrows, OK on the mic = hands-free recording, OK on Send
+csroom 5; csrec CS-flow-dpad 28
+for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
+p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; key 22; sleep 0.6; key 23; sleep 3; shot CS-23-dpad-voice-sent; csfx "type=voice"
+sleep 14; cspull CS-flow-dpad
 timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -E 'r-cs|polls|reports|reactions|stickers|generate_invite' | cut -c1-400 > "$OUT/fx-cs-requests.txt"
 log "CS done"
