@@ -1,0 +1,11 @@
+11-12 07:52:42.375  3425  3462 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-12 07:53:38.873  3425  3460 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-12 07:53:59.386  3425  3459 I YidFx   : PUT /api/polls {"id":"p-cs1","vote":["o2"]}
+11-12 07:54:17.656  3425  3459 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-12 07:54:54.407  3425  3460 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-12 07:57:17.698  3425  3462 I YidFx   : POST /api/chat/typing {"room_id":"r-cs"}
+11-12 07:57:20.730  3425  3467 I YidFx   : POST /api/chat {"room_id":"r-cs","type":"text","text":"QA disappear","disappear_seconds":3600}
+11-12 07:58:13.472  3425  3460 I YidFx   : POST /api/polls {"room_id":"r-cs","question":"QA poll","options":["A","B"],"show_who_voted":false,"allow_multiple":false,"allow_add_options":false,"allow_revote":true,"shuffle_options":false,"quiz_mode":true,"duration_minutes":null,"correct_indices":[]}
+11-12 07:58:13.584  3425  3467 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-12 07:58:20.850  3425  5773 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-12 07:59:14.187  3425  3467 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
