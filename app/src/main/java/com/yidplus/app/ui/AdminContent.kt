@@ -175,8 +175,13 @@ class AdminBroadcastPage : PageScreen() {
         var seg by remember { mutableIntStateOf(0) }
         var push by remember { mutableStateOf(false) }
         var ask by remember { mutableStateOf<String?>(null) }
+        var whenDay by remember { mutableStateOf("") }
+        var whenTime by remember { mutableStateOf("") }
+        val whenMs = adLocalMs(whenDay, whenTime)
+        val isSchedule = whenMs != null && whenMs > System.currentTimeMillis() + 60_000
         val kb = LocalSoftwareKeyboardController.current
-        AdminList("Broadcast", sub = "A message to every member", res = res, tick = tick, header = {
+        AdminList("Broadcast", sub = "A message to every member", res = res, tick = tick,
+            actions = { IconBtn(Icons.Filled.Email, "Email all users", { Nav.open(AdEmailBlastPage()) }, tint = androidx.compose.ui.graphics.Color.White) }, header = {
             SettingsCard("New broadcast") {
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().firstFocus(), minLines = 3, label = { Text("Message") },
@@ -185,8 +190,14 @@ class AdminBroadcastPage : PageScreen() {
                 SettingRow(Icons.Filled.Group, "Send to", null, value = segments[seg].second) { ask = "seg" }
                 RowDivider(64.dp)
                 SettingRow(Icons.Filled.NotificationsActive, "Also send a phone notification", null, switch = push) { push = !push }
+                RowDivider(64.dp)
+                SettingsHint("⏰ Schedule: leave empty to send now, or pick a day and time.")
+                Row(Modifier.fillMaxWidth()) {
+                    Box(Modifier.weight(1.2f)) { AdField(whenDay, { whenDay = it }, "Day (YYYY-MM-DD)") }
+                    Box(Modifier.weight(1f)) { AdField(whenTime, { whenTime = it }, "Time (HH:MM)") }
+                }
                 Box(Modifier.padding(16.dp)) {
-                    PrimaryButton("Send now", { if (text.isBlank()) toast(c, "⚠ Type a message first.") else { kb?.hide(); ask = "send" } }, Modifier.fillMaxWidth())
+                    PrimaryButton(if (isSchedule) "⏰ Schedule" else "📢 Send now", { if (text.isBlank()) toast(c, "⚠ Type a message first.") else { kb?.hide(); ask = "send" } }, Modifier.fillMaxWidth())
                 }
             }
         }) { d ->
@@ -223,13 +234,17 @@ class AdminBroadcastPage : PageScreen() {
         }
         when (ask) {
             "seg" -> SettingsChoiceDialog("Send to", segments.map { it.second }, seg, { seg = it }, { ask = null })
-            "send" -> SettingsConfirmDialog("Send this to " + segments[seg].second.lowercase() + " now?", "\u201C" + text.trim() + "\u201D", "Send", danger = true, onOk = {
+            "send" -> SettingsConfirmDialog(if (isSchedule) "Schedule this for $whenDay $whenTime?" else "Send this to " + segments[seg].second.lowercase() + " now?", "\u201C" + text.trim() + "\u201D", if (isSchedule) "Schedule" else "Send", danger = true, onOk = {
                 val t = text.trim()
                 val email = Session.me?.email.orEmpty()
+                val body = JSONObject().put("text", t).put("segment", segments[seg].first).put("sender_email", email)
+                if (isSchedule) body.put("scheduled_for", adIso(whenMs!!)).put("push", push)
                 scope.launch {
-                    runCatching { Api.post("/api/broadcasts", JSONObject().put("text", t).put("segment", segments[seg].first).put("sender_email", email)) }
-                        .onSuccess {
-                            toast(c, "📢 Broadcast sent!"); text = ""; tick++
+                    runCatching { Api.post("/api/broadcasts", body) }
+                        .onSuccess { r ->
+                            text = ""; whenDay = ""; whenTime = ""; tick++
+                            if (r.optBoolean("scheduled") || body.has("scheduled_for")) { toast(c, "⏰ Scheduled!"); push = false; return@onSuccess }
+                            toast(c, "📢 Broadcast sent to all users!")
                             if (push) runCatching { Api.post("/api/push/send", JSONObject().put("title", "YID PLUS").put("body", t).put("url", "/chat")) }
                                 .onSuccess { r -> toast(c, "🔔 Pushed to " + r.optInt("sent") + " devices") }.onFailure { toast(c, "⚠ In-app sent, but push failed") }
                             push = false
