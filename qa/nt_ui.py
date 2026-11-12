@@ -28,7 +28,7 @@ def layout(root):
     if scr is None: return None
     shelfy = [b(r)[1] for r in scr if b(r) and any(d.get('content-desc', '').startswith(('YID PLUS notification', 'Android System notification')) for d in r.iter())]
     rows = [r for r in scr if b(r) and any(d.get('resource-id', '').endswith('backgroundNormal') for d in r.iter()) and b(r)[1] not in shelfy]
-    top = max([b(scr)[1]] + [b(n)[3] for n in root.iter() if n.get('resource-id', '').endswith(('quick_settings_container', 'header_label')) and b(n)])
+    top = max([b(scr)[1]] + [b(n)[3] for n in root.iter() if n.get('resource-id', '').endswith('quick_settings_container') and b(n)])
     bottom = min([b(scr)[3]] + shelfy)
     return scr, rows, top, bottom
 def visible(n, top, bottom):
@@ -42,12 +42,15 @@ def scroll(scr, top, bottom, d):
     sh('input', 'swipe', str(x), str(y0), str(x), str(y1), '700'); time.sleep(1.2)
 def find(want, target):
     want = [w for w in want.split('|') if w]
-    seen = False; stall = 0
-    for step in range(16):
+    seen = False; dirn = 1; last = None
+    for step in range(22):
         root = dump()
         lay = root is not None and layout(root)
         if not lay: say('no shade list'); return 1
         scr, rows, top, bottom = lay
+        sig = [tuple(b(r)) + (label(r),) for r in rows]
+        if sig == last: dirn = -dirn; say('end of the list, turning back')
+        last = sig
         acted = False
         for r in rows:
             labs = [label(d) for d in r.iter() if label(d)]
@@ -69,7 +72,7 @@ def find(want, target):
                         if target == 'body': tap(t, 'title'); return 0
                     elif t is not None: scroll(scr, top, bottom, ctr(t)[1] - (top + bottom) // 2); break
             else:
-                scroll(scr, top, bottom, 100)
+                scroll(scr, top, bottom, 60 * dirn)
             continue
         # the button: in the row that shows the chat, else (title scrolled away) the first row with buttons after it
         cands = []
@@ -84,7 +87,7 @@ def find(want, target):
             btn = cands[0][1]
             if visible(btn, top, bottom): tap(btn, target); return 0
             scroll(scr, top, bottom, ctr(btn)[1] - (top + bottom) // 2); continue
-        scroll(scr, top, bottom, 100)
+        scroll(scr, top, bottom, 60 * dirn)
     say('not reachable'); return 1
 if __name__ == '__main__':
     rc = find(sys.argv[2], sys.argv[3]) if sys.argv[1] == 'find' else 1
