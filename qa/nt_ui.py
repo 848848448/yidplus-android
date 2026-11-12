@@ -18,6 +18,14 @@ rows = [n for n in root.iter() if n.get('resource-id', '').endswith('expandableN
 if target == 'rows':
     for r in rows: print(b(r), ' | '.join(t for t in texts(r) if t)[:200])
     sys.exit(0)
+if target == 'scroller':  # the shade's notification list: "x y_from y_to" for one upward scroll inside it
+    for n in root.iter():
+        if n.get('resource-id', '').endswith('notification_stack_scroller') and b(n):
+            x1, y1, x2, y2 = b(n)
+            rows_top = min([b(r)[1] for r in root.iter() if r.get('resource-id', '').endswith('backgroundNormal') and b(r)] or [y1])
+            yf = y2 - 12; yt = max(rows_top + 5, yf - max(120, (y2 - y1) // 3))
+            print(f"{(x1 + x2) // 2} {yf} {yt}"); break
+    sys.exit(0)
 if target == 'send':
     for n in root.iter():
         if n.get('resource-id', '').endswith('remote_input_send') and b(n): print(c(n)); break
@@ -35,6 +43,7 @@ while cur in parent:
     if k == 1: row = cur
     elif k > 1: break
 if target == 'expand':
+    if any(n.get('content-desc', '').lower() == 'collapse' for n in row.iter()): sys.exit(0)  # already expanded
     for n in row.iter():
         if n.get('resource-id', '').endswith('expand_button') and b(n) and b(n)[2] > b(n)[0]:
             print(c(n)); sys.exit(0)

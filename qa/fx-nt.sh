@@ -25,15 +25,21 @@ ntrows() { timeout 30 adb shell uiautomator dump /sdcard/nt.xml >/dev/null 2>&1;
 ntshade() { key 3; sleep 1; timeout 10 adb shell cmd statusbar expand-notifications; sleep 3; }
 ntfind() { # ntfind ROW_TEXT TARGET: get TARGET inside that notification on screen (expand it / scroll the shade), then tap it
   local i
-  for i in 1 2 3 4 5; do
+  for i in 1 2 3 4 5 6 7; do
     ntui "$1" "$2" && return 0
-    [ $i = 5 ] && break
+    [ $i = 7 ] && break
     if [ $((i % 2)) = 1 ]; then ntui "$1" expand || ntscroll
     else ntscroll; fi
   done
   return 1
 }
-ntscroll() { timeout 10 adb shell input swipe $(( W / 2 )) $(( H * 3 / 4 )) $(( W / 2 )) $(( H * 2 / 5 )) 500; sleep 1.5; log "NT scrolled the shade"; }
+ntscroll() { # one upward scroll INSIDE the shade's notification list (at 480x640 it is only ~150 px under the quick settings)
+  local p
+  timeout 30 adb shell uiautomator dump /sdcard/nt.xml >/dev/null 2>&1
+  p=$(timeout 20 adb shell cat /sdcard/nt.xml 2>/dev/null | python3 qa/nt_ui.py x scroller)
+  [ -z "$p" ] && p="$(( W / 2 )) $(( H * 2 / 3 )) $(( H / 3 ))"
+  set -- $p; timeout 10 adb shell input swipe $1 $2 $1 $3 600; sleep 1.5; log "NT scrolled the shade list ($p)"
+}
 ntopen() { # ntopen ROW_TEXT: that notification expanded (Reply visible), for the photo
   ntui "$1" Reply look && return 0
   ntui "$1" expand; sleep 1; ntui "$1" Reply look && return 0
@@ -43,7 +49,8 @@ nt_round() { # nt_round TAG (480 or 1080)
   local S="$1"
   log "---- NT round $S ----"
   ntb --es mode reset; sleep 3; ntshade; key 4; sleep 1
-  ntb --es mode poll --es rooms "/api/chat/rooms?qa=nt"; sleep 14
+  ntb --es mode poll --es rooms "/api/chat/rooms?qa=nt"; sleep 3; shot NT-$S-00-heads-up
+  ntui "Family" Reply look && log "NT $S heads-up shows Reply" || true; sleep 9
   ntdump $S-1-posted
   ntshade; shot NT-$S-01-shade; ntrows
   # the group's own notification, expanded: group photo, each sender with photo/initial, Reply + Mark as read
