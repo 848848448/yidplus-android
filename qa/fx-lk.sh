@@ -107,7 +107,7 @@ lk_mark swipe-short; adb shell input swipe 240 470 240 250 120; sleep 4; shot LK
 adb shell input swipe 240 470 240 250 120; sleep 4; shot LK-16-short-swiped2
 lk_tapui "Uploads"; sleep 6; shot LK-16b-shorts-uploads
 lk_mark like-upload; lk_tapui "Like"; sleep 2
-lk_mark save-upload; lk_tapui "Save"; sleep 2; shot LK-16c-upload-liked-saved
+lk_mark save-upload; lk_tapui "Save"; [ "$LK_OK" != 1 ] && { key 11; log "save: key 4 (Save sits in More on small screens)"; }; sleep 2; shot LK-16c-upload-liked-saved
 lk_mark follow-creator; lk_tapui "More"; sleep 1; lk_tapui "@[^\"]*videos[^\"]*"; sleep 4; shot LK-16d-creator; lk_tapui "Follow"; sleep 2; shot LK-16e-creator-followed; key 4; sleep 3
 lk_mark comment-upload; lk_tapui "Comment"; sleep 3; adb shell input text "Great"; sleep 1; key 111; sleep 1; lk_tapui "Post"; sleep 2; shot LK-16f-upload-comments; key 4; sleep 1
 lk_mark upload-short; lk_tapui "Upload a Short"
