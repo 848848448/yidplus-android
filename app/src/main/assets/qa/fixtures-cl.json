@@ -1,0 +1,193 @@
+{
+ "/api/chat/rooms?group_settings=r-g1": {
+  "ok": true,
+  "settings": {
+   "id": "r-g1",
+   "name": "חברים פון שול",
+   "description": "א גרופע פאר די חברים פון שול · Shul friends",
+   "type": "group",
+   "visibility": "private",
+   "read_only": false,
+   "invite_code": "clg1inv",
+   "auto_delete_minutes": null,
+   "permissions": {
+    "photos": true,
+    "videos": true,
+    "stickers": true,
+    "music": true,
+    "files": true,
+    "voice": true,
+    "video_msg": true,
+    "links": true,
+    "polls": false,
+    "reactions": true,
+    "add_users": false,
+    "pin_messages": false,
+    "change_info": false
+   },
+   "allow_saving": true,
+   "history_visible": true,
+   "approve_members": true,
+   "reactions_enabled": true,
+   "featured": false,
+   "has_topics": false,
+   "members": 24,
+   "created_by": "demo-me"
+  }
+ },
+ "/api/chat/rooms?group_settings=r-c1": {
+  "ok": true,
+  "settings": {
+   "id": "r-c1",
+   "name": "YID PLUS נייעס",
+   "description": "נייעס פון YID PLUS",
+   "type": "channel",
+   "visibility": "public",
+   "read_only": true,
+   "invite_code": "clc1inv",
+   "auto_delete_minutes": null,
+   "permissions": null,
+   "allow_saving": true,
+   "history_visible": true,
+   "approve_members": false,
+   "reactions_enabled": true,
+   "featured": true,
+   "has_topics": false,
+   "members": 3,
+   "created_by": "demo-me"
+  }
+ },
+ "/api/chat/join-requests?room_id=r-g1": {
+  "ok": true,
+  "requests": [
+   {
+    "id": "jr-1",
+    "room_id": "r-g1",
+    "user_id": "u-mendy",
+    "nickname": "Mendy Gold",
+    "photo_url": null,
+    "created_at": "2026-11-11T18:02:00.000Z"
+   },
+   {
+    "id": "jr-2",
+    "room_id": "r-g1",
+    "user_id": "u-dovid",
+    "nickname": "דוד",
+    "photo_url": null,
+    "created_at": "2026-11-11T17:40:00.000Z"
+   }
+  ]
+ },
+ "/api/chat/join-requests?count=1": {
+  "ok": true,
+  "count": 2
+ },
+ "/api/chat/folders": {
+  "ok": true,
+  "folders": [
+   {
+    "id": "cl-f1",
+    "user_id": "demo-me",
+    "name": "Work",
+    "icon": "📁",
+    "filter": "custom",
+    "room_ids": "[\"r-g3\",\"r-dm5\"]",
+    "sort_order": 0
+   }
+  ]
+ },
+ "/api/users/search?q=Mendy": {
+  "ok": true,
+  "users": [
+   {
+    "id": "u-mendy",
+    "nickname": "Mendy Gold",
+    "photo_url": null
+   }
+  ]
+ },
+ "/api/channels?search=YID": {
+  "ok": true,
+  "channels": []
+ },
+ "/api/chat/rooms?search=YID": {
+  "ok": true,
+  "rooms": [
+   {
+    "id": "r-pub1",
+    "type": "group",
+    "nick": "YID PLUS Community",
+    "members": 340,
+    "photo_url": null,
+    "visibility": "public"
+   }
+  ]
+ },
+ "/api/chat?search=YID": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "m-s1",
+    "room_id": "r-g1",
+    "room_name": "חברים פון שול",
+    "sender_nick": "Yossi Klein",
+    "text": "Did you see the new YID PLUS app?",
+    "created_at": "2026-11-11T18:00:00.000Z",
+    "type": "text"
+   }
+  ]
+ },
+ "/api/invite?code=clpub1": {
+  "ok": true,
+  "room": {
+   "id": "r-g5",
+   "name": "Yiddish Readers",
+   "type": "group",
+   "visibility": "public",
+   "photo_url": null,
+   "members": 42,
+   "description": "Open group for readers"
+  }
+ },
+ "/api/invite?code=clpriv": {
+  "ok": true,
+  "room": {
+   "id": "r-g6",
+   "name": "Kollel Chaburah",
+   "type": "group",
+   "visibility": "private",
+   "photo_url": null,
+   "members": 9,
+   "description": "Admins approve new members"
+  }
+ },
+ "/api/chat?room_id=r-c1": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "c1m1",
+    "room_id": "r-c1",
+    "user_id": "demo-me",
+    "nickname": "משה'לע",
+    "type": "text",
+    "text": "ברוכים הבאים צו YID PLUS נייעס",
+    "created_at": "2026-11-11T19:00:00.000Z"
+   }
+  ],
+  "has_more": false
+ },
+ "/api/chat/rooms?search=Mendy": {
+  "ok": true,
+  "rooms": []
+ },
+ "/api/invite?code=abc123": {
+  "ok": true,
+  "room": {
+   "id": "r-g4",
+   "name": "ישיבה בחורים",
+   "photo_url": "/api/media/user-avatars/392d8eda-e0dd-44ea-a51e-f55ead12fb0c_1785879385829.png",
+   "members": 140,
+   "type": "group"
+  }
+ }
+}
