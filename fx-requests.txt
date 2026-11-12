@@ -1,0 +1,35 @@
+--------- beginning of main
+--------- beginning of system
+11-12 08:44:06.501  2588  2630 I YidFx   : POST /api/chat/read {"room_id":"r-g2"}
+11-12 08:45:31.241  3270  3332 I YidFx   : POST /api/chat/read {"room_id":"r-dm1"}
+11-12 08:45:54.327  3528  3528 I YidFx   : SH-STEP foryou
+11-12 08:46:08.370  3961  3961 I YidFx   : SH-STEP tap
+11-12 08:46:19.011  4265  4265 I YidFx   : SH-STEP dtap-like
+11-12 08:46:20.191  3436  3470 I YidFx   : POST /api/src-react {"vid":"shv02","like":true}
+11-12 08:46:23.642  4421  4421 I YidFx   : SH-STEP comments
+--------- beginning of crash
+11-12 08:46:36.569  4554  4554 I YidFx   : SH-STEP post-comment
+11-12 08:46:38.181  3436  3467 I YidFx   : POST /api/src-comments {"vid":"shv02","text":"Shkoyach gevaldig"}
+11-12 08:46:53.267  4663  4663 I YidFx   : SH-STEP options
+11-12 08:47:18.209  4825  4825 I YidFx   : SH-STEP save
+11-12 08:47:23.857  4863  4863 I YidFx   : SH-STEP share
+11-12 08:47:35.652  4923  4923 I YidFx   : SH-STEP follow-rail
+11-12 08:47:41.310  4963  4963 I YidFx   : SH-STEP swipe
+11-12 08:47:51.513  5035  5035 I YidFx   : SH-STEP creator
+11-12 08:48:07.897  5139  5139 I YidFx   : SH-STEP topic
+11-12 08:48:23.386  5227  5227 I YidFx   : SH-STEP scrub
+11-12 08:48:29.092  5315  5315 I YidFx   : SH-STEP following
+--------- beginning of kernel
+11-12 08:49:14.645  5575  5575 I YidFx   : SH-STEP following-list
+11-12 08:49:21.484  5608  5608 I YidFx   : SH-STEP nobody
+11-12 08:49:22.575  5625  5625 I YidFx   : SH-STEP saved
+11-12 08:49:41.834  5721  5721 I YidFx   : SH-STEP uploads
+11-12 08:49:43.831  3436  3477 I YidFx   : PUT /api/shorts {"id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b","view":true}
+11-12 08:49:43.832  3436  3477 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
+11-12 08:49:59.671  5820  5820 I YidFx   : SH-STEP upload-page
+11-12 08:50:09.580  5873  5873 I YidFx   : SH-STEP end
+11-12 08:50:52.695  6156  6156 I YidFx   : SH-STEP deeplink
+11-12 08:50:52.788  3436  3477 I YidFx   : PUT /api/shorts {"id":"6630b5bb-e297-417b-bc25-fdd9d23836d9","view":true}
+11-12 08:50:52.788  3436  6124 I YidFx   : POST /api/history {"item_type":"short","item_id":"6630b5bb-e297-417b-bc25-fdd9d23836d9"}
+11-12 08:50:59.799  6172  6172 I YidFx   : SH-STEP dpad
+11-12 08:51:32.493  3436  5515 I YidFx   : POST /api/src-react {"vid":"shv03","like":true}

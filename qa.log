@@ -1,0 +1,146 @@
+[08:43:13] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[08:43:16] screen 480x640 @ 240 dpi
+[08:43:16] ---- Signed in (QA fixture account) ----
+[08:43:20] fixture true
+[08:43:28] shot F01-home-signedin
+[08:43:29] open https://yidplus.com/chat
+[08:43:34] shot F02-chats-list
+[08:43:35] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[08:43:43] shot F03-chat-dm
+[08:43:44] shot F03b-chat-dm-up
+[08:43:48] open https://yidplus.com/chat
+[08:44:02] shot F04-chat-group
+[08:44:04] shot F04b-group-up
+[08:44:06] shot F04c-group-top
+[08:44:09] shot F05-message-actions
+[08:44:19] shot F06-notifications
+[08:44:21] tab Home
+[08:44:24] shot F07-home-header
+[08:44:24] open https://yidplus.com/shorts
+[08:44:33] shot F08-shorts-signedin
+[08:44:33] tab Profile
+[08:44:36] shot F09-profile-signedin
+[08:44:48] shot F09b-profile-scrolled
+[08:45:01] open https://yidplus.com/chat
+[08:45:05] shot F10-chats-dark
+[08:45:12] shot F11-chat-dark
+[08:45:18] screen 1080x2400 @ 420 dpi
+[08:45:27] open https://yidplus.com/chat
+[08:45:31] shot F12-phone-chats
+[08:45:38] shot F13-phone-chat
+[08:45:41] screen 480x640 @ 240 dpi
+[08:45:41] ---- qa/fx-sh.sh ----
+[08:45:50] screen 480x640 @ 240 dpi
+[08:45:54] adb root: 0
+[08:45:54] sh step foryou
+[08:45:54] open https://yidplus.com/shorts
+[08:45:59] shot SH-01-keypad-help
+[08:46:06] shot SH-02-foryou
+[08:46:08] texts (foryou): content-desc="Like" text="340" content-desc="Comment" text="41" content-desc="Save" content-desc="Share" content-desc="Creator videos" text="H" text="Heimishe Humor" text=" · 21h" text="Follow" content-desc="Follow" text="Funniest Purim shpiel of the year &#128514;" content-desc="Search Shorts" content-desc="Following feed" text="Following" content-desc="For You feed" text="For You" content-desc="Uploads feed" text="Uploads" content-desc="Upload a Short" text="Saved" text="All" text="News" text="Humor" content-desc="More options" content-desc="Chats, 18 unread" text="18" text="Chats" content-desc="Shorts" text="Shorts" content-desc="Channels" text="Channels" content-desc="Settings" text="Settings" 
+[08:46:08] sh step tap
+[08:46:11] shot SH-03-muted-pill
+[08:46:14] shot SH-03b-tap-sound-on
+[08:46:16] shot SH-04-tap-paused
+[08:46:19] shot SH-04b-tap-plays
+[08:46:19] sh step dtap-like
+[08:46:20] double-tap at 200,300 on /dev/input/event2
+[08:46:21] shot SH-05-double-tap-heart
+[08:46:24] shot SH-06-liked
+[08:46:24] sh step comments
+[08:46:27] sh_tapui 'Comment'
+[08:46:31] shot SH-07-comments
+[08:46:34] sh_tapui 'Add a comment'
+[08:46:37] shot SH-08-comment-typing
+[08:46:37] sh step post-comment
+[08:46:40] sh_tapui 'Post'
+[08:46:41] shot SH-08b-comment-posting
+[08:46:45] keyboard hidden
+[08:46:46] shot SH-09-comment-posted
+[08:46:53] sh step options
+[08:46:57] sh_tapui 'More options'
+[08:46:59] shot SH-10-options
+[08:47:02] sh_tapui '1.5×'
+[08:47:04] shot SH-11-options-speed
+[08:47:07] shot SH-12-speed-badge
+[08:47:10] sh_tapui 'More options'
+[08:47:16] sh_tapui 'Normal'
+[08:47:18] sh step save
+[08:47:22] sh_tapui 'Save'
+[08:47:24] shot SH-13-saved-toast
+[08:47:24] sh step share
+[08:47:27] sh_tapui 'Share'
+[08:47:36] shot SH-14-share-sheet
+[08:47:36] sh step follow-rail
+[08:47:39] sh_tapui 'Follow'
+[08:47:41] shot SH-15-followed-from-rail
+[08:47:41] sh step swipe
+[08:47:47] shot SH-16-swiped
+[08:47:52] shot SH-17-swiped2
+[08:47:52] sh step creator
+[08:47:55] sh_tapui 'Creator videos'
+[08:47:59] shot SH-18-creator-videos
+[08:48:01] texts (creator): content-desc="Like" text="Like" content-desc="Comment" text="0" content-desc="Save" content-desc="Share" content-desc="Creator videos" text="S" text="Simcha Live" content-desc="Verified" text=" · 1d" text="Wedding dance — the chosen’s father steals the show" content-desc="Search Shorts" content-desc="Following feed" text="Following" content-desc="For You feed" text="For You" content-desc="Uploads feed" text="Uploads" content-desc="Upload a Short" text="‹ Back" text="S" text="Simcha Live" text="Follow" content-desc="More options" content-desc="Chats, 18 unread" text="18" text="Chats" content-desc="Shorts" text="Shorts" content-desc="Channels" text="Channels" content-desc="Settings" text="Settings" 
+[08:48:05] sh_tapui '‹ Back'
+[08:48:08] shot SH-19-creator-back
+[08:48:08] sh step topic
+[08:48:12] sh_tapui 'News'
+[08:48:16] shot SH-20-topic-news
+[08:48:20] sh_tapui 'All'
+[08:48:23] sh step scrub
+[08:48:26] shot SH-21-scrubbing
+[08:48:29] sh step following
+[08:48:33] sh_tapui 'Following feed'
+[08:48:39] shot SH-22-following-feed
+[08:48:41] texts (following): content-desc="Like" text="341" content-desc="Comment" text="4" content-desc="Remove from saved" content-desc="Share" content-desc="Creator videos" text="H" text="Heimishe Humor" text=" · 21h" text="Following" content-desc="Unfollow" text="Funniest Purim shpiel of the year &#128514;" content-desc="Search Shorts" content-desc="Following feed" text="Following" content-desc="For You feed" text="For You" content-desc="Uploads feed" text="Uploads" content-desc="Upload a Short" text="Saved" text="Follow more" text="All" text="News" content-desc="More options" content-desc="Chats, 18 unread" text="18" text="Chats" content-desc="Shorts" text="Shorts" content-desc="Channels" text="Channels" content-desc="Settings" text="Settings" 
+[08:48:45] sh_tapui 'Follow more'
+[08:48:49] shot SH-23-follow-more-sheet
+[08:48:53] sh_tapui 'Search creators'
+[08:48:57] shot SH-24-creators-search
+[08:48:59] keyboard hidden
+[08:48:59] shot SH-24b-creators-found
+[08:49:03] sh_tapui '\+ Follow'
+[08:49:05] shot SH-25-sheet-followed
+[08:49:15] shot SH-26-following-after-sheet
+[08:49:15] sh step following-list
+[08:49:19] sh_tapui 'Following feed'
+[08:49:22] sh step nobody
+[08:49:23] sh step saved
+[08:49:23] open https://yidplus.com/shorts
+[08:49:32] sh_tapui 'Saved'
+[08:49:36] shot SH-27-saved
+[08:49:40] sh_tapui 'Saved'
+[08:49:42] sh step uploads
+[08:49:46] sh_tapui 'Uploads feed'
+[08:49:52] shot SH-28-uploads
+[08:49:55] sh_tapui 'More options'
+[08:49:57] shot SH-29-uploads-options
+[08:50:00] sh step upload-page
+[08:50:03] sh_tapui 'Upload a Short'
+[08:50:06] shot SH-30-upload-page
+[08:50:10] sh step end
+[08:50:13] sh_tapui 'For You feed'
+[08:50:53] shot SH-31-end-caught-up
+[08:50:53] sh step deeplink
+[08:50:53] open https://yidplus.com/shorts#6630b5bb-e297-417b-bc25-fdd9d23836d9
+[08:51:00] shot SH-32-deeplink-upload
+[08:51:00] sh step dpad
+[08:51:00] open https://yidplus.com/shorts
+[08:51:07] sh_tapui 'For You feed'
+[08:51:37] shot SH-35-dpad-liked
+[08:51:42] shot SH-36-dpad-comments
+[08:51:49] shot SH-37-dpad-options
+[08:51:56] shot SH-38-dpad-creators
+[08:52:13] videos: 2906145 qa/out/SH-dpad.mp4 3252475 qa/out/SH-flow.mp4 
+[08:52:20] sh_tapui 'Following feed'
+[08:52:24] shot SH-33-following-dark
+[08:52:29] screen 1080x2400 @ 420 dpi
+[08:52:37] open https://yidplus.com/shorts
+[08:52:45] shot SH-34-phone-foryou
+[08:52:47] screen 480x640 @ 240 dpi
+[08:52:47] unfixtured GETs from Shorts: 
+[08:52:52] taps: tap dt=211172 muted=true paused=false first=true buf=false;tap dt=2479 muted=false paused=false first=true buf=false;tap dt=1633 muted=false paused=true first=true buf=false;tap dt=3950 muted=false paused=false first=true buf=false;tap dt=305 muted=false paused=true first=true buf=false;
+[08:52:52] Shorts perf: Shorts video playing 366 ms;Shorts video playing 112 ms;Shorts video playing 209 ms;Shorts video playing 159 ms;Shorts video playing 157 ms;Shorts video playing 8 ms;Shorts video playing 8 ms;Shorts video playing 176 ms;
+[08:52:52] fixture writes the app would have sent: 31
+[08:52:56] fixture false
