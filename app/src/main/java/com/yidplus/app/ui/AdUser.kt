@@ -145,7 +145,7 @@ data class AdEditUserPage(val id: String, val rowJson: String) : PageScreen() {
         var pass by remember { mutableStateOf("") }
         SettingsPage("Edit @" + u.s("nickname"), sub = "Saved to the site at once") {
             SettingsCard("Details") {
-                AdField(nick, { nick = it }, "Nickname", Modifier.firstFocus())
+                AdField(nick, { nick = it }, "Nickname")
                 AdField(email, { email = it }, "Email")
                 AdField(phone, { phone = it }, "Phone", number = true)
                 AdField(pass, { pass = it }, "New password (leave blank = no change)", password = true)
