@@ -61,6 +61,13 @@ object ChatNotify {
     private fun me(c: Context): JSONObject? = runCatching { c.getSharedPreferences("session", Context.MODE_PRIVATE).getString("me", null)?.let { JSONObject(it) } }.getOrNull()
     private fun enc(s: String) = URLEncoder.encode(s, "UTF-8")
     fun shortcutId(roomId: String) = "chat_$roomId"
+    /**
+     * Each chat is its OWN group (no shared bundle, no summary). With one shared group + an InboxStyle summary, Android 11
+     * puts the chats (conversations, they have a shortcut) in the Conversations section and the summary (no shortcut) in
+     * the alerting section: the shade showed only "YID PLUS · 9 messages" and Expand opened an empty area, so Reply and
+     * Mark as read were unreachable (2.0.2 QA at 480x640). An app group key also stops the system's own auto-bundle at 4+.
+     */
+    fun groupKey(roomId: String) = "$GROUP.$roomId"
 
     // ---- seen record -------------------------------------------------------------------------------------------
 
@@ -166,7 +173,7 @@ object ChatNotify {
                 BitmapFactory.decodeFile(f.path)?.let { return it }
             }
             try {
-                val http = Api.http.newBuilder().callTimeout(10, TimeUnit.SECONDS).build()
+                val http = Api.http.newBuilder().callTimeout(20, TimeUnit.SECONDS).build()
                 http.newCall(Request.Builder().url(u).build()).execute().use { r ->
                     if (!r.isSuccessful) Log.w(TAG, "avatar ${r.code} for $u")
                     else {
@@ -313,7 +320,7 @@ object ChatNotify {
             .setWhen(if (lastT > 0) lastT else System.currentTimeMillis()).setShowWhen(true)
             .setNumber(others).setCategory(NotificationCompat.CATEGORY_MESSAGE).setPriority(NotificationCompat.PRIORITY_HIGH)
             .setShortcutId(sid).setLocusId(LocusIdCompat(sid))
-            .setGroup(GROUP).setAutoCancel(true).setOnlyAlertOnce(alertOnce)
+            .setGroup(groupKey(r.id)).setAutoCancel(true).setOnlyAlertOnce(alertOnce)
             .addAction(reply)
         if (lastFailed != null) b.addAction(NotificationCompat.Action.Builder(R.drawable.ic_stat_logo, "Retry", broadcast(c, code + 2, ACTION_RETRY, r, false, lastFailed)).setShowsUserInterface(false).build())
         b.addAction(read)
@@ -370,29 +377,9 @@ object ChatNotify {
         seenFromStack(c, roomId); store(c).edit().remove(roomId).apply(); updateSummary(c)
     }
 
-    /** One summary for several chats (Android groups them under it). */
+    /** No bundle summary any more (see groupKey); removes the one older versions posted. Kept for the callers. */
     fun updateSummary(c: Context) {
-        runCatching {
-            val nm = c.getSystemService(NotificationManager::class.java) ?: return
-            val active = nm.activeNotifications.filter { it.tag == "chat" }.sortedByDescending { it.notification.`when` }
-            val nmc = NotificationManagerCompat.from(c)
-            if (active.size < 2) { nmc.cancel("chat-summary", 1); return }
-            val style = NotificationCompat.InboxStyle()
-            var count = 0
-            for (sbn in active) {
-                val ex = sbn.notification.extras
-                count += sbn.notification.number.coerceAtLeast(1)
-                if (active.indexOf(sbn) < 6) style.addLine("${ex.getCharSequence("android.title") ?: ""}: ${ex.getCharSequence("android.text") ?: ""}")
-            }
-            val line = "$count messages from ${active.size} chats"
-            style.setBigContentTitle("YID PLUS").setSummaryText(line)
-            nmc.notify("chat-summary", 1, NotificationCompat.Builder(c, NotifyWorker.CH_CHATS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF1F6F5C.toInt())
-                .setContentTitle("YID PLUS").setContentText(line).setStyle(style).setNumber(count)
-                .setGroup(GROUP).setGroupSummary(true).setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN).setOnlyAlertOnce(true).setAutoCancel(true)
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                .setContentIntent(PendingIntent.getActivity(c, 2, Intent(c, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_CHATS)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)).build())
-        }.onFailure { Log.w(TAG, "summary failed: ${it.message}") }
+        runCatching { NotificationManagerCompat.from(c).cancel("chat-summary", 1) }.onFailure { Log.w(TAG, "summary cancel failed: ${it.message}") }
     }
 
     /** QA only (adb with the DUMP permission): a sample group chat notification, to photograph the expanded shade with its reply box. */
