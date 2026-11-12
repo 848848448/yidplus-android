@@ -141,7 +141,9 @@ object Fixture {
             android.util.Log.i("YidFx", "${r.method} $full $b")
             return JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
         }
-        return d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath)
+        // QA never reads the live database: an /api GET with no fixture answers {"ok":true} (logged so the area can add a fixture).
+        return d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath) ?: if (u.encodedPath.startsWith("/api/media/")) null
+            else JSONObject().put("ok", true).also { android.util.Log.i("YidFx", "GET-unfixtured $full") }
     }
 }
 
