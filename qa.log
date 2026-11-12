@@ -1,0 +1,143 @@
+[02:14:42] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[02:14:45] screen 480x640 @ 240 dpi
+[02:14:45] ---- Signed in (QA fixture account) ----
+[02:14:49] fixture true
+[02:14:58] shot F01-home-signedin
+[02:14:58] open https://yidplus.com/chat
+[02:15:04] shot F02-chats-list
+[02:15:05] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:15:13] shot F03-chat-dm
+[02:15:14] shot F03b-chat-dm-up
+[02:15:18] open https://yidplus.com/chat
+[02:15:32] shot F04-chat-group
+[02:15:34] shot F04b-group-up
+[02:15:36] shot F04c-group-top
+[02:15:39] shot F05-message-actions
+[02:15:49] shot F06-notifications
+[02:15:52] tab Home
+[02:15:55] shot F07-home-header
+[02:15:55] open https://yidplus.com/shorts
+[02:16:04] shot F08-shorts-signedin
+[02:16:04] tab Profile
+[02:16:08] shot F09-profile-signedin
+[02:16:19] shot F09b-profile-scrolled
+[02:16:33] open https://yidplus.com/chat
+[02:16:37] shot F10-chats-dark
+[02:16:43] shot F11-chat-dark
+[02:16:50] screen 1080x2400 @ 420 dpi
+[02:16:59] open https://yidplus.com/chat
+[02:17:04] shot F12-phone-chats
+[02:17:10] shot F13-phone-chat
+[02:17:14] screen 480x640 @ 240 dpi
+[02:17:14] ---- qa/fx-ad.sh ----
+[02:17:21] ---- AD: Settings (signed in) ----
+[02:17:21] tab Profile
+[02:17:25] shot AD-01-settings-top
+[02:17:27] shot AD-02-settings-reading
+[02:17:29] shot AD-03-settings-appearance-color
+[02:17:31] shot AD-04-settings-stats-account
+[02:17:33] shot AD-05-settings-verify-share
+[02:17:38] shot AD-06-settings-bottom
+[02:17:38] tab Profile
+[02:18:13] adfind: 'Ocean Blue' not found
+[02:18:15] adt: 'L' not on screen
+[02:18:17] shot AD-07-ocean-blue-large-text
+[02:18:18] adt: 'M' not on screen
+[02:18:20] adt: 'Emerald Teal' not on screen
+[02:18:26] ad page EditProfile
+[02:18:26] shot AD-07b-edit-profile
+[02:18:33] adfind tapped after 1 swipes
+[02:18:40] adt '378'
+[02:18:43] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[02:18:47] ad page Privacy
+[02:18:47] shot AD-08-privacy
+[02:18:51] adt '96'
+[02:18:53] PROOF private account: PUT /api/profile {"is_private":1}
+[02:19:00] adfind tapped after 1 swipes
+[02:19:02] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[02:19:08] ad page NotifPrefs
+[02:19:11] adt '96'
+[02:19:13] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[02:19:13] shot AD-09-notif-prefs
+[02:19:18] ad page ChatSettings
+[02:19:22] adt '161'
+[02:19:23] shot AD-10-chat-settings
+[02:19:24] ---- AD: Notifications page ----
+[02:19:30] shot AD-11-notifications
+[02:19:33] adt '357'
+[02:19:35] PROOF mark all read: POST /api/notifications {"read":"all"}
+[02:19:35] shot AD-13-notifications-all-read
+[02:19:54] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[02:19:54] shot AD-12-notification-opened
+[02:19:57] ---- AD: Admin (native) ----
+[02:20:03] ad page Admin
+[02:20:03] shot AD-20-admin-dashboard
+[02:20:06] shot AD-21-admin-manage
+[02:20:08] shot AD-22-admin-features
+[02:20:09] adt: 'Music' not on screen
+[02:20:11] PROOF feature switch: (no request logged for 'PUT /api/settings')
+[02:20:11] shot AD-23-admin-music-switched
+[02:20:13] adt: 'Music' not on screen
+[02:20:17] shot AD-24-admin-web-sections
+[02:20:23] ad page AdminUsers
+[02:20:24] shot AD-25-admin-users
+[02:20:26] adtap text
+[02:20:30] shot AD-26-admin-users-search
+[02:20:37] ad page AdminUser
+[02:20:37] shot AD-27-admin-user
+[02:20:40] adt '96'
+[02:20:42] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[02:21:15] adfind: 'Mute' not found
+[02:21:19] adt: '24 hours' not on screen
+[02:21:21] PROOF mute user: (no request logged for 'POST /api/admin/mute')
+[02:21:53] adfind: 'Block' not found
+[02:21:55] shot AD-28-admin-block-confirm
+[02:21:57] adt: 'Block' not on screen
+[02:21:59] PROOF block user: (no request logged for '"blocked":true')
+[02:22:03] adfind tapped after 0 swipes
+[02:22:08] adt '383'
+[02:22:10] PROOF promote: PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+[02:22:10] shot AD-29-admin-user-after
+[02:22:17] ad page AdminReports
+[02:22:17] shot AD-30-admin-reports
+[02:22:20] adt '221'
+[02:22:22] PROOF dismiss report: DELETE /api/reports?id=r1 < 0 bytes>
+[02:22:26] adt '129'
+[02:22:31] adt '352'
+[02:22:33] PROOF ban from report: PUT /api/admin/users {"id":"u-mendy","blocked":true}
+[02:22:40] ad page AdminVerify
+[02:22:40] shot AD-31-admin-verify
+[02:22:43] adt '256'
+[02:22:45] PROOF approve verify: PUT /api/verify-request {"id":"v1","action":"approve"}
+[02:22:53] ad page AdminChannels
+[02:22:53] shot AD-32-admin-channels
+[02:22:56] adt '313'
+[02:22:58] PROOF verify channel: PUT /api/admin/users {"id":"u-chan1","verified":true}
+[02:23:06] ad page AdminTelegram
+[02:23:06] shot AD-33-admin-telegram
+[02:23:08] adtap text
+[02:23:16] adt '180'
+[02:23:18] PROOF add telegram channel: POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+[02:23:24] ad page AdminBroadcast
+[02:23:24] shot AD-34-admin-broadcast
+[02:23:26] adtap text
+[02:23:34] adt '192'
+[02:23:36] shot AD-35-broadcast-confirm
+[02:23:40] adt '374'
+[02:23:43] PROOF broadcast: POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+[02:23:49] ad page AdminBadWords
+[02:23:49] shot AD-36-admin-word-filter
+[02:23:51] adtap text
+[02:23:59] adt '395'
+[02:24:01] PROOF add bad word: POST /api/admin/bad-words {"word":"testbadword"}
+[02:24:05] adt '42'
+[02:24:07] PROOF remove bad word: DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+[02:24:13] ad page AdminWeb
+[02:24:13] shot AD-37-admin-web-pin
+[02:24:22] adt: 'Unlock' not on screen
+[02:24:29] PROOF admin pin: POST /api/admin/verify-pin {"pin":"1234"}
+[02:24:29] shot AD-38-admin-web-after-pin
+[02:24:30] ---- AD: dark mode ----
+[02:24:33] tab Profile
