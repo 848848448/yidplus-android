@@ -1,0 +1,360 @@
+{
+ "/api/chat?room_id=r-cs": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "cs10",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "גוט מארגן! זעט **דא** די _נייע_ ~אלטע~ פלאן: yidplus.com/chat און `code` @Yanky",
+    "created_at": "2026-11-11T10:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs11",
+    "room_id": "r-cs",
+    "sender_id": "demo-me",
+    "sender_nick": "משה'לע",
+    "sender_photo": null,
+    "type": "text",
+    "text": "א שיינעם דאנק 👍",
+    "created_at": "2026-11-11T10:05:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs12",
+    "room_id": "r-cs",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "voice",
+    "text": "0:12|20,40,60,80,50,30,70,90,40,20,30,60,80,40,20,50,70,30,40,60",
+    "created_at": "2026-11-11T10:10:00.000Z",
+    "read": 1,
+    "media_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+   },
+   {
+    "id": "cs13",
+    "room_id": "r-cs",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "voice",
+    "text": "0:07|30,50,70,40,20,60,80,50,30,40",
+    "created_at": "2026-11-11T10:11:00.000Z",
+    "read": 1,
+    "media_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+   },
+   {
+    "id": "cs14",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "file",
+    "text": "Niggun.mp3",
+    "created_at": "2026-11-11T10:20:00.000Z",
+    "read": 1,
+    "media_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "media_key": "chat/r-cs/Niggun.mp3"
+   },
+   {
+    "id": "cs15",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "poll",
+    "text": "p-cs1",
+    "created_at": "2026-11-11T10:30:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs16",
+    "room_id": "r-cs",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "poll",
+    "text": "p-cs2",
+    "created_at": "2026-11-11T10:40:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs17",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "ווער קומט היינט ביינאכט?",
+    "created_at": "2026-11-11T11:00:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs18",
+    "room_id": "r-cs",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "איך! @משה'לע דו אויך?",
+    "created_at": "2026-11-11T11:05:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs19",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "יא, זייער גוט",
+    "created_at": "2026-11-11T11:10:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs20",
+    "room_id": "r-cs",
+    "sender_id": "u-yanky",
+    "sender_nick": "Yanky",
+    "sender_photo": null,
+    "type": "text",
+    "text": "זאל זיין מיט מזל",
+    "created_at": "2026-11-11T11:15:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs21",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "מיר טרעפן זיך 8:00",
+    "created_at": "2026-11-11T11:20:00.000Z",
+    "read": 1
+   }
+  ],
+  "has_more": true,
+  "next_cursor": "2026-11-11T10:00:00.000Z"
+ },
+ "/api/chat?room_id=r-cs&before=2026-11-11T10%3A00%3A00.000Z&before_id=cs10": {
+  "ok": true,
+  "messages": [
+   {
+    "id": "cs1",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עלטערע מעסעדזש 1",
+    "created_at": "2026-11-11T09:01:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs2",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עלטערע מעסעדזש 2",
+    "created_at": "2026-11-11T09:02:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs3",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עלטערע מעסעדזש 3",
+    "created_at": "2026-11-11T09:03:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs4",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עלטערע מעסעדזש 4",
+    "created_at": "2026-11-11T09:04:00.000Z",
+    "read": 1
+   },
+   {
+    "id": "cs5",
+    "room_id": "r-cs",
+    "sender_id": "u-yossi",
+    "sender_nick": "Yossi Klein",
+    "sender_photo": null,
+    "type": "text",
+    "text": "עלטערע מעסעדזש 5",
+    "created_at": "2026-11-11T09:05:00.000Z",
+    "read": 1
+   }
+  ],
+  "has_more": false
+ },
+ "/api/polls?id=p-cs1": {
+  "ok": true,
+  "poll": {
+   "id": "p-cs1",
+   "room_id": "r-cs",
+   "creator_id": "u-yossi",
+   "question": "וואס זאלן מיר עסן?",
+   "description": "פאר מוצאי שבת",
+   "show_who_voted": true,
+   "allow_multiple": true,
+   "allow_add_options": true,
+   "allow_revote": true,
+   "quiz_mode": false,
+   "closes_at": "2027-01-01T00:00:00.000Z",
+   "closed": false,
+   "total_voters": 3,
+   "options": [
+    {
+     "id": "o1",
+     "text": "פיצא",
+     "votes": 2,
+     "pct": 67,
+     "my_vote": false,
+     "voters": [
+      "Yossi",
+      "Yanky"
+     ]
+    },
+    {
+     "id": "o2",
+     "text": "פלאפל",
+     "votes": 1,
+     "pct": 33,
+     "my_vote": false,
+     "voters": [
+      "Shaya"
+     ]
+    },
+    {
+     "id": "o3",
+     "text": "סושי",
+     "votes": 0,
+     "pct": 0,
+     "my_vote": false,
+     "voters": []
+    }
+   ]
+  }
+ },
+ "/api/polls?id=p-cs2": {
+  "ok": true,
+  "poll": {
+   "id": "p-cs2",
+   "room_id": "r-cs",
+   "creator_id": "demo-me",
+   "question": "ווען איז חנוכה תשפ״ז?",
+   "description": null,
+   "show_who_voted": false,
+   "allow_multiple": false,
+   "allow_add_options": false,
+   "allow_revote": false,
+   "quiz_mode": true,
+   "closes_at": null,
+   "closed": false,
+   "total_voters": 4,
+   "options": [
+    {
+     "id": "q1",
+     "text": "כ״ה כסלו",
+     "votes": 3,
+     "pct": 75,
+     "my_vote": true,
+     "is_correct": true
+    },
+    {
+     "id": "q2",
+     "text": "כ״ה טבת",
+     "votes": 1,
+     "pct": 25,
+     "my_vote": false,
+     "is_correct": false
+    }
+   ]
+  }
+ },
+ "/api/chat/stickers": {
+  "ok": true,
+  "stickers": [
+   {
+    "id": "st1",
+    "owner_id": "demo-me",
+    "url": "https://avatars.githubusercontent.com/u/9919?s=128",
+    "created_at": "2026-11-11T08:00:00.000Z"
+   }
+  ]
+ },
+ "/api/chat/rooms?pinned_history=r-g1": {
+  "ok": true,
+  "pinned": [
+   {
+    "message_id": "m30",
+    "sender_nick": "Yanky",
+    "type": "text",
+    "text": "דא איז דער פלאן פאר מארגן",
+    "pinned_by_nick": "משה'לע",
+    "pinned_at": "2026-11-11T19:30:00.000Z"
+   },
+   {
+    "message_id": "m19",
+    "sender_nick": "",
+    "type": "system",
+    "text": "",
+    "pinned_by_nick": "משה'לע",
+    "pinned_at": "2026-11-11T18:00:00.000Z"
+   }
+  ]
+ },
+ "/api/group-call?room_id=r-g1": {
+  "ok": true,
+  "participants": [
+   {
+    "user_id": "u-yanky"
+   },
+   {
+    "user_id": "u-yossi"
+   }
+  ],
+  "signals": []
+ },
+ "/api/chat/typing?room_id=r-cs": {
+  "ok": true,
+  "typing": []
+ },
+ "/api/chat/reactions?room_id=r-cs": {
+  "ok": true,
+  "reactions": []
+ },
+ "/api/group-call": {
+  "ok": true,
+  "participants": [],
+  "signals": []
+ },
+ "/api/group-call?room_id=r-cs": {
+  "ok": true,
+  "participants": [],
+  "signals": []
+ },
+ "/api/link-preview?url=https%3A%2F%2Fyidplus.com%2Fchat": {
+  "ok": true,
+  "title": "YID PLUS",
+  "description": "Chat",
+  "image": null,
+  "site_name": "yidplus.com"
+ }
+}

@@ -28,6 +28,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSink
 import okio.source
 import org.json.JSONArray
@@ -45,7 +46,8 @@ data class ChMember(val id: String, val nick: String, val photo: String?, val on
 /** One room from /api/chat/rooms with everything the site sends (mute, members, pin, invite, admin rights). */
 data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean, val joined: Boolean, val isGroupAdmin: Boolean, val createdBy: String?,
                     val inviteCode: String?, val pinnedId: String?, val description: String, val visibility: String,
-                    val members: List<ChMember>, val featured: Boolean, val rawPreview: String = "", val spectating: Boolean = false, val hasMessages: Boolean = true) {
+                    val members: List<ChMember>, val featured: Boolean, val rawPreview: String = "", val spectating: Boolean = false, val hasMessages: Boolean = true,
+                    val allowSaving: Boolean = true) {
     val isGroup get() = room.type == "group"
     val isChannel get() = room.type == "channel"
     val isPrivate get() = room.type == "private"
@@ -56,7 +58,8 @@ data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean,
         fun from(j: JSONObject) = ChatRoomInfo(Room.from(j), j.optBoolean("muted"), j.optBoolean("online"), j.optBoolean("joined", true), j.optBoolean("is_group_admin"),
             j.strOrNull("created_by"), j.strOrNull("invite_code"), j.strOrNull("pinned_message_id"), j.str("description"), j.str("visibility"),
             chObjs(j.optJSONArray("member_list")).map { m -> ChMember(m.str("id"), m.str("nickname"), Api.abs(m.strOrNull("photo_url")), m.optInt("online") == 1 || m.optBoolean("online"), m.str("role"), m.optInt("is_group_admin") == 1 || m.optBoolean("is_group_admin"), m.str("title")) },
-            j.optBoolean("featured"), j.str("preview"), j.optBoolean("admin_spectating") || j.optInt("admin_spectating") == 1, j.opt("has_messages") != false)
+            j.optBoolean("featured"), j.str("preview"), j.optBoolean("admin_spectating") || j.optInt("admin_spectating") == 1, j.opt("has_messages") != false,
+            !(j.has("allow_saving") && (j.opt("allow_saving") == false || j.optInt("allow_saving", 1) == 0)))
         fun list(j: JSONObject) = chObjs(j.optJSONArray("rooms")).map(::from)
     }
 }
@@ -68,7 +71,8 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
                    val media: String?, val mediaKey: String, val createdAt: String?, val replyToId: String? = null, val edited: Boolean = false,
                    val read: Boolean = false, val seen: Int = 0, val viewOnce: Boolean = false, val opened: Boolean = false,
                    val pending: Boolean = false, val failed: Boolean = false, val local: String? = null,
-                   val forwarded: Boolean = false, val deleted: Boolean = false, val title: String = "") {
+                   val forwarded: Boolean = false, val deleted: Boolean = false, val title: String = "",
+                   val expiresAt: String? = null, val scheduledFor: String? = null, val replyCount: Int = 0) {
     private val ext get() = mediaKey.substringAfterLast('.', "").lowercase().substringBefore('?')
     val isSticker get() = type == "sticker"
     val stickerUrl get() = if (!isSticker) null else media ?: text.takeIf { it.startsWith("http") || it.startsWith("/") }?.let { Api.abs(it) }
@@ -110,7 +114,7 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
             j.optInt("view_once") == 1 || j.optBoolean("view_once"), j.optInt("opened") == 1 || j.optBoolean("opened"),
             forwarded = j.optInt("forwarded") == 1 || j.optBoolean("forwarded") || j.str("text").endsWith(" ↩ Forwarded"),
             deleted = j.str("type") == "deleted" || j.optInt("deleted") == 1 || j.optBoolean("deleted") || j.optBoolean("is_deleted") || j.strOrNull("deleted_at") != null,
-            title = j.str("sender_title"))
+            title = j.str("sender_title"), expiresAt = j.strOrNull("expires_at"), scheduledFor = j.strOrNull("scheduled_for"), replyCount = j.optInt("reply_count"))
     }
 }
 
@@ -122,8 +126,13 @@ object ChatApi {
     val rooms get() = Store.res("/api/chat/rooms", ChatRoomInfo::list)
     fun info(id: String): ChatRoomInfo? = rooms.data?.firstOrNull { it.room.id == id }
 
-    suspend fun messages(roomId: String): Pair<JSONObject, List<ChatMsg>> {
-        val j = Api.get("/api/chat?room_id=" + chEnc(roomId))
+    suspend fun messages(roomId: String, view: Boolean = false): Pair<JSONObject, List<ChatMsg>> {
+        val j = Api.get("/api/chat?room_id=" + chEnc(roomId) + if (view) "&view=1" else "")
+        return j to chObjs(j.optJSONArray("messages")).map(ChatMsg::from)
+    }
+    /** The site's loadOlderMessages: GET /api/chat?room_id&before&before_id → {messages, next_cursor, has_more}. */
+    suspend fun older(roomId: String, before: String, beforeId: String): Pair<JSONObject, List<ChatMsg>> {
+        val j = Api.get("/api/chat?room_id=" + chEnc(roomId) + "&before=" + chEnc(before) + "&before_id=" + chEnc(beforeId))
         return j to chObjs(j.optJSONArray("messages")).map(ChatMsg::from)
     }
     suspend fun reactions(roomId: String): Map<String, ChReact> {
@@ -136,9 +145,12 @@ object ChatApi {
     suspend fun react(msgId: String, emoji: String) = Api.post("/api/chat/reactions", JSONObject().put("message_id", msgId).put("emoji", emoji))
     suspend fun typing(roomId: String): List<String> = chObjs(Api.get("/api/chat/typing?room_id=" + chEnc(roomId)).optJSONArray("typing")).map { it.str("user_nick") }.filter { it.isNotBlank() }
     suspend fun sendTyping(roomId: String) = Api.post("/api/chat/typing", JSONObject().put("room_id", roomId))
-    suspend fun sendText(roomId: String, text: String, replyTo: String?): ChatMsg? {
+    suspend fun sendText(roomId: String, text: String, replyTo: String?, scheduledFor: String? = null, disappearSecs: Int = 0): ChatMsg? {
         val b = JSONObject().put("room_id", roomId).put("type", "text").put("text", text)
         if (replyTo != null) b.put("reply_to_id", replyTo)
+        // The site's message options: scheduled_for (ISO) and disappear_seconds.
+        if (scheduledFor != null) b.put("scheduled_for", scheduledFor)
+        if (disappearSecs > 0) b.put("disappear_seconds", disappearSecs)
         return Api.post("/api/chat", b).optJSONObject("message")?.let(ChatMsg::from)
     }
     suspend fun edit(id: String, text: String) = Api.put("/api/chat", JSONObject().put("id", id).put("text", text))
@@ -150,10 +162,36 @@ object ChatApi {
     suspend fun unsave(msgId: String) = Api.delete("/api/chat/bookmarks?message_id=" + chEnc(msgId))
     /** The site's ctxReport: {target_type:'message', target_id, reason}. */
     suspend fun report(m: ChatMsg, reason: String) = Api.post("/api/reports", JSONObject().put("target_type", "message").put("target_id", m.id).put("reason", reason))
+    /** The chat page's report modal (submitReport): {reported_id, room_id, message_id, reason: spam|harassment|inappropriate|other, details}. */
+    suspend fun reportMsg(m: ChatMsg, reason: String, details: String) = Api.post("/api/reports", JSONObject().put("reported_id", m.senderId).put("room_id", m.roomId)
+        .put("message_id", m.id).put("reason", reason).put("details", details))
+    /** View-once: PUT /api/chat {id, opened:true}; the answer carries media_url for voice. */
+    suspend fun openOnce(id: String): JSONObject = Api.put("/api/chat", JSONObject().put("id", id).put("opened", true))
+    suspend fun pinnedHistory(roomId: String): List<JSONObject> = chObjs(Api.get("/api/chat/rooms?pinned_history=" + chEnc(roomId)).optJSONArray("pinned"))
+    suspend fun stickers(): List<JSONObject> = chObjs(Api.get("/api/chat/stickers").optJSONArray("stickers"))
+    suspend fun deleteSticker(id: String) = Api.delete("/api/chat/stickers?id=" + chEnc(id))
+    /** The site's uploadCustomSticker: multipart POST /api/chat/stickers {file} (image ≤ 3 MB). */
+    suspend fun uploadSticker(ctx: Context, uri: Uri): JSONObject = withContext(Dispatchers.IO) {
+        val mime = ctx.contentResolver.getType(uri) ?: "image/png"
+        val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: error("Can't read the picture")
+        if (bytes.size > 3 * 1024 * 1024) throw Api.ApiError(413, "Sticker too large (max 3MB)", JSONObject())
+        val body = okhttp3.MultipartBody.Builder().setType(okhttp3.MultipartBody.FORM)
+            .addFormDataPart("file", nameOf(ctx, uri).ifBlank { "sticker.png" }, bytes.toRequestBody(mime.toMediaTypeOrNull())).build()
+        Api.http.newCall(Request.Builder().url("${Api.BASE}/api/chat/stickers").post(body).build()).execute().use { r ->
+            val j = runCatching { JSONObject(r.body?.string() ?: "") }.getOrElse { JSONObject() }
+            if (!r.isSuccessful) throw Api.ApiError(r.code, j.optString("error").ifBlank { "Upload failed (${r.code})" }, j)
+            j
+        }
+    }
+    suspend fun forwardMedia(toRoom: String, m: ChatMsg) = Api.post("/api/chat", JSONObject().put("room_id", toRoom).put("type", m.type.ifBlank { "media" })
+        .put("text", m.text.removeSuffix(" ↩ Forwarded")).put("media_key", m.mediaKey).put("forwarded", true))
+    suspend fun pollVote(id: String, options: List<Any?>) = Api.put("/api/polls", JSONObject().put("id", id).put("vote", JSONArray(options)))
+    suspend fun pollClose(id: String) = Api.put("/api/polls", JSONObject().put("id", id).put("close", true))
+    suspend fun pollAdd(id: String, text: String) = Api.put("/api/polls", JSONObject().put("id", id).put("add_option", text))
     /** The site's doForward: {room_id, type, text, forwarded:true}. */
     suspend fun forwardText(toRoom: String, m: ChatMsg) = Api.post("/api/chat", JSONObject().put("room_id", toRoom).put("type", if (m.isSticker) "sticker" else "text")
         .put("text", m.text.removeSuffix(" ↩ Forwarded")).put("forwarded", true))
-    suspend fun read(roomId: String) = Api.post("/api/chat/read", JSONObject().put("room_id", roomId))
+    suspend fun read(roomId: String) = Api.post("/api/chat/read", JSONObject().put("room_id", roomId).put("receipts", SettingsProfile.on("read_receipts")))
     suspend fun openDm(userId: String): String = Api.post("/api/chat/rooms", JSONObject().put("type", "private").put("other_user_id", userId)).str("room_id")
     /** The site's createNewGroup {type,name,emoji,visibility,read_only} and createNewChannel {type,name,description,is_public,read_only:true}. */
     suspend fun create(type: String, name: String, desc: String, public: Boolean): String = Api.post("/api/chat/rooms",
@@ -178,6 +216,10 @@ object ChatApi {
         val url = "${Api.BASE}/api/chat?room_id=" + chEnc(roomId) + "&type=" + chEnc(type) + "&text=" + chEnc(text) + "&filename=" + chEnc(name) + "&ct=" + chEnc(mime) +
             (if (replyTo != null) "&reply_to_id=" + chEnc(replyTo) else "")
         val len = file?.length() ?: uri?.let { u -> runCatching { ctx.contentResolver.openAssetFileDescriptor(u, "r")?.use { it.length } }.getOrNull() } ?: -1L
+        // The site's checkFileSize(file, 500): nothing over 500 MB.
+        if (len > 500L * 1024 * 1024) throw Api.ApiError(413, "That file is too big (max 500 MB)", JSONObject())
+        // Over 80 MB the site switches to its multipart upload (/api/chat/mpu, 48 MB parts), then posts the message with media_key.
+        if (len > 80L * 1024 * 1024) return@withContext uploadBig(ctx, roomId, uri, file, type, name, mime, text, replyTo)
         val body = object : RequestBody() {
             override fun contentType() = "application/octet-stream".toMediaTypeOrNull()
             override fun contentLength() = if (len > 0) len else -1L
@@ -191,6 +233,41 @@ object ChatApi {
             val j = runCatching { JSONObject(t) }.getOrElse { JSONObject() }
             if (!r.isSuccessful) throw Api.ApiError(r.code, j.optString("error").ifBlank { "Upload failed (${r.code})" }, j)
             j
+        }
+    }
+
+    /** The site's _sendChatMedia big path: mpu create → parts → complete → POST /api/chat {room_id,type,text,media_key}; abort on any error. */
+    private suspend fun uploadBig(ctx: Context, roomId: String, uri: Uri?, file: File?, type: String, name: String, mime: String, text: String, replyTo: String?): JSONObject {
+        val cr = Api.post("/api/chat/mpu?action=create", JSONObject().put("room_id", roomId).put("type", type).put("filename", name).put("content_type", mime))
+        val key = cr.str("key"); val up = cr.str("upload_id")
+        try {
+            val parts = JSONArray()
+            val chunk = 48 * 1024 * 1024
+            (file?.inputStream() ?: ctx.contentResolver.openInputStream(uri!!) ?: error("Can't read the file")).use { ins ->
+                var n = 1
+                val buf = ByteArray(chunk)
+                while (true) {
+                    var got = 0
+                    while (got < chunk) { val r = ins.read(buf, got, chunk - got); if (r < 0) break; got += r }
+                    if (got == 0) break
+                    val url = "${Api.BASE}/api/chat/mpu?action=part&key=" + chEnc(key) + "&upload_id=" + chEnc(up) + "&part=" + n
+                    val rb = buf.copyOf(got).toRequestBody(mime.toMediaTypeOrNull())
+                    val etag = Api.http.newCall(Request.Builder().url(url).post(rb).build()).execute().use { r ->
+                        val j = runCatching { JSONObject(r.body?.string() ?: "") }.getOrElse { JSONObject() }
+                        if (!r.isSuccessful) throw Api.ApiError(r.code, j.optString("error").ifBlank { "Upload failed (${r.code})" }, j)
+                        j.str("etag")
+                    }
+                    parts.put(JSONObject().put("partNumber", n).put("etag", etag)); n++
+                    if (got < chunk) break
+                }
+            }
+            Api.post("/api/chat/mpu?action=complete", JSONObject().put("key", key).put("upload_id", up).put("parts", parts))
+            val b = JSONObject().put("room_id", roomId).put("type", type).put("text", text).put("media_key", key)
+            if (replyTo != null) b.put("reply_to_id", replyTo)
+            return Api.post("/api/chat", b)
+        } catch (e: Exception) {
+            runCatching { Api.post("/api/chat/mpu?action=abort", JSONObject().put("key", key).put("upload_id", up)) }
+            throw e
         }
     }
 
@@ -254,23 +331,38 @@ object ChatVoicePlayer {
     var playing by mutableStateOf<String?>(null); private set
     var progress by mutableStateOf(0f)
     var paused by mutableStateOf(false); private set
+    /** Seconds played of the current clip (the site's live time under the waveform). */
+    var position by mutableStateOf(0); private set
+    /** The site's voice speed button: 1x → 1.5x → 2x (kept for every voice note, like WhatsApp). */
+    var speed by mutableStateOf(1f); private set
+    /** Called with the finished clip's id; the chat plays the next voice note (the site's _autoPlayNextVoice). */
+    var onDone: ((String) -> Unit)? = null
     private var mp: MediaPlayer? = null
-    fun toggle(ctx: Context, id: String, url: String) {
-        if (playing == id && mp != null) { val p = mp!!; if (p.isPlaying) { p.pause(); paused = true } else { p.start(); paused = false }; return }
+    private fun applySpeed(p: MediaPlayer) { if (Build.VERSION.SDK_INT >= 23) runCatching { val was = p.isPlaying; p.playbackParams = p.playbackParams.setSpeed(speed); if (!was && paused) p.pause() } }
+    fun cycleSpeed() { speed = when (speed) { 1f -> 1.5f; 1.5f -> 2f; else -> 1f }; mp?.let { if (it.isPlaying) applySpeed(it) } }
+    fun speedLabel(): String = when (speed) { 1.5f -> "1.5x"; 2f -> "2x"; else -> "1x" }
+    fun toggle(ctx: Context, id: String, url: String, startAt: Float = 0f) {
+        if (playing == id && mp != null) { val p = mp!!; if (p.isPlaying) { p.pause(); paused = true } else { p.start(); applySpeed(p); paused = false }; return }
         stop()
-        playing = id; paused = false; progress = 0f
+        playing = id; paused = false; progress = startAt
         val p = MediaPlayer()
         mp = p
         runCatching {
             p.setDataSource(ctx.applicationContext, Uri.parse(url), HashMap<String, String>().apply { Api.session()?.let { put("Cookie", "yp_session=$it") } })
-            p.setOnPreparedListener { it.start() }
-            p.setOnCompletionListener { stop() }
+            p.setOnPreparedListener { if (startAt > 0f && it.duration > 0) it.seekTo((it.duration * startAt).toInt()); it.start(); applySpeed(it) }
+            p.setOnCompletionListener { stop(); onDone?.invoke(id) }
             p.setOnErrorListener { _, _, _ -> stop(); true }
             p.prepareAsync()
         }.onFailure { stop() }
     }
-    fun tick() { val p = mp ?: return; runCatching { if (p.duration > 0) progress = p.currentPosition.toFloat() / p.duration } }
-    fun stop() { runCatching { mp?.release() }; mp = null; playing = null; paused = false; progress = 0f }
+    /** Tap on the waveform: jump there (the site's _seekVoice); starts the clip when it is not playing. */
+    fun seek(ctx: Context, id: String, url: String, f: Float) {
+        val p = mp
+        if (playing == id && p != null) { runCatching { if (p.duration > 0) { p.seekTo((p.duration * f.coerceIn(0f, 1f)).toInt()); progress = f } } }
+        else toggle(ctx, id, url, f.coerceIn(0f, 0.98f))
+    }
+    fun tick() { val p = mp ?: return; runCatching { if (p.duration > 0) { progress = p.currentPosition.toFloat() / p.duration; position = p.currentPosition / 1000 } } }
+    fun stop() { runCatching { mp?.release() }; mp = null; playing = null; paused = false; progress = 0f; position = 0 }
 }
 
 class ChatVoiceRecorder(private val ctx: Context) {
@@ -284,13 +376,21 @@ class ChatVoiceRecorder(private val ctx: Context) {
         r.setAudioSource(MediaRecorder.AudioSource.MIC)
         r.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         r.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        r.setAudioEncodingBitRate(48_000); r.setAudioSamplingRate(44_100); r.setAudioChannels(1)
+        r.setAudioEncodingBitRate(96_000); r.setAudioSamplingRate(44_100); r.setAudioChannels(1)
         r.setOutputFile(f.absolutePath)
         r.prepare(); r.start()
-        rec = r; file = f; startedAt = System.currentTimeMillis(); peaks.clear(); true
+        rec = r; file = f; startedAt = System.currentTimeMillis(); peaks.clear(); pausedMs = 0L; isPaused = false; true
     }.getOrElse { runCatching { rec?.release() }; rec = null; false }
-    fun sample() { val r = rec ?: return; runCatching { peaks.add((r.maxAmplitude / 327).coerceIn(0, 100)) } }
-    fun seconds(): Int = if (startedAt == 0L) 0 else ((System.currentTimeMillis() - startedAt) / 1000).toInt()
+    private var pausedMs = 0L
+    private var pauseAt = 0L
+    var isPaused = false; private set
+    fun sample() { val r = rec ?: return; if (isPaused) return; runCatching { peaks.add((r.maxAmplitude / 327).coerceIn(0, 100)) } }
+    /** Last few levels 0..100 for the live meter while recording. */
+    fun last(n: Int): List<Int> = if (peaks.size >= n) peaks.subList(peaks.size - n, peaks.size).toList() else List(n - peaks.size) { 4 } + peaks
+    fun seconds(): Int = if (startedAt == 0L) 0 else (((if (isPaused) pauseAt else System.currentTimeMillis()) - startedAt - pausedMs) / 1000).toInt()
+    /** The site's locked-recording Pause (Ⅱ) / Resume (●); Android 7+. */
+    fun pause(): Boolean { val r = rec ?: return false; if (Build.VERSION.SDK_INT < 24 || isPaused) return false; return runCatching { r.pause(); isPaused = true; pauseAt = System.currentTimeMillis(); true }.getOrDefault(false) }
+    fun resume(): Boolean { val r = rec ?: return false; if (Build.VERSION.SDK_INT < 24 || !isPaused) return false; return runCatching { r.resume(); isPaused = false; pausedMs += System.currentTimeMillis() - pauseAt; true }.getOrDefault(false) }
     /** Stops; returns the file and the site's "M:SS|peaks" text, or null when cancelled / too short. */
     fun stop(keep: Boolean): Pair<File, String>? {
         val r = rec ?: return null; rec = null
