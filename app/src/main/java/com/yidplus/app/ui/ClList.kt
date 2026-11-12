@@ -311,7 +311,7 @@ internal fun ClSearchPill(compact: Boolean, onOpen: () -> Unit) {
 
 /**
  * 480x640 (Qin F21, ~427 dp tall): the bar IS the search field, so the chat list keeps room for 5 rows.
- * One 48 dp bar row: a rounded pill with ☰ (menu) at the start, "Search chats" in the middle (opens the search) and
+ * One 46 dp bar row: a rounded pill with ☰ (menu) at the start, "Search chats" in the middle (opens the search) and
  * the AI chat avatar at the end. Three D-pad stops. No pencil (the green button starts a chat).
  */
 @Composable
@@ -320,7 +320,7 @@ internal fun ClCompactSearchBar(onMenu: (() -> Unit)?, onSearch: () -> Unit, onA
     val shape = RoundedCornerShape(22.dp)
     val pillBg = if (ink.luminance() > .5f) Color.White.copy(alpha = .17f) else (if (ChatLook.dark()) Color(0xFF202C33) else Color(0xFFF0F2F5))
     Surface(color = ChatLook.bar, contentColor = ink, shadowElevation = 2.dp) {
-        Row(Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 8.dp, vertical = 5.dp).clip(shape).background(pillBg),
+        Row(Modifier.fillMaxWidth().height(46.dp).padding(horizontal = 8.dp, vertical = 5.dp).clip(shape).background(pillBg),
             verticalAlignment = Alignment.CenterVertically) {
             if (onMenu != null) Box(Modifier.size(40.dp).tap(CircleShape, onClick = onMenu).semantics { contentDescription = "Menu" }, contentAlignment = Alignment.Center) {
                 Icon(Sym.Menu, null, tint = ink, modifier = Modifier.size(22.dp)) }
@@ -344,7 +344,7 @@ internal fun ClStatusChip(all: List<StUser>) {
     val mine = all.firstOrNull { it.userId == me.id && it.slides.isNotEmpty() }
     val unseen = others.filter { !Statuses.allSeen(it) }
     val shape = RoundedCornerShape(16.dp)
-    Row(Modifier.height(26.dp).clip(shape).background(MaterialTheme.colorScheme.surfaceVariant).tap(shape) {
+    Row(Modifier.height(25.dp).clip(shape).background(MaterialTheme.colorScheme.surfaceVariant).tap(shape) {
             val first = unseen.firstOrNull() ?: others.firstOrNull()
             if (first != null) Nav.open(StatusViewerPage(first.userId)) else if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
         }.semantics { contentDescription = "Status" + if (unseen.isNotEmpty()) ", ${unseen.size} new" else "" }.padding(horizontal = 10.dp),

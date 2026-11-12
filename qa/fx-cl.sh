@@ -22,7 +22,8 @@ cldown() { adb shell input swipe 240 160 240 560 300; sleep 1; }
 clseek() { # scroll up (content moves up) until $1 is on screen, max 7 swipes; $2 = x of the swipe (default 240)
   local i p t0=$(date +%s); for i in 1 2 3 4 5 6 7; do p=$(clpos "$1"); [ -n "$p" ] && { echo "$p"; return 0; }; timeout 10 adb shell input swipe ${2:-240} 420 ${2:-240} 170 500 >>"$OUT/qa.log" 2>&1; sleep 1; done
   echo "  clseek '$1': 7 swipes in $(( $(date +%s) - t0 )) s; screen texts: $(timeout 20 adb shell cat /sdcard/cl.xml 2>/dev/null | grep -oE ' (text|content-desc)="[^"]+"' | head -25 | tr '\n' ' ' | cut -c1-600)" >> "$OUT/qa.log"; return 0; }
-clst() { local p w="$1"; p=$(clseek "$1" "$2"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not found after scrolling"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w' (scrolled)"; }
+# "${2:-}": native.sh runs with set -u, and a bare "$2" (clst called with one word) killed every clst lookup at once.
+clst() { local p w="$1"; p=$(clseek "$1" "${2:-}"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not found after scrolling"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w' (scrolled)"; }
 clsl() { local p; p=$(clseek "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1' not found after scrolling"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
 cltop() { local i; for i in 1 2 3 4 5 6; do adb shell input swipe ${1:-240} 200 ${1:-240} 470 250; done; sleep 2.5; }
 # chip swipes stay 70 px away from the screen edges: with gesture navigation an edge swipe is BACK (it left the app in run 43170366208)

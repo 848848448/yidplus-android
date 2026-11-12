@@ -209,7 +209,7 @@ private fun BottomBar(dark: Boolean) {
     Surface(color = bg, shadowElevation = 8.dp) {
         Column {
             HorizontalDivider(thickness = 0.5.dp, color = if (dark) Color.White.copy(alpha = .08f) else MaterialTheme.colorScheme.outlineVariant)
-            Row(Modifier.fillMaxWidth().heightIn(min = if (smallScreen()) 48.dp else 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = if (smallScreen()) 46.dp else 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
         }
@@ -228,7 +228,7 @@ private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
     val n = when (t) { Tab.Chats -> Badges.chats; Tab.Home -> Badges.channels; else -> 0 }
     val dot = n <= 0 && when (t) { Tab.Shorts -> NavDots.shorts; Tab.Home -> NavDots.channels; else -> false }
     Column(modifier.padding(horizontal = 2.dp, vertical = 2.dp).tap(RoundedCornerShape(14.dp)) { if (Nav.tab == t) { if (Nav.stack.isEmpty()) Nav.reselect[t] = (Nav.reselect[t] ?: 0) + 1; Nav.stack.clear() } else Nav.go(t) }
-        .semantics { contentDescription = t.label + if (n > 0) ", $n unread" else if (dot) ", new" else "" }.padding(vertical = if (small) 2.dp else 5.dp),
+        .semantics { contentDescription = t.label + if (n > 0) ", $n unread" else if (dot) ", new" else "" }.padding(vertical = if (small) 1.dp else 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(width = if (small) 56.dp else 64.dp, height = if (small) 28.dp else 32.dp), contentAlignment = Alignment.Center) {
             Box(Modifier.size(width = if (small) 52.dp else 58.dp, height = if (small) 26.dp else 30.dp).clip(RoundedCornerShape(15.dp)).background(if (sel) pill else Color.Transparent))
