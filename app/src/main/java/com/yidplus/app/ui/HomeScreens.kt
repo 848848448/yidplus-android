@@ -93,8 +93,10 @@ fun HomeScreen() {
             }
         } else TopBar("Channels") {
             if (SoUser.isSuper && view <= 1) IconBtn(Sym.Add, "Add a Telegram channel", { adding = true }, tint = LocalContentColor.current)
-            SoHeaderActions(onSearch = { searching = true })
+            SoHeaderActions(onSearch = { searching = true }, showSearch = false)
         }
+        // WhatsApp-2024: the search pill at the top of the tab (it opens the search in place; Back closes it).
+        if (!searching) SearchPill("Search", { searching = true })
         // "Feed" (the site's Home page) is shown first but saved as view 4, so the saved Telegram/Joined/Members/Recent numbers stay the same.
         SoChips(listOf("Feed") + views, if (view == 4) 0 else view + 1, { d -> val v = if (d == 0) 4 else d - 1; view = v; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", v).apply() } })
         if (searching && q.trim().length >= 2) Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(SoSearchPage(q0 = q.trim())) }
@@ -146,17 +148,16 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
         .padding(horizontal = 16.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
         Box {
             SoThumb(ch.photo, ch.title, 50.dp)
-            // Telegram's long-press menu on a channel row.
-            DropdownMenu(rowMenu, { rowMenu = false }) {
-                DropdownMenuItem(text = { Text("Open") }, leadingIcon = { Icon(Sym.OpenInNew, null) }, onClick = { rowMenu = false; Nav.open(Screen.Channel(ch.copy(joined = joined))) })
-                if (joined && ch.unread > 0 && !readNow) DropdownMenuItem(text = { Text("Mark as read") }, leadingIcon = { Icon(Sym.DoneAll, null) }, onClick = { rowMenu = false; readNow = true
-                    scope.launch { runCatching { Api.post("/api/telegram-read", JSONObject().put("username", ch.username)) }; Badges.channels = (Badges.channels - ch.unread).coerceAtLeast(0) } })
-                DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Sym.Logout else Sym.Add, null) },
-                    onClick = { rowMenu = false; scope.launch { soTgToggleJoin(c, ch.username, joined)?.let { joined = it.first } } })
-                DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Sym.Info, null) }, onClick = { rowMenu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined))) })
-                DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { rowMenu = false; soCopy(c, soTgLink(ch.username)) })
-            }
         }
+        // Telegram's long-press menu on a channel row, as the app's bottom sheet.
+        if (rowMenu) ActionSheet(listOfNotNull(
+            SheetAction(Sym.OpenInNew, "Open") { rowMenu = false; Nav.open(Screen.Channel(ch.copy(joined = joined))) },
+            if (joined && ch.unread > 0 && !readNow) SheetAction(Sym.DoneAll, "Mark as read") { rowMenu = false; readNow = true
+                scope.launch { runCatching { Api.post("/api/telegram-read", JSONObject().put("username", ch.username)) }; Badges.channels = (Badges.channels - ch.unread).coerceAtLeast(0) } } else null,
+            SheetAction(if (joined) Sym.Logout else Sym.Add, if (joined) "Leave channel" else "Join channel", destructive = joined) { rowMenu = false; scope.launch { soTgToggleJoin(c, ch.username, joined)?.let { joined = it.first } } },
+            SheetAction(Sym.Info, "Channel info") { rowMenu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined))) },
+            SheetAction(Sym.Link, "Copy link") { rowMenu = false; soCopy(c, soTgLink(ch.username)) }
+        ), onDismiss = { rowMenu = false }, title = ch.title)
         Column(Modifier.weight(1f).padding(start = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Left-aligned even for a Yiddish name (like WhatsApp), so the name never runs into the time.

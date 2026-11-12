@@ -205,11 +205,11 @@ fun NotifsPageBody() {
                         scope.launch { runCatching { Api.post("/api/notifications", JSONObject().put("read", n.id)) } } } }
                     Box {
                         NotifRow(n, unread, first = n.id == list.first().id, onLong = { nMenu = true }) { markRead(); openNotif(c, n) }
-                        // Long-press (or the keypad Menu key): Open / Mark as read.
-                        DropdownMenu(nMenu, { nMenu = false }) {
-                            DropdownMenuItem(text = { Text("Open") }, leadingIcon = { Icon(Sym.OpenInNew, null) }, onClick = { nMenu = false; markRead(); openNotif(c, n) })
-                            if (unread) DropdownMenuItem(text = { Text("Mark as read") }, leadingIcon = { Icon(Sym.DoneAll, null) }, onClick = { nMenu = false; markRead() })
-                        }
+                        // Long-press (or the keypad Menu key): Open / Mark as read, in the app's bottom sheet.
+                        if (nMenu) ActionSheet(listOfNotNull(
+                            SheetAction(Sym.OpenInNew, "Open") { nMenu = false; markRead(); openNotif(c, n) },
+                            if (unread) SheetAction(Sym.DoneAll, "Mark as read") { nMenu = false; markRead() } else null
+                        ), onDismiss = { nMenu = false })
                     }
                     HorizontalDivider(Modifier.padding(start = 82.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     }
