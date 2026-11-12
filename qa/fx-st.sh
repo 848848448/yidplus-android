@@ -51,7 +51,7 @@ stfind "Block myself from Chat"; sleep 1; shot ST-43-support-selfblock-confirm
 stfind "Yes, block me"; sleep 2; shot ST-44-support-selfblocked; stproof selfblock "POST /api/self-block"
 key 4; sleep 1
 stq Support 5; stfind "Continue your conversation"; sleep 3; shot ST-45-support-live; stdump support-live
-timeout 10 adb shell input text "Thanks%sit%sworks%snow" >/dev/null 2>&1; sleep 1; shot ST-46-support-typed
+stfind "Type your message..."; timeout 10 adb shell input text "Thanks%sit%sworks%snow" >/dev/null 2>&1; sleep 1; shot ST-46-support-typed
 stfind "Send"; sleep 2; shot ST-47-support-sent; stproof support-send "POST /api/support-chats"
 key 4; sleep 1; key 4; sleep 1
 stq Support 5; stfind "I can't sign in"; sleep 1; stfind "I forgot my password"; sleep 1; shot ST-48-support-reset
