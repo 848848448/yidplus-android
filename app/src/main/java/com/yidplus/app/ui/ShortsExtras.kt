@@ -1,5 +1,8 @@
 package com.yidplus.app.ui
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.core.RepeatMode
@@ -215,10 +218,14 @@ class SoUploadShortPage : PageScreen() {
             }
         }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            TopBar("Upload a Short", onBack = { if (progress == null) Nav.back() })
+            // The send action also sits in the top bar (like New post's "Post"), so it's always on screen, even at 480x640 with the keyboard up.
+            TopBar("Upload a Short", onBack = { if (progress == null) Nav.back() }) {
+                if (Session.me != null && file != null) TextButton({ send() }, enabled = progress == null) { Text("Upload", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (progress == null) Color.White else Color.White.copy(alpha = .5f)) }
+            }
             if (Session.me == null) { SoEmpty(Icons.Filled.Upload, "Sign in to upload Shorts", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
-            Column(Modifier.fillMaxWidth().padding(16.dp)) {
-                Box(Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp)) { if (progress == null) pick.launch("video/*") }
+            val short = LocalConfiguration.current.screenHeightDp < 560
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(16.dp)) {
+                Box(Modifier.fillMaxWidth().height(if (short) 104.dp else 150.dp).clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp)) { if (progress == null) pick.launch("video/*") }
                     .background(if (file == null) MaterialTheme.colorScheme.surfaceVariant else Green.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(if (file == null) Icons.Filled.VideoLibrary else Icons.Filled.CheckCircle, null, tint = Green, modifier = Modifier.size(44.dp))
@@ -226,8 +233,8 @@ class SoUploadShortPage : PageScreen() {
                             fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp), textAlign = TextAlign.Center)
                     }
                 }
-                Spacer(Modifier.height(14.dp))
-                OutlinedTextField(caption, { caption = it.take(300) }, Modifier.fillMaxWidth().heightIn(min = 90.dp), placeholder = { Text("Write a caption (optional)") },
+                Spacer(Modifier.height(if (short) 10.dp else 14.dp))
+                OutlinedTextField(caption, { caption = it.take(300) }, Modifier.fillMaxWidth().heightIn(min = if (short) 64.dp else 90.dp), placeholder = { Text("Write a caption (optional)") },
                     textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                 Spacer(Modifier.height(16.dp))
                 progress?.let { v ->

@@ -24,7 +24,7 @@ fx_block() {
   size 1080x2400 420; restart 6; view "https://yidplus.com/chat"; sleep 4; shot F12-phone-chats; key 23; sleep 5; shot F13-phone-chat; key 4
   size 480x640 240
   # Each area adds its own signed-in steps in qa/fx-<area>.sh (still signed in with the fixture account here).
-  for f in qa/fx-*.sh; do [ -f "$f" ] || continue; log "---- $f ----"; restart 5; source "$f"; check "$f"; done
+  for f in ${QA_FX:-qa/fx-*.sh}; do [ -f "$f" ] || continue; log "---- $f ----"; restart 5; source "$f"; check "$f"; done
   timeout 30 adb logcat -d -s YidFx > "$OUT/fx-requests.txt" 2>/dev/null; log "fixture writes the app would have sent: $(grep -c YidFx "$OUT/fx-requests.txt")"
   fx false; restart 5; check fx-off
 }

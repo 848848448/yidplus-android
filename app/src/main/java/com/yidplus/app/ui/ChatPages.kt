@@ -245,6 +245,7 @@ data class ChNewGroup(val type: String) : PageScreen() {
             scope.launch {
                 try {
                     val id = ChatApi.create(type, name.trim(), desc.trim(), public)
+                    if (id.isBlank()) error("The site did not return the new $what")
                     picked.forEach { runCatching { ChatApi.addMember(id, it.id) } }
                     ChatApi.rooms.load(true)
                     Nav.back(); Nav.open(Screen.Chat(ChatApi.info(id)?.room ?: ChatApi.roomOf(id, type, name.trim())))

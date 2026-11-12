@@ -43,7 +43,7 @@ size 480x640 240
 adb logcat -c
 source qa/signedin.sh
 # Quick run (only on a test branch that carries qa/QUICK): just the signed-in fixture screens.
-if [ -f qa/QUICK ]; then fx_block; fx_finish; fi
+if [ -f qa/QUICK ] || [ -n "${QA_FX:-}" ]; then fx_block; fx_finish; fi
 
 # ---- Cold start (first ever start, nothing cached) ----
 adb shell am force-stop $PKG
