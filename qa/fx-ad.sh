@@ -105,8 +105,8 @@ fi
 # ==== [AD 2.1] every site admin panel natively: home (search + 5 categories) and one real action per panel ====
 adx() { timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page "x:Admin" --es qa_ad "$1" >/dev/null 2>&1; sleep "${2:-5}"; log "ad panel $1"; }
 log "---- AD 2.1: admin home ----"
-adq Admin 5; shot AD-50-home-glance; adfind "Overview"; sleep 1; shot AD-51-home-overview-open
-adtop; adt "Search admin"; sleep 2; adtype "att"; adhidekb; sleep 1; shot AD-52-home-search; key 4
+adq Admin 5; shot AD-50-home-search-categories; adfind "Overview"; sleep 1; shot AD-51-home-overview-open; adtop; adswipe; adswipe; adswipe; shot AD-51b-home-at-a-glance
+adtop; adfind "Search admin"; sleep 2; adtype "att"; adhidekb; sleep 1; shot AD-52-home-search; key 4
 log "---- AD 2.1: Overview ----"
 adx god-mode; shot AD-53-god-mode; key 4
 adx calls; shot AD-54-calls; adt "Yanky → Leah"; sleep 1; adt "End call"; sleep 2; proof "end call" "\"action\":\"end\""; key 4
@@ -123,7 +123,8 @@ adx sessions; shot AD-63-sessions; key 4
 adx banned-devices; shot AD-64-banned; key 4
 adx badges; shot AD-65-badges; key 4
 adx ad-exempt; shot AD-66-ad-free; key 4
-adq AdminUser 6; adfind "Edit details"; shot AD-67-user-more; adswipe; adswipe; shot AD-67b-user-devices-notes; key 4
+adq AdminUser 6; adswipe; adswipe; adswipe; shot AD-67-user-actions-account; adswipe; adswipe; shot AD-67b-user-devices-history; adswipe; adswipe; adswipe; shot AD-67c-user-notes; key 4
+adq AdminUser 6; adfind "Edit details"; sleep 1; shot AD-67d-user-edit-details; key 4
 log "---- AD 2.1: Moderation ----"
 adx reports; shot AD-68-reports; adt "Resolve"; sleep 1.5; shot AD-69-report-resolve-confirm; adt "Resolve"; sleep 2; proof "resolve report" "PUT /api/reports"; key 4
 adx feedback; shot AD-70-feedback; key 4
@@ -164,10 +165,10 @@ adrec() { timeout -k 3 $(( $2 + 8 )) adb shell screenrecord --size 480x640 --bit
 adrecend() { wait $ADREC 2>/dev/null; sleep 2; timeout 40 adb pull "/sdcard/$1.mp4" "$OUT/$1.mp4" >/dev/null 2>&1; timeout 10 adb shell rm -f "/sdcard/$1.mp4"; log "video $1 $(stat -c %s "$OUT/$1.mp4" 2>/dev/null) bytes"; }
 adq Admin 5; adtop
 adrec AD-flow-dpad 30
-for k in 20 20 20 20 20 20 20 66; do key $k; done; sleep 1.5     # D-pad down to a category, OK opens it
-for k in 20 20 66; do key $k; done; sleep 3                      # down into a panel, OK
-key 20; key 20; key 20; sleep 1; key 4; sleep 1.5                # move in the panel, Back to the admin home
-adtop; adt "Search admin"; sleep 1.5; adtype "ads"; sleep 1.5; key 20; key 66; sleep 3; key 4; sleep 1; key 4
+key 20; sleep 1; key 20; sleep 1; key 20; sleep 1; key 66; sleep 1.5   # D-pad: from the search pill down to a category, OK opens it
+key 20; sleep 1; key 20; sleep 1; key 66; sleep 3                      # down into its first panel, OK
+key 20; sleep 0.8; key 20; sleep 0.8; key 4; sleep 1.5                  # move in the panel, Back to the admin home
+adtop; key 19; sleep 0.5; key 19; sleep 0.5; key 66; sleep 1.5; adtype "ads"; sleep 1.5; key 20; key 66; sleep 3; key 4; sleep 1; key 4
 adrecend AD-flow-dpad
 adrec AD-flow-panels 30
 adx security 4; adswipe; sleep 1; key 4

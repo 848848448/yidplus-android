@@ -82,6 +82,8 @@ class AdminPage : PageScreen() {
         val owner = adminIsOwner
         val role = when { Session.me?.isOwner == true || Session.me?.role == "owner" -> "👑 Owner"; Session.me?.role == "admin_super" -> "🛡 Super admin"; SettingsProfile.demo -> "👑 Owner"; else -> "🔒 Moderator" }
         SettingsPage("Admin", sub = "$role · YID PLUS control center") {
+            // ── 2.1: search pill on top (WhatsApp), then the site's 5 categories, every panel native (AdHome.kt) ──
+            AdHomeSections(s)
             // ── Right now (admin.js _loadNow: GET /api/admin/insights) ──
             SettingsCard("At a glance · right now") {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -107,8 +109,6 @@ class AdminPage : PageScreen() {
                     if (growth.isNotEmpty()) GrowthBars(growth)
                 }
             }
-            // ── 2.1: search + the site's 5 categories, every panel native (AdHome.kt) ──
-            AdHomeSections(s)
             // ── Features (admin.js buildFeaturesPanel / toggleFeature: PUT /api/settings {key, value:'on'|'off'}) ──
             SettingsCard("Features") {
                 featureFlags.forEachIndexed { i, (key, label, desc) ->
