@@ -80,7 +80,7 @@ fun AppRoot(onExit: () -> Unit) {
         androidx.compose.runtime.SideEffect {
             (view.context as? android.app.Activity)?.window?.let { w ->
                 val c = androidx.core.view.WindowCompat.getInsetsController(w, view)
-                c.isAppearanceLightStatusBars = false
+                c.isAppearanceLightStatusBars = LookPrefs.lightBar && !dark && !immersive && top !is Screen.Video
                 c.isAppearanceLightNavigationBars = !dark && !immersive
             }
         }
@@ -179,8 +179,13 @@ private fun OfflineStrip() {
 
 private val tabIcons: Map<Tab, ImageVector> = mapOf(
     // The website's own icons for the same items (forum, music_note, movie, explore, settings).
-    Tab.Home to Icons.Filled.Explore, Tab.Chats to Icons.Filled.Forum, Tab.Shorts to Icons.Filled.Movie,
-    Tab.Music to Icons.Filled.MusicNote, Tab.Profile to Icons.Filled.Settings,
+    // Google Material Symbols Rounded: FILL 0 normally, FILL 1 when the tab is selected (like the site's nav and WhatsApp 2024).
+    Tab.Home to Sym.Explore, Tab.Chats to Sym.Forum, Tab.Shorts to Sym.Movie,
+    Tab.Music to Sym.MusicNote, Tab.Profile to Sym.Settings,
+)
+private val tabIconsSelected: Map<Tab, ImageVector> = mapOf(
+    Tab.Home to Sym.ExploreFill, Tab.Chats to Sym.ForumFill, Tab.Shorts to Sym.MovieFill,
+    Tab.Music to Sym.MusicNoteFill, Tab.Profile to Sym.SettingsFill,
 )
 
 @Composable
@@ -211,7 +216,7 @@ private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(width = 64.dp, height = 32.dp), contentAlignment = Alignment.Center) {
             Box(Modifier.size(width = 58.dp, height = 30.dp).clip(RoundedCornerShape(15.dp)).background(if (sel) pill else Color.Transparent))
-            Icon(tabIcons[t]!!, null, tint = if (sel) active else on, modifier = Modifier.size(24.dp))
+            Icon(if (sel) tabIconsSelected[t]!! else tabIcons[t]!!, null, tint = if (sel) active else on, modifier = Modifier.size(24.dp))
             if (n > 0) Box(Modifier.align(Alignment.TopEnd).offset(x = (-4).dp, y = (-3).dp)) { Badge(n) }
             else if (dot) Box(Modifier.align(Alignment.TopEnd).offset(x = (-14).dp, y = 2.dp).size(9.dp).clip(CircleShape).background(BadgeGreen))
         }

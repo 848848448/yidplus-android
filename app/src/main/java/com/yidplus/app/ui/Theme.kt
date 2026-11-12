@@ -65,16 +65,16 @@ private val Dark = darkColorScheme(
     secondaryContainer = Color(0xFF2A3F38), onSecondaryContainer = Color(0xFFCDE8DE),
     tertiary = Color(0xFFE3C35A), onTertiary = Color(0xFF3C2F00),
     tertiaryContainer = Color(0xFF574500), onTertiaryContainer = GoldSoft,
-    background = Color(0xFF0E1412), onBackground = Color(0xFFE1E8E5),
-    surface = Color(0xFF121A17), onSurface = Color(0xFFE1E8E5),
-    surfaceVariant = Color(0xFF1F2A26), onSurfaceVariant = Color(0xFFA2B2AC),
+    background = Color(0xFF0B141A), onBackground = Color(0xFFE1E8E5),
+    surface = Color(0xFF111B21), onSurface = Color(0xFFE1E8E5),
+    surfaceVariant = Color(0xFF1F2C34), onSurfaceVariant = Color(0xFFA2B2AC),
     surfaceTint = Color(0xFF7DD3B6),
     inverseSurface = Color(0xFFE1E8E5), inverseOnSurface = Color(0xFF2B3230),
     error = Color(0xFFFFB4AB), onError = Color(0xFF690005), errorContainer = Color(0xFF93000A), onErrorContainer = Color(0xFFFFDAD6),
     outline = Color(0xFF3E4C47), outlineVariant = Color(0xFF283330), scrim = Color.Black,
-    surfaceBright = Color(0xFF2E3835), surfaceDim = Color(0xFF0E1412),
-    surfaceContainerLowest = Color(0xFF0A0F0D), surfaceContainerLow = Color(0xFF151D1A), surfaceContainer = Color(0xFF19221F),
-    surfaceContainerHigh = Color(0xFF212C28), surfaceContainerHighest = Color(0xFF2B3632),
+    surfaceBright = Color(0xFF2E3835), surfaceDim = Color(0xFF0B141A),
+    surfaceContainerLowest = Color(0xFF070D11), surfaceContainerLow = Color(0xFF111B21), surfaceContainer = Color(0xFF16222A),
+    surfaceContainerHigh = Color(0xFF1F2C34), surfaceContainerHighest = Color(0xFF2A3942),
 )
 
 /** The app's own look settings that the website keeps on the phone too (Text size). */
@@ -129,13 +129,24 @@ fun isDark(): Boolean = LookPrefs.preset.dark || when (Prefs.theme) { 1 -> false
 
 /** The brand bar's colour: the site's green by day (or the chosen colour theme), a deep green-grey at night (like WhatsApp's dark header). */
 @Composable
-fun topBarColor(): Color = if (isDark()) Color(0xFF1A2723) else if (LookPrefs.colorTheme == 0) Green else LookPrefs.preset.accent
+fun topBarColor(): Color = if (isDark()) Color(0xFF111B21) else if (LookPrefs.lightBar) MaterialTheme.colorScheme.surface else if (LookPrefs.colorTheme == 0) Green else LookPrefs.preset.accent
+
+/** Ink for everything inside the top bar: white on the brand bar, dark ink on the light (WhatsApp-2024) bar. */
+@Composable
+fun barContent(): Color = if (!isDark() && LookPrefs.lightBar) MaterialTheme.colorScheme.onSurfaceVariant else Color.White
+
+/** The top bar's title colour: white on the brand bar, the brand colour on the light bar (like WhatsApp 2024). */
+@Composable
+fun barTitle(): Color = if (!isDark() && LookPrefs.lightBar) MaterialTheme.colorScheme.primary else Color.White
 
 private fun themed(b: ColorScheme, p: ColorPreset, dark: Boolean): ColorScheme = if (p.name == "Emerald Teal") b else b.copy(
     primary = if (dark) p.accentLight else p.accent, onPrimary = if (dark) Color(0xFF0A0A0F) else Color.White,
     primaryContainer = (if (dark) p.accent else p.accentLight).copy(alpha = if (dark) 0.35f else 0.22f).compositeOver(b.surface),
     onPrimaryContainer = if (dark) Color.White else p.accent, surfaceTint = if (dark) p.accentLight else p.accent, inversePrimary = p.accent,
-    background = if (p.dark) p.bg else b.background, surface = if (p.dark) p.bg2 else b.surface)
+    background = if (p.dark) p.bg else if (dark) b.background else p.bg, surface = if (p.dark) p.bg2 else b.surface,
+    // the site's --bg2 / --bg3 tint (js/theme.js applyTheme) on the soft surfaces: chips, search fields, cards
+    surfaceVariant = if (p.dark || dark) b.surfaceVariant else p.bg2, surfaceContainer = if (p.dark || dark) b.surfaceContainer else p.bg2,
+    surfaceContainerLow = if (p.dark || dark) b.surfaceContainerLow else p.bg2.copy(alpha = 0.5f).compositeOver(b.surface))
 
 private fun contrast(s: ColorScheme): ColorScheme = s.copy(onSurfaceVariant = s.onSurface, outline = s.onSurface.copy(alpha = 0.7f), outlineVariant = s.onSurface.copy(alpha = 0.4f))
 
@@ -154,4 +165,10 @@ fun YidTheme(content: @Composable () -> Unit) {
             CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
         }
     }
+}
+
+/** Spacing and size tokens (4/8/12/16/24 dp grid, WhatsApp-on-Android sizes). Use these in new code. */
+object Dim {
+    val xs = 4.dp; val s = 8.dp; val m = 12.dp; val l = 16.dp; val xl = 24.dp
+    val row = 72.dp; val avatar = 48.dp; val icon = 24.dp; val touch = 48.dp; val fab = 56.dp
 }
