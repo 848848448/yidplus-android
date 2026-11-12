@@ -18,14 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Error
-import androidx.compose.material.icons.rounded.MarkEmailRead
-import androidx.compose.material.icons.rounded.MarkEmailUnread
-import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,7 +59,7 @@ fun StPasswordField(value: String, onChange: (String) -> Unit, label: String, mo
     var show by remember { mutableStateOf(false) }
     OutlinedTextField(value, onChange, modifier.fillMaxWidth(), label = { Text(label) }, singleLine = true,
         visualTransformation = if (show) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = { IconButton({ show = !show }) { Icon(if (show) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility, if (show) "Hide password" else "Show password") } },
+        trailingIcon = { IconButton({ show = !show }) { Icon(if (show) Sym.VisibilityOff else Sym.Visibility, if (show) "Hide password" else "Show password") } },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = if (done) ImeAction.Done else ImeAction.Next),
         keyboardActions = KeyboardActions(onDone = { onDone() }))
 }
@@ -77,7 +69,7 @@ private fun StMsg(text: String?, ok: Boolean) {
     if (text.isNullOrBlank()) return
     Row(Modifier.fillMaxWidth().background(if (ok) Color(0x1F1F6F5C) else MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(10.dp)).padding(10.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Icon(if (ok) Icons.Rounded.CheckCircle else Icons.Rounded.Error, null, Modifier.size(20.dp), tint = if (ok) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+        Icon(if (ok) Sym.CheckCircle else Sym.Error, null, Modifier.size(20.dp), tint = if (ok) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
         Text(text, Modifier.padding(start = 8.dp), style = MaterialTheme.typography.bodyMedium, color = if (ok) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onErrorContainer)
     }
 }
@@ -147,12 +139,12 @@ class StRegisterPage(val invite: String = "") : PageScreen() {
             Logo(Modifier.align(Alignment.CenterHorizontally))
             if (invite.isNotBlank()) StMsg("You were invited! Your invite code is filled in.", true)
             StMsg(msg, ok)
-            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(always = true), label = { Text("Email address") }, singleLine = true,
+            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Email address") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
             OutlinedTextField(nick, { nick = it.replace(" ", "") }, Modifier.fillMaxWidth(), label = { Text("Nickname (cannot be changed later)") }, singleLine = true,
                 isError = nickOk == false,
                 supportingText = { when (nickOk) { true -> Text("Available", color = MaterialTheme.colorScheme.primary); false -> Text(if (nickWhy.isNotBlank()) "Not allowed: $nickWhy" else "Already taken", color = MaterialTheme.colorScheme.error); null -> Text("Letters, numbers and _ (3 to 20)") } },
-                trailingIcon = { when (nickOk) { true -> Icon(Icons.Rounded.CheckCircle, "Available", tint = MaterialTheme.colorScheme.primary); false -> Icon(Icons.Rounded.Error, "Taken", tint = MaterialTheme.colorScheme.error); null -> {} } },
+                trailingIcon = { when (nickOk) { true -> Icon(Sym.CheckCircle, "Available", tint = MaterialTheme.colorScheme.primary); false -> Icon(Sym.Error, "Taken", tint = MaterialTheme.colorScheme.error); null -> {} } },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next))
             OutlinedTextField(phone, { phone = it }, Modifier.fillMaxWidth(), label = { Text("Phone (optional, private)") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next))
@@ -191,10 +183,10 @@ class StForgotPage(val email0: String = "") : PageScreen() {
             }
         }
         StFormPage("Forgot password") {
-            Icon(Icons.Rounded.MarkEmailUnread, null, Modifier.size(56.dp).align(Alignment.CenterHorizontally), tint = MaterialTheme.colorScheme.primary)
+            Icon(Sym.Mail, null, Modifier.size(56.dp).align(Alignment.CenterHorizontally), tint = MaterialTheme.colorScheme.primary)
             Text("Type the email of your account. We'll send you a link to set a new password.", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             StMsg(msg, ok)
-            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(always = true), label = { Text("Email address") }, singleLine = true,
+            OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Email address") }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { go() }))
             PrimaryButton(if (busy) "Sending…" else "Send reset link", { if (!busy) go() }, Modifier.fillMaxWidth(), enabled = !busy)
             SecondaryButton("Need help? Start chat", { Nav.open(StSupportPage("login")) }, Modifier.fillMaxWidth())
@@ -231,7 +223,7 @@ class StResetPage(val token: String) : PageScreen() {
         StFormPage("Set a new password") {
             StMsg(msg, ok)
             if (!ok) {
-                StPasswordField(pw, { pw = it }, "New password", Modifier.firstFocus(always = true))
+                StPasswordField(pw, { pw = it }, "New password", Modifier.firstFocus())
                 StPasswordField(pw2, { pw2 = it }, "Confirm new password", done = true, onDone = { go() })
                 PrimaryButton(if (busy) "Saving…" else "Save New Password", { if (!busy) go() }, Modifier.fillMaxWidth(), enabled = !busy)
             } else PrimaryButton("Sign in", { Nav.go(Tab.Profile) }, Modifier.fillMaxWidth().firstFocus(always = true))
@@ -255,7 +247,7 @@ fun StVerifyBanner() {
     if (!StVerify.unverified || StVerify.dismissed || Session.me == null) return
     Surface(color = Color(0xFFFFF4E5), contentColor = Color(0xFF7A4E00)) {
         Row(Modifier.fillMaxWidth().padding(start = 12.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Rounded.MarkEmailRead, null, Modifier.size(22.dp))
+            Icon(Sym.MarkEmailRead, null, Modifier.size(22.dp))
             Text("Please verify your email to secure your account.", Modifier.padding(start = 8.dp).weight(1f), style = MaterialTheme.typography.bodySmall)
             Text(if (sending) "Sending…" else "Resend", Modifier.padding(start = 6.dp).background(Color(0xFF1F6F5C), RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp), enabled = !sending) {
                 sending = true
@@ -265,7 +257,7 @@ fun StVerifyBanner() {
                     sending = false
                 }
             }.padding(horizontal = 12.dp, vertical = 6.dp), color = Color.White, style = MaterialTheme.typography.labelLarge)
-            IconButton({ StVerify.dismissed = true }) { Icon(Icons.Rounded.Close, "Dismiss") }
+            IconButton({ StVerify.dismissed = true }) { Icon(Sym.Close, "Dismiss") }
         }
     }
 }

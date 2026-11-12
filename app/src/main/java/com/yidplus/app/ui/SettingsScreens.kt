@@ -35,23 +35,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material.icons.filled.DoneAll
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Campaign
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.NotificationsOff
-import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material.icons.filled.RadioButtonChecked
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -282,12 +265,12 @@ fun SettingsProfileHeader(onEdit: () -> Unit) {
                 Box {
                     Avatar(photo, name, 68.dp)
                     Box(Modifier.align(Alignment.BottomEnd).size(24.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
-                        contentAlignment = Alignment.Center) { Icon(Icons.Filled.CameraAlt, null, tint = Color.White, modifier = Modifier.size(13.dp)) }
+                        contentAlignment = Alignment.Center) { Icon(Sym.CameraAlt, null, tint = Color.White, modifier = Modifier.size(13.dp)) }
                 }
                 Column(Modifier.padding(start = 16.dp).weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                        if ((p?.optInt("verified") ?: 0) == 1) Icon(Icons.Filled.Check, "Verified", tint = Color.White,
+                        if ((p?.optInt("verified") ?: 0) == 1) Icon(Sym.Check, "Verified", tint = Color.White,
                             modifier = Modifier.padding(start = 6.dp).size(16.dp).clip(CircleShape).background(BadgeGreen).padding(2.dp))
                     }
                     val bio = p?.str("bio").orEmpty()
@@ -372,7 +355,7 @@ class SettingsEditProfile : PageScreen() {
                                 if (banner != null) AsyncImage(banner, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                 Row(Modifier.align(Alignment.TopEnd).padding(8.dp).clip(RoundedCornerShape(14.dp)).background(Color.Black.copy(alpha = .35f)).padding(horizontal = 10.dp, vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.CameraAlt, null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                    Icon(Sym.CameraAlt, null, tint = Color.White, modifier = Modifier.size(14.dp))
                                     Text(if (uploading == "banner") " Uploading…" else " Cover", color = Color.White, style = MaterialTheme.typography.labelMedium)
                                 }
                             }
@@ -380,7 +363,7 @@ class SettingsEditProfile : PageScreen() {
                                 .firstFocus().tap(CircleShape) { pickPhoto.launch("image/*") }) {
                                 Avatar(Api.abs(p?.str("photo_url")?.ifBlank { null }) ?: Session.me?.photo, nick, 78.dp)
                                 Box(Modifier.align(Alignment.BottomEnd).size(26.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Filled.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(15.dp))
+                                    Icon(Sym.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(15.dp))
                                 }
                             }
                             if (uploading == "photo") Text("Uploading photo…", Modifier.align(Alignment.BottomStart).padding(start = 112.dp, bottom = 8.dp), style = MaterialTheme.typography.bodySmall)
@@ -415,7 +398,7 @@ private fun Swatch(hex: String, sel: Boolean, onClick: () -> Unit) {
     val col = runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrDefault(Green)
     Box(Modifier.size(38.dp).clip(CircleShape).background(col).tap(CircleShape, role = Role.RadioButton, onClick = onClick)
         .then(if (sel) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier), contentAlignment = Alignment.Center) {
-        if (sel) Icon(Icons.Filled.Check, hex, tint = Color.White, modifier = Modifier.size(20.dp))
+        if (sel) Icon(Sym.Check, hex, tint = Color.White, modifier = Modifier.size(20.dp))
     }
 }
 
@@ -441,31 +424,31 @@ class SettingsPrivacy : PageScreen() {
         fun set(k: String, v: Any) = scope.launch { SettingsProfile.save(JSONObject().put(k, v))?.let { toast(c, it) } }
         SettingsPage("Privacy") {
             SettingsCard("Who can see me") {
-                SettingRow(Icons.Filled.Lock, "Private account", "People must ask to follow you before they see your posts and statuses", switch = SettingsProfile.on("is_private", false), modifier = Modifier.firstFocus()) {
+                SettingRow(Sym.Lock, "Private account", "People must ask to follow you before they see your posts and statuses", switch = SettingsProfile.on("is_private", false), modifier = Modifier.firstFocus()) {
                     set("is_private", if (SettingsProfile.on("is_private", false)) 0 else 1)
                 }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.PersonAdd, "Follow requests", "People who asked to follow you") { Nav.open(FollowRequestsPage()) }
+                SettingRow(Sym.PersonAdd, "Follow requests", "People who asked to follow you") { Nav.open(FollowRequestsPage()) }
                 RowDivider(64.dp)
                 val see = SettingsProfile.text("privacy_profile").ifBlank { "public" }
-                SettingRow(Icons.Filled.Visibility, "Who can see my profile", value = seeOpts.firstOrNull { it.first == see }?.second ?: "Everyone") { pick = "privacy_profile" }
+                SettingRow(Sym.Visibility, "Who can see my profile", value = seeOpts.firstOrNull { it.first == see }?.second ?: "Everyone") { pick = "privacy_profile" }
                 RowDivider(64.dp)
                 val msg = SettingsProfile.text("privacy_messages").ifBlank { "everyone" }
-                SettingRow(Icons.Filled.Chat, "Who can message me", value = msgOpts.firstOrNull { it.first == msg }?.second ?: "Everyone") { pick = "privacy_messages" }
+                SettingRow(Sym.Chat, "Who can message me", value = msgOpts.firstOrNull { it.first == msg }?.second ?: "Everyone") { pick = "privacy_messages" }
             }
             SettingsCard("Activity") {
-                SettingRow(Icons.Filled.RadioButtonChecked, "Active status", "Let others see when you're online", switch = SettingsProfile.on("show_online")) {
+                SettingRow(Sym.RadioButtonChecked, "Active status", "Let others see when you're online", switch = SettingsProfile.on("show_online")) {
                     set("show_online", if (SettingsProfile.on("show_online")) 0 else 1)
                 }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.DoneAll, "Read receipts", "Show others when you've read their message", switch = SettingsProfile.on("read_receipts")) {
+                SettingRow(Sym.DoneAll, "Read receipts", "Show others when you've read their message", switch = SettingsProfile.on("read_receipts")) {
                     set("read_receipts", if (SettingsProfile.on("read_receipts")) 0 else 1)
                 }
             }
             SettingsCard("Blocking") {
-                SettingRow(Icons.Filled.Block, "Blocked users", "People you blocked can't message you") { Nav.open(SettingsBlocked()) }
+                SettingRow(Sym.Block, "Blocked users", "People you blocked can't message you") { Nav.open(SettingsBlocked()) }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.NotificationsOff, "Muted chats", "Chats that don't notify you") { Nav.open(SettingsMutedChats()) }
+                SettingRow(Sym.NotificationsOff, "Muted chats", "Chats that don't notify you") { Nav.open(SettingsMutedChats()) }
             }
         }
         when (pick) {
@@ -488,13 +471,13 @@ class SettingsNotifPrefs : PageScreen() {
         fun flip(k: String) = scope.launch { SettingsProfile.save(JSONObject().put(k, if (SettingsProfile.on(k)) 0 else 1))?.let { toast(c, it) } }
         SettingsPage("Notifications") {
             SettingsCard("Notify me about") {
-                SettingRow(Icons.Filled.Mail, "New messages", switch = SettingsProfile.on("notif_messages"), modifier = Modifier.firstFocus()) { flip("notif_messages") }
+                SettingRow(Sym.Mail, "New messages", switch = SettingsProfile.on("notif_messages"), modifier = Modifier.firstFocus()) { flip("notif_messages") }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.Favorite, "New likes", switch = SettingsProfile.on("notif_likes")) { flip("notif_likes") }
+                SettingRow(Sym.Favorite, "New likes", switch = SettingsProfile.on("notif_likes")) { flip("notif_likes") }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.PersonAdd, "New followers", switch = SettingsProfile.on("notif_followers")) { flip("notif_followers") }
+                SettingRow(Sym.PersonAdd, "New followers", switch = SettingsProfile.on("notif_followers")) { flip("notif_followers") }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.Campaign, "Channel updates", switch = SettingsProfile.on("notif_channels")) { flip("notif_channels") }
+                SettingRow(Sym.Campaign, "Channel updates", switch = SettingsProfile.on("notif_channels")) { flip("notif_channels") }
             }
             SettingsHint("These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page.")
         }
@@ -518,16 +501,16 @@ class SettingsSecurity : PageScreen() {
         val sessions = SettingsProfile.res.data?.optJSONArray("sessions").objects()
         SettingsPage("Security") {
             SettingsCard("Sign-in") {
-                SettingRow(Icons.Filled.Password, "Change password", "You'll confirm your current password first", modifier = Modifier.firstFocus()) { askPw = true }
+                SettingRow(Sym.Password, "Change password", "You'll confirm your current password first", modifier = Modifier.firstFocus()) { askPw = true }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.Security, "Two-step verification", when (twofa) { true -> "On · a code from your authenticator app"; false -> "Off"; null -> "…" }) { if (twofa != null) show2fa = true }
+                SettingRow(Sym.Security, "Two-step verification", when (twofa) { true -> "On · a code from your authenticator app"; false -> "Off"; null -> "…" }) { if (twofa != null) show2fa = true }
             }
             SettingsCard("Devices (${sessions.size} signed in)") {
                 sessions.take(10).forEachIndexed { i, s ->
                     if (i > 0) RowDivider(64.dp)
                     val id = s.str("id")
                     Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Devices, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
+                        Icon(Sym.Devices, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
                         Column(Modifier.padding(start = 24.dp).weight(1f)) {
                             Text(if (i == 0) "This device" else "Device ${i + 1}", style = MaterialTheme.typography.bodyLarge)
                             Text("Signed in " + ago(s.str("created_at")).let { if (it == "now") "just now" else "$it ago" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -543,7 +526,7 @@ class SettingsSecurity : PageScreen() {
                 }
                 if (sessions.size > 1) {
                     RowDivider(0.dp)
-                    SettingRow(Icons.Filled.Devices, "Sign out all devices", "Including this phone", danger = true) { logoutAll = true }
+                    SettingRow(Sym.Devices, "Sign out all devices", "Including this phone", danger = true) { logoutAll = true }
                 }
             }
             // 2.1 ST: the site's GET /api/profile already returns login_logs (ip, action, created_at); shown here like Telegram's "Active sessions" history.
@@ -553,7 +536,7 @@ class SettingsSecurity : PageScreen() {
                     if (i > 0) RowDivider(64.dp)
                     val fail = l.str("action").contains("fail", true)
                     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(if (fail) Icons.Filled.Security else Icons.Filled.Devices, null, tint = if (fail) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
+                        Icon(if (fail) Sym.Security else Sym.Devices, null, tint = if (fail) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
                         Column(Modifier.padding(start = 24.dp).weight(1f)) {
                             Text(if (fail) "Failed sign-in attempt" else "Signed in", style = MaterialTheme.typography.bodyLarge, color = if (fail) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
                             Text(listOf(l.str("ip"), ago(l.str("created_at")).let { if (it.isBlank()) "" else if (it == "now") "just now" else "$it ago" }).filter { it.isNotBlank() }.joinToString(" · "),

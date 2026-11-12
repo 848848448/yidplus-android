@@ -11,7 +11,7 @@ stfind() {
   local i b
   for i in 1 2 3 4 5 6 7 8 9 10; do
     timeout 30 adb shell uiautomator dump /sdcard/st.xml >/dev/null 2>&1
-    b=$(timeout 20 adb shell cat /sdcard/st.xml 2>/dev/null | tr '>' '\n' | grep -E "(text|content-desc)=\"$1[\",]" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
+    b=$(timeout 20 adb shell cat /sdcard/st.xml 2>/dev/null | tr '>' '\n' | grep -E "(text|content-desc)=\"([^\"]* )?$1[\",]" | head -1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ')
     if [ -n "$b" ]; then set -- $b; timeout 10 adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 1.5; log "stfind tapped after $((i-1)) swipes"; return 0; fi
     stswipe
   done
@@ -37,31 +37,22 @@ tab Profile; sleep 4; sttop; shot ST-20-settings-compact; stdump settings-compac
 stswipe; shot ST-21-settings-2; stswipe; shot ST-22-settings-3; stswipe; shot ST-23-settings-4; stswipe; shot ST-24-settings-5; stswipe; shot ST-25-settings-6
 # Download my data: 6 sections of /api/my-export, saved to Downloads
 stfind "Download my data"; sleep 6; shot ST-26-export-toast; stproof export "EXPORT sections"
-stproof export-req "my-export"
 # Text size toast
 sttop; stfind "Text size"; sleep 1
-# Other person's profile
-stq UserProfile 6; shot ST-30-user-profile; stdump user-profile
-stswipe; shot ST-31-user-profile-2; stswipe; shot ST-32-user-profile-3
-sttop; stfind "Follow"; sleep 2; shot ST-33-followed; stproof follow "POST /api/follows"
-stfind "More"; sleep 1; shot ST-34-profile-menu; key 4; sleep 1
-stfind "More"; sleep 1; stfind "Report @DealPoint"; sleep 1; shot ST-35-report; key 4; sleep 1
-stfind "Followers"; sleep 3; shot ST-36-followers-list; stdump followers; key 4; sleep 1
-key 4; sleep 1
-stq PrivateProfile 5; shot ST-37-private-profile; key 4; sleep 1
+# Other people's profiles are HM's page (HmProfilePage); ST keeps only its own lists.
 stq MyProfile 6; shot ST-38-my-profile; stswipe; shot ST-39-my-profile-2; key 4; sleep 1
-stq Followers 5; shot ST-40-my-followers; stdump my-followers; key 4; sleep 1
+stq Followers 5; shot ST-40-my-followers; stdump my-followers; stfind "Remove"; sleep 1; shot ST-41-remove-follower-confirm; stfind "Remove"; sleep 2; stproof remove-follower "DELETE /api/follows?remove=1"; key 4; sleep 1
 # Help & Support (guided bot, self-block, live chat with the team)
-stq Support 5; shot ST-41-support-start; stdump support
-stfind "💬 A problem with Chat"; sleep 1; shot ST-42-support-chat
+stq Support 5; shot ST-42-support-start; stdump support
+stfind "A problem with Chat"; sleep 1; shot ST-42b-support-chat
 stfind "Block myself from Chat"; sleep 1; shot ST-43-support-selfblock-confirm
-stfind "🚫 Yes, block me"; sleep 2; shot ST-44-support-selfblocked; stproof selfblock "POST /api/self-block"
+stfind "Yes, block me"; sleep 2; shot ST-44-support-selfblocked; stproof selfblock "POST /api/self-block"
 key 4; sleep 1
-stq Support 5; stfind "💬 Continue your conversation"; sleep 3; shot ST-45-support-live; stdump support-live
+stq Support 5; stfind "Continue your conversation"; sleep 3; shot ST-45-support-live; stdump support-live
 timeout 10 adb shell input text "Thanks%sit%sworks%snow" >/dev/null 2>&1; sleep 1; shot ST-46-support-typed
 stfind "Send"; sleep 2; shot ST-47-support-sent; stproof support-send "POST /api/support-chats"
 key 4; sleep 1; key 4; sleep 1
-stq Support 5; stfind "🔑 I can't sign in"; sleep 1; stfind "I forgot my password"; sleep 1; shot ST-48-support-reset
+stq Support 5; stfind "I can't sign in"; sleep 1; stfind "I forgot my password"; sleep 1; shot ST-48-support-reset
 key 4; sleep 1
 # Sign-up / forgot / reset (native, were web pages)
 stq Register 5; shot ST-50-register; stdump register; stswipe; shot ST-51-register-2; key 4; sleep 1
@@ -77,4 +68,5 @@ stfind "Lock with a PIN"; sleep 1; stproof lock-off "LOCK off"; key 4; sleep 1
 stq Security 5; stswipe; stswipe; shot ST-60-recent-signins; stdump security; key 4; sleep 1
 # Saved: songs now open the music player
 sto saved 5; stfind "מזמור לדוד"; sleep 3; shot ST-61-saved-song; stproof saved-song "PLAY music"; key 4; sleep 1
+log "ST unfixtured GETs: $(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -o 'GET-unfixtured [^ ]*' | sort | uniq -c | sort -rn | head -40 | tr '\n' ';')"
 check "ST after set"

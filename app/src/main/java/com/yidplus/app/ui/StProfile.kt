@@ -26,22 +26,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Block
-import androidx.compose.material.icons.rounded.ContentCopy
-import androidx.compose.material.icons.rounded.Flag
-import androidx.compose.material.icons.rounded.Group
-import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.LockOpen
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.MusicNote
-import androidx.compose.material.icons.rounded.PersonOff
-import androidx.compose.material.icons.rounded.Place
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Verified
-import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -94,10 +78,12 @@ import java.net.URLEncoder
    POST /api/follows {user_id}; DELETE /api/follows?user_id; POST /api/chat/rooms {type:'private',other_user_id};
    POST /api/blocks {blocked_id}; DELETE /api/blocks?id; POST /api/reports {reported_id,reported_nick,reason}. */
 
-/** Open anyone's profile from anywhere (chat header, comments, members, followers…). */
-fun openUserProfile(userId: String, nick: String = "", photo: String? = null) {
-    if (userId.isBlank()) return
-    Nav.open(StProfilePage(userId, nick, photo))
+/** Open another person's profile from ST screens (followers/following rows, blocked list).
+ *  Coordinator decision 04:47Z: HM's HmProfilePage is THE public profile page. At merge this body becomes
+ *  `Nav.open(HmProfilePage(id))` and StProfilePage can be deleted (see yidplus-21-st-patches.md). Until then it opens ST's page. */
+fun stOpenUser(id: String, nick: String = "", photo: String? = null) {
+    if (id.isBlank()) return
+    Nav.open(StProfilePage(id, nick, photo))
 }
 
 private fun stEnc(s: String): String = URLEncoder.encode(s, "UTF-8")
@@ -147,18 +133,18 @@ data class StProfilePage(val userId: String, val nickHint: String = "", val phot
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             TopBar("@$nick", onBack = { Nav.back() }) {
                 Box {
-                IconBtn(Icons.Rounded.MoreVert, "More", { menu = true })
+                IconBtn(Sym.MoreVert, "More", { menu = true })
                 DropdownMenu(menu, { menu = false }) {
-                    DropdownMenuItem({ Text("Share profile") }, { menu = false; share(c, "@$nick on YID PLUS $link") }, leadingIcon = { Icon(Icons.Rounded.Share, null) })
+                    DropdownMenuItem({ Text("Share profile") }, { menu = false; share(c, "@$nick on YID PLUS $link") }, leadingIcon = { Icon(Sym.Share, null) })
                     DropdownMenuItem({ Text("Copy link") }, {
                         menu = false
                         (c.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(ClipData.newPlainText("link", link)); toast(c, "Link copied")
-                    }, leadingIcon = { Icon(Icons.Rounded.ContentCopy, null) })
+                    }, leadingIcon = { Icon(Sym.ContentCopy, null) })
                     if (!isMe && Session.me != null) {
                         DropdownMenuItem({ Text(if (iBlocked) "Unblock @$nick" else "Block @$nick") }, { menu = false; confirmBlock = true },
-                            leadingIcon = { Icon(if (iBlocked) Icons.Rounded.LockOpen else Icons.Rounded.Block, null) })
+                            leadingIcon = { Icon(if (iBlocked) Sym.LockOpen else Sym.Block, null) })
                         DropdownMenuItem({ Text("Report @$nick", color = MaterialTheme.colorScheme.error) }, { menu = false; reporting = true },
-                            leadingIcon = { Icon(Icons.Rounded.Flag, null, tint = MaterialTheme.colorScheme.error) })
+                            leadingIcon = { Icon(Sym.Flag, null, tint = MaterialTheme.colorScheme.error) })
                     }
                 }
                 }
@@ -166,8 +152,8 @@ data class StProfilePage(val userId: String, val nickHint: String = "", val phot
             when {
                 data == null && err != null -> {
                     val e = err!!
-                    if (e.contains("private", true)) EmptyNote(Icons.Rounded.Lock, "This profile is private", "Only people @$nick allows can see it.")
-                    else if (e.contains("not found", true)) EmptyNote(Icons.Rounded.PersonOff, "User not found", "This account may have been deleted.")
+                    if (e.contains("private", true)) EmptyNote(Sym.Lock, "This profile is private", "Only people @$nick allows can see it.")
+                    else if (e.contains("not found", true)) EmptyNote(Sym.PersonOff, "User not found", "This account may have been deleted.")
                     else Problem(e, offline, { scope.launch { load() } })
                 }
                 data == null -> Column(Modifier.fillMaxSize()) {
@@ -273,7 +259,7 @@ private fun StProfileHeader(d: StProf, nick: String, isMe: Boolean, iBlocked: Bo
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(nick, style = MaterialTheme.typography.titleLarge.copy(textDirection = TextDirection.Content), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false))
-                if (p.optInt("verified") == 1 || p.optBoolean("verified")) Icon(Icons.Rounded.Verified, "Verified", Modifier.padding(start = 4.dp).size(20.dp), tint = Color(0xFF1D9BF0))
+                if (p.optInt("verified") == 1 || p.optBoolean("verified")) Icon(Sym.Verified, "Verified", Modifier.padding(start = 4.dp).size(20.dp), tint = Color(0xFF1D9BF0))
             }
             val role = p.str("role")
             if (role.isNotBlank() && role != "member" && role != "user") Text(role.replace('_', ' ').uppercase(), color = accent, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
@@ -283,11 +269,11 @@ private fun StProfileHeader(d: StProf, nick: String, isMe: Boolean, iBlocked: Bo
             val loc = p.str("location"); val web = p.str("website")
             if (loc.isNotBlank() || web.isNotBlank()) Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (loc.isNotBlank()) Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Rounded.Place, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Sym.LocationOn, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(loc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
                 if (web.isNotBlank()) Row(Modifier.tap { openUrl(c, if (web.startsWith("http")) web else "https://$web") }.padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Rounded.Language, null, Modifier.size(16.dp), tint = accent)
+                    Icon(Sym.Language, null, Modifier.size(16.dp), tint = accent)
                     Text("Website", style = MaterialTheme.typography.bodySmall, color = accent)
                 }
             }
@@ -337,7 +323,7 @@ private fun StProfileVideos(userId: String, nick: String) {
     val l = list
     when {
         l == null -> SkeletonRows(Modifier.fillMaxWidth(), rows = 2, avatar = false)
-        l.isEmpty() -> EmptyNote(Icons.Rounded.VideoLibrary, if (failed) "Could not load videos" else "No videos yet", modifier = Modifier.fillMaxWidth())
+        l.isEmpty() -> EmptyNote(Sym.VideoLibrary, if (failed) "Could not load videos" else "No videos yet", modifier = Modifier.fillMaxWidth())
         else -> Column(Modifier.padding(2.dp)) {
             l.chunked(3).forEach { row ->
                 Row(Modifier.fillMaxWidth()) {
@@ -363,7 +349,7 @@ private fun StVideoTile(s: JSONObject, nick: String, modifier: Modifier) {
         }) {
         frame?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
         Row(Modifier.align(Alignment.BottomStart).padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Rounded.PlayArrow, null, Modifier.size(14.dp), tint = Color.White)
+            Icon(Sym.PlayArrow, null, Modifier.size(14.dp), tint = Color.White)
             Text(stCount(s.optInt("views")), color = Color.White, style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold))
         }
     }
@@ -381,20 +367,20 @@ private fun StProfileMusic(userId: String) {
     val l = list
     when {
         l == null -> SkeletonRows(Modifier.fillMaxWidth(), rows = 3)
-        l.isEmpty() -> EmptyNote(Icons.Rounded.MusicNote, if (failed) "Could not load music" else "No music yet", modifier = Modifier.fillMaxWidth())
+        l.isEmpty() -> EmptyNote(Sym.MusicNote, if (failed) "Could not load music" else "No music yet", modifier = Modifier.fillMaxWidth())
         else -> Column(Modifier.background(MaterialTheme.colorScheme.surface)) {
             l.forEachIndexed { i, t ->
                 Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).tap(RoundedCornerShape(0.dp)) { Music.play(c, l, i); WatchHistory.record("music", t.id) }
                     .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.MusicNote, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Sym.MusicNote, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (t.cover != null) AsyncImage(t.cover, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                     }
                     Column(Modifier.padding(start = 14.dp).weight(1f)) {
                         Text(t.title, style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(stCount(t.plays) + " plays", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Icon(Icons.Rounded.PlayArrow, "Play", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Sym.PlayArrow, "Play", tint = MaterialTheme.colorScheme.primary)
                 }
                 RowDivider(78.dp)
             }
@@ -442,17 +428,17 @@ data class StFollowListPage(val userId: String, val nick: String, val followers:
             when {
                 l == null && err != null -> Problem(err!!, false, { scope.launch { load() } })
                 l == null -> SkeletonRows()
-                l.isEmpty() -> EmptyNote(Icons.Rounded.Group, "Nobody here yet")
+                l.isEmpty() -> EmptyNote(Sym.Group, "Nobody here yet")
                 else -> LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
                     items(l, key = { it.str("id") }) { u ->
                         val un = u.str("nickname").ifBlank { "User" }
                         Row(Modifier.fillMaxWidth().heightIn(min = 68.dp).then(if (u == l.first()) Modifier.firstFocus() else Modifier)
-                            .tap(RoundedCornerShape(0.dp)) { openUserProfile(u.str("id"), un, Api.abs(u.strOrNull("photo_url"))) }
+                            .tap(RoundedCornerShape(0.dp)) { stOpenUser(u.str("id"), un, Api.abs(u.strOrNull("photo_url"))) }
                             .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                             Avatar(Api.abs(u.strOrNull("photo_url")), un, 48.dp)
                             Row(Modifier.padding(start = 14.dp).weight(1f), verticalAlignment = Alignment.CenterVertically) {
                                 Text("@$un", style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                                if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Icons.Rounded.Verified, "Verified", Modifier.padding(start = 4.dp).size(16.dp), tint = Color(0xFF1D9BF0))
+                                if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Sym.Verified, "Verified", Modifier.padding(start = 4.dp).size(16.dp), tint = Color(0xFF1D9BF0))
                             }
                             if (mine) {
                                 TextButton({ ask = u to false }) { Text("Remove") }

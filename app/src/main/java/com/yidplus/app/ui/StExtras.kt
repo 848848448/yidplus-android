@@ -6,6 +6,9 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Backspace
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.LockOpen
-import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -114,6 +112,13 @@ object StLock {
 @Composable
 fun StLockGate(content: @Composable () -> Unit) {
     StLock.init(ctx())
+    // Lock again whenever the app goes to the background (like WhatsApp's "lock immediately").
+    val owner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(owner) {
+        val o = androidx.lifecycle.LifecycleEventObserver { _, e -> if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP && StLock.enabled) StLock.locked = true }
+        owner.lifecycle.addObserver(o)
+        onDispose { owner.lifecycle.removeObserver(o) }
+    }
     if (StLock.locked) StPinPad("Enter your PIN", "YID PLUS is locked", onDone = { pin -> if (StLock.check(pin)) { StLock.locked = false; null } else "Wrong PIN" }) else content()
 }
 
@@ -127,28 +132,31 @@ fun StPinPad(title: String, sub: String?, onDone: (String) -> String?) {
         pin += d; err = null
         if (pin.length == 4) { err = onDone(pin); pin = "" }
     }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).firstFocus(always = true)
+    val small = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 520
+    val kw = if (small) 60.dp else 64.dp
+    val kh = if (small) 40.dp else 52.dp
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
         .onPreviewKeyEvent { e ->
             if (e.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
             val n = when (e.key) { Key.Zero, Key.NumPad0 -> "0"; Key.One, Key.NumPad1 -> "1"; Key.Two, Key.NumPad2 -> "2"; Key.Three, Key.NumPad3 -> "3"; Key.Four, Key.NumPad4 -> "4"
                 Key.Five, Key.NumPad5 -> "5"; Key.Six, Key.NumPad6 -> "6"; Key.Seven, Key.NumPad7 -> "7"; Key.Eight, Key.NumPad8 -> "8"; Key.Nine, Key.NumPad9 -> "9"; else -> null }
             if (n != null) { add(n); true } else if (e.key == Key.Backspace || e.key == Key.Delete) { pin = pin.dropLast(1); true } else false
-        }.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Icon(Icons.Rounded.Lock, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
-        Text(title, Modifier.padding(top = 8.dp), style = MaterialTheme.typography.titleLarge)
-        if (sub != null) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Row(Modifier.padding(vertical = 14.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            repeat(4) { i -> Box(Modifier.size(16.dp).clip(CircleShape).background(if (i < pin.length) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)) }
+        }.firstFocus(always = true).focusable().padding(horizontal = 16.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        if (!small) Icon(Sym.Lock, null, Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+        Text(title, Modifier.padding(top = 4.dp), style = if (small) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge)
+        if (sub != null) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(Modifier.padding(vertical = if (small) 8.dp else 14.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            repeat(4) { i -> Box(Modifier.size(14.dp).clip(CircleShape).background(if (i < pin.length) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)) }
         }
-        Text(err ?: " ", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(6.dp))
+        Text(err ?: " ", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         listOf(listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"), listOf("", "0", "<")).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(vertical = 3.dp)) {
                 row.forEach { k ->
-                    if (k.isEmpty()) Spacer(Modifier.size(64.dp, 52.dp))
-                    else Box(Modifier.size(64.dp, 52.dp).clip(RoundedCornerShape(26.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
-                        .tap(RoundedCornerShape(26.dp)) { if (k == "<") pin = pin.dropLast(1) else add(k) }, contentAlignment = Alignment.Center) {
-                        if (k == "<") Icon(Icons.Rounded.Backspace, "Delete") else Text(k, fontSize = 24.sp, fontWeight = FontWeight.Medium)
+                    if (k.isEmpty()) Spacer(Modifier.size(kw, kh))
+                    else Box(Modifier.size(kw, kh).clip(RoundedCornerShape(22.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
+                        .semantics { contentDescription = if (k == "<") "Delete" else "Key $k" }
+                        .tap(RoundedCornerShape(22.dp)) { if (k == "<") pin = pin.dropLast(1) else add(k) }, contentAlignment = Alignment.Center) {
+                        if (k == "<") Icon(Sym.KeyboardBackspace, "Delete") else Text(k, fontSize = 22.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -170,13 +178,13 @@ class StAppLockPage : PageScreen() {
             3 -> StPinPad("Enter your PIN", "YID PLUS is locked", onDone = { if (StLock.check(it)) { step = 0; null } else "Wrong PIN" })
             else -> SettingsPage("App lock") {
                 SettingsCard {
-                    SettingRow(if (StLock.enabled) Icons.Rounded.Lock else Icons.Rounded.LockOpen, "Lock with a PIN", if (StLock.enabled) "On · asks your PIN when the app opens" else "Off", switch = StLock.enabled,
+                    SettingRow(if (StLock.enabled) Sym.Lock else Sym.LockOpen, "Lock with a PIN", if (StLock.enabled) "On · asks your PIN when the app opens" else "Off", switch = StLock.enabled,
                         modifier = Modifier.firstFocus()) { if (StLock.enabled) { StLock.off(); toast(c, "App lock is off"); android.util.Log.i("YidFx", "LOCK off") } else step = 1 }
                     if (StLock.enabled) {
                         RowDivider(64.dp)
-                        SettingRow(Icons.Rounded.Pin, "Change PIN", null) { step = 1 }
+                        SettingRow(Sym.Pin, "Change PIN", null) { step = 1 }
                         RowDivider(64.dp)
-                        SettingRow(Icons.Rounded.Lock, "Lock now", "See the lock screen") { step = 3 }
+                        SettingRow(Sym.Lock, "Lock now", "See the lock screen") { step = 3 }
                     }
                 }
                 Text("The PIN is kept on this phone only. If you forget it, clear the app's data in Android settings and sign in again.",

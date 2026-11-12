@@ -27,14 +27,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.Forum
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -147,15 +139,15 @@ private fun NwListScreen(saved: Boolean) {
     val shown = if (cleared) emptyList() else list.orEmpty().filter { it.key !in hidden }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(if (saved) "Saved items" else "History", onBack = { Nav.back() }, sub = if (shown.isNotEmpty()) ("${shown.size} " + (if (shown.size == 1) "item" else "items")) else null) {
-            if (!saved && shown.isNotEmpty()) IconBtn(Icons.Filled.DeleteSweep, "Clear all", { confirm = true })
+            if (!saved && shown.isNotEmpty()) IconBtn(Sym.DeleteSweep, "Clear all", { confirm = true })
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
-                Session.me == null -> EmptyNote(Icons.Filled.Forum, "Sign in first", if (saved) "Sign in to see what you saved." else "Sign in to see your history.")
+                Session.me == null -> EmptyNote(Sym.Forum, "Sign in first", if (saved) "Sign in to see what you saved." else "Sign in to see your history.")
                 list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
                 list == null -> SkeletonRows(rows = 6)
-                shown.isEmpty() -> if (saved) EmptyNote(Icons.Filled.BookmarkBorder, "Nothing saved yet", "Tap Save on any Short or song to keep it here.")
-                    else EmptyNote(Icons.Filled.History, "Nothing here yet", "Videos you watch and songs you play show up here.")
+                shown.isEmpty() -> if (saved) EmptyNote(Sym.BookmarkBorder, "Nothing saved yet", "Tap Save on any Short or song to keep it here.")
+                    else EmptyNote(Sym.History, "Nothing here yet", "Videos you watch and songs you play show up here.")
                 else -> LazyColumn(Modifier.fillMaxSize(), state = lst, contentPadding = PaddingValues(bottom = 88.dp)) {
                     items(shown, key = { it.key }) { x ->
                         NwItemRow(x, saved, if (x === shown.first()) Modifier.firstFocus() else Modifier, onUnsave = {
@@ -213,10 +205,10 @@ private fun NwItemRow(it: NwItem, saved: Boolean, modifier: Modifier, onUnsave: 
             if (short) Box(Modifier.width(50.dp).height(68.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFF1E2421)), contentAlignment = Alignment.Center) {
                 NwVideoThumb(it.media)
                 Box(Modifier.size(24.dp).clip(CircleShape).background(Color(0x8C000000)), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.PlayArrow, null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Icon(Sym.PlayArrow, null, tint = Color.White, modifier = Modifier.size(18.dp))
                 }
             } else Box(Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.MusicNote, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(26.dp))
+                Icon(Sym.MusicNote, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(26.dp))
                 if (it.cover != null) AsyncImage(it.cover, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             }
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
@@ -233,7 +225,7 @@ private fun NwItemRow(it: NwItem, saved: Boolean, modifier: Modifier, onUnsave: 
                 Text(bits.joinToString(" · "), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
             }
-            if (saved) IconBtn(Icons.Filled.Bookmark, "Remove from saved", onUnsave, tint = BadgeGreen)
+            if (saved) IconBtn(Sym.Bookmark, "Remove from saved", onUnsave, tint = BadgeGreen)
         }
         HorizontalDivider(Modifier.padding(start = 80.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
     }

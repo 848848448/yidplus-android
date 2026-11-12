@@ -409,5 +409,227 @@
  "/api/auth/check-nick?nick=moshe_123": {
   "ok": true,
   "available": true
+ },
+ "/api/my-export?section=account": {
+  "ok": true,
+  "section": "account",
+  "rows": [
+   {
+    "id": "demo-me",
+    "email": "owner@example.com",
+    "nickname": "משה'לע",
+    "bio": "YID PLUS 👑 owner",
+    "location": "Brooklyn, NY",
+    "birthday": "",
+    "website": "https://yidplus.com",
+    "phone": "",
+    "created_at": "2025-03-01T10:00:00.000Z"
+   }
+  ],
+  "next": null,
+  "notice": "Own account and content only. Media files are referenced, not embedded. Other people's private messages and account secrets are excluded."
+ },
+ "/api/my-export?section=posts": {
+  "ok": true,
+  "section": "posts",
+  "rows": [
+   {
+    "id": "p1",
+    "text": "גוט שבת!",
+    "created_at": "2026-11-07T18:00:00.000Z"
+   }
+  ],
+  "next": null
+ },
+ "/api/my-export?section=shorts": {
+  "ok": true,
+  "section": "shorts",
+  "rows": [
+   {
+    "id": "sh1",
+    "caption": "",
+    "media_key": "shorts/demo-me/1.mp4",
+    "created_at": "2026-11-01T12:00:00.000Z"
+   }
+  ],
+  "next": null
+ },
+ "/api/my-export?section=statuses": {
+  "ok": true,
+  "section": "statuses",
+  "rows": [],
+  "next": null
+ },
+ "/api/my-export?section=music": {
+  "ok": true,
+  "section": "music",
+  "rows": [
+   {
+    "id": "mu1",
+    "title": "מזמור לדוד",
+    "created_at": "2026-10-20T12:00:00.000Z"
+   }
+  ],
+  "next": null
+ },
+ "/api/my-export?section=sent_messages": {
+  "ok": true,
+  "section": "sent_messages",
+  "rows": [
+   {
+    "id": "m1",
+    "room_id": "r1",
+    "text": "שלום",
+    "created_at": "2026-11-11T09:00:00.000Z"
+   }
+  ],
+  "next": null
+ },
+ "/api/my-export": {
+  "ok": true,
+  "rows": [],
+  "next": null
+ },
+ "/api/music": {
+  "ok": true,
+  "tracks": []
+ },
+ "/api/music?owner_id=demo-me": {
+  "ok": true,
+  "tracks": [
+   {
+    "id": "mt-me-1",
+    "title": "מזמור לדוד",
+    "artist": "משה'לע",
+    "owner_nick": "משה'לע",
+    "audio_url": "/api/media/music%2Ffx-me-1.mp3",
+    "cover_url": null,
+    "plays": 12,
+    "liked": false
+   }
+  ]
+ },
+ "/api/statuses?user_id=demo-me": {
+  "ok": true,
+  "statuses": [
+   {
+    "user_id": "demo-me",
+    "nickname": "משה'לע",
+    "photo_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+    "slides": [
+     {
+      "id": "st-me-1",
+      "type": "text",
+      "text": "גוט שבת אלע! 🕯️",
+      "bg": "linear-gradient(135deg,#1b4332,#40916c)",
+      "created_at": "2026-11-11T18:10:00.000Z",
+      "views": 14
+     },
+     {
+      "id": "st-me-2",
+      "type": "image",
+      "media_url": "/api/media/avatars%2F32a9be01-7448-43c7-b23d-cc89c97ce89f.png?v=1783239342549",
+      "text": "YID PLUS 2.0.2 🎉",
+      "created_at": "2026-11-11T19:40:00.000Z",
+      "views": 6
+     }
+    ]
+   },
+   {
+    "user_id": "u-yanky",
+    "nickname": "Yanky",
+    "photo_url": null,
+    "slides": [
+     {
+      "id": "st-y-1",
+      "type": "text",
+      "text": "Who's coming to the shiur tonight? 📖",
+      "bg": "linear-gradient(135deg,#0f3460,#533483)",
+      "created_at": "2026-11-11T17:05:00.000Z",
+      "views": 0
+     },
+     {
+      "id": "st-y-2",
+      "type": "text",
+      "text": "8:30 at the shul, bring a friend!",
+      "bg": "linear-gradient(135deg,#e85d04,#faa307)",
+      "created_at": "2026-11-11T17:06:00.000Z",
+      "views": 0
+     }
+    ]
+   },
+   {
+    "user_id": "u-deal",
+    "nickname": "DealPoint",
+    "photo_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "slides": [
+     {
+      "id": "st-d-1",
+      "type": "video",
+      "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+      "text": "New deals this week",
+      "created_at": "2026-11-11T12:00:00.000Z",
+      "views": 0
+     }
+    ]
+   },
+   {
+    "user_id": "u-chaim",
+    "nickname": "חיים שמואל",
+    "photo_url": null,
+    "slides": [
+     {
+      "id": "st-c-1",
+      "type": "text",
+      "text": "מזל טוב! א גרויסע שמחה ביי אונז 🎉",
+      "bg": "linear-gradient(135deg,#b5179e,#f72585)",
+      "created_at": "2026-11-11T09:30:00.000Z",
+      "views": 0
+     }
+    ]
+   }
+  ]
+ },
+ "/api/auth/check-nick": {
+  "ok": true,
+  "available": true
+ },
+ "/api/support-chats": {
+  "ok": true,
+  "chat": null,
+  "messages": []
+ },
+ "/api/self-block": {
+  "ok": true
+ },
+ "/api/saves": {
+  "ok": true,
+  "items": [
+   {
+    "item_type": "short",
+    "id": "77e14f2a-e196-4ff3-915d-21ffa29f468c",
+    "nick": "Shimel’a",
+    "caption": "אביסל חינוך פאראן דאגי אויך 🐕🤭",
+    "media_url": "/api/media/shorts%2Ff18ccd10-7058-4c5e-8f90-1e86699f30f4%2F1784848637408.mp4",
+    "saved_at": "2026-11-11T16:00:00.000Z"
+   },
+   {
+    "item_type": "short",
+    "id": "73925fde-69b8-44e5-8ebe-daeb8abefc7b",
+    "nick": "DealPoint",
+    "caption": "",
+    "media_url": "/api/media/shorts%2F5df73439-246d-43d2-9b1e-fd72b30432e1%2F1787477485784_b54fcb03-99e1-4453-9cad-ad7d5345bfd7.mp4",
+    "saved_at": "2026-11-10T11:00:00.000Z"
+   },
+   {
+    "item_type": "song",
+    "id": "song-1",
+    "title": "מזמור לדוד",
+    "artist": "Yid Plus Music",
+    "cover_url": "/api/media/avatars%2F5df73439-246d-43d2-9b1e-fd72b30432e1.png?v=1785535039162",
+    "saved_at": "2026-11-08T11:00:00.000Z",
+    "audio_url": "/api/media/music%2Ffx-song-1.mp3"
+   }
+  ]
  }
 }

@@ -24,10 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AttachFile
-import androidx.compose.material.icons.rounded.Send
-import androidx.compose.material.icons.rounded.SupportAgent
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -199,7 +195,12 @@ class StSupportPage(val from: String = "settings") : PageScreen() {
             }
         }
         LaunchedEffect(liveId) { val id = liveId ?: return@LaunchedEffect; while (true) { delay(5000); loadLive(id) } }
-        LaunchedEffect(lines.size, options.size) { val n = lines.size + (if (options.isEmpty()) 0 else 1); if (n > 0) list.animateScrollToItem(n - 1) }
+        // Keep the newest bot line at the top of the view so the question and its answers show together (480x640 has little room).
+        LaunchedEffect(lines.size, options.size) {
+            if (lines.isEmpty()) return@LaunchedEffect
+            val lastBot = lines.indexOfLast { !it.mine }.coerceAtLeast(0)
+            if (options.isNotEmpty() && composer == null) list.animateScrollToItem((lastBot - 1).coerceAtLeast(0)) else list.animateScrollToItem(lines.size - 1 + (if (options.isEmpty()) 0 else 1))
+        }
         fun submit(file: Uri? = null) {
             val v = text.trim()
             val mode = composer ?: return
@@ -227,15 +228,15 @@ class StSupportPage(val from: String = "settings") : PageScreen() {
         val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { u -> if (u != null) submit(u) }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
             TopBar("Help & Support", onBack = { Nav.back() }, sub = if (liveId != null) liveStatus.ifBlank { "Live chat with the team" } else "We're here for you",
-                lead = { Box(Modifier.size(38.dp).clip(CircleShape).background(Color.White.copy(alpha = .2f)), contentAlignment = Alignment.Center) { Icon(Icons.Rounded.SupportAgent, null, tint = Color.White) } })
+                lead = { Box(Modifier.size(38.dp).clip(CircleShape).background(Color.White.copy(alpha = .2f)), contentAlignment = Alignment.Center) { Icon(Sym.SupportAgent, null, tint = Color.White) } })
             LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = list, contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(lines.size) { i -> StBubble(lines[i]) }
                 if (options.isNotEmpty()) item {
-                    Column(Modifier.fillMaxWidth().padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Column(Modifier.fillMaxWidth().padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         options.forEachIndexed { k, o ->
-                            Text(o.label, Modifier.fillMaxWidth().heightIn(min = 44.dp).then(if (k == 0) Modifier.firstFocus(always = true) else Modifier).clip(RoundedCornerShape(22.dp))
+                            Text(o.label, Modifier.fillMaxWidth().heightIn(min = 40.dp).then(if (k == 0) Modifier.firstFocus(always = true) else Modifier).clip(RoundedCornerShape(22.dp))
                                 .border(1.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(22.dp)).tap(RoundedCornerShape(22.dp)) { pick(o) }
-                                .padding(horizontal = 16.dp, vertical = 11.dp), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold,
+                                .padding(horizontal = 14.dp, vertical = 8.dp), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.bodyMedium)
                         }
                     }
@@ -243,13 +244,13 @@ class StSupportPage(val from: String = "settings") : PageScreen() {
             }
             if (composer != null) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
                 Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (composer == "__live__") IconBtn(Icons.Rounded.AttachFile, "Attach a photo", { pickPhoto.launch("image/*") })
-                    OutlinedTextField(text, { text = it }, Modifier.weight(1f).firstFocus(always = true), placeholder = { Text(if (composer == "__email__") "Your email..." else "Type your message...") },
+                    if (composer == "__live__") IconBtn(Sym.AttachFile, "Attach a photo", { pickPhoto.launch("image/*") })
+                    OutlinedTextField(text, { text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text(if (composer == "__email__") "Your email..." else "Type your message...") },
                         maxLines = 4, shape = RoundedCornerShape(24.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = if (composer == "__email__") KeyboardType.Email else KeyboardType.Text, imeAction = ImeAction.Send),
                         keyboardActions = KeyboardActions(onSend = { submit() }))
                     Box(Modifier.padding(start = 6.dp).size(46.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).tap(CircleShape, enabled = !sending) { submit() },
-                        contentAlignment = Alignment.Center) { Icon(Icons.Rounded.Send, "Send", tint = Color.White) }
+                        contentAlignment = Alignment.Center) { Icon(Sym.Send, "Send", tint = Color.White) }
                 }
             }
         }
