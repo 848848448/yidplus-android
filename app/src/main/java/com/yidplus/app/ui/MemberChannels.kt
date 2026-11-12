@@ -86,7 +86,7 @@ fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
                 Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Text(ch.name, Modifier.weight(1f, fill = false), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
                         color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    if (ch.verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(17.dp))
+                    if (ch.verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(17.dp))
                 }
                 if (ch.lastPostAt != null) Text(ago(ch.lastPostAt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
             }
@@ -116,7 +116,7 @@ fun SoSiteChannelsList(query: String, sort: Int) {
     when {
         all == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
         all == null -> SoSkeleton()
-        shown.isEmpty() -> SoEmpty(Icons.Filled.Search, if (q.isNotEmpty()) "No channels for \u201c$q\u201d" else "No channels yet")
+        shown.isEmpty() -> SoEmpty(Sym.Search, if (q.isNotEmpty()) "No channels for \u201c$q\u201d" else "No channels yet")
         else -> LazyColumn(Modifier.fillMaxSize()) {
             items(shown, key = { it.ownerId }) { ch ->
                 SoSiteChannelRow(ch, ch == shown.first())
@@ -221,15 +221,15 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
         }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             TopBar(title, onBack = { Nav.back() }) {
-                IconBtn(Icons.Filled.Share, "Share", { share(c, "@$title on YID PLUS\n" + Api.BASE + "/?channel=" + soEnc(ownerId)) }, tint = LocalContentColor.current)
+                IconBtn(Sym.Share, "Share", { share(c, "@$title on YID PLUS\n" + Api.BASE + "/?channel=" + soEnc(ownerId)) }, tint = LocalContentColor.current)
                 Box {
-                    IconBtn(Icons.Filled.MoreVert, "Channel options", { menu = true }, tint = LocalContentColor.current)
+                    IconBtn(Sym.MoreVert, "Channel options", { menu = true }, tint = LocalContentColor.current)
                     DropdownMenu(menu, { menu = false }) {
-                        DropdownMenuItem(text = { Text("Share channel") }, leadingIcon = { Icon(Icons.Filled.Share, null) }, onClick = { menu = false; share(c, "@$title on YID PLUS\n" + Api.BASE + "/?channel=" + soEnc(ownerId)) })
-                        DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Icons.Filled.Link, null) }, onClick = { menu = false; soCopy(c, Api.BASE + "/?channel=" + soEnc(ownerId)) })
-                        DropdownMenuItem(text = { Text("View profile") }, leadingIcon = { Icon(Icons.Filled.Person, null) }, onClick = { menu = false; Nav.open(HmProfilePage(ownerId, title)) })
-                        if (!mine) DropdownMenuItem(text = { Text("Message @$title") }, leadingIcon = { Icon(Icons.Filled.ChatBubbleOutline, null) }, onClick = { menu = false; hmOpenDm(c, scope, ownerId, title, Api.abs(ch?.strOrNull("photo_url"))) })
-                        if (!mine && Session.me != null) DropdownMenuItem(text = { Text("Report", color = MaterialTheme.colorScheme.error) }, leadingIcon = { Icon(Icons.Filled.Flag, null, tint = MaterialTheme.colorScheme.error) }, onClick = { menu = false; report = true })
+                        DropdownMenuItem(text = { Text("Share channel") }, leadingIcon = { Icon(Sym.Share, null) }, onClick = { menu = false; share(c, "@$title on YID PLUS\n" + Api.BASE + "/?channel=" + soEnc(ownerId)) })
+                        DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { menu = false; soCopy(c, Api.BASE + "/?channel=" + soEnc(ownerId)) })
+                        DropdownMenuItem(text = { Text("View profile") }, leadingIcon = { Icon(Sym.Person, null) }, onClick = { menu = false; Nav.open(HmProfilePage(ownerId, title)) })
+                        if (!mine) DropdownMenuItem(text = { Text("Message @$title") }, leadingIcon = { Icon(Sym.ChatBubbleOutline, null) }, onClick = { menu = false; hmOpenDm(c, scope, ownerId, title, Api.abs(ch?.strOrNull("photo_url"))) })
+                        if (!mine && Session.me != null) DropdownMenuItem(text = { Text("Report", color = MaterialTheme.colorScheme.error) }, leadingIcon = { Icon(Sym.Flag, null, tint = MaterialTheme.colorScheme.error) }, onClick = { menu = false; report = true })
                     }
                 }
             }
@@ -248,19 +248,19 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                             Box(Modifier.size(80.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(3.dp)) { SoThumb(photo, title, 74.dp) }
                             Spacer(Modifier.weight(1f))
                             if (!mine) {
-                                SoPill("Message", false, { hmOpenDm(c, scope, ownerId, title, photo) }, icon = Icons.Filled.ChatBubbleOutline)
+                                SoPill("Message", false, { hmOpenDm(c, scope, ownerId, title, photo) }, icon = Sym.ChatBubbleOutline)
                                 Spacer(Modifier.width(8.dp))
                                 SoPill(when { following -> "Following ✓"; reqStatus == "pending" -> "Requested"; reqStatus == "rejected" -> "Declined"; else -> "Follow" }, !following && reqStatus != "pending", { follow() },
-                                    Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Icons.Filled.PersonAdd else null, enabled = !busy)
+                                    Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Sym.PersonAdd else null, enabled = !busy)
                             }
-                            else SoPill("New post", true, { Nav.open(SoNewPostPage()) }, Modifier.firstFocus(), icon = Icons.Filled.Edit)
+                            else SoPill("New post", true, { Nav.open(SoNewPostPage()) }, Modifier.firstFocus(), icon = Sym.Edit)
                         }
                         Column(Modifier.padding(start = 16.dp, end = 16.dp).offset(y = (-22).dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                                     style = TextStyle(textDirection = TextDirection.Content))
-                                if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
-                                if (j.str("privacy") == "followers_only") Icon(Icons.Filled.Lock, "Followers only", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                                if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
+                                if (j.str("privacy") == "followers_only") Icon(Sym.Lock, "Followers only", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
                             Text("@$title", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             if (j.str("bio").isNotBlank()) Text(j.str("bio"), fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp), style = TextStyle(textDirection = TextDirection.Content))
@@ -271,7 +271,7 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                             }
                             if (mine) Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 val priv = j.str("privacy") == "followers_only"
-                                SoPill(if (priv) "Private · tap to change" else "Public · tap to change", false, { askPrivacy = true }, icon = if (priv) Icons.Filled.Lock else Icons.Filled.Public)
+                                SoPill(if (priv) "Private · tap to change" else "Public · tap to change", false, { askPrivacy = true }, icon = if (priv) Sym.Lock else Sym.Public)
                                 if (askPrivacy) AlertDialog(onDismissRequest = { askPrivacy = false },
                                     title = { Text(if (priv) "Make this channel PUBLIC?" else "Make this channel PRIVATE?") },
                                     text = { Text(if (priv) "Everyone will be able to see your content." else "Only followers will see your content. New followers must be approved by you.") },
@@ -283,7 +283,7 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                                             .onSuccess { ch = JSONObject(j.toString()).put("privacy", nv); toast(c, if (nv == "public") "Channel is now public — everyone can see your content" else "Channel is now private — only followers can see your content") }
                                             .onFailure { toast(c, Api.friendly(it)) }
                                     } }) { Text("OK") } })
-                                SoPill("Requests", false, { Nav.open(SoChannelFollowRequestsPage(ownerId)) }, icon = Icons.Filled.PersonAdd)
+                                SoPill("Requests", false, { Nav.open(SoChannelFollowRequestsPage(ownerId)) }, icon = Sym.PersonAdd)
                             }
                         }
                     }
@@ -293,11 +293,11 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                     HorizontalDivider(thickness = 0.5.dp)
                 }
                 if (locked) item(key = "locked") {
-                    SoEmpty(Icons.Filled.Lock, when (reqStatus) { "pending" -> "Request pending… You'll see the posts once it's approved."; "rejected" -> "Your request was declined"
+                    SoEmpty(Sym.Lock, when (reqStatus) { "pending" -> "Request pending… You'll see the posts once it's approved."; "rejected" -> "Your request was declined"
                         else -> "This channel is private. Follow this channel to see their content" },
                         action = if (reqStatus == "pending" || reqStatus == "rejected") null else "Request to Follow", onAction = { follow() })
                 } else if (tab == 0) {
-                    if (posts.isEmpty()) item(key = "noposts") { SoEmpty(Icons.Filled.Article, if (mine) "Write your first post" else "No posts yet", action = if (mine) "New post" else null, onAction = { Nav.open(SoNewPostPage()) }) }
+                    if (posts.isEmpty()) item(key = "noposts") { SoEmpty(Sym.Article, if (mine) "Write your first post" else "No posts yet", action = if (mine) "New post" else null, onAction = { Nav.open(SoNewPostPage()) }) }
                     // Every photo / video of the channel in one viewer: swipe from one to the next, like WhatsApp.
                     val gal = posts.mapNotNull { q -> q.media?.let { GItem(it, q.isVideo, null, q.caption.take(60)) } }
                     items(posts, key = { "p" + it.id }) { p ->
@@ -305,7 +305,7 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                             onComments = { commentsFor = p }, onDeleted = { posts.removeAll { it.id == p.id } }, gallery = gal)
                     }
                 } else if (tab == 2) {
-                    if (music.isEmpty()) item(key = "nomusic") { if (musicLoaded) SoEmpty(Icons.Filled.MusicNote, "No tracks yet") else SoSkeleton(rows = 2) }
+                    if (music.isEmpty()) item(key = "nomusic") { if (musicLoaded) SoEmpty(Sym.MusicNote, "No tracks yet") else SoSkeleton(rows = 2) }
                     itemsIndexed(music, key = { _, t -> "m" + t.id }) { i, t -> HmTrackRow(t) { Music.play(c, music.toList(), i) }; SoDivider(74.dp) }
                 } else if (tab == 3) {
                     item(key = "about") {
@@ -315,23 +315,23 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                                 color = if (j.str("bio").isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface, style = TextStyle(textDirection = TextDirection.Content))
                             Text("${posts.size} posts · ${shorts.size} shorts", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 10.dp))
                             j.strOrNull("created_at")?.let { Text("On YID PLUS since " + it.take(10), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp)) }
-                            if (mine && j.str("privacy") == "followers_only") SoPill("Follow requests", false, { Nav.open(SoChannelFollowRequestsPage(ownerId)) }, Modifier.padding(top = 12.dp), icon = Icons.Filled.PersonAdd)
+                            if (mine && j.str("privacy") == "followers_only") SoPill("Follow requests", false, { Nav.open(SoChannelFollowRequestsPage(ownerId)) }, Modifier.padding(top = 12.dp), icon = Sym.PersonAdd)
                             Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                SoPill("Copy link", false, { soCopy(c, Api.BASE + "/?channel=" + soEnc(ownerId)) }, icon = Icons.Filled.Link)
-                                SoPill("Profile", false, { Nav.open(HmProfilePage(ownerId, title)) }, icon = Icons.Filled.Person)
+                                SoPill("Copy link", false, { soCopy(c, Api.BASE + "/?channel=" + soEnc(ownerId)) }, icon = Sym.Link)
+                                SoPill("Profile", false, { Nav.open(HmProfilePage(ownerId, title)) }, icon = Sym.Person)
                             }
                         }
                     }
                 } else {
-                    if (shorts.isEmpty()) item(key = "noshorts") { SoEmpty(Icons.Filled.Movie, "No Shorts yet") }
+                    if (shorts.isEmpty()) item(key = "noshorts") { SoEmpty(Sym.Movie, "No Shorts yet") }
                     items(shorts.chunked(3), key = { "s" + it.first().id }) { row ->
                         Row(Modifier.fillMaxWidth().padding(horizontal = 2.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                             for (s in row) Box(Modifier.weight(1f).aspectRatio(9f / 14f).tap(RoundedCornerShape(2.dp)) { soOpenUploadShort(s.id) }) {
                                 SoVideoPoster(null, s.caption, 0, Modifier.fillMaxSize())
                                 Row(Modifier.align(Alignment.BottomStart).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.Visibility, null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                    Icon(Sym.Visibility, null, tint = Color.White, modifier = Modifier.size(14.dp))
                                     Text(" " + soNum(s.views), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                    if (s.likes > 0) { Icon(Icons.Filled.Favorite, null, tint = Color.White, modifier = Modifier.padding(start = 6.dp).size(12.dp)); Text(" " + soNum(s.likes), color = Color.White, fontSize = 12.sp) }
+                                    if (s.likes > 0) { Icon(Sym.Favorite, null, tint = Color.White, modifier = Modifier.padding(start = 6.dp).size(12.dp)); Text(" " + soNum(s.likes), color = Color.White, fontSize = 12.sp) }
                                 }
                             }
                             repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
@@ -371,12 +371,12 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
             Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false), style = TextStyle(textDirection = TextDirection.Content))
-                    if (p.verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 3.dp).size(15.dp))
+                    if (p.verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 3.dp).size(15.dp))
                 }
                 Text("@$name · " + ago(p.at), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             }
-            if (canDelete) IconBtn(Icons.Filled.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (canDelete) IconBtn(Sym.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         val emojiOnly = remember(p.caption) { hmEmojiOnly(p.caption) }
         if (p.caption.isNotBlank()) Text(p.caption, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).tap(RoundedCornerShape(4.dp)) { expanded = !expanded },
@@ -396,16 +396,16 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
             }
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            SoAction(if (p.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (p.likes > 0) soNum(p.likes) else "Like", if (p.liked) Color(0xFFE53958) else null, "Like") {
+            SoAction(if (p.liked) Sym.Favorite else Sym.FavoriteBorder, if (p.likes > 0) soNum(p.likes) else "Like", if (p.liked) Color(0xFFE53958) else null, "Like") {
                 if (Session.me == null) { toast(c, "Sign in to like"); return@SoAction }
                 val on = !p.liked; onChange(p.copy(liked = on, likes = maxOf(0, p.likes + if (on) 1 else -1)))
                 scope.launch { runCatching { Api.put("/api/posts", JSONObject().put("id", p.id).put("like", on)) }.onSuccess { onChange(p.copy(liked = on, likes = it.optInt("likes"))) }
                     .onFailure { onChange(p); toast(c, Api.friendly(it)) } }
             }
-            SoAction(Icons.Filled.ChatBubbleOutline, if (p.comments > 0) soNum(p.comments) else "Comment", null, "Comment", onComments)
-            SoAction(Icons.Filled.Share, "Share", null) { share(c, (if (p.caption.isNotBlank()) p.caption.take(140) + "\n" else "") + Api.BASE + "/?post=" + soEnc(p.id)) }
+            SoAction(Sym.ChatBubbleOutline, if (p.comments > 0) soNum(p.comments) else "Comment", null, "Comment", onComments)
+            SoAction(Sym.Share, "Share", null) { share(c, (if (p.caption.isNotBlank()) p.caption.take(140) + "\n" else "") + Api.BASE + "/?post=" + soEnc(p.id)) }
             Spacer(Modifier.weight(1f))
-            if (p.views > 0) { Icon(Icons.Filled.Visibility, "Views", Modifier.size(15.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (p.views > 0) { Icon(Sym.Visibility, "Views", Modifier.size(15.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(" " + soNum(p.views), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 12.dp)) }
         }
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))
@@ -448,7 +448,7 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
         run {
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (loading && list.isEmpty()) SoSkeleton(rows = 3, avatar = 34.dp)
-                else if (list.isEmpty()) SoEmpty(Icons.Filled.ChatBubbleOutline, "No comments yet. Be the first.")
+                else if (list.isEmpty()) SoEmpty(Sym.ChatBubbleOutline, "No comments yet. Be the first.")
                 else LazyColumn {
                     items(list, key = { it.str("id") }) { cm ->
                         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -467,10 +467,10 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
                                         .onSuccess { r -> val k = list.indexOfFirst { it.str("id") == cm.str("id") }; if (k >= 0 && r.has("likes")) list[k] = JSONObject(list[k].toString()).put("my_liked", r.optBoolean("liked")).put("likes", r.optInt("likes")) }
                                         .onFailure { val k = list.indexOfFirst { it.str("id") == cm.str("id") }; if (k >= 0) list[k] = cm; toast(c, Api.friendly(it)) } }
                             }.padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, "Like comment", tint = if (liked) Color(0xFFE53958) else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                                Icon(if (liked) Sym.Favorite else Sym.FavoriteBorder, "Like comment", tint = if (liked) Color(0xFFE53958) else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                                 if (cm.optInt("likes") > 0) Text(cm.optInt("likes").toString(), fontSize = 11.sp)
                             }
-                            if (cm.optBoolean("can_delete") || cm.str("user_id") == Session.me?.id) IconBtn(Icons.Filled.DeleteOutline, "Delete comment", { delAsk = cm }, size = 36.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (cm.optBoolean("can_delete") || cm.str("user_id") == Session.me?.id) IconBtn(Sym.DeleteOutline, "Delete comment", { delAsk = cm }, size = 36.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -480,7 +480,7 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
             } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(text, { if (it.length <= 500) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
                     shape = RoundedCornerShape(22.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
-                IconBtn(Icons.AutoMirrored.Filled.Send, "Send", {
+                IconBtn(Sym.Send, "Send", {
                     val t = text.trim(); if (t.isEmpty()) return@IconBtn
                     text = ""
                     scope.launch { runCatching { Api.post("/api/posts/comments", JSONObject().put("post_id", p.id).put("text", t)) }.onSuccess { load() }.onFailure { toast(c, Api.friendly(it)); text = t } }
@@ -525,27 +525,27 @@ class SoNewPostPage : PageScreen() {
             // Photo / Video ride in the top bar too, so they're never under the keyboard on a small screen.
             TopBar("New post", onBack = { Nav.back() }) {
                 if (Session.me != null) {
-                    IconBtn(Icons.Filled.Image, "Add photo", { pick.launch("image/*") }, tint = Color.White)
-                    IconBtn(Icons.Filled.Videocam, "Add video", { pick.launch("video/*") }, tint = Color.White)
+                    IconBtn(Sym.Image, "Add photo", { pick.launch("image/*") }, tint = Color.White)
+                    IconBtn(Sym.Videocam, "Add video", { pick.launch("video/*") }, tint = Color.White)
                 }
                 TextButton({ send() }, enabled = progress == null) { Text("Post", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (progress == null) Color.White else Color.White.copy(alpha = .5f)) } }
-            if (Session.me == null) { SoEmpty(Icons.Filled.Edit, "Sign in to post on your channel", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
+            if (Session.me == null) { SoEmpty(Sym.Edit, "Sign in to post on your channel", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 OutlinedTextField(text, { text = it.take(2000) }, Modifier.fillMaxWidth().heightIn(min = 120.dp).firstFocus(always = true), placeholder = { Text("What's happening?") },
                     textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SoPill("Photo", false, { pick.launch("image/*") }, icon = Icons.Filled.Image)
-                    SoPill("Video", false, { pick.launch("video/*") }, icon = Icons.Filled.Videocam)
+                    SoPill("Photo", false, { pick.launch("image/*") }, icon = Sym.Image)
+                    SoPill("Video", false, { pick.launch("video/*") }, icon = Sym.Videocam)
                 }
                 file?.let { f ->
                     Spacer(Modifier.height(12.dp))
                     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)).padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         val isVid = (c.contentResolver.getType(f) ?: "").startsWith("video") || (f.lastPathSegment ?: "").lowercase().endsWith(".mp4")
-                        if (isVid) Icon(Icons.Filled.Movie, null, Modifier.size(48.dp), tint = Green)
+                        if (isVid) Icon(Sym.Movie, null, Modifier.size(48.dp), tint = Green)
                         else AsyncImage(f, null, contentScale = ContentScale.Crop, modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)))
                         Text(if (isVid) "Video added" else "Photo added", Modifier.weight(1f).padding(horizontal = 10.dp), fontSize = 15.sp)
-                        IconBtn(Icons.Filled.Close, "Remove", { file = null })
+                        IconBtn(Sym.Close, "Remove", { file = null })
                     }
                 }
                 progress?.let { v -> Spacer(Modifier.height(16.dp)); LinearProgressIndicator(progress = { v }, modifier = Modifier.fillMaxWidth()); Text("Uploading ${(v * 100).toInt()}%", fontSize = 13.sp) }
@@ -571,8 +571,8 @@ data class SoChannelFollowRequestsPage(val ownerId: String) : PageScreen() {
             TopBar("Follow requests", onBack = { Nav.back() })
             when {
                 !loaded -> SoSkeleton(rows = 4)
-                err != null && list.isEmpty() -> SoEmpty(Icons.Filled.ErrorOutline, err!!)
-                list.isEmpty() -> SoEmpty(Icons.Filled.PersonAdd, "No requests right now")
+                err != null && list.isEmpty() -> SoEmpty(Sym.ErrorOutline, err!!)
+                list.isEmpty() -> SoEmpty(Sym.PersonAdd, "No requests right now")
                 else -> LazyColumn {
                     items(list, key = { it.str("id") }) { r ->
                         Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
