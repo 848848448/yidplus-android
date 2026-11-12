@@ -29,7 +29,9 @@ sh_dtap() {
 # Back only while "$1" is still on screen (never one Back too many: that leaves the app)
 sh_back_while() { local n; for n in 1 2 3; do timeout 30 adb shell uiautomator dump /sdcard/sh.xml >/dev/null 2>&1
   timeout 20 adb shell cat /sdcard/sh.xml 2>/dev/null | grep -qE "(text|content-desc)=\"$1\"" || return 0; key 4; sleep 1; done; }
-sh_up() { timeout 10 adb shell input swipe 240 470 240 200 120; sleep "${1:-4}"; }
+# the video page at 480x640 runs from y≈50 to y≈460 (the app's bottom bar starts at ~465): swipe inside it
+sh_ime_hide() { timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -q "mInputShown=true" && { key 4; sleep 1; log "keyboard hidden"; }; return 0; }
+sh_up() { timeout 10 adb shell input swipe 200 420 200 170 120; sleep "${1:-4}"; }
 
 size 480x640 240
 # 1. For You: first video, the swipe hint, the rail (avatar+follow, like, comment, save, share, sound, more), chips
@@ -47,7 +49,7 @@ sh_mark dtap-like; sh_dtap 200 300; sleep 0.3; shot SH-05-double-tap-heart; slee
 # 4. comments over the video (3/4 height), post one (optimistic), close
 sh_mark comments; sh_tapui "Comment"; sleep 3; shot SH-07-comments
 sh_tapui "Add a comment"; sleep 1; adb shell input text "Shkoyach%sgevaldig"; sleep 1; shot SH-08-comment-typing
-sh_mark post-comment; sh_tapui "Post"; sleep 0.3; shot SH-08b-comment-posting; sleep 2; shot SH-09-comment-posted
+sh_mark post-comment; sh_tapui "Post"; sleep 0.3; shot SH-08b-comment-posting; sleep 2; sh_ime_hide; sleep 1; shot SH-09-comment-posted
 sh_back_while "Close comments"; sleep 2
 # 5. options sheet: speeds, auto-scroll, not interested, hide creator, copy link, saved, reset; 1.5x shows a badge
 sh_mark options; sh_tapui "More options"; sleep 2; shot SH-10-options
@@ -59,17 +61,17 @@ sh_mark share; sh_tapui "Share"; sleep 3; shot SH-14-share-sheet; key 4; sleep 2
 sh_mark follow-rail; sh_tapui "Follow"; sleep 2; shot SH-15-followed-from-rail
 # 7. swipe on; creator name -> that creator's own videos (chips: Back, name, Follow)
 sh_mark swipe; sh_up; shot SH-16-swiped; sh_up; shot SH-17-swiped2
-sh_mark creator; sh_tapui "Creator’s videos"; sleep 4; shot SH-18-creator-videos; sh_texts creator
+sh_mark creator; sh_tapui "Creator videos"; sleep 4; shot SH-18-creator-videos; sh_texts creator
 sh_tapui "‹ Back"; sleep 3; shot SH-19-creator-back
 # 8. topics (scrolling chips)
 sh_mark topic; sh_tapui "News"; sleep 4; shot SH-20-topic-news; sh_tapui "All"; sleep 3
 # 9. live scrub with thumb and time
-sh_mark scrub; (timeout 10 adb shell input swipe 30 628 330 628 3500 &) ; sleep 2; shot SH-21-scrubbing; sleep 3
+sh_mark scrub; (timeout 10 adb shell input swipe 30 450 330 450 3500 &) ; sleep 2; shot SH-21-scrubbing; sleep 3
 # 10. Following: who I follow (1 from the rail), the creators list, search, Videos, Back keeps the list, Follow more sheet
 sh_mark following; sh_tapui "Following"; sleep 6; shot SH-22-following-feed; sh_texts following
 sh_tapui "Follow more"; sleep 4; shot SH-23-follow-more-sheet
-sh_tapui "Search .* creators"; adb shell input text "Heimishe"; sleep 2; shot SH-24-creators-search; key 4; sleep 1
-sh_tapui "\+ Follow"; sleep 2; shot SH-25-sheet-followed; key 4; sleep 2; key 4; sleep 3; shot SH-26-following-after-sheet
+sh_tapui "Search creators"; adb shell input text "Heimishe"; sleep 2; shot SH-24-creators-search; sh_ime_hide; shot SH-24b-creators-found
+sh_tapui "\+ Follow"; sleep 2; shot SH-25-sheet-followed; sh_back_while "Creators to follow"; sleep 3; shot SH-26-following-after-sheet
 # unfollow both -> the list in the feed itself
 sh_mark following-list; sh_tapui "Following"; sleep 3
 sh_mark nobody; timeout 10 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Home >/dev/null 2>&1; sleep 1

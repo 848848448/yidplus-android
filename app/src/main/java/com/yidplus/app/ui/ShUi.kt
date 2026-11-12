@@ -14,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -95,6 +97,7 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
     val n = Feeds.follows.size
     Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val small = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 560
+        val narrow = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 400
         if (title != null) Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = if (small) 4.dp else 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(title, Modifier.weight(1f), style = if (small) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground, maxLines = 2)
@@ -110,7 +113,7 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                 Spacer(Modifier.width(8.dp))
                 Box(Modifier.weight(1f)) {
                     if (q.isEmpty()) Text(if (all.size > 12) "Search " + "%,d".format(all.size) + " creators" else "Search creators", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 15.sp, maxLines = 1)
-                    BasicTextField(q, { q = it }, singleLine = true, modifier = Modifier.fillMaxWidth(), cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    BasicTextField(q, { q = it }, singleLine = true, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Search creators" }, cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         textStyle = TextStyle(fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface, textDirection = TextDirection.Content),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { }))
                 }
@@ -133,8 +136,12 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                                     color = MaterialTheme.colorScheme.onBackground, style = TextStyle(textDirection = TextDirection.Content))
                                 if (x.verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
-                            val vs = RoundedCornerShape(16.dp)
-                            Row(Modifier.padding(start = 4.dp).height(34.dp).tap(vs) { onWho(x.keys, x.name) }.border(1.dp, MaterialTheme.colorScheme.outline, vs).padding(horizontal = 10.dp),
+                            val vs = RoundedCornerShape(17.dp)
+                            // narrow phones: ▶ alone (the row itself opens the videos too), so the name keeps its room
+                            if (narrow) Box(Modifier.padding(start = 2.dp).size(34.dp).tap(CircleShape) { onWho(x.keys, x.name) }.border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                                .semantics { contentDescription = "Videos" }, contentAlignment = Alignment.Center) {
+                                Icon(Sym.PlayArrow, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                            } else Row(Modifier.padding(start = 4.dp).height(34.dp).tap(vs) { onWho(x.keys, x.name) }.border(1.dp, MaterialTheme.colorScheme.outline, vs).padding(horizontal = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Sym.PlayArrow, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                                 Text("Videos", color = MaterialTheme.colorScheme.primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
@@ -143,7 +150,7 @@ fun ShCreatorList(title: String?, inline: Boolean, onWho: (List<String>, String)
                             SoPill(if (fol) "Following" else "+ Follow", !fol, {
                                 ShDir.setFollow(c, x.keys, !fol, x.name, x.avatar, x.verified, quiet = fol); tick++
                                 ShCreatorsState.changed = true
-                            }, Modifier.widthIn(min = 96.dp))
+                            }, Modifier.widthIn(min = if (narrow) 88.dp else 96.dp))
                         }
                     }
                 }
@@ -198,7 +205,7 @@ fun ShOptionsSheet(s: Clip, speed: Float, onSpeed: (Float) -> Unit, onDismiss: (
                 }
             }
             Spacer(Modifier.height(6.dp))
-            SettingRow(Sym.ArrowUpward, "Auto-scroll to the next video", switch = ShPrefs.auto) { ShPrefs.changeAuto(!ShPrefs.auto) }
+            SettingRow(Sym.ArrowUpward, "Auto-scroll", switch = ShPrefs.auto) { ShPrefs.changeAuto(!ShPrefs.auto) }
             if (s.fromSrc) SettingRow(Sym.Block, "Not interested") { onDismiss(); onNotInterested() }
             if (s.fromSrc) SettingRow(Sym.VisibilityOff, "Don’t show videos from " + s.creator.ifBlank { "this creator" }) { onDismiss(); onHide() }
             SettingRow(Sym.AccountCircle, s.creator.ifBlank { "This creator" } + "’s videos") { onDismiss(); onCreator() }
@@ -321,7 +328,7 @@ fun ShCommentsPanel(title: String, onDismiss: () -> Unit, body: @Composable Colu
         Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .35f)).pointerInputTap(onDismiss))
         // with the keyboard up the panel takes all the room left, so the newest comments stay in sight above the box
         val ime = WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
-        Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(if (ime) 1f else 0.75f).offset { IntOffset(0, dragY.coerceAtLeast(0f).toInt()) },
+        Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(if (ime) 1f else 0.8f).offset { IntOffset(0, dragY.coerceAtLeast(0f).toInt()) },
             shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp), color = MaterialTheme.colorScheme.background, tonalElevation = 2.dp) {
             Column(Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxWidth().pointerInput(Unit) {

@@ -730,7 +730,9 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
         // site: fit() — a video close to the screen's shape fills it (like Reels), any other keeps its whole picture
         val fill = videoShape > 0f && Math.abs(videoShape - screenShape) / screenShape < 0.28f
         val tapNow by rememberUpdatedState(onTap)
-        Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { tapNow(it) }) }) {
+        val moreNow by rememberUpdatedState(onMore)
+        // long-press = the ⋯ sheet (TikTok); it never delays a single tap
+        Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { tapNow(it) }, onLongPress = { moreNow() }) }) {
             if (s.poster != null) {
                 AsyncImage(s.poster, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().alpha(0.35f))
                 AsyncImage(s.poster, null, contentScale = if (fill) ContentScale.Crop else ContentScale.Fit, modifier = Modifier.fillMaxSize())
@@ -761,12 +763,13 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                 .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .62f)))))
 
             // Right side actions (site: the rail) — all of them, also at 480x640.
-            Column(Modifier.align(Alignment.BottomEnd).padding(end = 2.dp, bottom = if (small) 14.dp else 40.dp), horizontalAlignment = Alignment.CenterHorizontally,
+            Column(Modifier.align(Alignment.BottomEnd).padding(end = 2.dp, bottom = if (small) 8.dp else 40.dp), horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(if (small) 0.dp else 8.dp)) {
                 val keys = if (s.fromSrc) listOf(s.creatorId) else emptyList()
                 val following = s.fromSrc && (s.creatorId in Feeds.follows || ShDir.isFollowed(keys))
-                Box(Modifier.padding(bottom = if (small) 10.dp else 6.dp)) {
-                    Box(Modifier.tap(CircleShape, onClick = onCreator).semantics { contentDescription = "Creator’s videos" }.border(1.5.dp, Color.White, CircleShape)) { ShAvatar(s.avatar, s.creator, if (small) 34.dp else 46.dp) }
+                // at 480x640 the creator sits in the caption row (Reels), so the rail is only like · comment · save · share
+                if (!small) Box(Modifier.padding(bottom = 6.dp)) {
+                    Box(Modifier.tap(CircleShape, onClick = onCreator).semantics { contentDescription = "Creator videos" }.border(1.5.dp, Color.White, CircleShape)) { ShAvatar(s.avatar, s.creator, if (small) 32.dp else 46.dp) }
                     if (s.fromSrc) Box(Modifier.align(Alignment.BottomCenter).offset(y = 8.dp).size(if (small) 18.dp else 20.dp).clip(CircleShape)
                         .background(if (following) Green else Color(0xFFFF3B5C)).tap(CircleShape, onClick = onFollow), contentAlignment = Alignment.Center) {
                         Icon(if (following) Sym.Check else Sym.Add, if (following) "Unfollow" else "Follow", tint = Color.White, modifier = Modifier.size(14.dp))
@@ -775,8 +778,8 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                 Action(if (s.liked) Sym.FavoriteFill else Sym.Favorite, if (s.likes > 0) soNum(s.likes) else "Like", if (s.liked) Color(0xFFFF3B5C) else Color.White, small, "Like", pop = s.liked, onClick = onLike)
                 Action(Sym.ChatBubbleFill, if (s.comments > 99 && !s.fromSrc) "99+" else soNum(s.comments), Color.White, small, "Comment", onClick = onComments)
                 val isSaved = Feeds.isSaved(s)
-                Action(if (isSaved) Sym.BookmarkFill else Sym.Bookmark, "Save", if (isSaved) Gold else Color.White, small, if (isSaved) "Remove from saved" else "Save", onClick = onSave)
-                Action(Sym.ShareFill, "Share", Color.White, small, "Share", mirror = false, onClick = onShare)
+                Action(if (isSaved) Sym.BookmarkFill else Sym.Bookmark, if (small) "" else "Save", if (isSaved) Gold else Color.White, small, if (isSaved) "Remove from saved" else "Save", onClick = onSave)
+                Action(Sym.ShareFill, if (small) "" else "Share", Color.White, small, "Share", mirror = false, onClick = onShare)
                 // at 480x640 sound is the tap / "Tap for sound" and ⋯ sits at the end of the chips row, so the rail never runs into the top bar
                 if (!small) Action(if (Prefs.muted) Sym.VolumeOff else Sym.VolumeUp, "", Color.White, small, if (Prefs.muted) "Sound off" else "Sound on") { Prefs.setMute(!Prefs.muted) }
                 if (!small) Action(Sym.MoreHoriz, "", Color.White, small, "More options", onClick = onMore)
@@ -787,12 +790,19 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
             // Caption + creator (site: .src-info): name · verified · time ago, the caption opens on a tap.
             Column(Modifier.align(Alignment.BottomStart).padding(start = 12.dp, end = 70.dp, bottom = if (small) 20.dp else 26.dp)) {
                 Row(Modifier.tap(RoundedCornerShape(6.dp), onClick = onCreator), verticalAlignment = Alignment.CenterVertically) {
+                    if (small) { Box(Modifier.semantics { contentDescription = "Creator videos" }.border(1.dp, Color.White, CircleShape)) { ShAvatar(s.avatar, s.creator, 28.dp) }; Spacer(Modifier.width(7.dp)) }
                     Text((if (s.fromSrc) "" else "@") + s.creator.ifBlank { "YID PLUS" }, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1,
                         overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                         style = TextStyle(textDirection = TextDirection.Content, shadow = Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)))
                     if (s.verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 3.dp).size(15.dp))
                     val a = ago(s.at)
                     if (a.isNotBlank()) Text(" · $a", color = Color.White.copy(alpha = .8f), fontSize = 13.sp, maxLines = 1)
+                    if (small && s.fromSrc) {
+                        val fol = s.creatorId in Feeds.follows || ShDir.isFollowed(listOf(s.creatorId))
+                        Text(if (fol) "Following" else "Follow", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
+                            modifier = Modifier.padding(start = 8.dp).semantics { contentDescription = if (fol) "Unfollow" else "Follow" }.tap(RoundedCornerShape(8.dp), onClick = onFollow)
+                                .border(1.dp, Color.White.copy(alpha = .8f), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 2.dp))
+                    }
                 }
                 var open by remember { mutableStateOf(false) }
                 if (s.caption.isNotBlank()) Text(s.caption, color = Color.White, maxLines = if (open) 8 else 2, overflow = TextOverflow.Ellipsis,
@@ -821,8 +831,8 @@ private fun Action(icon: ImageVector, label: String, tint: Color, small: Boolean
     val sc = remember { androidx.compose.animation.core.Animatable(1f) }
     LaunchedEffect(pop) { if (pop) { sc.snapTo(0.7f); sc.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.35f, stiffness = 600f)) } }
     Column(Modifier.widthIn(min = if (small) 48.dp else 52.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(vertical = if (small) 2.dp else 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 26.dp else 32.dp).scale(sc.value).then(if (mirror) Modifier.scale(scaleX = -1f, scaleY = 1f) else Modifier))
-        if (label.isNotBlank()) Text(label, color = Color.White, fontSize = if (small) 10.sp else 12.sp, lineHeight = if (small) 12.sp else 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
+        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 25.dp else 32.dp).scale(sc.value).then(if (mirror) Modifier.scale(scaleX = -1f, scaleY = 1f) else Modifier))
+        if (label.isNotBlank()) Text(label, color = Color.White, fontSize = if (small) 10.sp else 12.sp, lineHeight = if (small) 11.sp else 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
             style = TextStyle(shadow = Shadow(Color.Black.copy(alpha = .6f), blurRadius = 3f)))
     }
 }
