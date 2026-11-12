@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -467,4 +468,56 @@ object Snack {
             if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) onAction?.invoke()
         }
     }
+}
+
+/** Bottom padding for any list under a [Fab] (and the snackbar), so the last row is never hidden: 56 dp FAB + margins. */
+val FabListPadding: Dp = 96.dp
+/** `LazyColumn(contentPadding = fabSafePadding())`: the same with optional top padding. */
+fun fabSafePadding(top: Dp = 0.dp, hasFab: Boolean = true): PaddingValues = PaddingValues(top = top, bottom = if (hasFab) FabListPadding else 16.dp)
+
+/**
+ * The WhatsApp-2024 search field at the top of a main tab: full width, rounded pill, Material Symbol, the hint in
+ * grey, 44 dp (40 dp on a 480x640 screen). Tapping it (or OK on the D-pad) opens the screen's search. It replaces a
+ * search icon in the top bar; don't keep both.
+ */
+@Composable
+fun SearchPill(hint: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val small = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 700
+    val shape = RoundedCornerShape(50)
+    val bg = if (isDark()) Color(0xFF202C33) else Color(0xFFF0F2F5)
+    Row(modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = if (small) 6.dp else 8.dp).heightIn(min = if (small) 40.dp else 44.dp)
+        .clip(shape).background(bg).tap(shape, onClick = onClick).semantics { contentDescription = hint }.padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Icon(Sym.Search, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(hint, Modifier.padding(start = 12.dp), style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/**
+ * True while a header above [state]'s list should show: at the top, and whenever the user scrolls back up; false
+ * while scrolling down (WhatsApp hides its search field the same way). Use with [CollapsingHeader].
+ */
+@Composable
+fun rememberHeaderVisible(state: androidx.compose.foundation.lazy.LazyListState): Boolean {
+    var visible by remember { mutableStateOf(true) }
+    var lastIndex by remember { mutableStateOf(0) }
+    var lastOffset by remember { mutableStateOf(0) }
+    LaunchedEffect(state) {
+        androidx.compose.runtime.snapshotFlow { state.firstVisibleItemIndex to state.firstVisibleItemScrollOffset }.collect { (i, o) ->
+            val down = i > lastIndex || (i == lastIndex && o > lastOffset + 8)
+            val up = i < lastIndex || (i == lastIndex && o < lastOffset - 8)
+            if (i == 0 && o < 24) visible = true else if (down) visible = false else if (up) visible = true
+            lastIndex = i; lastOffset = o
+        }
+    }
+    return visible
+}
+
+/** A header (e.g. [SearchPill]) that slides away on scroll-down and back on scroll-up; instant when Reduce motion is on. */
+@Composable
+fun CollapsingHeader(state: androidx.compose.foundation.lazy.LazyListState, content: @Composable () -> Unit) {
+    androidx.compose.animation.AnimatedVisibility(visible = rememberHeaderVisible(state),
+        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()) { content() }
 }
