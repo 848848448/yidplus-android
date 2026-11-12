@@ -184,7 +184,7 @@ class AdMaintenancePage : PageScreen() {
                 val on = mt?.b("maintenance_mode") == true
                 AdHint(if (mt == null) "Checking…" else if (on) "🔴 ON — Nobody can log in right now" else "🟢 OFF — Site is open normally", if (on) AdRed else AdGreen)
                 AdField(msg, { msg = it }, "Message shown to users (e.g. Back in 10 minutes!)", lines = 2)
-                AdPills("🔴 TURN ON" to { a.sure("Maintenance ON?", "Nobody but admins can sign in until you turn it off.") { adminDo(c, scope, "🔴 Maintenance ON", { tick++ }) { Api.post("/api/admin/maintenance", jo("enabled" to true, "message" to msg)) } } },
+                AdPills("🔴 TURN ON" to { a.sure("Maintenance ON?", "Nobody but admins can sign in until you turn it off.", okLabel = "Turn on") { adminDo(c, scope, "🔴 Maintenance ON", { tick++ }) { Api.post("/api/admin/maintenance", jo("enabled" to true, "message" to msg)) } } },
                     "🟢 TURN OFF" to { adminDo(c, scope, "🟢 Maintenance OFF", { tick++ }) { Api.post("/api/admin/maintenance", jo("enabled" to false, "message" to msg)) } })
             }
             adCard("✉️ Email verification") {
