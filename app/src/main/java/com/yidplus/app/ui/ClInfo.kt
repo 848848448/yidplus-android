@@ -117,10 +117,11 @@ internal fun ClInviteDialog(room: Room, code0: String?, canManage: Boolean, onCo
             if (url != null) {
                 ChDialogRow("Copy link") { chCopy(c, url); toast(c, "✅ Invite link copied") }
                 ChDialogRow("Share link") { share(c, "Join \"${room.name}\" on YID PLUS: $url") }
-                if (canManage) ChDialogRow("Revoke link", Color(0xFFD32F2F)) { revokeAsk = true }
             }
         }
-    }, confirmButton = { TextButton(onDismiss) { Text("Close") } })
+    }, confirmButton = { TextButton(onDismiss) { Text("Close") } },
+        // "Revoke link" sits with the dialog's buttons, so it is never scrolled out of sight on a 480x640 screen.
+        dismissButton = if (canManage && url != null) ({ TextButton({ revokeAsk = true }) { Text("Revoke link", color = Color(0xFFD32F2F)) } }) else null)
     if (revokeAsk) AlertDialog(onDismissRequest = { revokeAsk = false }, text = { Text("Revoke the current invite link and create a new one? The old link will stop working.", fontSize = 16.sp) },
         confirmButton = { TextButton({ revokeAsk = false; scope.launch { runCatching { ClApi.revokeInvite(room.id) }.onSuccess { val n = it.ifBlank { code ?: "" }; code = n; onCode(n); toast(c, "🔗 New invite link created") }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Revoke", color = Color(0xFFD32F2F)) } },
         dismissButton = { TextButton({ revokeAsk = false }) { Text("Cancel") } })

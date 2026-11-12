@@ -133,13 +133,13 @@ cltap "Group name"; adb shell input text "QA%sGroup"; key 4; shot CL-25b-new-gro
 
 # ── Join by invite link: public joins, private sends a request (GET + POST /api/invite) ──
 view "https://yidplus.com/chat"; sleep 3; cltap "Start new chat"; sleep 1; cltap "Join by invite link"; sleep 2
-adb shell input text "https://yidplus.com/chat?join=clpriv"; key 4; sleep 3; shot CL-26-invite-private; clhas "Request to join"; clst "Request to join"; sleep 2; clfx '"code":"clpriv"'; shot CL-26b-request-sent; key 4; sleep 1
+adb shell input text "https://yidplus.com/chat?join=clpriv"; sleep 2; key 4; sleep 3; shot CL-26-invite-private; clhas "Request to join"; clst "Request to join"; sleep 2; clfx '"code":"clpriv"'; shot CL-26b-request-sent; key 4; sleep 1
 
 # ── Search, then a non-green theme and dark mode (the bars follow the colour theme: DS P6) ──
 view "https://yidplus.com/chat"; sleep 3; cltap "Search chats"; sleep 2; shot CL-31-search-open; chkb_cl() { log "CL keyboard after search opens: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }; chkb_cl
 adb shell input text "Yo"; sleep 1; shot CL-31b-search-typing; adb shell input text "ssi"; sleep 3; key 4; shot CL-31c-search-results; cltexts search-yossi
 # each query in a fresh search (close it, open it again, type): no reliance on "Clear" and keyboard Back timing
-clsearch() { local i; for i in 1 2 3; do clpos "Close search" | grep -q . && { cltap "Close search"; sleep 1; } ; done; cltop; cltap "Search chats"; sleep 1.5; [ -n "${1:-}" ] && { adb shell input text "$1"; sleep 3; }; timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -q 'mInputShown=true' && key 4; sleep 1; }
+clsearch() { local i; for i in 1 2 3; do clpos "Close search" | grep -q . && { cltap "Close search"; sleep 1; } ; done; cltop; cltap "Search chats"; sleep 1.5; [ -n "${1:-}" ] && { adb shell input text "$1"; sleep 3; }; sleep 1; key 4; sleep 1.5; }
 clsearch YID; shot CL-27-search; cltexts search-yid
 clsearch Mendy; shot CL-27b-search-people; clhas "Contacts"; clhas "Mendy Gold"
 clsearch ""; shot CL-31d-search-recent; clhas "Recent searches"
