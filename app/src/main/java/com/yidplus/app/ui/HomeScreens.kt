@@ -279,13 +279,13 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
             Box(Modifier.tap(CircleShape) { Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) }) { SoThumb(ch.photo, ch.title, 36.dp) }
         }) {
             IconBtn(Sym.Search, "Search in channel", { findOpen = !findOpen; if (!findOpen) find = "" }, tint = LocalContentColor.current)
-            IconBtn(Sym.Share, "Share channel", { share(c, ch.title + "\n" + soTgLink(ch.username)) }, tint = LocalContentColor.current)
             Box {
                 IconBtn(Sym.MoreVert, "More", { menu = true }, tint = LocalContentColor.current)
                 DropdownMenu(menu, { menu = false }) {
                     DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Sym.Info, null) }, onClick = { menu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) })
                     DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Sym.Logout else Sym.Add, null) },
                         onClick = { menu = false; toggleJoin() })
+                    DropdownMenuItem(text = { Text("Share channel") }, leadingIcon = { Icon(Sym.Share, null) }, onClick = { menu = false; share(c, ch.title + "\n" + soTgLink(ch.username)) })
                     DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { menu = false; soCopy(c, soTgLink(ch.username)) })
                     DropdownMenuItem(text = { Text("Open in Telegram") }, leadingIcon = { Icon(Sym.Send, null) }, onClick = { menu = false; openUrl(c, "https://t.me/" + ch.username) })
                 }

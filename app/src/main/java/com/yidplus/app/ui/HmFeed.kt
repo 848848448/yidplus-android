@@ -77,8 +77,9 @@ fun hmGreeting(h: Int) = when (h) { in 5..11 -> "Good morning"; in 12..16 -> "Go
 fun hmHebrewDateLine(): String {
     val now = java.util.Date()
     val wd = java.text.SimpleDateFormat("EEEE", java.util.Locale.US).format(now)
-    val heb = runCatching { android.icu.text.SimpleDateFormat("d MMMM y", android.icu.util.ULocale("he@calendar=hebrew")).format(now) }.getOrNull().orEmpty()
-    return if (heb.isBlank()) wd else "$wd · $heb"
+    // ICU's Hebrew long date ("2 בכסלו 5787", like Chrome's Intl 'he-u-ca-hebrew'), kept as one right-to-left run so the numbers stay in place.
+    val heb = runCatching { android.icu.text.DateFormat.getDateInstance(android.icu.text.DateFormat.LONG, android.icu.util.ULocale("he@calendar=hebrew")).format(now) }.getOrNull().orEmpty()
+    return if (heb.isBlank()) wd else "$wd · \u2067$heb\u2069"
 }
 
 /** Friday all day and Shabbos day: Good Shabbos; Motzei Shabbos evening: Good week. */
@@ -171,7 +172,7 @@ fun HmFeed(onSeeChannels: () -> Unit = {}) {
                     val h = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text(hmGreeting(h) + (me?.nickname?.takeIf { it.isNotBlank() }?.let { ", $it" } ?: "") + "!", fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                            Text(hmGreeting(h) + (me?.nickname?.takeIf { it.isNotBlank() }?.let { ", \u2068$it\u2069" } ?: "") + "!", fontSize = 20.sp, fontWeight = FontWeight.Bold,
                                 maxLines = 2, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                             Text(remember { hmHebrewDateLine() }, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))
                         }
