@@ -45,6 +45,7 @@ object SmPrefs {
     val muted = mutableStateListOf<String>()
     val highlights = mutableStateListOf<JSONObject>()
     var videoMuted by mutableStateOf(false)
+        private set
     fun init(c: Context) {
         if (ctx != null) return
         ctx = c.applicationContext
@@ -57,7 +58,7 @@ object SmPrefs {
         if (on && uid !in muted) muted.add(uid); if (!on) muted.remove(uid)
         p()?.edit()?.putStringSet("muted", muted.toSet())?.apply()
     }
-    fun setVideoMuted(on: Boolean) { videoMuted = on; p()?.edit()?.putBoolean("vmute", on)?.apply() }
+    fun muteVideos(on: Boolean) { videoMuted = on; p()?.edit()?.putBoolean("vmute", on)?.apply() }
     fun hasHighlight(id: String) = highlights.any { it.optString("id") == id }
     /** Same fields the site keeps in localStorage "yp_highlights". */
     fun addHighlight(s: StSlide, nick: String): Boolean {

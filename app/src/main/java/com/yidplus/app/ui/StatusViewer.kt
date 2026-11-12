@@ -378,7 +378,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                 }
                 if (paused && (held || keyPaused)) Text("Paused", color = Color.White.copy(alpha = .8f), fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))
                 if (slide.video) IconBtn(if (SmPrefs.videoMuted) Sym.VolumeOff else Sym.VolumeUp,
-                    if (SmPrefs.videoMuted) "Unmute" else "Mute", { SmPrefs.setVideoMuted(!SmPrefs.videoMuted) }, tint = Color.White)
+                    if (SmPrefs.videoMuted) "Unmute" else "Mute", { SmPrefs.muteVideos(!SmPrefs.videoMuted) }, tint = Color.White)
                 if (isMine) IconBtn(Sym.Add, "Add status", { Nav.open(PostStatusPage()) }, tint = Color.White)
                 Box {
                     IconBtn(Sym.MoreVert, "More", { menu = true }, tint = Color.White)
