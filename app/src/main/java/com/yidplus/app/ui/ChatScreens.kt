@@ -64,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -521,8 +522,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (loadingOlder) LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter), color = ChatLook.bar)
                     // WhatsApp's floating date while scrolled back: the day of the top visible message.
                     val topDay by remember(rows) { derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index?.let { i -> (rows.getOrNull(i) as? ChItem.M)?.m?.createdAt?.let { chatDay(it) } } ?: "" } }
-                    if (showDown && state.isScrollInProgress && topDay.isNotEmpty()) Text(topDay, Modifier.align(Alignment.TopCenter).padding(top = 8.dp).clip(RoundedCornerShape(8.dp)).background(ChatLook.theirs().copy(alpha = .95f))
-                        .padding(horizontal = 12.dp, vertical = 4.dp), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = ChatLook.sub())
+                    // Solid chip with a shadow (WhatsApp): it never shows the bubble text through it.
+                    if (showDown && state.isScrollInProgress && topDay.isNotEmpty()) Text(topDay, Modifier.align(Alignment.TopCenter).padding(top = 6.dp)
+                        .shadow(2.dp, RoundedCornerShape(8.dp)).clip(RoundedCornerShape(8.dp)).background(csDayChipColor())
+                        .padding(horizontal = 12.dp, vertical = 5.dp), fontSize = 12.5.sp, fontWeight = FontWeight.Medium, color = ChatLook.sub())
                 }
             }
         }
@@ -703,7 +706,12 @@ private fun groupJoinsC(list: List<ChatMsg>): List<ChatMsg> {
 private fun ChDayChip(t: String) {
     Box(Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
         Text(t, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = ChatLook.sub(),
-            modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(ChatLook.theirs().copy(alpha = .92f)).padding(horizontal = 12.dp, vertical = 4.dp))
+            modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(csDayChipColor()).padding(horizontal = 12.dp, vertical = 4.dp))
     }
 }
 
+
+
+/** WhatsApp's date chip: light #FFFFFF with shadow on the wallpaper / dark #182229 — opaque, never see-through. */
+@Composable
+private fun csDayChipColor() = if (ChatLook.dark()) Color(0xFF182229) else Color(0xFFFFFFFF)

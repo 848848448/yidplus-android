@@ -219,7 +219,8 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                 }
                 val cap = if (m.deleted) "" else m.caption
                 val bigEmoji = cap.length <= 8 && cap.isNotBlank() && cap.none { it.isLetterOrDigit() } && m.media == null
-                if (cap.isNotBlank()) Text(csFormat(cap, { u -> chOpenLink(c, u) }, onMention), Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = fg,
+                // Yiddish/Hebrew text sits at the start of its own direction (right), like the site's dir=auto.
+                if (cap.isNotBlank()) Text(csFormat(cap, { u -> chOpenLink(c, u) }, onMention), Modifier.align(if (csIsRtl(cap)) Alignment.End else Alignment.Start).padding(horizontal = 6.dp, vertical = 2.dp), color = fg,
                     fontSize = if (bigEmoji) 34.sp else 16.sp, lineHeight = if (bigEmoji) 40.sp else 21.sp, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
                 else if (!m.deleted && !hasMedia && !m.isSticker && !m.isAudio && !m.isPoll && !m.isFile && !m.isUnavailable && !m.isVoiceText)
                     Text("💬 Message", Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = ChatLook.sub(), fontSize = 15.sp)
@@ -415,3 +416,14 @@ private fun ChPoll(id: String) {
     }
 }
 
+
+
+/** First strong character decides the direction (Unicode bidi P2), like dir="auto" on the site. */
+internal fun csIsRtl(s: String): Boolean {
+    for (ch in s) {
+        val d = Character.getDirectionality(ch)
+        if (d == Character.DIRECTIONALITY_RIGHT_TO_LEFT || d == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) return true
+        if (d == Character.DIRECTIONALITY_LEFT_TO_RIGHT) return false
+    }
+    return false
+}
