@@ -29,7 +29,7 @@ class AdAnnouncementsPage : PageScreen() {
         var text by remember { mutableStateOf("") }
         AdPanel("Announcements", sub = "Pinned at the top for everyone", res = res) { j ->
             adCard("📌 New announcement") {
-                AdField(text, { text = it }, "Type announcement...", Modifier.firstFocus(), lines = 3)
+                AdField(text, { text = it }, "Type announcement...", lines = 3)
                 AdButton("Post announcement") {
                     if (text.isBlank()) toast(c, "Type something first")
                     else a.sure("Publish?", "Publish this announcement for all users?\n\n" + text.trim(), danger = false) {
@@ -60,7 +60,7 @@ class AdEmailBlastPage : PageScreen() {
         var subj by remember { mutableStateOf("") }; var msg by remember { mutableStateOf("") }
         AdPanel("✉️ Email all users", sub = "One email to every member") { _ ->
             adCard(null) {
-                AdField(subj, { subj = it }, "Subject", Modifier.firstFocus())
+                AdField(subj, { subj = it }, "Subject")
                 AdField(msg, { msg = it }, "Email message...", lines = 5)
                 AdButton("✉️ Send email to all", danger = true) {
                     if (subj.isBlank() || msg.isBlank()) toast(c, "⚠ Add a subject and message.")
@@ -137,7 +137,7 @@ class AdEmailSettingsPage : PageScreen() {
         }
         AdPanel("Email", sub = "What the site's emails say", res = res) { _ ->
             adCard("✉️ Email settings") {
-                AdField(from, { from = it }, "From name (shown as the sender) — YID PLUS", Modifier.firstFocus())
+                AdField(from, { from = it }, "From name (shown as the sender) — YID PLUS")
                 AdField(subj, { subj = it }, "Verification email — subject")
                 AdField(intro, { intro = it }, "Verification email — intro text", lines = 3)
                 AdButton("Save email templates", enabled = loaded) {
