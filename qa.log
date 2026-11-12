@@ -1,0 +1,155 @@
+[07:57:46] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[07:57:49] screen 480x640 @ 240 dpi
+[07:57:49] ---- Signed in (QA fixture account) ----
+[07:57:53] fixture true
+[07:58:02] shot F01-home-signedin
+[07:58:02] open https://yidplus.com/chat
+[07:58:07] shot F02-chats-list
+[07:58:09] chat list texts:  text="Chats"  text="All"  text="18"  text="Private"  text="5"  text="Groups"  text="12"  text="מ"  text="My status"  text="Y"  text="Yanky"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="&#129302;"  text="YID PLUS AI"  text="AI"  text="Ask me anything"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[07:58:16] shot F03-chat-dm
+[07:58:18] shot F03b-chat-dm-up
+[07:58:22] open https://yidplus.com/chat
+[07:58:36] shot F04-chat-group
+[07:58:37] shot F04b-group-up
+[07:58:39] shot F04c-group-top
+[07:58:43] shot F05-message-actions
+[07:58:53] shot F06-notifications
+[07:58:55] tab Home
+[07:58:58] shot F07-home-header
+[07:58:58] open https://yidplus.com/shorts
+[07:59:07] shot F08-shorts-signedin
+[07:59:07] tab Profile
+[07:59:10] shot F09-profile-signedin
+[07:59:22] shot F09b-profile-scrolled
+[07:59:35] open https://yidplus.com/chat
+[07:59:39] shot F10-chats-dark
+[07:59:46] shot F11-chat-dark
+[07:59:53] screen 1080x2400 @ 420 dpi
+[08:00:01] open https://yidplus.com/chat
+[08:00:06] shot F12-phone-chats
+[08:00:12] shot F13-phone-chat
+[08:00:16] screen 480x640 @ 240 dpi
+[08:00:16] ---- qa/fx-hm.sh ----
+[08:00:23] tab Home
+[08:00:30] hm_tapui 'Feed'
+[08:00:37] shot HM-30-feed-top
+[08:00:37] hm step feed-hide-announcement
+[08:00:41] hm_tapui 'Hide announcement'
+[08:00:43] shot HM-35-feed-announcement-hidden
+[08:00:50] hm_tapui 'What's happening\?'
+[08:00:55] hm keyboard hidden
+[08:00:56] shot HM-33-feed-composer
+[08:00:56] hm step feed-post
+[08:01:00] hm_tapui 'Post'
+[08:01:04] shot HM-34-feed-posted
+[08:01:07] shot HM-31-feed-shorts-channels
+[08:01:13] shot HM-32-feed-posts
+[08:01:22] hm_tapui 'Telegram'
+[08:01:24] tab Home
+[08:01:37] hm_tapui 'Telegram'
+[08:01:45] hm_longui 'יידישע נייעס'
+[08:01:45] shot HM-38-tg-row-longpress-menu
+[08:01:45] hm step tg-row-markread
+[08:01:49] hm_tapui 'Mark as read'
+[08:01:51] shot HM-39-tg-row-read
+[08:02:00] hm_tapui ''?שיעורים יומיים'
+[08:02:08] shot HM-01-tg-newest-at-bottom
+[08:02:12] hm_tapui 'Post options'
+[08:02:13] shot HM-36-tg-post-menu
+[08:02:19] hm_tapui 'Search in channel'
+[08:02:22] shot HM-37-tg-search-in-channel
+[08:02:26] hm_tapui 'Search in channel'
+[08:02:31] shot HM-02-tg-album-linkcard
+[08:02:37] shot HM-03-tg-older-daychips
+[08:02:40] hm_tapui 'Newest posts'
+[08:02:42] shot HM-04-tg-jump-newest
+[08:02:42] hm step tg-join
+[08:02:46] hm_tapui 'Join channel'
+[08:02:49] shot HM-05-tg-joined
+[08:02:52] hm_tapui 'More'
+[08:02:53] shot HM-06-tg-menu
+[08:02:59] tab Home
+[08:03:11] hm_tapui 'Search'
+[08:03:20] hm_tapui 'Search all of YID PLUS'
+[08:03:29] hm keyboard hidden
+[08:03:30] shot HM-07-search-all
+[08:03:31] hm_tapchip row y=149-182 shows: All|Channels|Telegram|Posts|
+[08:03:37] hm_tapchip 'Users'
+[08:03:42] shot HM-08-search-users
+[08:03:46] hm_tapui 'Moshe Fx'
+[08:03:52] shot HM-09-profile
+[08:03:52] hm step profile-follow
+[08:04:01] hm_tapui 'Follow'
+[08:04:05] shot HM-10-profile-followed
+[08:04:10] hm_tapui 'Message'
+[08:04:15] shot HM-11-profile-message
+[08:04:30] hm_tapui 'Followers'
+[08:04:35] shot HM-12-followers-list
+[08:04:42] hm_tapui 'More'
+[08:04:43] shot HM-13-profile-menu
+[08:04:47] hm_tapui 'Report this user'
+[08:04:52] hm_tapui 'Spam'
+[08:04:53] shot HM-14-report-dialog
+[08:04:53] hm step profile-report
+[08:04:57] hm_tapui 'Report'
+[08:05:03] hm_tapui 'More'
+[08:05:08] hm_tapui 'Block this user'
+[08:05:10] shot HM-15-block-dialog
+[08:05:10] hm step profile-block
+[08:05:14] hm_tapui 'Block'
+[08:05:17] shot HM-16-profile-blocked
+[08:05:23] tab Home
+[08:05:35] hm_tapui 'Search'
+[08:05:43] hm_tapui 'Search all of YID PLUS'
+[08:05:50] hm_tapui 'Clear'
+[08:05:54] hm keyboard hidden
+[08:05:55] shot HM-17-recent-searches
+[08:06:01] tab Home
+[08:06:13] hm_tapui 'Members'
+[08:06:22] hm_tapui 'משה'לע'
+[08:06:28] shot HM-18-member-channel
+[08:06:31] hm_tapui 'Channel options'
+[08:06:32] shot HM-19-member-channel-menu
+[08:06:40] hm_tapui 'Followers'
+[08:06:45] shot HM-25-my-followers
+[08:06:45] hm step follower-remove
+[08:06:48] hm_tapui 'Remove'
+[08:06:50] shot HM-26-remove-follower-confirm
+[08:06:53] hm_tapui 'Remove'
+[08:06:56] shot HM-27-follower-removed
+[08:07:03] shot HM-20-member-channel-scrolled
+[08:07:07] tab Home
+[08:07:13] hm_tapui 'Notifications'
+[08:07:18] shot HM-21-notifications
+[08:07:26] shot HM-24-notification-longpress
+[08:07:26] hm step notif-markread
+[08:07:29] hm_tapui 'Mark as read'
+[08:07:31] hm step notifs-readall
+[08:07:35] hm_tapui 'Mark all read'
+[08:07:38] shot HM-23-notifications-read
+[08:07:41] tab Home
+[08:07:53] hm_tapui 'Telegram'
+[08:07:56] hm rec HM-video-telegram
+[08:08:06] hm_tapui ''?שיעורים יומיים'
+[08:08:32] hm_tapui 'Post options'
+[08:08:44] hm_longui 'יידישע נייעס'
+[08:08:47] hm video HM-video-telegram.mp4 358576
+[08:08:48] hm rec HM-video-feed-profile
+[08:08:48] tab Home
+[08:08:59] hm_tapui 'Feed'
+[08:09:16] hm video HM-video-feed-profile.mp4 438613
+[08:09:17] hm rec HM-video-search-profile
+[08:09:20] hm_tapui 'Search'
+[08:09:26] hm_tapui 'Search all of YID PLUS'
+[08:09:32] hm keyboard hidden
+[08:09:33] hm_tapchip row y=149-182 shows: All|Channels|Telegram|Posts|
+[08:09:39] hm_tapchip 'Users'
+[08:09:46] hm_tapui 'Moshe Fx'
+[08:09:55] hm_tapui 'Followers'
+[08:10:00] hm video HM-video-search-profile.mp4 334178
+[08:10:07] tab Home
+[08:10:18] hm_tapui 'Telegram'
+[08:10:20] fixture writes the app would have sent: 28
+[08:10:24] fixture false
