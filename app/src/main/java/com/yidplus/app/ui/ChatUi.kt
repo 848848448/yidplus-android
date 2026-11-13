@@ -70,6 +70,7 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
@@ -127,7 +128,7 @@ internal object ChatLook {
 internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = null, lead: (@Composable () -> Unit)? = null, onTitle: (() -> Unit)? = null,
                    slim: Boolean = false, actions: @Composable RowScope.() -> Unit = {}) {
     Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
-        Row(Modifier.fillMaxWidth().heightIn(min = if (slim) 44.dp else 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().heightIn(min = if (slim) 40.dp else 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) ChIcon(Sym.ArrowBack, "Back", onBack) else Spacer(Modifier.width(12.dp))
             Row(Modifier.weight(1f).then(if (onTitle != null) Modifier.tap(RoundedCornerShape(8.dp), onClick = onTitle) else Modifier).padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically) {
@@ -408,14 +409,33 @@ internal fun chInitials(name: String): String {
 }
 
 
-/** Keyboard-up on a small screen: hide the status bar so the conversation keeps room; restored when the keyboard goes or the screen leaves. */
+/** Keyboard-up on a small screen: hide the status and navigation bars (swipe brings them back) so the conversation keeps room; restored when the keyboard goes or the screen leaves. */
 @Composable
 internal fun HideStatusBarWhile(on: Boolean) {
     val view = androidx.compose.ui.platform.LocalView.current
     androidx.compose.runtime.DisposableEffect(on) {
         val w = (view.context as? android.app.Activity)?.window
         val c = w?.let { androidx.core.view.WindowCompat.getInsetsController(it, view) }
-        if (on) c?.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars())
-        onDispose { c?.show(androidx.core.view.WindowInsetsCompat.Type.statusBars()) }
+        if (on) { c?.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE; c?.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars()) }
+        onDispose { c?.show(androidx.core.view.WindowInsetsCompat.Type.systemBars()) }
     }
+}
+
+
+/** Message field for small screens: the stock TextField carries 16dp of padding above and below its text (about 84px on the F21), which left no room for the conversation with the keyboard up. */
+@Composable
+internal fun CsCompactField(text: String, onChange: (String) -> Unit, ime: Boolean, focus: androidx.compose.ui.focus.FocusRequester, onSend: () -> Unit) {
+    val ink = MaterialTheme.colorScheme.onSurface
+    androidx.compose.foundation.text.BasicTextField(text, onChange, Modifier.fillMaxWidth().focusRequester(focus), maxLines = 5,
+        textStyle = TextStyle(fontSize = 17.sp, textDirection = TextDirection.Content, color = ink),
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(ink),
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Send),
+        keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSend = { onSend() }),
+        decorationBox = { inner ->
+            Box(Modifier.clip(RoundedCornerShape(24.dp)).background(MaterialTheme.colorScheme.surfaceVariant).defaultMinSize(minHeight = if (ime) 40.dp else 48.dp)
+                .padding(horizontal = 16.dp, vertical = if (ime) 8.dp else 12.dp), contentAlignment = Alignment.CenterStart) {
+                if (text.isEmpty()) Text("Message", fontSize = 17.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                inner()
+            }
+        })
 }
