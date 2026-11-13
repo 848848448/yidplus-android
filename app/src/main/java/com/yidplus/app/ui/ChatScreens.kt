@@ -443,7 +443,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             }
         } else ChBar(room.name, sub = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) null else subtitle, onBack = if (inPane) null else fun() { Nav.back() },
             lead = { ChAvatar(room.photo, room.name, room.otherUserId ?: room.id, 38.dp) },
-            onTitle = { Nav.open(ChInfo(room)) }) {
+            onTitle = { Nav.open(ChInfo(room)) }, slim = (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0))) {
             if (me != null && (room.type == "private" || isGroup)) ChIcon(Sym.Call, "Call", { Nav.open(ChCall(room, "audio")) })
             Box {
                 ChIcon(Sym.MoreVert, "More", { menu = true })
@@ -553,7 +553,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     ChIcon(if (emojiOpen) Sym.Keyboard else Sym.EmojiEmotions, if (emojiOpen) "Keyboard" else "Emoji", {
                         emojiOpen = !emojiOpen; attachOpen = false; if (emojiOpen) kb?.hide() else kb?.show()
                     }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) 46.dp else 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = if (compact) 17.sp else 16.sp) }, maxLines = 5,
+                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) 40.dp else 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = if (compact) 17.sp else 16.sp) }, maxLines = 5,
                         textStyle = TextStyle(fontSize = if (compact) 17.sp else 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -649,6 +649,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }
     }
     // ChatScreen is split into lambdas: one huge composable method failed ART verification after R8 (CI 43156298868, VerifyError on API 30).
+    HideStatusBarWhile((compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)))
     Column(Modifier.fillMaxSize().imePadding().background(ChatLook.wall()).chatWallpaper()) {
         csHeader()
         if (pinned != null) {
