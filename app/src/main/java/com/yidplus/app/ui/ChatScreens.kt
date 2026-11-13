@@ -376,6 +376,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val matches = remember(sq, rows) { if (sq.trim().length < 2) emptyList() else rows.withIndex().filter { (_, it) -> it is ChItem.M && it.m.text.contains(sq.trim(), true) && !it.m.isVoice }.map { it.index } }
     LaunchedEffect(matches, hit) { matches.getOrNull(hit)?.let { state.animateScrollToItem(it) } }
     // Sending: the user's own just-sent message always scrolls into view (even when the room was opened mid-history at the unread divider); incoming messages only follow when already near the bottom.
+    // TEMP QA diagnostic (newest message hidden at open, run 43439265248 fx5): remove once the cause is known.
+    LaunchedEffect(rows.size) { kotlinx.coroutines.delay(600); android.util.Log.i("YidPerf", "CHAT open idx=${state.firstVisibleItemIndex} off=${state.firstVisibleItemScrollOffset} rows=${rows.size} msgs=${msgs.size} anchor=$unreadAnchor didAnchor=$didAnchorG unreadAtOpen=$unreadAtOpen total=${state.layoutInfo.totalItemsCount} vis=${state.layoutInfo.visibleItemsInfo.size}") }
     LaunchedEffect(ownSendTick) { if (ownSendTick > 0 && !searchOn) { kotlinx.coroutines.delay(60); state.scrollToItem(0) } }
     LaunchedEffect(msgs.size) { val own = msgs.lastOrNull()?.let { it.pending && it.senderId == me?.id } == true; if (msgs.isNotEmpty() && !searchOn && (own || (state.firstVisibleItemIndex < 3 && (unreadAnchor == null || didAnchorG)))) state.scrollToItem(0) }
     /** Jump to a message (reply quote, pinned bar, pinned list): older pages load until it is found, then it flashes like the site's highlight. */
