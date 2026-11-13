@@ -300,7 +300,7 @@ internal fun ClStatusRow(all: List<StUser>) {
 @Composable
 internal fun ClSearchPill(compact: Boolean, onOpen: () -> Unit) {
     val shape = RoundedCornerShape(24.dp)
-    Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = if (compact) 6.dp else 8.dp, bottom = 2.dp).height(if (compact) 40.dp else 48.dp)
+    Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = if (compact) 6.dp else 8.dp, bottom = 2.dp).height(if (compact) 44.dp else 48.dp)
         .clip(shape).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (ChatLook.dark()) .55f else .8f))
         .tap(shape, onClick = onOpen).semantics { contentDescription = "Search chats" }.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(Sym.Search, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
