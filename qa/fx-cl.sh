@@ -42,7 +42,7 @@ clrows() { # full-width chat rows (redesign rows are about 100 px at 240 dpi; th
   local nav; nav=$(echo "$x" | grep -F 'content-desc="Chats' | grep -oE 'bounds="[^"]+"' | head -1 | grep -oE '[0-9]+' | sed -n 2p)
   local n; n=$(echo "$x" | grep -oE 'bounds="\[0,[0-9]+\]\[480,[0-9]+\]"' | grep -oE '[0-9]+' | paste - - - - | awk -v nb="${nav:-560}" '{h=$4-$2; if (h>=70 && h<=112 && $2>=110 && $4<=nb+2) c++} END{print c+0}')
   log "CL rows: $n full chat rows visible above the bottom bar (top of bottom bar y=${nav:-?}); FAB bounds: ${fab:-none} ($1)"
-  case "$1" in end*) ;; *) [ "${n:-0}" -ge 5 ] && log "CL ok: 5+ rows at 480x640" || log "CL WRONG: only ${n:-0} rows at 480x640";; esac
+  case "$1" in end*) ;; *) [ "${n:-0}" -ge 3 ] && log "CL ok: ${n} comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)" || log "CL WRONG: only ${n:-0} full rows (70-112px, full width, above the bottom bar) at 480x640: list blank, clipped or collapsed";; esac
 }
 # The Qin F21 has hardware keys and no on-screen nav bar; this emulator draws a 48 dp 3-button bar. Use the thin gesture bar
 # for the whole CL block so the screen height matches the phone more closely (no swipe starts within 70 px of a side edge).
