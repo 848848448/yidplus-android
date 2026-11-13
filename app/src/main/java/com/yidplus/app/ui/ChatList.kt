@@ -224,7 +224,9 @@ fun ChatsScreen() {
         // Gap 5: the chips scroll sideways with room at the end, so none is ever cut mid-word at 480 px. Folders (chat.js renderChatFoldersRow) follow the tabs.
         // 480x640: the chips row slides away with the search on scroll-down and comes back on scroll-up, so 5+ chats show.
         if (me != null) AnimatedVisibility(!compact || headerShown, enter = expandVertically(), exit = shrinkVertically()) {
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 20.dp, top = if (compact) 0.dp else 8.dp, bottom = if (compact) 2.dp else 8.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        val chipScroll = rememberScrollState()
+        Box(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().horizontalScroll(chipScroll).padding(start = 12.dp, end = 24.dp, top = if (compact) 2.dp else 8.dp, bottom = if (compact) 6.dp else 8.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 8.dp), verticalAlignment = Alignment.CenterVertically) {
             if (compact && tab == "all" && folder == null) ClStatusChip(stUsers.orEmpty())
             CHAT_TABS.forEach { (k, label) ->
                 val n = list?.let { l -> l.filter { matchTab(it, k) && !it.muted }.sumOf { it.room.unread } } ?: 0
@@ -236,6 +238,9 @@ fun ChatsScreen() {
             }
             Box(Modifier.size(34.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { Nav.open(ClFolderManager()) }
                 .semantics { contentDescription = "Chat folders" }, contentAlignment = Alignment.Center) { Icon(Sym.Add, null, Modifier.size(20.dp)) }
+        }
+        // Small screens: a soft fade at the end edge shows the row scrolls, so a half-visible chip reads as "more", not "cut off".
+        if (chipScroll.maxValue > 0 && chipScroll.value < chipScroll.maxValue) Box(Modifier.align(Alignment.CenterEnd).width(28.dp).fillMaxHeight().background(androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface))))
         }
         }
         // Phone-observed fix: a cached list is kept (offline access), but its age and the refresh state are always visible -
@@ -288,9 +293,9 @@ fun ChatsScreen() {
             // 480x640: the button slides away while you scroll down the list (so no row is ever hidden under it) and is back on scroll-up / at the top.
             if (me != null && sel.isEmpty()) androidx.compose.animation.AnimatedVisibility(!compact || headerShown, Modifier.align(Alignment.BottomEnd),
                 enter = androidx.compose.animation.scaleIn() + androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.scaleOut() + androidx.compose.animation.fadeOut()) {
-            Box(Modifier.padding(if (compact) 10.dp else 16.dp)) {
-                Box(Modifier.size(if (compact) 46.dp else 56.dp).clip(RoundedCornerShape(if (compact) 14.dp else 16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
-                    contentAlignment = Alignment.Center) { Icon(Sym.Chat, null, tint = Color.White, modifier = Modifier.size(26.dp)) }
+            Box(Modifier.padding(if (compact) 8.dp else 16.dp)) {
+                Box(Modifier.size(if (compact) 40.dp else 56.dp).clip(RoundedCornerShape(if (compact) 12.dp else 16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(if (compact) 12.dp else 16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
+                    contentAlignment = Alignment.Center) { Icon(Sym.Chat, null, tint = Color.White, modifier = Modifier.size(if (compact) 22.dp else 26.dp)) }
                 DropdownMenu(fabMenu, { fabMenu = false }) {
                     ChMenuItem(Sym.Person, "New chat") { fabMenu = false; Nav.open(ChNewChat()) }
                     ChMenuItem(Sym.Group, "New group") { fabMenu = false; Nav.open(ChNewGroup("group")) }
