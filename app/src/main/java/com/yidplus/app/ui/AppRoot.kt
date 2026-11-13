@@ -209,7 +209,7 @@ private fun BottomBar(dark: Boolean) {
     Surface(color = bg, shadowElevation = 8.dp) {
         Column {
             HorizontalDivider(thickness = 0.5.dp, color = if (dark) Color.White.copy(alpha = .08f) else MaterialTheme.colorScheme.outlineVariant)
-            Row(Modifier.fillMaxWidth().heightIn(min = if (smallScreen()) 46.dp else 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = if (smallScreen()) 52.dp else 58.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 for (t in SiteConfig.tabs) TabItem(t, dark, Modifier.weight(1f))
             }
         }
@@ -236,7 +236,7 @@ private fun TabItem(t: Tab, dark: Boolean, modifier: Modifier) {
             if (n > 0) Box(Modifier.align(Alignment.TopEnd).offset(x = (-4).dp, y = (-3).dp)) { Badge(n) }
             else if (dot) Box(Modifier.align(Alignment.TopEnd).offset(x = (-14).dp, y = 2.dp).size(9.dp).clip(CircleShape).background(BadgeGreen))
         }
-        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = if (small) 11.sp else 12.sp, lineHeight = if (small) 13.sp else 16.sp), color = if (sel) active else on,
+        Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp, lineHeight = if (small) 14.sp else 16.sp), color = if (sel) active else on,
             fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = if (small) 1.dp else 3.dp))
     }
 }
