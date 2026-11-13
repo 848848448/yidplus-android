@@ -73,9 +73,9 @@ else set -- $MT
   if [ -z "$PRE" ]; then log "CS WRONG: reference body text not found in the no-keyboard dump"; FAIL=1
   elif [ -z "$KB" ]; then log "CS WRONG: last message body not on screen with the keyboard up (nothing readable above the composer)"; FAIL=1
   else set -- $MT $PRE $KB
-    H0=$(( $6 - $4 )); H1=$(( $10 - $8 )); W0=$(( $5 - $3 )); W1=$(( $9 - $7 ))
-    if [ "$H1" -ge "$H0" ] && [ "$W1" -ge "$W0" ] && [ "$8" -ge "$PANE" ] && [ "$10" -le "$1" ]; then log "CS ok: last message body fully inside the viewport with the keyboard up (${W1}x${H1}px vs ${W0}x${H0}px unclipped; y $8-$10, pane top $PANE, composer top $1)"
-    else log "CS WRONG: last message body clipped/overlapped with the keyboard up (${W1}x${H1}px vs ${W0}x${H0}px unclipped; y $8-$10, pane top $PANE, composer top $1)"; FAIL=1; fi
+    H0=$(( $6 - $4 )); H1=$(( ${10} - $8 )); W0=$(( $5 - $3 )); W1=$(( $9 - $7 ))
+    if [ "$H1" -ge "$H0" ] && [ "$W1" -ge "$W0" ] && [ "$8" -ge "$PANE" ] && [ "${10}" -le "$1" ]; then log "CS ok: last message body fully inside the viewport with the keyboard up (${W1}x${H1}px vs ${W0}x${H0}px unclipped; y $8-${10}, pane top $PANE, composer top $1)"
+    else log "CS WRONG: last message body clipped/overlapped with the keyboard up (${W1}x${H1}px vs ${W0}x${H0}px unclipped; y $8-${10}, pane top $PANE, composer top $1)"; FAIL=1; fi
   fi
 fi
 # typing with the keyboard up: text lands in the field, the mic turns into Send, the controls stay on screen; then clear it again
