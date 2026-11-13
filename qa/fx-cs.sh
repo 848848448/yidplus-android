@@ -59,7 +59,7 @@ csroom() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.a
 csrec CS-flow-touch 30
 # 6: opens at the first unread message under "5 unread messages"; formatting, @mention, bare domain, music card, voice, polls
 csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
-timeout 20 adb logcat -d -s YidPerf 2>/dev/null | grep "CHAT open" | tail -4 | cut -c1-300 | sed "s/^/  scroll-diag: /" | tee -a "$OUT/qa.log" >/dev/null
+timeout 20 adb logcat -d -s YidPerf 2>/dev/null | grep -E "CHAT (open|scrollchg|anchor|stick)" | tail -30 | cut -c1-300 | sed "s/^/  scroll-diag: /" | tee -a "$OUT/qa.log" >/dev/null
 timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
 bbox() { tr '>' '\n' < "$2" | grep -F "text=\"$1\"" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
 # opening a room must leave its NEWEST message fully visible above the composer when there is no unread divider (a fix9 run opened r-cs one message above the bottom: only the name of the newest bubble peeked out behind the composer)
@@ -166,4 +166,26 @@ for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
 p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; key 22; sleep 0.6; key 23; sleep 3; shot CS-23-dpad-voice-sent; csfx "type=voice"
 sleep 14; cspull CS-flow-dpad
 timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -E 'r-cs|polls|reports|reactions|stickers|generate_invite' | cut -c1-400 > "$OUT/fx-cs-requests.txt"
+# ---- containment: the fixture must not need the network. Turn the emulator network off, CONFIRM it is off (a ping must fail), then use the chat and the voice player.
+# Evidence is the app's own log (no socket capture): any "Unable to resolve host"/UnknownHost/connect failure from the app while the network is off is an outbound attempt.
+PRE=$(timeout 20 adb shell "ping -c 1 -W 3 1.1.1.1; echo rc=\$?" 2>&1 | tr '\n' ' ' | cut -c1-200)
+adb shell svc wifi disable 2>/dev/null; adb shell svc data disable 2>/dev/null; sleep 4
+PING=$(timeout 20 adb shell "ping -c 1 -W 3 1.1.1.1; echo rc=\$?" 2>&1 | tr '\n' ' ' | cut -c1-200)
+case "$PRE" in
+  *"rc=0"*) : ;;
+  *) log "CS MISSING: containment not tested, ping does not work even with the network on, so network state cannot be confirmed ($PRE)"; PING="rc=skip" ;;
+esac
+case "$PING" in
+  "rc=skip") : ;;
+  *"rc=0"*) log "CS MISSING: containment not tested, the emulator network could not be turned off (ping still works: $PING)" ;;
+  *)
+    log "CS containment: emulator network confirmed OFF (ping failed: $PING)"
+    adb logcat -c; csroom 6
+    if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; sleep 1; fi
+    csfind "0:12" 8; csplaylast; shot CS-30-network-off-voice
+    cshas "Message"
+    OUTB=$(timeout 30 adb logcat -d 2>/dev/null | grep -E "Unable to resolve host|UnknownHostException|SocketTimeoutException|ConnectException|Failed to connect to" | grep -v "YidplusPush" | cut -c1-220 | head -5)
+    if [ -n "$OUTB" ]; then log "CS WRONG: outbound network attempts with the network off:"; echo "$OUTB" | sed 's/^/  outbound: /' | tee -a "$OUT/qa.log" >/dev/null; FAIL=1; else log "CS ok: no outbound connection failures in the log during the network-off chat and voice test (log-based, not a socket capture)"; fi ;;
+esac
+adb shell svc wifi enable 2>/dev/null; adb shell svc data enable 2>/dev/null; sleep 4; log "CS network restored: $(timeout 20 adb shell 'ping -c 1 -W 3 1.1.1.1 >/dev/null 2>&1; echo rc=$?' 2>&1 | tr -d '\r')"
 log "CS done"
