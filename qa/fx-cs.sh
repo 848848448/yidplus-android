@@ -27,7 +27,7 @@ csmic() { cspos "Record voice message"; }
 csdur() { # duration label of the lowest (newest) voice bubble on screen vs the recorded length ($1 = lo, $2 = hi seconds)
   timeout 30 adb shell uiautomator dump /sdcard/cd.xml >/dev/null 2>&1
   local d; d=$(timeout 20 adb shell cat /sdcard/cd.xml 2>/dev/null | tr '>' '\n' | sed -n 's/.* text="\([0-9]*:[0-9][0-9]\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[.*/\2 \1/p' | sort -n | tail -1)
-  [ -z "$d" ] && { log "CS MISSING: no duration label on the newest voice bubble after send"; return 0; }
+  [ -z "$d" ] && { log "CS WRONG: no duration label on the newest voice bubble after send (sent note not visible or label missing)"; FAIL=1; return 0; }
   local lab=${d#* }; local sec=$(( 10#${lab%%:*} * 60 + 10#${lab##*:} ))
   if [ $sec -ge $1 ] && [ $sec -le $2 ]; then log "CS ok: newest voice bubble shows $lab for a ~5s recording (expected $1-$2 s)"; else log "CS WRONG: newest voice bubble shows $lab, recording was ~5s (expected $1-$2 s)"; FAIL=1; fi
 }
@@ -60,11 +60,13 @@ csrec CS-flow-touch 30
 # 6: opens at the first unread message under "5 unread messages"; formatting, @mention, bare domain, music card, voice, polls
 csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
 timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
-BODY="זאל זיין מיט מזל"   # the last fixture message; its unclipped size is read from this dump (no keyboard) and must be matched with the keyboard up
 bbox() { tr '>' '\n' < "$2" | grep -F "text=\"$1\"" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
 # the room opens at the unread divider when earlier legs left it unread (e.g. the full base leg) and at the bottom otherwise; the keyboard check needs the newest message, so jump there first and take the reference body from that dump
 if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; sleep 1.5; log "CS jumped to newest before the keyboard check"; fi
 timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
+# the newest message body = the lowest non-time text node above the composer in the post-jump dump (a fixed string was wrong once the room's last message was a different one: "CS WRONG: last message body not on screen" while the screenshot showed the newest bubble fully visible)
+BODY=$(tr '>' '\n' < "$OUT/CS-01-open-unread-line.xml" | sed -n 's/.* text="\([^"]\{4,\}\)".*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,\([0-9]*\)\]".*/\2\t\1/p' | grep -vP '\t[0-9]{1,2}:[0-9]{2}( [AP]M)?$|\t(Message|Newest.*|[0-9]+ unread messages|CS QA|[0-9]+ members)$' | awk -F'\t' '$1<=505' | sort -n | tail -1 | cut -f2)
+log "CS newest message body chosen from the dump: $BODY"; [ -z "$BODY" ] && { log "CS WRONG: no newest message body found in the no-keyboard dump"; FAIL=1; BODY="__none__"; }
 # keyboard up: real IME over the open chat, composer proportions with the keyboard visible
 adb shell settings put secure show_ime_with_hard_keyboard 1
 cstap "Message"; sleep 1; cskb "composer tap"; shot CS-24-keyboard-up
