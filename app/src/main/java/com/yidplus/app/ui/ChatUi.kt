@@ -132,7 +132,7 @@ internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = n
             if (onBack != null) ChIcon(Sym.ArrowBack, "Back", onBack) else Spacer(Modifier.width(12.dp))
             Row(Modifier.weight(1f).then(if (onTitle != null) Modifier.tap(RoundedCornerShape(8.dp), onClick = onTitle) else Modifier).padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically) {
-                if (lead != null) { lead(); Spacer(Modifier.width(8.dp)) }
+                if (lead != null && !slim) { lead(); Spacer(Modifier.width(8.dp)) }
                 Column(Modifier.weight(1f)) {
                     Text(title, color = LocalContentColor.current, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         style = TextStyle(textDirection = TextDirection.Content))
@@ -409,15 +409,15 @@ internal fun chInitials(name: String): String {
 }
 
 
-/** Keyboard-up on a small screen: hide the status and navigation bars (swipe brings them back) so the conversation keeps room; restored when the keyboard goes or the screen leaves. */
+/** Keyboard-up on a small screen: hide the status bar (the navigation bar stays so Back/keyboard dismissal remain reachable) so the conversation keeps room; restored when the keyboard goes or the screen leaves. */
 @Composable
 internal fun HideStatusBarWhile(on: Boolean) {
     val view = androidx.compose.ui.platform.LocalView.current
     androidx.compose.runtime.DisposableEffect(on) {
         val w = (view.context as? android.app.Activity)?.window
         val c = w?.let { androidx.core.view.WindowCompat.getInsetsController(it, view) }
-        if (on) { c?.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE; c?.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars()) }
-        onDispose { c?.show(androidx.core.view.WindowInsetsCompat.Type.systemBars()) }
+        if (on) { c?.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars()) }
+        onDispose { c?.show(androidx.core.view.WindowInsetsCompat.Type.statusBars()) }
     }
 }
 
