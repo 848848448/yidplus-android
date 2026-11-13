@@ -424,15 +424,15 @@ internal fun HideStatusBarWhile(on: Boolean) {
 
 /** Message field for small screens: the stock TextField carries 16dp of padding above and below its text (about 84px on the F21), which left no room for the conversation with the keyboard up. */
 @Composable
-internal fun CsCompactField(text: String, onChange: (String) -> Unit, ime: Boolean, focus: androidx.compose.ui.focus.FocusRequester, onSend: () -> Unit) {
+internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String) -> Unit, ime: Boolean, focus: androidx.compose.ui.focus.FocusRequester, onSend: () -> Unit) {
     val ink = MaterialTheme.colorScheme.onSurface
-    androidx.compose.foundation.text.BasicTextField(text, onChange, Modifier.fillMaxWidth().focusRequester(focus), maxLines = 5,
+    androidx.compose.foundation.text.BasicTextField(text, onChange, modifier.focusRequester(focus), maxLines = 5,
         textStyle = TextStyle(fontSize = 17.sp, textDirection = TextDirection.Content, color = ink),
         cursorBrush = androidx.compose.ui.graphics.SolidColor(ink),
         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Send),
         keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSend = { onSend() }),
         decorationBox = { inner ->
-            Box(Modifier.clip(RoundedCornerShape(24.dp)).background(MaterialTheme.colorScheme.surfaceVariant).defaultMinSize(minHeight = if (ime) 40.dp else 48.dp)
+            Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(MaterialTheme.colorScheme.surfaceVariant).defaultMinSize(minHeight = if (ime) 40.dp else 48.dp)
                 .padding(horizontal = 16.dp, vertical = if (ime) 8.dp else 12.dp), contentAlignment = Alignment.CenterStart) {
                 if (text.isEmpty()) Text("Message", fontSize = 17.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 inner()
