@@ -107,7 +107,13 @@ TY=$(tr '>' '\n' < "$OUT/CS-24b-typed.xml")
 echo "$TY" | grep -q 'text="hello"' && log "CS ok: typed text is in the field with the keyboard up" || { log "CS WRONG: typed text not in the field"; FAIL=1; }
 for d in "Send" "Attach" "Emoji"; do echo "$TY" | grep -q "content-desc=\"$d" && log "CS ok: '$d' present while typing" || { log "CS WRONG: '$d' missing while typing"; FAIL=1; }; done
 shot CS-24b-typed
-adb shell input keyevent KEYCODE_MOVE_END; for i in 1 2 3 4 5 6 7 8; do adb shell input keyevent KEYCODE_DEL; done; sleep 1; log "CS cleared the typed draft"
+# clear the typed draft (it is saved after 600 ms and restores on reopen, which swaps the mic for Send): focus the field, delete, VERIFY, retry once
+for try in 1 2; do
+  cstap "hello"; adb shell input keyevent KEYCODE_MOVE_END; for i in 1 2 3 4 5 6 7 8; do adb shell input keyevent KEYCODE_DEL; done; sleep 1.5
+  if [ -z "$(cspos "hello")" ]; then log "CS cleared the typed draft (verified: no 'hello' in the field, try $try)"; break; else log "CS draft still shows 'hello' after try $try"; fi
+done
+[ -n "$(cspos "hello")" ] && { log "CS WRONG: typed draft could not be cleared, later voice steps would run against a Send button"; FAIL=1; }
+sleep 1
 for n in 1 2 3 4 5 6; do adb shell input keyevent 67; done; sleep 1
 key 4; sleep 1; sysbars after-keyboard
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
