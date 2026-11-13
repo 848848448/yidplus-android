@@ -9,7 +9,16 @@ fx_block() {
   restart 7; shot F01-home-signedin; check fx-home
   view "https://yidplus.com/chat"; sleep 5; shot F02-chats-list
   timeout 20 adb shell uiautomator dump /sdcard/fx.xml >/dev/null 2>&1
-  log "chat list texts: $(timeout 20 adb shell cat /sdcard/fx.xml 2>/dev/null | grep -oE ' text="[^"]+"' | head -40 | tr '\n' ' ')"
+  timeout 20 adb shell cat /sdcard/fx.xml > "$OUT/fx-list-dump.xml" 2>/dev/null
+  log "chat list texts: $(grep -oE ' text="[^"]+"' "$OUT/fx-list-dump.xml" 2>/dev/null | head -40 | tr '\n' ' ')"
+  # Blank-list diagnostic (seen in run 43365788338): chips had counts but no row nodes. Keep the FULL XML
+  # (bounds separate never-composed from zero-size/offscreen), and re-dump 10 s later to time the recovery.
+  if ! grep -q "Yossi Klein" "$OUT/fx-list-dump.xml" 2>/dev/null; then
+    log "F02 BLANK-LIST: no chat rows in the accessibility tree; dumping again after 10 s"
+    sleep 10; timeout 20 adb shell uiautomator dump /sdcard/fx2.xml >/dev/null 2>&1
+    timeout 20 adb shell cat /sdcard/fx2.xml > "$OUT/fx-list-dump-retry.xml" 2>/dev/null
+    log "F02 retry texts: $(grep -oE ' text="[^"]+"' "$OUT/fx-list-dump-retry.xml" 2>/dev/null | head -40 | tr '\n' ' ')"
+  fi
   key 23; sleep 6; shot F03-chat-dm; adb shell input swipe 240 260 240 580 300; sleep 1; shot F03b-chat-dm-up; key 4; sleep 2; check fx-dm
   view "https://yidplus.com/chat"; sleep 4; key 20; key 20; key 23; sleep 6; shot F04-chat-group
   adb shell input swipe 240 260 240 580 300; sleep 1; shot F04b-group-up; adb shell input swipe 240 260 240 580 300; sleep 1; shot F04c-group-top; check fx-group
