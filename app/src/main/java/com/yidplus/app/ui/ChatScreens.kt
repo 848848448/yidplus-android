@@ -441,7 +441,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     ChIcon(Sym.KeyboardArrowDown, "Newer", { if (matches.isNotEmpty()) hit = (hit - 1 + matches.size) % matches.size })
                 }
             }
-        } else ChBar(room.name, sub = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) null else subtitle, onBack = if (inPane) null else fun() { Nav.back() },
+        } else if (!(compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0))) ChBar(room.name, sub = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) null else subtitle, onBack = if (inPane) null else fun() { Nav.back() },
             lead = { ChAvatar(room.photo, room.name, room.otherUserId ?: room.id, 38.dp) },
             onTitle = { Nav.open(ChInfo(room)) }, slim = (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0))) {
             if (me != null && (room.type == "private" || isGroup)) ChIcon(Sym.Call, "Call", { Nav.open(ChCall(room, "audio")) })
@@ -553,7 +553,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     ChIcon(if (emojiOpen) Sym.Keyboard else Sym.EmojiEmotions, if (emojiOpen) "Keyboard" else "Emoji", {
                         emojiOpen = !emojiOpen; attachOpen = false; if (emojiOpen) kb?.hide() else kb?.show()
                     }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (compact) CsCompactField(text, { text = it }, (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0), inputFocus) { sendText() }
+                    if (compact) CsCompactField(Modifier.weight(1f), text, { text = it }, (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0), inputFocus) { sendText() }
                     else TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) 40.dp else 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = if (compact) 17.sp else 16.sp) }, maxLines = 5,
                         textStyle = TextStyle(fontSize = if (compact) 17.sp else 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
