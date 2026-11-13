@@ -27,6 +27,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.focusable
@@ -185,6 +186,9 @@ internal fun CsHoldBar(r: CsRec) {
 @Composable
 internal fun CsLockedBar(r: CsRec, onDelete: () -> Unit, onSend: () -> Unit) {
     val c = ctx()
+    // The mic that had keypad focus is replaced by this bar, which dropped focus (fx5 run 43511759626: focus [none] right after the start). Put it on Send so OK sends and the D-pad reaches Delete/Pause/Stop.
+    val sendFocus = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) { kotlinx.coroutines.delay(150); try { sendFocus.requestFocus() } catch (_: Exception) {} }
     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 6.dp, vertical = 6.dp)) {
         if (r.mode == 2 && r.paused) Text("Paused. Stop to listen before sending.", Modifier.padding(start = 12.dp, bottom = 2.dp), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -207,7 +211,7 @@ internal fun CsLockedBar(r: CsRec, onDelete: () -> Unit, onSend: () -> Unit) {
                 if (android.os.Build.VERSION.SDK_INT >= 24) ChIcon(if (r.paused) Sym.CircleFill else Sym.Pause, if (r.paused) "Resume recording" else "Pause recording", { r.pauseResume() }, tint = Color(0xFFE53935))
                 ChIcon(Sym.Stop, "Stop and listen", { r.stopToListen() }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Box(Modifier.size(48.dp).clip(CircleShape).background(ChatLook.bar).tap(CircleShape) { onSend() }, contentAlignment = Alignment.Center) {
+            Box(Modifier.size(48.dp).clip(CircleShape).background(ChatLook.bar).focusRequester(sendFocus).tap(CircleShape) { onSend() }, contentAlignment = Alignment.Center) {
                 Icon(Sym.Send, "Send voice message", tint = Color.White)
             }
         }
