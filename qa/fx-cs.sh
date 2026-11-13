@@ -52,6 +52,9 @@ csroom() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.a
 csrec CS-flow-touch 30
 # 6: opens at the first unread message under "5 unread messages"; formatting, @mention, bare domain, music card, voice, polls
 csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
+timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
+BODY="זאל זיין מיט מזל"   # the last fixture message; its unclipped size is read from this dump (no keyboard) and must be matched with the keyboard up
+bbox() { tr '>' '\n' < "$2" | grep -F "text=\"$1\"" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
 # keyboard up: real IME over the open chat, composer proportions with the keyboard visible
 adb shell settings put secure show_ime_with_hard_keyboard 1
 cstap "Message"; sleep 1; cskb "composer tap"; shot CS-24-keyboard-up
@@ -66,9 +69,23 @@ MT=$(echo "$CS24" | sed -n 's/.*text="Message".*bounds="\[[0-9]*,\([0-9]*\)\]\[[
 if [ -z "$MT" ]; then log "CS WRONG: composer not found with the keyboard up"; FAIL=1
 else set -- $MT
   [ $(( $2 - $1 )) -ge 28 ] && log "CS ok: composer text height $(( $2 - $1 ))px with the keyboard up" || { log "CS WRONG: composer text clipped with the keyboard up (height $(( $2 - $1 ))px)"; FAIL=1; }
-  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\2|\3/p' | awk -F'|' -v top="$1" -v pane="$PANE" '$3+4 <= top && ($3-$2) >= 24 && $2 >= pane && $1 !~ /^[0-9]+:[0-9]+ ?(AM|PM)?$/ && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
-    && log "CS ok: message body text (>=24px tall, below the header if one is shown, not a time stamp) stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up (clipped slivers, time stamps and off-pane nodes do not count)"; FAIL=1; }
+  PRE=$(bbox "$BODY" "$OUT/CS-01-open-unread-line.xml"); KB=$(bbox "$BODY" "$OUT/CS-24-keyboard-up.xml")
+  if [ -z "$PRE" ]; then log "CS WRONG: reference body text not found in the no-keyboard dump"; FAIL=1
+  elif [ -z "$KB" ]; then log "CS WRONG: last message body not on screen with the keyboard up (nothing readable above the composer)"; FAIL=1
+  else set -- $MT $PRE $KB
+    H0=$(( $6 - $4 )); H1=$(( $10 - $8 )); W0=$(( $5 - $3 )); W1=$(( $9 - $7 ))
+    if [ "$H1" -ge "$H0" ] && [ "$W1" -ge "$W0" ] && [ "$8" -ge "$PANE" ] && [ "$10" -le "$1" ]; then log "CS ok: last message body fully inside the viewport with the keyboard up (${W1}x${H1}px vs ${W0}x${H0}px unclipped; y $8-$10, pane top $PANE, composer top $1)"
+    else log "CS WRONG: last message body clipped/overlapped with the keyboard up (${W1}x${H1}px vs ${W0}x${H0}px unclipped; y $8-$10, pane top $PANE, composer top $1)"; FAIL=1; fi
+  fi
 fi
+# typing with the keyboard up: text lands in the field, the mic turns into Send, the controls stay on screen; then clear it again
+adb shell input text hello; sleep 1
+timeout 20 adb shell uiautomator dump /sdcard/ty.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/ty.xml > "$OUT/CS-24b-typed.xml" 2>/dev/null
+TY=$(tr '>' '\n' < "$OUT/CS-24b-typed.xml")
+echo "$TY" | grep -q 'text="hello"' && log "CS ok: typed text is in the field with the keyboard up" || { log "CS WRONG: typed text not in the field"; FAIL=1; }
+for d in "Send" "Attach" "Emoji"; do echo "$TY" | grep -q "content-desc=\"$d" && log "CS ok: '$d' present while typing" || { log "CS WRONG: '$d' missing while typing"; FAIL=1; }; done
+shot CS-24b-typed
+for n in 1 2 3 4 5 6; do adb shell input keyevent 67; done; sleep 1
 key 4; sleep 1; sysbars after-keyboard
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
 for n in 1 2 3 4 5; do adb shell input swipe 240 200 240 600 250; sleep 0.6; done; sleep 3; shot CS-03-older-page-loaded; csfind "עלטערע מעסעדזש 1" 4; cshas "עלטערע מעסעדזש 1"
