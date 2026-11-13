@@ -58,8 +58,8 @@ MT=$(echo "$CS24" | sed -n 's/.*text="Message".*bounds="\[[0-9]*,\([0-9]*\)\]\[[
 if [ -z "$MT" ]; then log "CS WRONG: composer not found with the keyboard up"; FAIL=1
 else set -- $MT
   [ $(( $2 - $1 )) -ge 28 ] && log "CS ok: composer text height $(( $2 - $1 ))px with the keyboard up" || { log "CS WRONG: composer text clipped with the keyboard up (height $(( $2 - $1 ))px)"; FAIL=1; }
-  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\3/p' | awk -F'|' -v top="$1" '$2+4 < top && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
-    && log "CS ok: a message stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up"; FAIL=1; }
+  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\2|\3/p' | awk -F'|' -v top="$1" '$3+4 <= top && ($3-$2) >= 12 && $2 >= 40 && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
+    && log "CS ok: a real message node (>=12px tall) stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up (nodes under 12px tall or off-pane do not count)"; FAIL=1; }
 fi
 key 4; sleep 1
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
