@@ -79,7 +79,8 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
     val isVoice get() = type == "voice"
     val isImage get() = !isSticker && (media != null || local != null) && (ext in setOf("jpg", "jpeg", "png", "gif", "webp", "heic", "avif") || (type == "media" && ext.isEmpty() && local == null))
     val isVideo get() = (media != null || local != null) && ext in setOf("mp4", "mov", "webm", "3gp", "mkv", "m4v") && !isVoice
-    val isAudio get() = media != null && !isVideo && (isVoice || ext in setOf("mp3", "m4a", "ogg", "opus", "wav", "aac", "amr", "flac"))
+    // local counts too: a voice note / music file just recorded on this phone renders as a playable bubble while it uploads.
+    val isAudio get() = (media != null || local != null) && !isVideo && (isVoice || ext in setOf("mp3", "m4a", "ogg", "opus", "wav", "aac", "amr", "flac"))
     val isFile get() = media != null && !isImage && !isVideo && !isAudio && !isSticker
     val isPoll get() = type == "poll"
     val isSystem get() = type == "system"
