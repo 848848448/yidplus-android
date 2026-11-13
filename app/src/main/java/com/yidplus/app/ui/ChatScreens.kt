@@ -442,7 +442,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 }
             }
         } else ChBar(room.name, sub = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) null else subtitle, onBack = if (inPane) null else fun() { Nav.back() },
-            lead = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) null else @Composable { ChAvatar(room.photo, room.name, room.otherUserId ?: room.id, 38.dp) },
+            lead = { ChAvatar(room.photo, room.name, room.otherUserId ?: room.id, 38.dp) },
             onTitle = { Nav.open(ChInfo(room)) }, slim = (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0))) {
             if (me != null && (room.type == "private" || isGroup)) ChIcon(Sym.Call, "Call", { Nav.open(ChCall(room, "audio")) })
             Box {
@@ -563,7 +563,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (editing == null && text.isBlank()) ChIcon(Sym.PhotoCamera, "Camera", { shoot(false) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Spacer(Modifier.width(2.dp))
-                    CsMicButton(size = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) 40.dp else 48.dp, canSend = text.isNotBlank(), editing = editing != null, busy = sending && vr.mode == 0, r = vr, onSend = { sendText() },
+                    CsMicButton(canSend = text.isNotBlank(), editing = editing != null, busy = sending && vr.mode == 0, r = vr, onSend = { sendText() },
                         onStart = { locked -> mic(locked) }, onRelease = { stopRec(true) }, onCancel = { stopRec(false); toast(c, "Recording cancelled") })
                 }
                 if (emojiOpen && !recording) CsEmojiPanel(onSticker = { url ->
