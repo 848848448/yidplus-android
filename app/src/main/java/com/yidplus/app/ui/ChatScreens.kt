@@ -377,17 +377,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     LaunchedEffect(matches, hit) { matches.getOrNull(hit)?.let { state.animateScrollToItem(it) } }
     // Sending: the user's own just-sent message always scrolls into view (even when the room was opened mid-history at the unread divider); incoming messages only follow when already near the bottom.
     // TEMP QA diagnostic (newest message hidden at open, run 43439265248 fx5): remove once the cause is known.
-    LaunchedEffect(rows.size) { kotlinx.coroutines.delay(600); android.util.Log.i("YidPerf", "CHAT open idx=${state.firstVisibleItemIndex} off=${state.firstVisibleItemScrollOffset} rows=${rows.size} msgs=${msgs.size} anchor=$unreadAnchor didAnchor=$didAnchorG unreadAtOpen=$unreadAtOpen total=${state.layoutInfo.totalItemsCount} vis=${state.layoutInfo.visibleItemsInfo.size}") }
     LaunchedEffect(ownSendTick) { if (ownSendTick > 0 && !searchOn) { kotlinx.coroutines.delay(60); state.scrollToItem(0) } }
-    LaunchedEffect(msgs.size) { val own = msgs.lastOrNull()?.let { it.pending && it.senderId == me?.id } == true; if (msgs.isNotEmpty() && !searchOn && (own || (state.firstVisibleItemIndex < 3 && (unreadAnchor == null || didAnchorG)))) { android.util.Log.i("YidPerf", "CHAT stick-to-newest scrollToItem(0) from idx=${state.firstVisibleItemIndex} msgs=${msgs.size} anchor=$unreadAnchor did=$didAnchorG own=$own"); state.scrollToItem(0) } }
-    // TEMP diag: every scroll position change in the first 8 s after open, with who moved it (user drag in progress or code) and the list state at that moment.
-    LaunchedEffect(room.id) {
-        val t0 = android.os.SystemClock.elapsedRealtime()
-        snapshotFlow { state.firstVisibleItemIndex * 100000 + state.firstVisibleItemScrollOffset }.collect {
-            val dt = android.os.SystemClock.elapsedRealtime() - t0
-            if (dt < 8000) android.util.Log.i("YidPerf", "CHAT scrollchg t=${dt}ms idx=${state.firstVisibleItemIndex} off=${state.firstVisibleItemScrollOffset} userDrag=${state.isScrollInProgress} total=${state.layoutInfo.totalItemsCount} msgs=${msgs.size} anchor=$unreadAnchor did=$didAnchorG unreadAtOpen=$unreadAtOpen")
-        }
-    }
+    LaunchedEffect(msgs.size) { val own = msgs.lastOrNull()?.let { it.pending && it.senderId == me?.id } == true; if (msgs.isNotEmpty() && !searchOn && (own || (state.firstVisibleItemIndex < 3 && (unreadAnchor == null || didAnchorG)))) state.scrollToItem(0) }
     /** Jump to a message (reply quote, pinned bar, pinned list): older pages load until it is found, then it flashes like the site's highlight. */
     fun jumpTo(id: String) {
         scope.launch {
@@ -411,7 +402,6 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         if (i >= 0) {
             didAnchorG = true
             // reverse layout: item i sits on the bottom edge, its "N unread messages" line right above it (the rest is one swipe down)
-            android.util.Log.i("YidPerf", "CHAT anchor effect i=$i rows=${rows.size} itemsNow=${itemsNow().size} msgs=${msgs.size} curIdx=${state.firstVisibleItemIndex} userDrag=${state.isScrollInProgress}")
             if (i > 2) state.scrollToItem(i)
         }
     }
