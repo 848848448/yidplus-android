@@ -119,7 +119,8 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
     val bg = if (mine) ChatLook.mine() else ChatLook.theirs()
     val fg = ChatLook.ink()
     val link = remember(m.text) { if (m.isCentred || m.deleted || m.isSticker || m.isVoice || m.isVoiceText) null else urlRegex.find(m.text)?.value?.trimEnd('.', ',', ')', '!', '?') }
-    val maxW = (LocalConfiguration.current.screenWidthDp * 0.82f).dp.coerceAtMost(440.dp)
+    val compact = LocalConfiguration.current.screenHeightDp < 600
+    val maxW = (LocalConfiguration.current.screenWidthDp * (if (compact) 0.86f else 0.82f)).dp.coerceAtMost(440.dp)
     // WhatsApp: ~8dp corners; the first bubble of a run has a square top corner plus a small drawn tail (csTail).
     val tail = 0.dp; val r = 10.dp
     val shape = if (mine) RoundedCornerShape(r, if (first) tail else r, r, r) else RoundedCornerShape(if (first) tail else r, r, r, r)
@@ -175,7 +176,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                     onDoubleClick = if (selected == null && !m.pending && !m.failed && !m.deleted) ({ onReact("❤️") }) else null)
                 .padding(horizontal = 4.dp, vertical = 4.dp)) {
                 if (!mine && group && first) Row(Modifier.padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(m.nick, Modifier.weight(1f, fill = false).then(if (onNick != null) Modifier.clickable(onClick = onNick) else Modifier), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.nameColor(m.senderId), maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                    Text(m.nick, Modifier.weight(1f, fill = false).then(if (onNick != null) Modifier.clickable(onClick = onNick) else Modifier), fontSize = if (compact) 14.5.sp else 14.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.nameColor(m.senderId), maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                     if (m.title.isNotBlank()) Text(m.title, Modifier.padding(start = 6.dp).clip(RoundedCornerShape(8.dp)).background(ChatLook.bar.copy(alpha = .12f)).padding(horizontal = 6.dp), fontSize = 11.sp, color = ChatLook.bar, maxLines = 1)
                 }
                 if (m.forwarded && !m.deleted) Row(Modifier.padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -221,7 +222,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                 val bigEmoji = cap.length <= 8 && cap.isNotBlank() && cap.none { it.isLetterOrDigit() } && m.media == null
                 // Yiddish/Hebrew text sits at the start of its own direction (right), like the site's dir=auto.
                 if (cap.isNotBlank()) Text(csFormat(cap, { u -> chOpenLink(c, u) }, onMention), Modifier.align(if (csIsRtl(cap)) Alignment.End else Alignment.Start).padding(horizontal = 6.dp, vertical = 2.dp), color = fg,
-                    fontSize = if (bigEmoji) 34.sp else 16.sp, lineHeight = if (bigEmoji) 40.sp else 21.sp, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
+                    fontSize = if (bigEmoji) 34.sp else if (compact) 17.sp else 16.sp, lineHeight = if (bigEmoji) 40.sp else if (compact) 23.sp else 21.sp, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
                 else if (!m.deleted && !hasMedia && !m.isSticker && !m.isAudio && !m.isPoll && !m.isFile && !m.isUnavailable && !m.isVoiceText)
                     Text("💬 Message", Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = ChatLook.sub(), fontSize = 15.sp)
                 if (link != null) ChLinkCard(link, mine, onJoin)
