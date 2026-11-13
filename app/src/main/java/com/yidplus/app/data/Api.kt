@@ -55,6 +55,7 @@ object Api {
     fun abs(u: String?): String? {
         if (u.isNullOrBlank()) return null
         if (u.startsWith("http://") || u.startsWith("https://")) return u
+        if (u.startsWith("file:") || u.startsWith("content:")) return u
         if (u.startsWith("//")) return "https:$u"
         return BASE + (if (u.startsWith("/")) u else "/$u")
     }
@@ -80,6 +81,8 @@ object Api {
 
     private fun exec(r: Request): JSONObject {
         Fixture.answer(r)?.let { return it }
+        // Fail closed: with the fixture on, no answer from the canned set means this call is unknown - never fall through to the site.
+        if (Fixture.on) throw ApiError(0, "Fixture has no answer for " + r.method + " " + r.url.encodedPath, JSONObject())
         http.newCall(r).execute().use { res ->
             val text = res.body?.string() ?: ""
             val j = runCatching { JSONObject(text) }.getOrNull()
@@ -121,6 +124,14 @@ object Fixture {
             val j = JSONObject(c.assets.open("qa/$n").bufferedReader().use { it.readText() })
             for (k in j.keys()) all.put(k, j.get(k))
         }
+        // Media reads stay local too: canned answers point at the site's /api/media files; swap them for bundled placeholders so QA pulls no bytes from the site.
+        val dir = java.io.File(c.filesDir, "qa-media").apply { mkdirs() }
+        val vf = java.io.File(dir, "voice.m4a"); if (!vf.exists()) runCatching { c.assets.open("qa/cs-voice.m4a").use { i -> vf.outputStream().use { o -> i.copyTo(o) } } }
+        voiceFile = "file://" + vf.absolutePath
+        val im = java.io.File(dir, "img.png"); if (!im.exists()) runCatching { im.writeBytes(android.util.Base64.decode(IMG_PNG, android.util.Base64.DEFAULT)) }
+        imgFile = "file://" + im.absolutePath
+        remapMedia(all)
+        sent.clear()
         data = if (all.length() > 0) all else null
     }
     fun set(c: Context, enable: Boolean) {
@@ -128,6 +139,36 @@ object Fixture {
         if (enable) load(c) else data = null
         Disk.clear()
     }
+    /** Messages sent while the fixture is on, appended to that room's history answers so reopen flows see them (the site would persist them). */
+    private val sent = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
+    private var voiceFile: String? = null
+    private var imgFile: String? = null
+    private const val IMG_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGOYM2cFVsQwtCQA4Hp4AX8OoekAAAAASUVORK5CYII="
+
+    /** A media upload in fixture mode: the caller kept the bytes on disk; record the message so history answers include it. */
+    fun noteSend(roomId: String, type: String, text: String, name: String, mediaPath: String?) {
+        val me = data?.optJSONObject("/api/auth/me")?.optJSONObject("user")
+        val m = JSONObject()
+            .put("id", "fx-" + System.nanoTime()).put("room_id", roomId)
+            .put("sender_id", me?.optString("id") ?: "demo-me").put("sender_nick", me?.optString("nickname") ?: "Me")
+            .put("sender_photo", JSONObject.NULL).put("type", type)
+            .put("text", if (type == "voice" && !text.contains('|')) "0:03|40,60,80,50,70,30,60,80,40,50,70,30,60,40,80,50,70,60,40,30" else text)
+            .put("created_at", java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date())).put("read", 1).put("_fx", true)
+        if (mediaPath != null) { m.put("media_url", mediaPath); m.put("media_key", mediaPath) }
+        sent.add(m)
+    }
+
+    private fun localMedia(u: String): String {
+        val a = u.substringAfterLast('.', "").substringBefore('?').lowercase()
+        return (if (a in setOf("m4a", "mp3", "ogg", "opus", "wav", "aac", "amr")) voiceFile else imgFile) ?: u
+    }
+    private fun remapMedia(o: Any?) {
+        when (o) {
+            is JSONObject -> for (k in o.keys().asSequence().toList()) { val v = o.opt(k); if (v is String && (v.startsWith("/api/media/") || v.contains("://yidplus.com/api/media/"))) o.put(k, localMedia(v)) else remapMedia(v) }
+            is JSONArray -> for (i in 0 until o.length()) { val v = o.opt(i); if (v is String && (v.startsWith("/api/media/") || v.contains("://yidplus.com/api/media/"))) o.put(i, localMedia(v)) else remapMedia(v) }
+        }
+    }
+
     fun answer(r: Request): JSONObject? {
         val d = data ?: return null
         val u = r.url
@@ -137,12 +178,31 @@ object Fixture {
         if (r.method != "GET") {
             // The QA log shows exactly what this action would send to the site (tag YidFx), so each action can be checked against the site's own code.
             val ct = r.body?.contentType()?.toString().orEmpty()
-            val b = if (ct.contains("json")) runCatching { okio.Buffer().also { r.body?.writeTo(it) }.readUtf8().take(400) }.getOrDefault("") else "<$ct ${r.body?.contentLength() ?: 0} bytes>"
-            android.util.Log.i("YidFx", "${r.method} $full $b")
+            val raw = if (ct.contains("json")) runCatching { okio.Buffer().also { r.body?.writeTo(it) }.readUtf8() }.getOrDefault("") else ""
+            android.util.Log.i("YidFx", "${r.method} $full " + if (ct.contains("json")) raw.take(400) else "<$ct ${r.body?.contentLength() ?: 0} bytes>")
+            // A chat send is remembered (new messages only: edits/deletes carry the message id) so a reopened room shows it.
+            if (r.method == "POST" && u.encodedPath == "/api/chat" && raw.isNotEmpty()) runCatching { JSONObject(raw).let {
+                if (it.optString("room_id").isNotEmpty() && it.optString("id").isEmpty()) noteSend(it.optString("room_id"), it.optString("type", "text"), it.optString("text"), "", null) } }
             return JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
         }
+        var a = d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath)
+        if (a == null && u.encodedPath == "/api/chat" && q != null && q.contains("room_id=")) {
+            // History variants (view=1 and friends): fall back to the room's canned history by room_id.
+            val rid = q.substringAfter("room_id=").substringBefore('&')
+            a = d.keys().asSequence().firstOrNull { it == "/api/chat?room_id=$rid" || it.startsWith("/api/chat?room_id=$rid&") }?.let { d.optJSONObject(it) }
+        }
+        if (a != null && u.encodedPath == "/api/chat" && q != null && q.contains("room_id=")) {
+            // A reopened room sees what was sent this session (texts, the just-recorded voice note kept on disk).
+            val rid = q.substringAfter("room_id=").substringBefore('&')
+            val arr = a.optJSONArray("messages")
+            if (arr != null) {
+                var i = arr.length() - 1
+                while (i >= 0) { if (arr.optJSONObject(i)?.optBoolean("_fx") == true) arr.remove(i); i-- }
+                for (m in sent) if (m.optString("room_id") == rid) arr.put(m)
+            }
+        }
         // QA never reads the live database: an /api GET with no fixture answers {"ok":true} (logged so the area can add a fixture).
-        return d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath) ?: if (u.encodedPath.startsWith("/api/media/")) null
+        return a ?: if (u.encodedPath.startsWith("/api/media/")) null
             else JSONObject().put("ok", true).also { android.util.Log.i("YidFx", "GET-unfixtured $full") }
     }
 }
