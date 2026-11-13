@@ -44,5 +44,5 @@ fx_finish() {
     log "CRASH found in logcat"; grep -A 30 "FATAL EXCEPTION" "$OUT/logcat.txt" | head -80 | tee -a "$OUT/qa.log"; FAIL=1
   fi
   if [ "$FAIL" = 0 ]; then echo "PASS" > "$OUT/RESULT"; else echo "FAIL" > "$OUT/RESULT"; fi
-  cat "$OUT/RESULT"; exit 0
+  cat "$OUT/RESULT"; exit "$FAIL"
 }
