@@ -1,0 +1,68 @@
+first start: TotalTime: 1276
+first start: WaitTime: 1308
+cold start 1 (before profile compile): TotalTime: 513
+cold start 2 (before profile compile): TotalTime: 492
+cold start 3 (before profile compile): TotalTime: 548
+cold start 1 (baseline profile compiled): TotalTime: 492
+cold start 2 (baseline profile compiled): TotalTime: 503
+cold start 3 (baseline profile compiled): TotalTime: 549
+Total frames rendered: 14
+Janky frames: 1 (7.14%)
+50th percentile: 7ms
+90th percentile: 15ms
+95th percentile: 117ms
+99th percentile: 117ms
+Number Slow UI thread: 0
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 1
+50th gpu percentile: 2ms
+90th gpu percentile: 15ms
+95th gpu percentile: 4950ms
+99th gpu percentile: 4950ms
+push: 11-13 03:46:41.016 11772 11772 I YidplusPush: probe: token ok (142 chars)
+11-13 03:35:31.041  4678  4678 I YidPerf : Shorts video playing 185 ms after swipe
+11-13 03:35:38.286  4678  4678 I YidPerf : Home content 40 ms after open
+11-13 03:36:04.400  4678  4678 I YidPerf : UserChannel content 84 ms after open
+11-13 03:36:25.768  4678  4678 I YidPerf : Channel content 117 ms after open
+11-13 03:36:38.535  4678  4678 I YidPerf : ChannelInfo content 123 ms after open
+11-13 03:37:24.608  4678  4678 I YidPerf : Shorts content 51 ms after open
+11-13 03:37:24.730  4678  4678 I YidPerf : Shorts video playing 123 ms after swipe
+11-13 03:37:36.511  4678  4678 I YidPerf : Creator content 67 ms after open
+11-13 03:37:41.864  4678  4678 I YidPerf : Shorts content 60 ms after open
+11-13 03:37:41.974  4678  4678 I YidPerf : Shorts video playing 110 ms after swipe
+11-13 03:37:53.132  4678  4678 I YidPerf : Shorts video playing 110 ms after swipe
+11-13 03:38:04.073  4678  4678 I YidPerf : Shorts content 8768 ms after open
+11-13 03:38:04.209  4678  4678 I YidPerf : Shorts video playing 137 ms after swipe
+11-13 03:38:07.569  4678  4678 I YidPerf : Chats content 129 ms after open
+11-13 03:38:15.216  4678  4678 I YidPerf : Music content 94 ms after open
+11-13 03:41:18.537  4678  4678 I YidPerf : Home content 43 ms after open
+11-13 03:41:22.638  4678  4678 I YidPerf : Chats content 28 ms after open
+11-13 03:41:43.767  9910  9910 I YidPerf : Chats content 98 ms after open
+11-13 03:41:58.893  9910  9910 I YidPerf : Home content 81 ms after open
+11-13 03:42:06.595 10073 10073 I YidPerf : Home content 592 ms after process start
+11-13 03:42:15.122 10151 10151 I YidPerf : Home content 533 ms after process start
+11-13 03:42:23.740 10235 10235 I YidPerf : Home content 579 ms after process start
+11-13 03:42:35.230 10321 10321 I YidPerf : Home content 729 ms after process start
+11-13 03:42:43.564 10400 10400 I YidPerf : Home content 501 ms after process start
+11-13 03:42:52.174 10476 10476 I YidPerf : Home content 542 ms after process start
+11-13 03:43:38.126 11062 11062 I YidPerf : Home content 974 ms after process start
+11-13 03:43:45.783 11062 11062 I YidPerf : Channel content 208 ms after open (cache)
+11-13 03:43:53.816 11062 11062 I YidPerf : Chats content 88 ms after open
+11-13 03:43:58.246 11062 11062 I YidPerf : Shorts content 295 ms after open
+11-13 03:43:58.403 11062 11062 I YidPerf : Shorts video playing 368 ms after swipe
+11-13 03:44:18.080 11062 11062 I YidPerf : Chats content 206 ms after open
+11-13 03:44:36.052 11286 11286 I YidPerf : Shorts video playing 553 ms after swipe
+11-13 03:44:36.196 11286 11286 I YidPerf : Shorts content 775 ms after open
+11-13 03:44:57.701 11431 11431 I YidPerf : Shorts content 1928 ms after process start
+11-13 03:44:57.814 11431 11431 I YidPerf : Shorts video playing 528 ms after swipe
+11-13 03:45:07.507 11431 11431 I YidPerf : Shorts video playing 447 ms after swipe
+11-13 03:45:16.665 11431 11431 I YidPerf : Chats content 449 ms after open
+11-13 03:45:20.543 11431 11431 I YidPerf : Shorts content 45 ms after open
+11-13 03:45:20.824 11431 11431 I YidPerf : Shorts video playing 282 ms after swipe
+11-13 03:45:40.196 11431 11431 I YidPerf : Chats content 135 ms after open
+11-13 03:45:48.168 11684 11684 I YidPerf : Chats content 578 ms after process start
+11-13 03:45:56.053 11772 11772 I YidPerf : Chats content 562 ms after process start
+11-13 03:46:03.439 11772 11772 I YidPerf : Channel content 22 ms after open (cache)
+11-13 03:46:15.648 11772 11772 I YidPerf : Shorts content 343 ms after open
+11-13 03:46:15.783 11772 11772 I YidPerf : Shorts video playing 357 ms after swipe
+11-13 03:46:30.795 11772 11772 I YidPerf : Chats content 98 ms after open
