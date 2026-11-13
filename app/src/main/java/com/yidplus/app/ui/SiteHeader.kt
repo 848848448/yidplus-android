@@ -76,16 +76,16 @@ fun SoHeaderActions(onSearch: (() -> Unit)? = null) {
     val tint = LocalContentColor.current
     val me = Session.me
     LaunchedEffect(me?.id) { while (true) { SoNotifCount.refresh(); delay(60_000) } }
-    IconBtn(Icons.Filled.Search, "Search", { if (onSearch != null) onSearch() else Nav.open(SoSearchPage()) }, tint = tint)
+    IconBtn(Sym.Search, "Search", { if (onSearch != null) onSearch() else Nav.open(SoSearchPage()) }, tint = tint)
     if (me != null) Box {
-        IconBtn(Icons.Filled.Notifications, "Notifications", { Nav.open(SoNotifsPage()) }, tint = tint)
+        IconBtn(Sym.Notifications, "Notifications", { Nav.open(SoNotifsPage()) }, tint = tint)
         if (SoNotifCount.unread > 0) SoBadge(SoNotifCount.unread, Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 2.dp))
     }
     var menu by remember { mutableStateOf(false) }
     Box {
         Box(Modifier.size(44.dp).tap(CircleShape) { menu = true }, contentAlignment = Alignment.Center) {
             if (me != null) SoThumb(me.photo, me.nickname.ifBlank { "Me" }, 32.dp)
-            else Icon(Icons.Filled.AccountCircle, "Profile", tint = tint, modifier = Modifier.size(28.dp))
+            else Icon(Sym.AccountCircle, "Profile", tint = tint, modifier = Modifier.size(28.dp))
         }
         DropdownMenu(menu, { menu = false }) {
             if (me != null) {
@@ -97,14 +97,14 @@ fun SoHeaderActions(onSearch: (() -> Unit)? = null) {
                     }
                 }
                 HorizontalDivider()
-                DropdownMenuItem(text = { Text("My channel") }, leadingIcon = { Icon(Icons.Filled.AccountBox, null) },
+                DropdownMenuItem(text = { Text("My channel") }, leadingIcon = { Icon(Sym.AccountBox, null) },
                     onClick = { menu = false; Nav.open(SoUserChannelPage(me.id, me.nickname)) })
-                DropdownMenuItem(text = { Text("Notifications") }, leadingIcon = { Icon(Icons.Filled.Notifications, null) },
+                DropdownMenuItem(text = { Text("Notifications") }, leadingIcon = { Icon(Sym.Notifications, null) },
                     onClick = { menu = false; Nav.open(SoNotifsPage()) })
             }
-            DropdownMenuItem(text = { Text(if (me != null) "Settings" else "Sign in") }, leadingIcon = { Icon(if (me != null) Icons.Filled.Settings else Icons.Filled.Login, null) },
+            DropdownMenuItem(text = { Text(if (me != null) "Settings" else "Sign in") }, leadingIcon = { Icon(if (me != null) Sym.Settings else Sym.Login, null) },
                 onClick = { menu = false; Nav.go(Tab.Profile) })
-            DropdownMenuItem(text = { Text("Open yidplus.com") }, leadingIcon = { Icon(Icons.Filled.Public, null) },
+            DropdownMenuItem(text = { Text("Open yidplus.com") }, leadingIcon = { Icon(Sym.Public, null) },
                 onClick = { menu = false; openUrl(c, Api.BASE) })
         }
     }
@@ -180,22 +180,22 @@ class SoSearchPage(val start: Int = 0) : PageScreen() {
             Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
                 Column {
                     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        IconBtn(Icons.Filled.ArrowBack, "Back", { Nav.back() })
+                        IconBtn(Sym.ArrowBack, "Back", { Nav.back() })
                         TextField(q, { q = it.take(100) }, Modifier.weight(1f).firstFocus(always = true), singleLine = true,
                             placeholder = { Text("Search YID PLUS") }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                             colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
                                 focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent))
-                        if (q.isNotEmpty()) IconBtn(Icons.Filled.Close, "Clear", { q = "" })
+                        if (q.isNotEmpty()) IconBtn(Sym.Close, "Clear", { q = "" })
                     }
                     SoChips(kinds, kind, { kind = it })
                 }
             }
             when {
-                q.trim().length < 2 -> SoEmpty(Icons.Filled.Search, "Search channels, Telegram channels, posts and Shorts")
+                q.trim().length < 2 -> SoEmpty(Sym.Search, "Search channels, Telegram channels, posts and Shorts")
                 busy && hits.isEmpty() -> SoSkeleton(rows = 6)
                 err != null && hits.isEmpty() -> Problem(err!!, false, { retry++ })
-                hits.isEmpty() -> SoEmpty(Icons.Filled.SearchOff, "Nothing found for \u201c${q.trim()}\u201d")
+                hits.isEmpty() -> SoEmpty(Sym.SearchOff, "Nothing found for \u201c${q.trim()}\u201d")
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     items(hits, key = { it.key }) { h -> HitRow(h, c); SoDivider(76.dp) }
                 }
@@ -225,15 +225,15 @@ private fun HitRow(h: SoHit, c: Context) {
         when (h) {
             is SoHit.Member -> SoThumb(h.photo, h.name, 48.dp)
             is SoHit.Telegram -> SoThumb(h.ch.photo, h.ch.title, 48.dp)
-            is SoHit.Post -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFF2E7D9A).copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Article, null, tint = Color(0xFF2E7D9A)) }
+            is SoHit.Post -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFF2E7D9A).copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Sym.Article, null, tint = Color(0xFF2E7D9A)) }
             is SoHit.Feed -> SoThumb(h.clip.poster, h.clip.creator, 48.dp, round = false)
-            is SoHit.Short -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFE53958).copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Movie, null, tint = Color(0xFFE53958)) }
+            is SoHit.Short -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFE53958).copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Sym.Movie, null, tint = Color(0xFFE53958)) }
         }
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(title, Modifier.weight(1f), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content))
-                if (h is SoHit.Member && h.verified) Icon(Icons.Filled.Verified, null, tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                if (h is SoHit.Member && h.verified) Icon(Sym.Verified, null, tint = Color(0xFF2E7D9A), modifier = Modifier.padding(start = 4.dp).size(16.dp))
                 Text(kindLabel, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
             }
             if (sub.isNotBlank()) Text(sub, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
