@@ -128,7 +128,7 @@ internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = n
                    actions: @Composable RowScope.() -> Unit = {}) {
     Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (onBack != null) ChIcon(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack) else Spacer(Modifier.width(12.dp))
+            if (onBack != null) ChIcon(Sym.ArrowBack, "Back", onBack) else Spacer(Modifier.width(12.dp))
             Row(Modifier.weight(1f).then(if (onTitle != null) Modifier.tap(RoundedCornerShape(8.dp), onClick = onTitle) else Modifier).padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 if (lead != null) { lead(); Spacer(Modifier.width(8.dp)) }
@@ -206,12 +206,12 @@ internal fun ChSkeleton(rows: Int = 8) {
 internal fun ChSearchField(q: String, onQ: (String) -> Unit, hint: String, onClose: () -> Unit) {
     Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            ChIcon(Icons.AutoMirrored.Filled.ArrowBack, "Close search", onClose)
+            ChIcon(Sym.ArrowBack, "Close search", onClose)
             TextField(q, onQ, Modifier.weight(1f).firstFocus(always = true), singleLine = true, placeholder = { Text(hint, color = LocalContentColor.current.copy(alpha = .7f)) },
                 textStyle = TextStyle(color = LocalContentColor.current, fontSize = 17.sp, textDirection = TextDirection.Content),
                 colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent, cursorColor = LocalContentColor.current,
                     focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, focusedTextColor = LocalContentColor.current, unfocusedTextColor = LocalContentColor.current))
-            if (q.isNotEmpty()) ChIcon(Icons.Filled.Close, "Clear", { onQ("") })
+            if (q.isNotEmpty()) ChIcon(Sym.Close, "Clear", { onQ("") })
         }
     }
 }
@@ -323,17 +323,17 @@ internal fun ChActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     val hasOpen = m.media != null || m.local != null || urlRegex.containsMatchIn(m.text)
-                    if (m.failed) ActRow(Icons.Filled.Refresh, "Try again") { onAct("retry") }
-                    if (hasOpen) ActRow(Icons.Filled.OpenInNew, if (m.isAudio) "Play" else "Open") { onAct("open") }
-                    if (canWrite && !m.failed) ActRow(Icons.AutoMirrored.Filled.Reply, "Reply") { onAct("reply") }
-                    if (m.text.isNotBlank() || m.media != null) ActRow(Icons.Filled.ContentCopy, "Copy") { onAct("copy") }
-                    if (mine && m.type == "text" && !m.failed) ActRow(Icons.Filled.Edit, "Edit") { onAct("edit") }
-                    if (signedIn && !m.failed) ActRow(Icons.AutoMirrored.Filled.Forward, "Forward") { onAct("forward") }
-                    if (canPin && !m.failed) ActRow(Icons.Filled.PushPin, if (isPinned) "Unpin" else "Pin") { onAct("pin") }
-                    if (signedIn && !m.failed) ActRow(Icons.Filled.Star, "Save message") { onAct("save") }
-                    ActRow(Icons.Filled.Share, "Share to apps") { onAct("share") }
-                    if (signedIn && !mine) ActRow(Icons.Filled.Flag, "Report") { onAct("report") }
-                    if (canDelete && !m.failed) ActRow(Icons.Filled.Delete, "Delete", Color(0xFFD32F2F)) { onAct("delete") }
+                    if (m.failed) ActRow(Sym.Refresh, "Try again") { onAct("retry") }
+                    if (hasOpen) ActRow(Sym.OpenInNew, if (m.isAudio) "Play" else "Open") { onAct("open") }
+                    if (canWrite && !m.failed) ActRow(Sym.Reply, "Reply") { onAct("reply") }
+                    if (m.text.isNotBlank() || m.media != null) ActRow(Sym.ContentCopy, "Copy") { onAct("copy") }
+                    if (mine && m.type == "text" && !m.failed) ActRow(Sym.Edit, "Edit") { onAct("edit") }
+                    if (signedIn && !m.failed) ActRow(Sym.Forward, "Forward") { onAct("forward") }
+                    if (canPin && !m.failed) ActRow(Sym.PushPin, if (isPinned) "Unpin" else "Pin") { onAct("pin") }
+                    if (signedIn && !m.failed) ActRow(Sym.Star, "Save message") { onAct("save") }
+                    ActRow(Sym.Share, "Share to apps") { onAct("share") }
+                    if (signedIn && !mine) ActRow(Sym.Flag, "Report") { onAct("report") }
+                    if (canDelete && !m.failed) ActRow(Sym.Delete, "Delete", Color(0xFFD32F2F)) { onAct("delete") }
                 }
             }
         }
@@ -376,10 +376,10 @@ internal fun ChEmojiPanel(onSticker: ((String) -> Unit)? = null, onEmoji: (Strin
 /** Attachment menu (the site's: Gallery, Camera, Video, Audio, Document, Poll — plus Contact). */
 @Composable
 internal fun ChAttachSheet(onPick: (String) -> Unit, onClose: () -> Unit) {
-    val opts = listOf(Triple("gallery", "Gallery", Icons.Filled.Image to Color(0xFF7E57C2)), Triple("camera", "Camera", Icons.Filled.PhotoCamera to Color(0xFFE91E63)),
-        Triple("video", "Video", Icons.Filled.Movie to Color(0xFFEF6C00)), Triple("audio", "Audio", Icons.Filled.Headphones to Color(0xFFFF7043)),
-        Triple("file", "Document", Icons.Filled.Description to Color(0xFF5C6BC0)), Triple("contact", "Contact", Icons.Filled.ContactPhone to Color(0xFF1E88E5)),
-        Triple("poll", "Poll", Icons.Filled.Poll to Color(0xFF00897B)))
+    val opts = listOf(Triple("gallery", "Gallery", Sym.Image to Color(0xFF7E57C2)), Triple("camera", "Camera", Sym.PhotoCamera to Color(0xFFE91E63)),
+        Triple("video", "Video", Sym.Movie to Color(0xFFEF6C00)), Triple("audio", "Audio", Sym.Headphones to Color(0xFFFF7043)),
+        Triple("file", "Document", Sym.Description to Color(0xFF5C6BC0)), Triple("contact", "Contact", Sym.ContactPhone to Color(0xFF1E88E5)),
+        Triple("poll", "Poll", Sym.Poll to Color(0xFF00897B)))
     Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
             opts.chunked(4).forEach { row ->
