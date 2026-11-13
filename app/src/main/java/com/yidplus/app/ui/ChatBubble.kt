@@ -226,8 +226,8 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                     Text("💬 Message", Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = ChatLook.sub(), fontSize = 15.sp)
                 if (link != null) ChLinkCard(link, mine, onJoin)
                 Row(Modifier.align(Alignment.End).padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (m.edited && !m.deleted) Text("edited  ", fontSize = 11.sp, color = ChatLook.sub())
-                    Text(if (m.pending) "Sending…" else if (m.failed) "Not sent · tap" else clock(m.createdAt), fontSize = 11.sp, color = if (m.failed) Color(0xFFD32F2F) else ChatLook.sub())
+                    if (m.edited && !m.deleted) Text("edited  ", fontSize = 12.sp, color = ChatLook.sub())
+                    Text(if (m.pending) "Sending…" else if (m.failed) "Not sent · tap" else clock(m.createdAt), fontSize = 12.sp, color = if (m.failed) Color(0xFFD32F2F) else ChatLook.sub())
                     if (mine && !m.pending && !m.failed && !m.deleted) {
                         // The site: ✓ sent, ✓✓ blue read in a DM; in a group "👁 n" once n members have seen it.
                         val seen = if (privateChat) m.read else m.seen > 0
@@ -256,8 +256,8 @@ private fun ChCentredLine(m: ChatMsg, modifier: Modifier) {
     Box(modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 24.dp), contentAlignment = Alignment.Center) {
         Row(Modifier.clip(RoundedCornerShape(8.dp)).background(ChatLook.theirs().copy(alpha = .92f)).padding(horizontal = 10.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
             if (m.isCall && !m.text.trimStart().startsWith("📞") && !m.text.trimStart().startsWith("📹"))
-                Icon(if (missed) Sym.PhoneMissed else Sym.Call, null, Modifier.size(15.dp).padding(end = 4.dp), tint = if (missed) Color(0xFFE53935) else ChatLook.sub())
-            Text(m.text.ifBlank { if (m.isCall) "📞 Call" else "" } + (if (m.isCall && m.createdAt != null) " · " + clock(m.createdAt) else ""), fontSize = 13.sp,
+                Icon(if (missed) Sym.PhoneMissed else Sym.Call, null, Modifier.size(16.dp).padding(end = 4.dp), tint = if (missed) Color(0xFFE53935) else ChatLook.sub())
+            Text(m.text.ifBlank { if (m.isCall) "📞 Call" else "" } + (if (m.isCall && m.createdAt != null) " · " + clock(m.createdAt) else ""), fontSize = 13.5.sp,
                 color = if (missed) Color(0xFFE53935) else ChatLook.sub(), textAlign = TextAlign.Center, style = TextStyle(textDirection = TextDirection.Content))
         }
     }
