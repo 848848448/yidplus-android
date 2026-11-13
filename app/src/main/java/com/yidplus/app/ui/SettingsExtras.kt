@@ -48,12 +48,12 @@ fun SettingsTopCard(onEdit: () -> Unit) {
                 Box(Modifier.tap(CircleShape, onClick = onEdit)) {
                     Avatar(photo, nick.ifBlank { "Me" }, 72.dp)
                     Box(Modifier.align(Alignment.BottomEnd).size(24.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
-                        contentAlignment = Alignment.Center) { Icon(Icons.Filled.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(13.dp)) }
+                        contentAlignment = Alignment.Center) { Icon(Sym.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(13.dp)) }
                 }
                 Column(Modifier.weight(1f).padding(start = 14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(first ?: nick, style = MaterialTheme.typography.titleLarge.merge(TextStyle(textDirection = TextDirection.Content)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                        if (verified) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 6.dp).size(18.dp))
+                        if (verified) Icon(Sym.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 6.dp).size(18.dp))
                         if (role != null) Text(role, Modifier.padding(start = 6.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.tertiaryContainer).padding(horizontal = 6.dp, vertical = 1.dp),
                             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onTertiaryContainer, maxLines = 1)
                     }
@@ -64,7 +64,7 @@ fun SettingsTopCard(onEdit: () -> Unit) {
             Box(Modifier.padding(top = 12.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp))
                 .firstFocus().tap(RoundedCornerShape(20.dp), onClick = onEdit).padding(vertical = 9.dp), contentAlignment = Alignment.Center) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Edit, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                    Icon(Sym.Edit, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                     Text("Edit Profile", Modifier.padding(start = 6.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
                 }
             }
@@ -103,11 +103,11 @@ private fun LabelRow(icon: androidx.compose.ui.graphics.vector.ImageVector, titl
 fun ReadingCard() {
     var guide by remember { mutableStateOf(false) }
     SettingsCard("Reading and help") {
-        SettingRow(Icons.Filled.Contrast, "Higher contrast", "Darker text and lines", switch = LookPrefs.highContrast) { LookPrefs.putHighContrast(!LookPrefs.highContrast) }
+        SettingRow(Sym.Contrast, "Higher contrast", "Darker text and lines", switch = LookPrefs.highContrast) { LookPrefs.putHighContrast(!LookPrefs.highContrast) }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.MotionPhotosOff, "Reduce motion", "Fewer animations", switch = LookPrefs.reduceMotion) { LookPrefs.putReduceMotion(!LookPrefs.reduceMotion) }
+        SettingRow(Sym.MotionPhotosOff, "Reduce motion", "Fewer animations", switch = LookPrefs.reduceMotion) { LookPrefs.putReduceMotion(!LookPrefs.reduceMotion) }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.HelpOutline, "App guide and what's new", null) { guide = true }
+        SettingRow(Sym.HelpOutline, "App guide and what's new", null) { guide = true }
     }
     if (guide) AlertDialog(onDismissRequest = { guide = false }, title = { Text("Getting started") },
         text = {
@@ -124,11 +124,11 @@ fun ReadingCard() {
 @Composable
 fun AppearanceCard() {
     SettingsCard("Appearance") {
-        LabelRow(Icons.Filled.DarkMode, "Dark mode", if (Prefs.theme == 0) "Same as the phone" else null) {
+        LabelRow(Sym.DarkMode, "Dark mode", if (Prefs.theme == 0) "Same as the phone" else null) {
             Segmented(listOf("Light", "Dark", "Auto"), when (Prefs.theme) { 1 -> 0; 2 -> 1; else -> 2 }) { Prefs.setThemeMode(when (it) { 0 -> 1; 1 -> 2; else -> 0 }) }
         }
         RowDivider(64.dp)
-        LabelRow(Icons.Filled.FormatSize, "Text size") { Segmented(listOf("S", "M", "L"), UiPrefs.textSize) { UiPrefs.setText(it) } }
+        LabelRow(Sym.FormatSize, "Text size") { Segmented(listOf("S", "M", "L"), UiPrefs.textSize) { UiPrefs.setText(it) } }
     }
 }
 
@@ -158,7 +158,7 @@ private fun Swatch(i: Int) {
         Box(Modifier.size(44.dp).clip(CircleShape).border(if (sel) 3.dp else 1.dp, if (sel) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant, CircleShape)
             .padding(if (sel) 4.dp else 0.dp).clip(CircleShape).background(Brush.linearGradient(listOf(p.accent, p.accentLight))), contentAlignment = Alignment.Center) {
             if (p.dark) Box(Modifier.size(16.dp).clip(CircleShape).background(p.bg))
-            if (sel) Icon(Icons.Filled.Check, "Selected", tint = Color.White, modifier = Modifier.size(18.dp))
+            if (sel) Icon(Sym.Check, "Selected", tint = Color.White, modifier = Modifier.size(18.dp))
         }
         Text(p.name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 3.dp))
     }
@@ -198,7 +198,7 @@ class SettingsChat : PageScreen() {
                                     Box(Modifier.fillMaxWidth().height(70.dp).clip(RoundedCornerShape(12.dp))
                                         .background(if (w.from != null && w.to != null) Brush.verticalGradient(listOf(w.from, w.to)) else Brush.verticalGradient(listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant)))
                                         .border(if (sel) 3.dp else 1.dp, if (sel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
-                                        contentAlignment = Alignment.Center) { if (sel) Icon(Icons.Filled.CheckCircle, "Selected", tint = MaterialTheme.colorScheme.primary) }
+                                        contentAlignment = Alignment.Center) { if (sel) Icon(Sym.CheckCircle, "Selected", tint = MaterialTheme.colorScheme.primary) }
                                     Text(w.name, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 3.dp))
                                 }
                             }
@@ -208,9 +208,9 @@ class SettingsChat : PageScreen() {
                 }
             }
             SettingsCard("Chats") {
-                SettingRow(Icons.Filled.NotificationsOff, "Muted chats", "Chats you silenced") { Nav.open(SettingsMutedChats()) }
+                SettingRow(Sym.NotificationsOff, "Muted chats", "Chats you silenced") { Nav.open(SettingsMutedChats()) }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.PhoneDisabled, "Silent calls", "Incoming calls don't ring", switch = LookPrefs.silentCalls) { LookPrefs.putSilentCalls(!LookPrefs.silentCalls) }
+                SettingRow(Sym.PhoneDisabled, "Silent calls", "Incoming calls don't ring", switch = LookPrefs.silentCalls) { LookPrefs.putSilentCalls(!LookPrefs.silentCalls) }
             }
             SettingsHint("Wallpaper and silent calls are kept on this phone, like on the website.")
         }
@@ -225,8 +225,8 @@ fun VerificationCard() {
     var sent by remember { mutableStateOf(false) }
     val verified = (SettingsProfile.p?.optInt("verified") ?: 0) == 1
     SettingsCard("Verification") {
-        if (verified) SettingRow(Icons.Filled.Verified, "Verified account", null, value = "Active") {}
-        else SettingRow(Icons.Filled.Verified, "Get verified", if (sent) "Request sent" else "Ask the YID PLUS team for the ✅ mark", value = if (sent) null else "Request") {
+        if (verified) SettingRow(Sym.Verified, "Verified account", null, value = "Active") {}
+        else SettingRow(Sym.Verified, "Get verified", if (sent) "Request sent" else "Ask the YID PLUS team for the ✅ mark", value = if (sent) null else "Request") {
             if (sent) return@SettingRow
             adminDo(c, scope, "Request sent. The team will look at it.", { sent = true }) { if (!SettingsProfile.demo) Api.post("/api/verify-request", org.json.JSONObject()) }
         }
@@ -240,8 +240,8 @@ fun ShareProfileCard() {
     val nick = SettingsProfile.text("nickname").ifBlank { Session.me?.nickname ?: "" }
     val link = "https://yidplus.com/@" + Uri.encode(nick)
     SettingsCard("Share profile") {
-        SettingRow(Icons.Filled.Share, "Share my profile", "yidplus.com/@$nick") { share(c, link) }
+        SettingRow(Sym.Share, "Share my profile", "yidplus.com/@$nick") { share(c, link) }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.Link, "Copy link", null) { settingsCopy(c, link) }
+        SettingRow(Sym.Link, "Copy link", null) { settingsCopy(c, link) }
     }
 }
