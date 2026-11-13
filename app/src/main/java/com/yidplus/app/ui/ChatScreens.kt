@@ -374,7 +374,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val albums = remember(msgs.toList()) { csAlbums(msgs.toList()) }
     val matches = remember(sq, rows) { if (sq.trim().length < 2) emptyList() else rows.withIndex().filter { (_, it) -> it is ChItem.M && it.m.text.contains(sq.trim(), true) && !it.m.isVoice }.map { it.index } }
     LaunchedEffect(matches, hit) { matches.getOrNull(hit)?.let { state.animateScrollToItem(it) } }
-    LaunchedEffect(msgs.size) { if (msgs.isNotEmpty() && !searchOn && state.firstVisibleItemIndex < 3 && (unreadAnchor == null || didAnchorG)) state.scrollToItem(0) }
+    // Sending: the user's own just-sent message always scrolls into view (even when the room was opened mid-history at the unread divider); incoming messages only follow when already near the bottom.
+    LaunchedEffect(msgs.size) { val own = msgs.lastOrNull()?.let { it.pending && it.senderId == me?.id } == true; if (msgs.isNotEmpty() && !searchOn && (own || (state.firstVisibleItemIndex < 3 && (unreadAnchor == null || didAnchorG)))) state.scrollToItem(0) }
     /** Jump to a message (reply quote, pinned bar, pinned list): older pages load until it is found, then it flashes like the site's highlight. */
     fun jumpTo(id: String) {
         scope.launch {
