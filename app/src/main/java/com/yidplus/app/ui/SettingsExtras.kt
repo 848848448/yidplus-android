@@ -35,6 +35,7 @@ import com.yidplus.app.data.str
 @Composable
 fun SettingsTopCard(onEdit: () -> Unit) {
     val me = Session.me
+    val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 600
     val p = SettingsProfile.p
     val nick = p?.str("nickname")?.ifBlank { null } ?: me?.nickname ?: ""
     val first = p?.str("first_name")?.ifBlank { null }
@@ -43,10 +44,10 @@ fun SettingsTopCard(onEdit: () -> Unit) {
     val verified = (p?.optInt("verified") ?: 0) == 1
     val role = when { me?.isOwner == true || me?.role == "owner" -> "Owner"; me?.role == "admin_super" -> "Super admin"; me?.role == "admin_limited" -> "Moderator"; else -> null }
     Surface(color = MaterialTheme.colorScheme.surface) {
-        Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 12.dp)) {
+        Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = if (compact) 10.dp else 14.dp, bottom = if (compact) 8.dp else 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.tap(CircleShape, onClick = onEdit)) {
-                    Avatar(photo, nick.ifBlank { "Me" }, 72.dp)
+                    Avatar(photo, nick.ifBlank { "Me" }, if (compact) 56.dp else 72.dp)
                     Box(Modifier.align(Alignment.BottomEnd).size(24.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
                         contentAlignment = Alignment.Center) { Icon(Sym.CameraAlt, "Change photo", tint = Color.White, modifier = Modifier.size(13.dp)) }
                 }
@@ -61,8 +62,8 @@ fun SettingsTopCard(onEdit: () -> Unit) {
                     if (!email.isNullOrBlank()) Text(email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
-            Box(Modifier.padding(top = 12.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp))
-                .firstFocus().tap(RoundedCornerShape(20.dp), onClick = onEdit).padding(vertical = 9.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.padding(top = if (compact) 8.dp else 12.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp))
+                .firstFocus().tap(RoundedCornerShape(20.dp), onClick = onEdit).padding(vertical = if (compact) 7.dp else 9.dp), contentAlignment = Alignment.Center) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Sym.Edit, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                     Text("Edit Profile", Modifier.padding(start = 6.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
