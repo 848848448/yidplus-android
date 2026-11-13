@@ -59,6 +59,7 @@ csroom() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.a
 csrec CS-flow-touch 30
 # 6: opens at the first unread message under "5 unread messages"; formatting, @mention, bare domain, music card, voice, polls
 csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
+timeout 20 adb logcat -d -s YidPerf 2>/dev/null | grep "CHAT open" | tail -4 | cut -c1-300 | sed "s/^/  scroll-diag: /" | tee -a "$OUT/qa.log" >/dev/null
 timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
 bbox() { tr '>' '\n' < "$2" | grep -F "text=\"$1\"" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
 # opening a room must leave its NEWEST message fully visible above the composer when there is no unread divider (a fix9 run opened r-cs one message above the bottom: only the name of the newest bubble peeked out behind the composer)
