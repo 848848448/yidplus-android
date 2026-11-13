@@ -42,8 +42,10 @@ adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS 2>/dev/null || tru
 size 480x640 240
 adb logcat -c
 source qa/signedin.sh
-# Quick run (only on a test branch that carries qa/QUICK): just the signed-in fixture screens.
-if [ -f qa/QUICK ] || [ -n "${QA_FX:-}" ]; then fx_block; fx_finish; fi
+# Sequential fixture mode: a branch that carries qa/SEQUENTIAL-FX (or QA_FX set) runs every qa/fx-*.sh in order on one emulator and skips the plain walkthrough.
+# This is REAL COVERAGE, not a disposable diagnostic: the base legs of a feature-branch run rely on this file to run all the fx scripts in sequence
+# (earlier it was named qa/QUICK; deleting it silently turned the base legs into the plain walkthrough). Do not delete it without replacing the mode.
+if [ -f qa/SEQUENTIAL-FX ] || [ -f qa/QUICK ] || [ -n "${QA_FX:-}" ]; then log "mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)"; fx_block; fx_finish; fi
 
 # ---- Cold start (first ever start, nothing cached) ----
 adb shell am force-stop $PKG
