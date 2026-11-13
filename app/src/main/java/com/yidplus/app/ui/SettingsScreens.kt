@@ -82,6 +82,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.yidplus.app.data.Api
+import com.yidplus.app.data.Fixture
 import com.yidplus.app.data.Res
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.Store
@@ -138,6 +139,7 @@ object SettingsProfile {
     /** The website's "Edit photo": a multipart PUT /api/profile with `photo` (or `banner`). The picture is made small first. */
     suspend fun upload(ctx: Context, uri: Uri, field: String): String? = withContext(Dispatchers.IO) {
         if (demo) return@withContext null
+        if (Fixture.on) { android.util.Log.i("YidFx", "PUT /api/profile <$field upload> (fixture: kept local, not sent)"); return@withContext null }
         try {
             val raw = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return@withContext "Couldn't read that picture"
             val (bytes, type) = shrink(raw, if (field == "banner") 1600 else 900) ?: (raw to (ctx.contentResolver.getType(uri) ?: "image/jpeg"))
