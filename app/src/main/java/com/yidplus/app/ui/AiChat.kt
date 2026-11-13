@@ -261,7 +261,7 @@ fun AiChatRow(compact: Boolean = false, onOpen: () -> Unit) {
                         }
                     }
                     Spacer(Modifier.width(8.dp))
-                    Icon(Icons.Filled.PushPin, "Pinned", Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Sym.PushPin, "Pinned", Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.height(3.dp))
                 Text(AiChat.preview(), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -307,7 +307,7 @@ private fun AiChatScreen(ask: String?) {
     val blocked = AiChat.disabled || AiChat.notConfigured
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         TopBar(AiChat.name, onBack = { Nav.back() }, sub = AiChat.status, lead = { AiAvatar(38.dp) }) {
-            IconBtn(Icons.Filled.DeleteSweep, "Clear chat", { confirm = true })
+            IconBtn(Sym.DeleteSweep, "Clear chat", { confirm = true })
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
             val msgs = AiChat.messages
@@ -335,7 +335,7 @@ private fun AiChatScreen(ask: String?) {
             val ready = input.isNotBlank() && !AiChat.sending
             Box(Modifier.size(52.dp).clip(CircleShape).background(if (ready) Green else Green.copy(alpha = .45f)).tap(CircleShape) { doSend() },
                 contentAlignment = Alignment.Center) {
-                Icon(Icons.AutoMirrored.Filled.Send, "Send", tint = Color.White, modifier = Modifier.size(22.dp))
+                Icon(Sym.Send, "Send", tint = Color.White, modifier = Modifier.size(22.dp))
             }
         }
     }
