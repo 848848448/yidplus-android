@@ -110,6 +110,7 @@ PYEOF
   timeout 30 adb shell uiautomator dump /sdcard/pa2.xml >/dev/null 2>&1
   if timeout 20 adb shell cat /sdcard/pa2.xml 2>/dev/null | tr '>' '\n' | grep -E 'content-desc="Pause"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | awk -v tx="$1" -v ty="$2" '{cx=($1+$3)/2; cy=($2+$4)/2; dx=cx-tx; dy=cy-ty; if(dx<0)dx=-dx; if(dy<0)dy=-dy; if(dx<30 && dy<30) f=1} END{exit f?0:1}'; then log "CS ok: that exact bubble entered playing state (Pause at the tapped bounds)"; else log "CS WRONG: the tapped bubble did not enter playing state"; FAIL=1; fi
 }
+csfindexact() { local n=0; while [ $n -lt ${2:-12} ]; do timeout 30 adb shell uiautomator dump /sdcard/fe.xml >/dev/null 2>&1; if timeout 20 adb shell cat /sdcard/fe.xml 2>/dev/null | grep -qF "text=\"$1\""; then return 0; fi; adb shell input swipe 240 260 240 470 400; sleep 1; n=$((n+1)); done; log "CS WRONG: csfindexact: a node whose text is exactly '$1' never appeared"; FAIL=1; return 1; }
 cs_focus_check() { # $1 label, $2 xml (already dumped)
   local lbl="$1" fb h; fb=$(cfoc "$2"); if [ -z "$fb" ]; then log "CS MISSING: no focused row after opening ($lbl): keypad focus not exercised"; return 0; fi
   set -- $fb; h=$(( $4 - $2 )); if [ "$h" -lt 24 ]; then log "CS WRONG: focused row is a clipped sliver after opening ($lbl bounds $fb, height ${h}px)"; FAIL=1; else log "CS ok: focused row fully readable after opening ($lbl bounds $fb, height ${h}px)"; fi
@@ -169,11 +170,13 @@ echo "$TY" | grep -q 'text="hello"' && log "CS ok: typed text is in the field wi
 for d in "Send" "Attach" "Emoji"; do echo "$TY" | grep -q "content-desc=\"$d" && log "CS ok: '$d' present while typing" || { log "CS WRONG: '$d' missing while typing"; FAIL=1; }; done
 shot CS-24b-typed
 # clear the typed draft (it is saved after 600 ms and restores on reopen, which swaps the mic for Send): focus the field, delete, VERIFY, retry once
-for try in 1 2; do
-  cstap "hello"; adb shell input keyevent KEYCODE_MOVE_END; for i in 1 2 3 4 5 6 7 8; do adb shell input keyevent KEYCODE_DEL; done; sleep 1.5
-  if [ -z "$(cspos "hello")" ]; then log "CS cleared the typed draft (verified: no 'hello' in the field, try $try)"; break; else log "CS draft still shows 'hello' after try $try"; fi
+# "hello" is not always exposed as a text node in the dump (google_apis run 43498008671: Send was shown while no 'hello' node existed), so the clear is verified by the MIC being back in the composer (no draft) AND no 'hello' node
+CLEARED=""
+for try in 1 2 3; do
+  [ -n "$(cspos "hello")" ] && cstap "hello"; adb shell input keyevent KEYCODE_MOVE_END; for i in 1 2 3 4 5 6 7 8 9 10 11 12; do adb shell input keyevent KEYCODE_DEL; done; sleep 1.5
+  if [ -z "$(cspos "hello")" ] && [ -n "$(cspos "Record voice message")" ]; then log "CS cleared the typed draft (verified: no 'hello' node and the mic is back in the composer, try $try)"; CLEARED=1; break; else log "CS draft not cleared after try $try (hello node: [$(cspos "hello")] mic: [$(cspos "Record voice message")])"; fi
 done
-[ -n "$(cspos "hello")" ] && { log "CS WRONG: typed draft could not be cleared, later voice steps would run against a Send button"; FAIL=1; }
+[ -z "$CLEARED" ] && { log "CS WRONG: typed draft could not be cleared (mic not back in the composer), later voice steps would run against a Send button"; FAIL=1; }
 sleep 1
 for n in 1 2 3 4 5 6; do adb shell input keyevent 67; done; sleep 1
 key 4; sleep 1; sysbars after-keyboard
@@ -225,15 +228,38 @@ cstap "More"; sleep 1; cstap "Copy invite link"; sleep 1; csfx "generate_invite"
 csroom 5; csrec CS-flow-dpad 28
 for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
 VC0=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice')
-p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3
-csdump CS-22b-dpad-recording >/dev/null
-if ! grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-22b-dpad-recording.xml"; then log "CS WRONG: D-pad voice flow: hands-free recording did not start (no recording controls on screen)"; FAIL=1; fi
+csfocusnow() { timeout 20 adb shell uiautomator dump /sdcard/f.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/f.xml > "$OUT/$1.xml" 2>/dev/null; python3 - "$OUT/$1.xml" <<'PYEOF'
+import sys
+import xml.etree.ElementTree as ET
+try:
+    root = ET.parse(sys.argv[1]).getroot()
+except Exception as e:
+    print("ERR parse %s" % e); sys.exit(0)
+for n in root.iter('node'):
+    if n.get('focused') == 'true' and n.get('class') != 'android.widget.EditText':
+        d = n.get('content-desc') or n.get('text') or ''
+        if not d:
+            for c in n.iter('node'):
+                d = c.get('content-desc') or c.get('text') or ''
+                if d: break
+        print("%s|%s|%s" % (n.get('class', '').split('.')[-1], d, n.get('bounds')))
+        break
+PYEOF
+}
+# 1) reach the mic with the D-pad only: DOWN a few times, then RIGHT a few times
+FOUNDM=""; PATHM=""
+for k in 20 20 20 20 22 22 22 22 22 22; do f=$(csfocusnow CS-22b-focus-mic); PATHM="$PATHM [$f]"; case "$f" in *"Record voice message"*) FOUNDM=1; break ;; esac; key $k; done
+[ -z "$FOUNDM" ] && { f=$(csfocusnow CS-22b-focus-mic); PATHM="$PATHM [$f]"; case "$f" in *"Record voice message"*) FOUNDM=1 ;; esac; }
+if [ -n "$FOUNDM" ]; then log "CS D-pad reached the mic (focus path:$PATHM)"; key 23; sleep 3
+else log "CS WRONG: D-pad could not reach the mic button (focus path:$PATHM); starting the recording by touch instead"; FAIL=1; p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; fi
+f=$(csfocusnow CS-22c-recording); log "CS focus right after the recording started: [${f:-none}]"
+if ! grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-22c-recording.xml"; then log "CS WRONG: D-pad voice flow: hands-free recording did not start (no recording controls on screen)"; FAIL=1; fi
+# 2) reach Send voice message with the D-pad: RIGHT first, then LEFT
 FOUND=""; PATHD=""
-for n in 1 2 3 4 5 6; do d=$(cfocdesc "$OUT/CS-22b-dpad-recording.xml"); PATHD="$PATHD [$d]"; case "$d" in *"Send voice message"*) FOUND=1; break ;; esac; key 22; csdump CS-22b-dpad-recording >/dev/null; done
-if [ -z "$FOUND" ]; then for n in 1 2 3 4 5 6 7 8 9 10 11 12; do d=$(cfocdesc "$OUT/CS-22b-dpad-recording.xml"); PATHD="$PATHD [$d]"; case "$d" in *"Send voice message"*) FOUND=1; break ;; esac; key 21; csdump CS-22b-dpad-recording >/dev/null; done; fi
+for k in 22 22 22 22 22 22 21 21 21 21 21 21 21 21 21 21 21 21; do f=$(csfocusnow CS-22d-focus-send); PATHD="$PATHD [$f]"; case "$f" in *"Send voice message"*) FOUND=1; break ;; esac; key $k; done
 if [ -n "$FOUND" ]; then log "CS D-pad reached 'Send voice message' (focus path:$PATHD)"; key 23; sleep 3; shot CS-23-dpad-voice-sent
   VC1=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice'); if [ "$VC1" -gt "$VC0" ]; then log "CS ok: D-pad OK on Send posted a new voice message ($VC0 -> $VC1 type=voice requests); newest request: $(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep "type=voice" | tail -1 | cut -c1-200)"; else log "CS WRONG: D-pad OK on Send did not post a voice message ($VC0 -> $VC1)"; FAIL=1; fi
-else log "CS WRONG: D-pad could not reach 'Send voice message' while recording (focus path:$PATHD)"; FAIL=1; shot CS-23-dpad-voice-sent; p=$(cspos "Send voice message"); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; sleep 2; fi; fi
+else log "CS WRONG: D-pad could not reach 'Send voice message' while recording (focus path:$PATHD); sending it by touch to end the recording"; FAIL=1; shot CS-23-dpad-voice-sent; p=$(cspos "Send voice message"); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; sleep 2; fi; fi
 csdump CS-23b-after-send >/dev/null
 if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-23b-after-send.xml"; then
   log "CS WRONG: a recording is still active after the D-pad send step (it would contaminate later checks); discarding it"; FAIL=1
@@ -263,7 +289,7 @@ else
     if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; sleep 1; fi
     csdump CS-30a-pre-offline-replay >/dev/null
     if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-30a-pre-offline-replay.xml"; then log "CS WRONG: offline replay skipped, a recording is still active so the state is not clean"; FAIL=1
-    else csfind "0:12" 8; csplayat "0:12"; shot CS-30-network-off-voice; fi
+    else csfindexact "0:12" 14 && csplayat "0:12"; shot CS-30-network-off-voice; fi
     cshas "Message"
     OUTB=$(timeout 30 adb logcat -d 2>/dev/null | grep -E "Unable to resolve host|UnknownHostException|SocketTimeoutException|ConnectException|Failed to connect to" | grep -v "YidplusPush" | cut -c1-220 | head -5)
     if [ -n "$OUTB" ]; then log "CS offline-check NOTE: connection-failure log lines while offline (the app tried something):"; echo "$OUTB" | sed 's/^/  offline-log: /' | tee -a "$OUT/qa.log" >/dev/null; else log "CS offline-check: no connection-failure lines in the log while offline (this alone does not prove nothing was attempted)"; fi
