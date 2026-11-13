@@ -125,9 +125,9 @@ internal object ChatLook {
 /** The brand-green bar every chat screen uses: back, optional avatar, title + subtitle (tap = info), white icons. */
 @Composable
 internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = null, lead: (@Composable () -> Unit)? = null, onTitle: (() -> Unit)? = null,
-                   actions: @Composable RowScope.() -> Unit = {}) {
+                   slim: Boolean = false, actions: @Composable RowScope.() -> Unit = {}) {
     Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().heightIn(min = if (slim) 44.dp else 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) ChIcon(Sym.ArrowBack, "Back", onBack) else Spacer(Modifier.width(12.dp))
             Row(Modifier.weight(1f).then(if (onTitle != null) Modifier.tap(RoundedCornerShape(8.dp), onClick = onTitle) else Modifier).padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically) {
@@ -405,4 +405,17 @@ internal fun chInitials(name: String): String {
     val a = words[0]
     val latin = a.code < 0x0250
     return (if (latin && words.size > 1 && words[1].code < 0x0250) "$a${words[1]}" else "$a").uppercase()
+}
+
+
+/** Keyboard-up on a small screen: hide the status bar so the conversation keeps room; restored when the keyboard goes or the screen leaves. */
+@Composable
+internal fun HideStatusBarWhile(on: Boolean) {
+    val view = androidx.compose.ui.platform.LocalView.current
+    androidx.compose.runtime.DisposableEffect(on) {
+        val w = (view.context as? android.app.Activity)?.window
+        val c = w?.let { androidx.core.view.WindowCompat.getInsetsController(it, view) }
+        if (on) c?.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+        onDispose { c?.show(androidx.core.view.WindowInsetsCompat.Type.statusBars()) }
+    }
 }
