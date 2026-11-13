@@ -37,16 +37,16 @@ private val featureFlags = listOf(
     Triple("feat_channels", "Channels", "The Channels / explore tab"),
     Triple("feat_guest", "Guest mode", "Let people browse without an account"),
 )
-private val featureIcons = mapOf("feat_shorts" to Icons.Filled.Movie, "feat_music" to Icons.Filled.MusicNote, "feat_status" to Icons.Filled.Star,
-    "feat_channels" to Icons.Filled.Explore, "feat_guest" to Icons.Filled.Person)
+private val featureIcons = mapOf("feat_shorts" to Sym.Movie, "feat_music" to Sym.MusicNote, "feat_status" to Sym.Star,
+    "feat_channels" to Sym.Explore, "feat_guest" to Sym.Person)
 
 /** The website-only sections (admin.js ADMIN_NAV ids), opened on the site's page at that section. */
 private val webSections = listOf(
-    Triple("analytics", "Analytics", Icons.Filled.Insights), Triple("announcements", "Announcements", Icons.Filled.Campaign),
-    Triple("support-chats", "Support chats", Icons.Filled.SupportAgent), Triple("feedback", "Feedback", Icons.Filled.Feedback),
-    Triple("ads", "Ads", Icons.Filled.Sell), Triple("invite-codes", "Invite codes", Icons.Filled.ConfirmationNumber),
-    Triple("badges", "Badges", Icons.Filled.MilitaryTech), Triple("maintenance", "Maintenance", Icons.Filled.Build),
-    Triple("audit-logs", "Audit logs", Icons.Filled.History),
+    Triple("analytics", "Analytics", Sym.Insights), Triple("announcements", "Announcements", Sym.Campaign),
+    Triple("support-chats", "Support chats", Sym.SupportAgent), Triple("feedback", "Feedback", Sym.Feedback),
+    Triple("ads", "Ads", Sym.Sell), Triple("invite-codes", "Invite codes", Sym.ConfirmationNumber),
+    Triple("badges", "Badges", Sym.MilitaryTech), Triple("maintenance", "Maintenance", Sym.Build),
+    Triple("audit-logs", "Audit logs", Sym.History),
 )
 
 class AdminPage : PageScreen() {
@@ -109,21 +109,21 @@ class AdminPage : PageScreen() {
             }
             // ── The sections the app has natively ──
             SettingsCard("Manage") {
-                SettingRow(Icons.Filled.People, "Users", "Search, verify, mute, block, roles", value = s?.optInt("users")?.takeIf { it > 0 }?.let { adminN(it) }, modifier = Modifier.firstFocus()) { Nav.open(AdminUsersPage()) }
+                SettingRow(Sym.People, "Users", "Search, verify, mute, block, roles", value = s?.optInt("users")?.takeIf { it > 0 }?.let { adminN(it) }, modifier = Modifier.firstFocus()) { Nav.open(AdminUsersPage()) }
                 RowDivider(64.dp)
                 val rep = s?.optInt("open_reports") ?: 0
-                SettingRow(Icons.Filled.Flag, "Reports", if (rep > 0) "$rep open" else "Nothing open", value = if (rep > 0) rep.toString() else null) { Nav.open(AdminReportsPage()) }
+                SettingRow(Sym.Flag, "Reports", if (rep > 0) "$rep open" else "Nothing open", value = if (rep > 0) rep.toString() else null) { Nav.open(AdminReportsPage()) }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.Verified, "Verification requests", "Approve or deny the ✅ mark") { Nav.open(AdminVerifyPage()) }
+                SettingRow(Sym.Verified, "Verification requests", "Approve or deny the ✅ mark") { Nav.open(AdminVerifyPage()) }
                 if (owner) {
                     RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Campaign, "Channels", "Member channels: verify or delete", value = s?.optInt("channels")?.takeIf { it > 0 }?.toString()) { Nav.open(AdminChannelsPage()) }
+                    SettingRow(Sym.Campaign, "Channels", "Member channels: verify or delete", value = s?.optInt("channels")?.takeIf { it > 0 }?.toString()) { Nav.open(AdminChannelsPage()) }
                     RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Send, "Telegram channels", "Add or remove the channels in the Channels tab") { Nav.open(AdminTelegramPage()) }
+                    SettingRow(Sym.Send, "Telegram channels", "Add or remove the channels in the Channels tab") { Nav.open(AdminTelegramPage()) }
                     RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Podcasts, "Broadcast", "A message to every member, with a phone notification") { Nav.open(AdminBroadcastPage()) }
+                    SettingRow(Sym.Podcasts, "Broadcast", "A message to every member, with a phone notification") { Nav.open(AdminBroadcastPage()) }
                     RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Block, "Word filter", "Words and phrases blurred for everyone") { Nav.open(AdminBadWordsPage()) }
+                    SettingRow(Sym.Block, "Word filter", "Words and phrases blurred for everyone") { Nav.open(AdminBadWordsPage()) }
                 }
             }
             // ── Features (admin.js buildFeaturesPanel / toggleFeature: PUT /api/settings {key, value:'on'|'off'}) ──
@@ -131,7 +131,7 @@ class AdminPage : PageScreen() {
                 featureFlags.forEachIndexed { i, (key, label, desc) ->
                     if (i > 0) RowDivider(64.dp)
                     val on = flags[key] != "off"
-                    SettingRow(featureIcons[key] ?: Icons.Filled.Star, label, desc + if (!owner) " · owner only" else "", switch = on) {
+                    SettingRow(featureIcons[key] ?: Sym.Star, label, desc + if (!owner) " · owner only" else "", switch = on) {
                         if (!owner) { toast(c, "Only the owner can change this"); return@SettingRow }
                         if (flagsOk != true) { toast(c, "Couldn't read the current switches from yidplus.com yet. Trying again…"); flagsTry++; return@SettingRow }
                         val v = if (on) "off" else "on"
@@ -156,7 +156,7 @@ class AdminPage : PageScreen() {
                     SettingRow(icon, label, null) { Nav.open(AdminWebPage(id)) }
                 }
                 RowDivider(64.dp)
-                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open the full admin panel", "Every section of the website's admin page") { Nav.open(AdminWebPage(null)) }
+                SettingRow(Sym.OpenInNew, "Open the full admin panel", "Every section of the website's admin page") { Nav.open(AdminWebPage(null)) }
             }
         }
         allowFor?.let { key ->
