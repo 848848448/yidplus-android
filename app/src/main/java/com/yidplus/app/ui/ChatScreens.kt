@@ -441,7 +441,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     ChIcon(Sym.KeyboardArrowDown, "Newer", { if (matches.isNotEmpty()) hit = (hit - 1 + matches.size) % matches.size })
                 }
             }
-        } else ChBar(room.name, sub = subtitle, onBack = if (inPane) null else fun() { Nav.back() },
+        } else ChBar(room.name, sub = if (compact && WindowInsets.isImeVisible) null else subtitle, onBack = if (inPane) null else fun() { Nav.back() },
             lead = { ChAvatar(room.photo, room.name, room.otherUserId ?: room.id, 38.dp) },
             onTitle = { Nav.open(ChInfo(room)) }) {
             if (me != null && (room.type == "private" || isGroup)) ChIcon(Sym.Call, "Call", { Nav.open(ChCall(room, "audio")) })
@@ -547,13 +547,13 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 }
                 CsOptsBadge(scheduleAt, disappear) { scheduleAt = null; disappear = 0 }
                 if (vr.mode == 2 || vr.mode == 3) CsLockedBar(vr, onDelete = { stopRec(false) }, onSend = { stopRec(true) })
-                else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 4.dp, vertical = 5.dp), verticalAlignment = Alignment.Bottom) {
+                else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 4.dp, vertical = if (compact && WindowInsets.isImeVisible) 2.dp else 5.dp), verticalAlignment = Alignment.Bottom) {
                     if (vr.mode == 1) Box(Modifier.weight(1f)) { CsHoldBar(vr) }
                     else {
                     ChIcon(if (emojiOpen) Sym.Keyboard else Sym.EmojiEmotions, if (emojiOpen) "Keyboard" else "Emoji", {
                         emojiOpen = !emojiOpen; attachOpen = false; if (emojiOpen) kb?.hide() else kb?.show()
                     }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = if (compact) 17.sp else 16.sp) }, maxLines = 5,
+                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = if (compact && WindowInsets.isImeVisible) 46.dp else 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = if (compact) 17.sp else 16.sp) }, maxLines = 5,
                         textStyle = TextStyle(fontSize = if (compact) 17.sp else 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
