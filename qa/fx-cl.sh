@@ -15,6 +15,11 @@ cltap() { local p w="$1"; chipw "$1"; p=$(clpos "$1"); if [ -z "$p" ]; then log 
 cllong() { sleep 1; local p; p=$(clpos "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1'"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
 clhas() { local p; chipw "$1"; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL ok: '$1' on screen"; else log "CL MISSING: '$1' not on screen"; fi; }
 clmust() { local p; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL ok: '$1' on screen ($2)"; else log "CL WRONG: '$1' missing ($2)"; fi; }
+# titles of the visible chat rows that carry an unread badge, read from the live dump at the assertion point (no counts hard-coded: rows opened or marked read earlier simply drop out)
+clbadged() { timeout 20 adb shell uiautomator dump /sdcard/clb.xml >/dev/null 2>&1
+  timeout 20 adb shell cat /sdcard/clb.xml 2>/dev/null | tr '>' '\n' | sed -n 's/.* text="\([^"]*\)".*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1\t\2\t\3\t\4\t\5/p' \
+   | awk -F'\t' '$1!="" && $3>=170 && $5<=540 {n++; t[n]=$1; l[n]=$2; y[n]=$3} END{for(i=1;i<=n;i++) if (t[i] ~ /^[0-9]+$/ && l[i]>=380) { best=""; by=1e9; for(j=1;j<=n;j++) if (l[j]>=100 && l[j]<380 && t[j] !~ /^[0-9]+$/ && y[j]<=y[i] && y[i]-y[j]<=80 && y[j]<by) {by=y[j]; best=t[j]} if (best!="") print best } }'; }
+clrowcount() { timeout 20 adb shell cat /sdcard/clb.xml 2>/dev/null | tr '>' '\n' | grep -oE 'bounds="\[0,[0-9]+\]\[480,[0-9]+\]"' | grep -oE '[0-9]+' | paste - - - - | awk '{h=$4-$2; if (h>=70 && h<=112 && $2>=170 && $4<=545) c++} END{print c+0}'; }
 clnot() { local p; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL WRONG: '$1' is on screen"; else log "CL ok: '$1' not shown"; fi; }
 clfx() { local l; l=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400); if [ -n "$l" ]; then echo "  YidFx: $l" >> "$OUT/qa.log"; log "CL ok: sent $1"; else log "CL MISSING: no request with '$1'"; fi; }
 clopen() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
@@ -76,7 +81,13 @@ view "https://yidplus.com/chat"; sleep 8; shot CL-01-list; cltexts list
 clnot "Empty Chat"; clhas "Menu"; clhas "Status"
 chipswipe; shot CL-02-chips-end; clhas "Work"; clhas "Chat folders"
 cltap "Work"; sleep 2; shot CL-04-folder-work; cltexts folder; clhas "DealPoint"; clnot "Yossi Klein"; chipswipe; cltap "Work"; sleep 1; chipback
-cltap "Unread"; sleep 2; shot CL-05-tab-unread; cltexts unread-tab; clmust "Yossi Klein" "Unread tab: this chat has 3 unread in the fixture"; clmust "חברים פון שול" "Unread tab: 12 unread in the fixture"; clnot "Yanky Weiss"; cltap "All"; sleep 1
+cltap "All"; sleep 1.5; cltop; BEFORE=$(clbadged); log "CL All tab, rows with an unread badge at this point: $(echo "$BEFORE" | tr '\n' ',')"
+cltap "Unread"; sleep 2; shot CL-05-tab-unread; cltexts unread-tab; AFTER=$(clbadged); NR=$(clrowcount); NB=$(echo "$AFTER" | grep -c . || true)
+log "CL Unread tab: $NB badged rows, $NR full rows; badged titles: $(echo "$AFTER" | tr '\n' ',')"
+[ -z "$BEFORE" ] && log "CL WRONG: no badged rows found in the All tab to compare against (parser or fixture state)" 
+echo "$BEFORE" | while IFS= read -r t; do [ -z "$t" ] && continue; echo "$AFTER" | grep -qxF "$t" && log "CL ok: '$t' (unread in All) is in the Unread tab" || log "CL WRONG: '$t' has an unread badge in All but is missing from the Unread tab"; done
+[ "$NR" -le "$NB" ] && log "CL ok: every full row in the Unread tab has an unread badge" || log "CL WRONG: Unread tab shows $((NR-NB)) row(s) without a badge ($NR rows, $NB badged)"
+cltap "All"; sleep 1
 p=$(clseek "יידישע נייעס"); [ -n "$p" ] && log "CL ok: Telegram channel row in the list"; shot CL-03-list-telegram-rows; cltop
 
 # ── Long-press selection: Pin (on this phone), Mute 8 h / 1 week / Always, Mark as read, Delete ──
