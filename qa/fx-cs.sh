@@ -29,6 +29,11 @@ csplaylast() { # tap the LOWEST "Play" node on screen: the newest voice bubble i
   local b; b=$(timeout 20 adb shell cat /sdcard/cs.xml 2>/dev/null | tr '>' '\n' | grep -E -- '(text|content-desc)="Play"' | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ' | awk '{for(i=1;i+3<=NF;i+=4){cx=($i+$(i+2))/2; cy=($(i+1)+$(i+3))/2; if(cy>my){my=cy; bx=cx; by=cy}}} END{if(my)print bx" "by}')
   [ -z "$b" ] && { log "CS WRONG: no Play node after reopen (voice bubble not reachable)"; FAIL=1; return 0; }
   set -- $b; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "csplaylast $1 $2"
+  # determinism: the tapped bubble must flip to playing state (desc "Pause") at the SAME bounds
+  timeout 30 adb shell uiautomator dump /sdcard/cs2.xml >/dev/null 2>&1
+  local pb; pb=$(timeout 20 adb shell cat /sdcard/cs2.xml 2>/dev/null | tr '>' '\n' | grep -E -- 'content-desc="Pause"' | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ' | awk -v tx="$1" -v ty="$2" '{for(i=1;i+3<=NF;i+=4){cx=($i+$(i+2))/2; cy=($(i+1)+$(i+3))/2; dx=cx-tx; if(dx<0)dx=-dx; dy=cy-ty; if(dy<0)dy=-dy; if(dx<=40 && dy<=40)ok=1}} END{if(ok)print "ok"}')
+  [ -z "$pb" ] && { log "CS WRONG: tapped Play at $1 $2 did not enter playing state (no Pause at same bounds)"; FAIL=1; return 0; }
+  log "csplaylast verified playing at $1 $2"
 }
 csfind() { local n=0; while [ $n -lt ${2:-6} ]; do [ -n "$(cspos "$1")" ] && return 0; adb shell input swipe 240 260 240 470 400; sleep 1; n=$((n+1)); done; log "csfind: '$1' not found"; }
 csfindup() { local n=0; while [ $n -lt ${2:-6} ]; do [ -n "$(cspos "$1")" ] && return 0; adb shell input swipe 240 470 240 260 400; sleep 1; n=$((n+1)); done; log "csfindup: '$1' not found"; }
