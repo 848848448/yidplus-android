@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -339,11 +340,17 @@ fun ShortsScreen() {
     LaunchedEffect(Prefs.muted) { player.volume = if (Prefs.muted) 0f else 1f }
     // Speed report: time from a swipe / key settling on a video to its first picture on screen.
     val swipeAt = remember { longArrayOf(0L) }
+    // Buffering state drives the loading spinner: a settled page must never sit black and silent with no sign of life.
+    var buffering by remember { mutableStateOf(true) }
     DisposableEffect(player) {
         val l = object : Player.Listener {
             override fun onRenderedFirstFrame() {
+                buffering = false
                 val t0 = swipeAt[0]
                 if (t0 > 0) { android.util.Log.i("YidPerf", "Shorts video playing ${android.os.SystemClock.elapsedRealtime() - t0} ms after swipe"); swipeAt[0] = 0 }
+            }
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                buffering = playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_IDLE
             }
         }
         player.addListener(l); onDispose { player.removeListener(l) }
@@ -455,7 +462,7 @@ fun ShortsScreen() {
                     snapAnimationSpec = androidx.compose.animation.core.spring(dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
                         stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow))) { page ->
                 val s = items[page]
-                ShortPage(s, current = page == pager.settledPage, player = player, paused = paused,
+                ShortPage(s, current = page == pager.settledPage, player = player, paused = paused, buffering = buffering,
                     onTap = { togglePause() }, onLike = { like(s) }, onComments = { commentsFor = s }, onSave = { toggleSave(s) },
                     speed = speed, onSpeed = { speed = it; player.setPlaybackParameters(PlaybackParameters(it)) },
                     onHide = { Feeds.hidden.add(s.creatorId); Feeds.persist(c); Feeds.forYou.items.removeAll { it.creatorId == s.creatorId }; toast(c, "You won't see ${s.creator} again") },
@@ -464,7 +471,10 @@ fun ShortsScreen() {
                     onDelete = if (!s.fromSrc && (Session.me?.id == s.creatorId || SoUser.isAdmin)) ({ soDeleteUpload(c, s) }) else null)
             }
         }
-        SoShortsTopBar(tabs, tab, who, topic, smallScreen, Modifier.align(Alignment.TopCenter))
+        // The top bar steps aside while a page slides, so the incoming video's rail/caption never paints over the tabs.
+        AnimatedVisibility(!pager.isScrollInProgress, Modifier.align(Alignment.TopCenter), enter = fadeIn(), exit = fadeOut()) {
+            SoShortsTopBar(tabs, tab, who, topic, smallScreen, Modifier)
+        }
         AnimatedVisibility(showHint, Modifier.align(Alignment.Center), enter = fadeIn(), exit = fadeOut()) {
             Column(Modifier.padding(24.dp).background(Color.Black.copy(alpha = .85f), RoundedCornerShape(16.dp)).padding(16.dp)) {
                 Text("Keypad keys", color = Gold, fontWeight = FontWeight.Bold)
@@ -480,7 +490,7 @@ fun ShortsScreen() {
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
-private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplayer.ExoPlayer, paused: Boolean, onTap: () -> Unit, onLike: () -> Unit,
+private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplayer.ExoPlayer, paused: Boolean, buffering: Boolean = false, onTap: () -> Unit, onLike: () -> Unit,
                       onComments: () -> Unit, onSave: () -> Unit, speed: Float, onSpeed: (Float) -> Unit, onHide: () -> Unit,
                       onCreator: () -> Unit = {}, onNotInterested: () -> Unit = {}, onDelete: (() -> Unit)? = null) {
     val c = ctx()
@@ -495,7 +505,8 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
             if (current) AndroidView(factory = { ctx ->
                 (LayoutInflater.from(ctx).inflate(R.layout.short_player, null) as PlayerView).also { it.player = player }
             }, update = { it.player = player }, modifier = Modifier.fillMaxSize())
-            if (current && paused) Icon(Icons.Filled.PlayArrow, "Paused", tint = Color.White.copy(alpha = .85f), modifier = Modifier.align(Alignment.Center).size(72.dp))
+            if (current && buffering && !paused) CircularProgressIndicator(Modifier.align(Alignment.Center).size(44.dp), color = Color.White, strokeWidth = 3.dp)
+            if (current && paused) Icon(Sym.PlayArrow, "Paused", tint = Color.White.copy(alpha = .85f), modifier = Modifier.align(Alignment.Center).size(72.dp))
 
             // Right side actions
             Column(Modifier.align(Alignment.BottomEnd).padding(end = 4.dp, bottom = if (small) 30.dp else 46.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(if (small) 4.dp else 10.dp)) {
@@ -507,18 +518,18 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
                 }
-                Action(if (s.liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, "Like", onLike)
-                Action(Icons.Filled.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, "Comment", onComments)
+                Action(if (s.liked) Sym.Favorite else Sym.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, "Like", onLike)
+                Action(Sym.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, "Comment", onComments)
                 val isSaved = Feeds.saved.any { it.key == s.key }
-                if (!small) Action(if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onClick = onSave)
-                Action(Icons.Filled.Share, "Share", Color.White, small = small) { share(c, s.shareUrl) }
-                if (!small) Action(if (Prefs.muted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp, if (Prefs.muted) "Off" else "Sound", Color.White) { Prefs.setMute(!Prefs.muted) }
+                if (!small) Action(if (isSaved) Sym.Bookmark else Sym.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onClick = onSave)
+                Action(Sym.Share, "Share", Color.White, small = small) { share(c, s.shareUrl) }
+                if (!small) Action(if (Prefs.muted) Sym.VolumeOff else Sym.VolumeUp, if (Prefs.muted) "Off" else "Sound", Color.White) { Prefs.setMute(!Prefs.muted) }
                 var menu by remember { mutableStateOf(false) }
                 var askDelete by remember { mutableStateOf(false) }
                 if (askDelete && onDelete != null) AlertDialog(onDismissRequest = { askDelete = false }, title = { Text("Delete this video?") },
                     confirmButton = { TextButton({ askDelete = false; onDelete() }) { Text("Delete") } }, dismissButton = { TextButton({ askDelete = false }) { Text("Cancel") } })
                 Box {
-                    Action(Icons.Filled.MoreVert, "More", Color.White, small = small) { menu = true }
+                    Action(Sym.MoreVert, "More", Color.White, small = small) { menu = true }
                     DropdownMenu(menu, { menu = false }) {
                         if (small) {
                             DropdownMenuItem(text = { Text((if (isSaved) "Saved ✓" else "Save") + keyHint(4)) }, onClick = { onSave(); menu = false })
@@ -546,7 +557,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                     }
                     Text("@" + s.creator.ifBlank { "yidplus" }, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false).tap(RoundedCornerShape(6.dp), onClick = onCreator))
-                    if (s.verified) Icon(Icons.Filled.Verified, null, tint = Gold, modifier = Modifier.padding(start = 3.dp).size(14.dp))
+                    if (s.verified) Icon(Sym.Verified, null, tint = Gold, modifier = Modifier.padding(start = 3.dp).size(14.dp))
                     if (small && s.fromSrc) {
                         val f = s.creatorId in Feeds.follows
                         Text(if (f) "Following" else "+ Follow", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold,
@@ -568,7 +579,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, onClick: () -> Unit) {
     // A fixed-width cell, so "Comment" / "1.2K" never runs off the rail and every icon sits on one line.
     Column(Modifier.widthIn(min = 58.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 26.dp else 30.dp))
+        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 28.dp else 30.dp))
         Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall.copy(shadow = androidx.compose.ui.graphics.Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)),
             maxLines = 1, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
