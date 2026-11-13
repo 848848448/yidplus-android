@@ -117,6 +117,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val me = Session.me
     val scope = rememberCoroutineScope()
     val kb = LocalSoftwareKeyboardController.current
+    val compact = LocalConfiguration.current.screenHeightDp < 600
     // Instant open (gap 1): the messages we already have are on screen in the very first frame; the network only refreshes them.
     val msgs = remember(room.id) { mutableStateListOf<ChatMsg>().also { l -> ChatCache.get(room.id)?.let { l.addAll(it) } } }
     val inputFocus = remember { androidx.compose.ui.focus.FocusRequester() }
@@ -552,8 +553,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     ChIcon(if (emojiOpen) Sym.Keyboard else Sym.EmojiEmotions, if (emojiOpen) "Keyboard" else "Emoji", {
                         emojiOpen = !emojiOpen; attachOpen = false; if (emojiOpen) kb?.hide() else kb?.show()
                     }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = 16.sp) }, maxLines = 5,
-                        textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
+                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = if (compact) 17.sp else 16.sp) }, maxLines = 5,
+                        textStyle = TextStyle(fontSize = if (compact) 17.sp else 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { sendText() }))
@@ -706,7 +707,7 @@ private fun groupJoinsC(list: List<ChatMsg>): List<ChatMsg> {
 @Composable
 private fun ChDayChip(t: String) {
     Box(Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
-        Text(t, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = ChatLook.sub(),
+        Text(t, fontSize = if (LocalConfiguration.current.screenHeightDp < 600) 12.5.sp else 12.sp, fontWeight = FontWeight.Medium, color = ChatLook.sub(),
             modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(csDayChipColor()).padding(horizontal = 12.dp, vertical = 4.dp))
     }
 }
