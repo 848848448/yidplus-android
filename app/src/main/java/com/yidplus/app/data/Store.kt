@@ -20,21 +20,25 @@ class Res<T>(val path: String, private val parse: (JSONObject) -> T) {
     var loading by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
     var offline by mutableStateOf(false)
+    /** True while the data on screen came from the disk cache and the network has not refreshed it this session. */
+    var fromCache by mutableStateOf(false)
+    /** Wall-clock time of the data on screen (cache write time or last successful load; 0 = unknown). */
+    var dataAt by mutableStateOf(0L)
     private var loadedAt = 0L
     private var diskTried = false
 
     suspend fun load(force: Boolean = false) {
         if (data == null && !diskTried) {
             diskTried = true
-            val cached = withContext(Dispatchers.IO) { Disk.read(Store.key(path))?.let { runCatching { parse(it) }.getOrNull() } }
-            if (cached != null && data == null) data = cached
+            val (cached, cachedAt) = withContext(Dispatchers.IO) { Disk.read(Store.key(path))?.let { runCatching { parse(it) }.getOrNull() } to Disk.modified(Store.key(path)) }
+            if (cached != null && data == null) { data = cached; fromCache = true; dataAt = cachedAt }
         }
         if (loading) return
         if (!force && loadedAt > 0 && SystemClock.elapsedRealtime() - loadedAt < 45_000) return
         loading = true
         try {
             val (parsed, raw) = withContext(Dispatchers.IO) { val j = Api.get(path); parse(j) to j }
-            data = parsed; error = null; offline = false
+            data = parsed; error = null; offline = false; fromCache = false; dataAt = System.currentTimeMillis()
             loadedAt = SystemClock.elapsedRealtime()
             withContext(Dispatchers.IO) { Disk.write(Store.key(path), raw) }
         } catch (e: Exception) {
