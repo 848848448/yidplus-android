@@ -294,7 +294,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
             }
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Close", { Nav.back() }, tint = Color.White)
+                IconBtn(Sym.ArrowBack, "Close", { Nav.back() }, tint = Color.White)
                 Avatar(user.photo, user.nick, 38.dp)
                 Column(Modifier.weight(1f).padding(start = 10.dp)) {
                     Text(if (isMine) "My status" else user.nick, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
@@ -304,12 +304,12 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                 }
                 if (paused && held) Text("Paused", color = Color.White.copy(alpha = .8f), fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))
                 if (isMine) {
-                    IconBtn(Icons.Filled.Add, "Add status", { Nav.open(PostStatusPage()) }, tint = Color.White)
+                    IconBtn(Sym.Add, "Add status", { Nav.open(PostStatusPage()) }, tint = Color.White)
                     Box {
-                        IconBtn(Icons.Filled.MoreVert, "More", { menu = true }, tint = Color.White)
+                        IconBtn(Sym.MoreVert, "More", { menu = true }, tint = Color.White)
                         DropdownMenu(menu, { menu = false }) {
                             DropdownMenuItem(text = { Text("Delete", color = MaterialTheme.colorScheme.error, fontSize = 16.sp) },
-                                leadingIcon = { Icon(Icons.Filled.Delete, null, tint = MaterialTheme.colorScheme.error) },
+                                leadingIcon = { Icon(Sym.Delete, null, tint = MaterialTheme.colorScheme.error) },
                                 onClick = {
                                     menu = false
                                     scope.launch {
@@ -327,7 +327,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
             if (isMine) {
                 Row(Modifier.align(Alignment.Center).clip(RoundedCornerShape(20.dp)).background(Color(0x66000000)).tap(RoundedCornerShape(20.dp)) { sheet = true }
                     .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Visibility, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Sym.Visibility, null, tint = Color.White, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
                     Text("${slide.views} views", color = Color.White, fontSize = 15.sp)
                 }
@@ -348,8 +348,8 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                     if (reply.isNotBlank()) Box(Modifier.size(48.dp).clip(CircleShape).background(Green).tap(CircleShape) {
                         val t = reply.trim(); reply = ""
                         scope.launch { try { Statuses.replyTo(user.userId, "↩️ $t"); toast(c, "Reply sent") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
-                    }, contentAlignment = Alignment.Center) { Icon(Icons.AutoMirrored.Filled.Send, "Send reply", tint = Color.White, modifier = Modifier.size(22.dp)) }
-                    else IconBtn(if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, "Like status", {
+                    }, contentAlignment = Alignment.Center) { Icon(Sym.Send, "Send reply", tint = Color.White, modifier = Modifier.size(22.dp)) }
+                    else IconBtn(if (liked) Sym.Favorite else Sym.FavoriteBorder, "Like status", {
                         liked = !liked
                         if (liked) scope.launch { try { Statuses.replyTo(user.userId, "❤️ (reacted to your status)"); toast(c, "❤️ Reacted!") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
                     }, tint = if (liked) Color(0xFFFF4D67) else Color.White, size = 48.dp)
@@ -371,7 +371,7 @@ private fun StViewersSheet(slide: StSlide, onClose: () -> Unit) {
             Column(Modifier.navigationBarsPadding()) {
                 Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(viewers?.let { "Viewed by ${it.size}" } ?: "Viewed by", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                    IconBtn(Icons.Filled.Close, "Close", onClose, modifier = Modifier.firstFocus(always = true))
+                    IconBtn(Sym.Close, "Close", onClose, modifier = Modifier.firstFocus(always = true))
                 }
                 val v = viewers
                 when {
@@ -413,4 +413,3 @@ private fun StVideo(url: String, paused: Boolean, onDur: (Long) -> Unit, onReady
         this.player = player; useController = false; setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
     } }, modifier = Modifier.fillMaxSize())
 }
-
