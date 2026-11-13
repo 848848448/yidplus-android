@@ -59,12 +59,15 @@ cstap "Message"; sleep 1; cskb "composer tap"; shot CS-24-keyboard-up
 timeout 20 adb shell uiautomator dump /sdcard/cs24.xml >/dev/null 2>&1
 timeout 20 adb shell cat /sdcard/cs24.xml > "$OUT/CS-24-keyboard-up.xml" 2>/dev/null
 CS24=$(tr '>' '\n' < "$OUT/CS-24-keyboard-up.xml" 2>/dev/null)
+PANE=0; echo "$CS24" | grep -q 'text="CS QA"' && PANE=68   # header (40dp slim bar) present: body must sit below it, unclipped; header hidden while typing: pane starts at the top
+log "CS24 pane top y=$PANE"
+for d in "Attach" "Record voice message"; do echo "$CS24" | grep -q "content-desc=\"$d" && log "CS ok: composer keeps '$d' with the keyboard up" || { log "CS WRONG: composer lost '$d' with the keyboard up (pushed off screen?)"; FAIL=1; }; done
 MT=$(echo "$CS24" | sed -n 's/.*text="Message".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1 \2/p' | head -1)
 if [ -z "$MT" ]; then log "CS WRONG: composer not found with the keyboard up"; FAIL=1
 else set -- $MT
   [ $(( $2 - $1 )) -ge 28 ] && log "CS ok: composer text height $(( $2 - $1 ))px with the keyboard up" || { log "CS WRONG: composer text clipped with the keyboard up (height $(( $2 - $1 ))px)"; FAIL=1; }
-  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\2|\3/p' | awk -F'|' -v top="$1" '$3+4 <= top && ($3-$2) >= 20 && $2 >= 40 && $1 !~ /^[0-9]+:[0-9]+ ?(AM|PM)?$/ && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
-    && log "CS ok: message body text (>=20px tall, not a time stamp) stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up (clipped slivers, time stamps and off-pane nodes do not count)"; FAIL=1; }
+  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\2|\3/p' | awk -F'|' -v top="$1" -v pane="$PANE" '$3+4 <= top && ($3-$2) >= 24 && $2 >= pane && $1 !~ /^[0-9]+:[0-9]+ ?(AM|PM)?$/ && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
+    && log "CS ok: message body text (>=24px tall, below the header if one is shown, not a time stamp) stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up (clipped slivers, time stamps and off-pane nodes do not count)"; FAIL=1; }
 fi
 key 4; sleep 1; sysbars after-keyboard
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
