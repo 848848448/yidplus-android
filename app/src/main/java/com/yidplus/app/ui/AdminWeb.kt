@@ -53,7 +53,7 @@ data class AdminWebPage(val section: String? = null) : PageScreen() {
         val url = Api.BASE + "/yidplus-admin"
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             TopBar("Admin · website", onBack = { Nav.back() }, sub = section?.let { "Section: $it" }) {
-                IconBtn(Icons.AutoMirrored.Filled.OpenInNew, "Open in the browser", { openUrl(c, url) }, tint = LocalContentColor.current)
+                IconBtn(Sym.OpenInNew, "Open in the browser", { openUrl(c, url) }, tint = LocalContentColor.current)
             }
             val ok = unlocked
             if (ok == null) {
@@ -70,7 +70,7 @@ data class AdminWebPage(val section: String? = null) : PageScreen() {
                 // Scrolls, so the Unlock button stays reachable on a 480x640 screen with the keypad open.
                 Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+                    Icon(Sym.Lock, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
                     Text("Admin PIN", style = MaterialTheme.typography.titleLarge)
                     Text("The website's admin page asks for your 4-digit admin PIN. Signed in as " + (Session.me?.email ?: "you") + ".",
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
