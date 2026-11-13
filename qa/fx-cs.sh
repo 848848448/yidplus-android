@@ -98,7 +98,11 @@ while n is not None:
     plays = [d for d in n.iter('node') if d.get('content-desc') == 'Play']
     if plays:
         if len(plays) > 1:
-            print("ERR ambiguous container has %d Play buttons" % len(plays)); sys.exit(0)
+            lb = bounds(labels[0]); ly = (lb[1] + lb[3]) // 2
+            near = [d for d in plays if bounds(d)[1] < lb[3] and bounds(d)[3] > lb[1] and bounds(d)[2] <= lb[0] + 4]  # same row: vertical overlap with the label and the Play sits left of it
+            if len(near) != 1:
+                print("ERR ambiguous container has %d Play buttons, %d vertically overlapping and left of the label" % (len(plays), len(near))); sys.exit(0)
+            plays = near
         b = bounds(plays[0])
         print("%d %d" % ((b[0] + b[2]) // 2, (b[1] + b[3]) // 2)); sys.exit(0)
     n = parent.get(n)
