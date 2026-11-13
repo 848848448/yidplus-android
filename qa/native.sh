@@ -300,4 +300,4 @@ grep -E "FOCUS" "$OUT/qa.log" > "$OUT/dpad.txt" || true
 cat "$OUT/perf.txt"
 if [ "$FAIL" = 0 ]; then echo "PASS" > "$OUT/RESULT"; else echo "FAIL" > "$OUT/RESULT"; fi
 cat "$OUT/RESULT"
-exit 0
+exit "$FAIL"
