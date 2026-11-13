@@ -166,7 +166,7 @@ class SettingsBlocked : PageScreen() {
         val c = ctx()
         val scope = rememberCoroutineScope()
         ListPage("Blocked users", "/api/blocks", { it.optJSONArray("blocked").objects() },
-            listOf(JSONObject().put("blocked_id", "d1").put("nickname", "Spam Account")), Icons.Filled.Block,
+            listOf(JSONObject().put("blocked_id", "d1").put("nickname", "Spam Account")), Sym.Block,
             "You haven't blocked anyone", "You can block someone from their profile or a chat.", { it.str("blocked_id") }) { u, first, gone ->
             PersonRow(null, u.str("nickname").ifBlank { "User" }, first = first) {
                 SmallAction("Unblock") {
@@ -186,16 +186,16 @@ class FollowRequestsPage : PageScreen() {
         val c = ctx()
         val scope = rememberCoroutineScope()
         ListPage("Follow requests", "/api/follows?requests=1", { it.optJSONArray("requests").objects() },
-            listOf(JSONObject().put("id", "d2").put("nickname", "Moshe Klein").put("created_at", "2026-11-10T20:00:00")), Icons.Filled.PersonAdd,
+            listOf(JSONObject().put("id", "d2").put("nickname", "Moshe Klein").put("created_at", "2026-11-10T20:00:00")), Sym.PersonAdd,
             "No requests", "When your account is private, people who want to follow you show up here.", { it.str("id") }) { r, first, gone ->
             PersonRow(Api.abs(r.str("photo_url").ifBlank { null }), r.str("nickname").ifBlank { "User" }, ago(r.str("created_at")).let { if (it.isBlank()) null else "$it ago" }, first) {
-                RoundAction(Icons.Filled.Check, "Accept", primary = true) {
+                RoundAction(Sym.Check, "Accept", primary = true) {
                     scope.launch {
                         runCatching { if (!SettingsProfile.demo) Api.post("/api/follows", JSONObject().put("action", "accept").put("requester_id", r.str("id"))) }
                             .onSuccess { toast(c, "Accepted"); gone() }.onFailure { toast(c, Api.friendly(it)) }
                     }
                 }
-                RoundAction(Icons.Filled.Close, "Decline") {
+                RoundAction(Sym.Close, "Decline") {
                     scope.launch {
                         runCatching { if (!SettingsProfile.demo) Api.delete("/api/follows?user_id=" + Uri.encode(r.str("id")) + "&request=1") }
                             .onSuccess { gone() }.onFailure { toast(c, Api.friendly(it)) }
@@ -212,7 +212,7 @@ class SettingsMutedChats : PageScreen() {
         val c = ctx()
         val scope = rememberCoroutineScope()
         ListPage("Muted chats", "/api/chat/rooms", { j -> j.optJSONArray("rooms").objects().filter { it.optBoolean("muted") || it.optInt("muted") == 1 } },
-            listOf(JSONObject().put("id", "d3").put("name", "Yeshiva news").put("muted", true)), Icons.Filled.NotificationsOff,
+            listOf(JSONObject().put("id", "d3").put("name", "Yeshiva news").put("muted", true)), Sym.NotificationsOff,
             "No muted chats", "Mute a chat from its menu and it shows up here.", { it.str("id") }) { r, first, gone ->
             val name = r.str("nick").ifBlank { r.str("name") }.ifBlank { "Chat" }
             PersonRow(Api.abs(r.str("photo_url").ifBlank { null }), name, first = first) {
