@@ -126,8 +126,8 @@ fun GalleryScreen(items: List<GItem>, start: Int) {
                 else ZoomPhoto(item.url, onZoom = { z -> if (page == pager.currentPage) zoomed = z }, onDrag = { dy -> dragY = dy })
             }
         }
-        Box(Modifier.align(Alignment.TopStart).padding(6.dp)) { IconBtn(Icons.Filled.Close, "Close", { Nav.back() }, tint = Color.White) }
-        Box(Modifier.align(Alignment.TopEnd).padding(6.dp)) { IconBtn(Icons.Filled.Share, "Share", { share(c, items[pager.currentPage].url) }, tint = Color.White) }
+        Box(Modifier.align(Alignment.TopStart).padding(6.dp)) { IconBtn(Sym.Close, "Close", { Nav.back() }, tint = Color.White) }
+        Box(Modifier.align(Alignment.TopEnd).padding(6.dp)) { IconBtn(Sym.Share, "Share", { share(c, items[pager.currentPage].url) }, tint = Color.White) }
         if (items.size > 1) Text("${pager.currentPage + 1} / ${items.size}", color = Color.White, style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 14.dp).background(Color.Black.copy(alpha = .45f), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 3.dp))
     }
@@ -259,7 +259,7 @@ private fun VideoPage(item: GItem, active: Boolean, onDrag: (Float) -> Unit) {
         } else {
             if (item.poster != null) AsyncImage(item.poster, null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
             Box(Modifier.size(64.dp).clip(CircleShape).background(Color.Black.copy(alpha = .55f)), contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.PlayArrow, "Play", tint = Color.White, modifier = Modifier.size(42.dp))
+                Icon(Sym.PlayArrow, "Play", tint = Color.White, modifier = Modifier.size(42.dp))
             }
         }
     }
