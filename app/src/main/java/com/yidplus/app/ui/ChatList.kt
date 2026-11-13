@@ -101,6 +101,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import com.yidplus.app.data.Res
 import com.yidplus.app.data.TgChannel
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
@@ -237,6 +238,9 @@ fun ChatsScreen() {
                 .semantics { contentDescription = "Chat folders" }, contentAlignment = Alignment.Center) { Icon(Sym.Add, null, Modifier.size(20.dp)) }
         }
         }
+        // Phone-observed fix: a cached list is kept (offline access), but its age and the refresh state are always visible -
+        // a months-old cached list painting silently read as "my chats are broken" on a cold open.
+        ClFreshStrip(res) { scope.launch { res.load(true) } }
         // Gap 3: no spinner over the list, ever — the cached list stays and refreshes silently; only a pull the person makes shows the pull indicator.
         Box(Modifier.weight(1f).fillMaxWidth().pointerInput(tab, folder) {
             // chat.js _initChatTabSwipe: a clear sideways swipe on the list moves to the next / previous tab.
@@ -307,12 +311,47 @@ private fun ClChip(label: String, on: Boolean, n: Int, icon: ImageVector? = null
     val small = LocalConfiguration.current.screenHeightDp < 600
     Row(Modifier.clip(RoundedCornerShape(18.dp)).background(if (on) MaterialTheme.colorScheme.primary.copy(alpha = .14f) else MaterialTheme.colorScheme.surfaceVariant)
         .tap(RoundedCornerShape(18.dp), onClick = onClick).semantics { contentDescription = label; selected = on }
-        .padding(horizontal = if (small) 11.dp else 14.dp, vertical = if (small) 3.5.dp else 7.dp), verticalAlignment = Alignment.CenterVertically) {
+        .padding(horizontal = if (small) 12.dp else 14.dp, vertical = if (small) 6.dp else 7.dp), verticalAlignment = Alignment.CenterVertically) {
         if (icon != null) { Icon(icon, null, Modifier.size(16.dp), tint = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.width(4.dp)) }
-        Text(label, maxLines = 1, softWrap = false, fontSize = if (small) 13.5.sp else 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
+        Text(label, maxLines = 1, softWrap = false, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
             color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             style = TextStyle(textDirection = TextDirection.Content))
         if (n > 0) { Spacer(Modifier.width(6.dp)); ChBadge(n) }
+    }
+}
+
+/** "2 h ago" / "Sep 6": how old the cached data on screen is. */
+private fun clSavedAge(t: Long): String {
+    if (t <= 0) return "earlier"
+    val m = (System.currentTimeMillis() - t) / 60_000
+    return when {
+        m < 1 -> "just now"
+        m < 60 -> "$m min ago"
+        m < 60 * 24 -> "${m / 60} h ago"
+        else -> java.text.SimpleDateFormat("MMM d", java.util.Locale.US).format(java.util.Date(t))
+    }
+}
+
+/** Slim strip above a cached chat list: how old it is, and that an update is running / failed / offline. Never covers rows. */
+@Composable
+private fun ClFreshStrip(res: Res<List<ChatRoomInfo>>, onRetry: () -> Unit) {
+    val visible = res.data != null && (res.fromCache || res.offline)
+    AnimatedVisibility(visible, enter = expandVertically(), exit = shrinkVertically()) {
+        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer)) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(if (res.offline) Sym.CloudOff else Sym.Sync, null, Modifier.size(15.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                Text("  " + when {
+                    res.offline -> "Offline · chats saved " + clSavedAge(res.dataAt)
+                    res.fromCache && res.loading -> "Updating… · saved " + clSavedAge(res.dataAt)
+                    res.fromCache && res.error != null -> "Couldn't update · saved " + clSavedAge(res.dataAt)
+                    else -> "Saved " + clSavedAge(res.dataAt)
+                }, Modifier.weight(1f), fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSecondaryContainer, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (!res.loading && !res.offline && res.error != null)
+                    Text("Retry", Modifier.tap(RoundedCornerShape(8.dp), onClick = onRetry).padding(horizontal = 10.dp, vertical = 2.dp),
+                        fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+            }
+            if (res.loading && !res.offline) LinearProgressIndicator(Modifier.fillMaxWidth().height(2.dp), color = MaterialTheme.colorScheme.primary, trackColor = Color.Transparent)
+        }
     }
 }
 
@@ -337,14 +376,14 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
     val focused by src.collectIsFocusedAsState()
     val sel = Nav.chatDetail?.room?.id == r.id
     Column(Modifier.background(when { selected -> ChatLook.unread.copy(alpha = .16f); sel -> MaterialTheme.colorScheme.primaryContainer; else -> Color.Transparent })) {
-        Row(modifier.fillMaxWidth().height(if (compact) 48.dp else 72.dp).restoreFocus("room:" + r.id)
+        Row(modifier.fillMaxWidth().height(if (compact) 66.dp else 72.dp).restoreFocus("room:" + r.id)
             .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold) else Modifier)
             .onPreviewKeyEvent { e -> if (e.type == KeyEventType.KeyUp && e.key == Key.Menu && onLong != null) { onLong(); true } else false }
             .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onLongClick = onLong, onClick = open)
             .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box {
                 // The site shows "online" only to site admins (chat.js renderChatList: c.online && isAnyAdmin()).
-                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 40.dp else 50.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
+                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 46.dp else 50.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
                 if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() } else av()
                 if (selected) Box(Modifier.align(Alignment.BottomEnd).size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(1.dp).clip(CircleShape).background(ChatLook.unread), contentAlignment = Alignment.Center) {
                     Icon(Sym.Check, "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
@@ -353,24 +392,24 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // Title takes the room it has and ellipsizes; the time always keeps its place at the far end (RTL names can't push it away).
-                    Text(r.name, Modifier.weight(1f).padding(end = 10.dp), fontSize = if (compact) 15.5.sp else 16.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    Text(r.name, Modifier.weight(1f).padding(end = 10.dp), fontSize = if (compact) 16.sp else 16.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                     Text(chatTime(r.lastTime), fontSize = 12.sp, color = if (r.unread > 0 && !ri.muted) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
-                Spacer(Modifier.height(if (compact) 1.dp else 3.dp))
+                Spacer(Modifier.height(if (compact) 2.dp else 3.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val draft = remember(r.id, Nav.stack.size) { ChDrafts.get(c, r.id) }
                     val v = ChatCache.version
                     val pv = remember(ri, v) { chatPreview(ri) }
                     Text(if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        fontSize = if (compact) 13.5.sp else 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
+                        fontSize = 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                     if (ri.muted) Icon(Sym.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (pinned) Icon(Sym.PushPinFill, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(4.dp)); ChBadge(r.unread, ri.muted)
                 }
             }
         }
-        HorizontalDivider(Modifier.padding(start = if (compact) 70.dp else 80.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
+        HorizontalDivider(Modifier.padding(start = if (compact) 76.dp else 80.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
     }
 }
 
