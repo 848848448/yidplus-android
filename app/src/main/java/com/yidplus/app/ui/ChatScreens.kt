@@ -166,6 +166,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val unreadAtOpen = remember(room.id) { room.unread }
     var unreadAnchor by remember(room.id) { mutableStateOf<String?>(null) }
     var didAnchorG by remember(room.id) { mutableStateOf(false) }
+    var ownSendTick by remember(room.id) { mutableStateOf(0) }  // bumped when the user sends and again when the server copy lands: both scroll to the newest
     var callOn by remember(room.id) { mutableStateOf(0) }
 
     suspend fun pull() {
@@ -262,9 +263,9 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         if (me == null) return
         val rt = replyTo; replyTo = null
         val temp = ChatMsg("tmp-" + System.nanoTime(), room.id, me.id, me.nickname, me.photo, type, t, null, name, chNowIso(), pending = true, local = localPreview)
-        msgs.add(temp); sending = true
+        msgs.add(temp); sending = true; ownSendTick++
         scope.launch {
-            try { ChatApi.upload(c, room.id, uri, file, type, name, mime, t, rt?.id); msgs.remove(temp); pull() }
+            try { ChatApi.upload(c, room.id, uri, file, type, name, mime, t, rt?.id); msgs.remove(temp); pull(); ownSendTick++ }
             catch (e: Exception) { val i = msgs.indexOfFirst { it.id == temp.id }; if (i >= 0) msgs[i] = temp.copy(pending = false, failed = true); toast(c, "Not sent: " + Api.friendly(e)) }
             finally { sending = false; file?.takeIf { it.name.startsWith("cam_") || it.name.startsWith("voice_") }?.delete() }
         }
@@ -375,6 +376,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val matches = remember(sq, rows) { if (sq.trim().length < 2) emptyList() else rows.withIndex().filter { (_, it) -> it is ChItem.M && it.m.text.contains(sq.trim(), true) && !it.m.isVoice }.map { it.index } }
     LaunchedEffect(matches, hit) { matches.getOrNull(hit)?.let { state.animateScrollToItem(it) } }
     // Sending: the user's own just-sent message always scrolls into view (even when the room was opened mid-history at the unread divider); incoming messages only follow when already near the bottom.
+    LaunchedEffect(ownSendTick) { if (ownSendTick > 0 && !searchOn) { kotlinx.coroutines.delay(60); state.scrollToItem(0) } }
     LaunchedEffect(msgs.size) { val own = msgs.lastOrNull()?.let { it.pending && it.senderId == me?.id } == true; if (msgs.isNotEmpty() && !searchOn && (own || (state.firstVisibleItemIndex < 3 && (unreadAnchor == null || didAnchorG)))) state.scrollToItem(0) }
     /** Jump to a message (reply quote, pinned bar, pinned list): older pages load until it is found, then it flashes like the site's highlight. */
     fun jumpTo(id: String) {
