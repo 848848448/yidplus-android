@@ -1,0 +1,18 @@
+--------- beginning of system
+--------- beginning of main
+--------- beginning of kernel
+11-13 03:31:07.565  2587  2628 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-13 03:31:12.582  2587  2628 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-13 03:31:37.679  2587  2623 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-13 03:32:18.956  2587  2630 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-13 03:32:44.542  3286  3324 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-13 03:35:13.468  3447  3483 I YidFx   : POST /api/chat {"room_id":"nt-g1","type":"text","text":"Thanks I will be there"}
+11-13 03:35:13.468  3447  3483 I YidFx   : POST /api/chat/read {"room_id":"nt-g1"}
+11-13 03:36:15.574  3447  4599 I YidFx   : POST /api/chat {"room_id":"nt-g3","type":"text","text":"Second message"}
+11-13 03:36:15.578  3447  4599 I YidFx   : POST /api/chat/read {"room_id":"nt-g3"}
+11-13 03:37:05.596  3447  4969 I YidFx   : POST /api/chat/read {"room_id":"nt-dm1"}
+11-13 03:37:58.307  3447  4969 I YidFx   : POST /api/chat/read {"room_id":"nt-g1","receipts":true}
+11-13 03:39:40.577  5316  5359 I YidFx   : POST /api/chat {"room_id":"nt-g1","type":"text","text":"Thanks I will be there"}
+11-13 03:39:40.577  5316  5359 I YidFx   : POST /api/chat/read {"room_id":"nt-g1"}
+11-13 03:40:03.268  5316  5680 I YidFx   : POST /api/chat/read {"room_id":"nt-dm1"}
+11-13 03:40:48.993  5316  5359 I YidFx   : POST /api/chat/read {"room_id":"nt-g1","receipts":true}
