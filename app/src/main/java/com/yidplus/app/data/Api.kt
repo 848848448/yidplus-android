@@ -162,10 +162,12 @@ object Fixture {
         val a = u.substringAfterLast('.', "").substringBefore('?').lowercase()
         return (if (a in setOf("m4a", "mp3", "ogg", "opus", "wav", "aac", "amr")) voiceFile else imgFile) ?: u
     }
+    // Site media, plus the QA sample files the fixtures used to point at on raw.githubusercontent.com: both go to the bundled local copies so fixture mode opens no network connection from the player.
+    private fun isSiteMedia(v: String) = v.startsWith("/api/media/") || v.contains("://yidplus.com/api/media/") || (v.startsWith("https://raw.githubusercontent.com/848848448/yidplus-android/") && v.contains("/qa/"))
     private fun remapMedia(o: Any?) {
         when (o) {
-            is JSONObject -> for (k in o.keys().asSequence().toList()) { val v = o.opt(k); if (v is String && (v.startsWith("/api/media/") || v.contains("://yidplus.com/api/media/"))) o.put(k, localMedia(v)) else remapMedia(v) }
-            is JSONArray -> for (i in 0 until o.length()) { val v = o.opt(i); if (v is String && (v.startsWith("/api/media/") || v.contains("://yidplus.com/api/media/"))) o.put(i, localMedia(v)) else remapMedia(v) }
+            is JSONObject -> for (k in o.keys().asSequence().toList()) { val v = o.opt(k); if (v is String && (isSiteMedia(v))) o.put(k, localMedia(v)) else remapMedia(v) }
+            is JSONArray -> for (i in 0 until o.length()) { val v = o.opt(i); if (v is String && (isSiteMedia(v))) o.put(i, localMedia(v)) else remapMedia(v) }
         }
     }
 
