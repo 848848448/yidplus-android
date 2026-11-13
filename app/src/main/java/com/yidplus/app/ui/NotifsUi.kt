@@ -88,13 +88,13 @@ object NotifActors {
 fun notifsRes() = Store.res("/api/notifications") { j -> j.optJSONArray("notifications").objects().map(Notif::from).distinctBy { it.id } }
 
 private fun notifBadge(t: String): Pair<ImageVector, Color> = when (t) {
-    "like" -> Icons.Filled.Favorite to Color(0xFFE53958)
-    "follow", "follow_request", "follow_accept" -> Icons.Filled.PersonAdd to Color(0xFF2E7D9A)
-    "comment", "reply" -> Icons.Filled.ChatBubble to Color(0xFF1F6F5C)
-    "mention" -> Icons.Filled.AlternateEmail to Color(0xFF7B5EA7)
-    "channel_post" -> Icons.Filled.Campaign to Color(0xFFB7892B)
-    "verified", "verify" -> Icons.Filled.Verified to Color(0xFF25A36F)
-    else -> Icons.Filled.Notifications to Color(0xFF607D8B)
+    "like" -> Sym.Favorite to Color(0xFFE53958)
+    "follow", "follow_request", "follow_accept" -> Sym.PersonAdd to Color(0xFF2E7D9A)
+    "comment", "reply" -> Sym.ChatBubble to Color(0xFF1F6F5C)
+    "mention" -> Sym.AlternateEmail to Color(0xFF7B5EA7)
+    "channel_post" -> Sym.Campaign to Color(0xFFB7892B)
+    "verified", "verify" -> Sym.Verified to Color(0xFF25A36F)
+    else -> Sym.Notifications to Color(0xFF607D8B)
 }
 
 /** "Yanky liked your short" → ("Yanky", "liked your short"); a text without the name keeps the whole text as the action. */
@@ -161,18 +161,18 @@ fun NotifsPageBody() {
     val anyUnread = !allRead && list?.any { !it.read && it.id !in readNow } == true
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar("Notifications", onBack = { Nav.back() }) {
-            if (anyUnread) IconBtn(Icons.Filled.DoneAll, "Mark all read", {
+            if (anyUnread) IconBtn(Sym.DoneAll, "Mark all read", {
                 allRead = true; SoNotifCount.unread = 0
                 scope.launch { runCatching { Api.post("/api/notifications", JSONObject().put("read", "all")) } }
                 toast(c, "All marked as read")
             }, tint = LocalContentColor.current)
-            if (!list.isNullOrEmpty()) IconBtn(Icons.Filled.DeleteSweep, "Clear all", { confirm = true }, tint = LocalContentColor.current)
+            if (!list.isNullOrEmpty()) IconBtn(Sym.DeleteSweep, "Clear all", { confirm = true }, tint = LocalContentColor.current)
         }
         when {
-            Session.me == null -> EmptyNote(Icons.Filled.Notifications, "Sign in to see your notifications", action = "Sign in", onAction = { Nav.go(Tab.Profile) })
+            Session.me == null -> EmptyNote(Sym.Notifications, "Sign in to see your notifications", action = "Sign in", onAction = { Nav.go(Tab.Profile) })
             list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
             list == null -> SkeletonRows(rows = 7)
-            list.isEmpty() -> EmptyNote(Icons.Filled.NotificationsNone, "No notifications yet", "Likes, comments and new followers show up here.")
+            list.isEmpty() -> EmptyNote(Sym.NotificationsNone, "No notifications yet", "Likes, comments and new followers show up here.")
             else -> LazyColumn(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface), contentPadding = PaddingValues(bottom = 24.dp)) {
                 items(list, key = { it.id }) { n ->
                     val unread = !allRead && !n.read && n.id !in readNow
