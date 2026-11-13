@@ -173,14 +173,14 @@ private fun TrackRow(t: Track, now: Boolean, modifier: Modifier, onClick: () -> 
             Text(t.artist + if (t.plays > 0) "  ·  ${t.plays} plays" else "", maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall.copy(textDirection = TextDirection.Content))
         }
-        Icon(if (now && Music.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, null, tint = MaterialTheme.colorScheme.primary)
+        Icon(if (now && Music.playing) Sym.Pause else Sym.PlayArrow, null, tint = MaterialTheme.colorScheme.primary)
     }
 }
 
 @Composable
 private fun Cover(url: String?, size: Int) {
     Box(Modifier.size(size.dp).clip(RoundedCornerShape(8.dp)).background(Green), contentAlignment = Alignment.Center) {
-        Icon(Icons.Filled.MusicNote, null, tint = Gold, modifier = Modifier.size((size * 0.5f).dp))
+        Icon(Sym.MusicNote, null, tint = Gold, modifier = Modifier.size((size * 0.5f).dp))
         if (url != null) AsyncImage(url, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
     }
 }
@@ -196,8 +196,8 @@ fun MiniPlayer() {
                 Text(Music.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content))
                 Text(Music.artist, maxLines = 1, style = MaterialTheme.typography.labelSmall)
             }
-            IconBtn(if (Music.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (Music.playing) "Pause" else "Play", { Music.toggle() })
-            IconBtn(Icons.Filled.SkipNext, "Next", { Music.controller?.seekToNextMediaItem() })
+            IconBtn(if (Music.playing) Sym.Pause else Sym.PlayArrow, if (Music.playing) "Pause" else "Play", { Music.toggle() })
+            IconBtn(Sym.SkipNext, "Next", { Music.controller?.seekToNextMediaItem() })
         }
     }
 }
@@ -208,10 +208,10 @@ fun PlayerScreen() {
     var len by remember { mutableLongStateOf(0L) }
     LaunchedEffect(Unit) { while (isActive) { Music.controller?.let { pos = it.currentPosition; len = it.duration.coerceAtLeast(0) }; delay(500) } }
     Column(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Green, GreenDeep))).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(Modifier.fillMaxWidth()) { IconBtn(Icons.AutoMirrored.Filled.ArrowBack, "Back", { Nav.back() }, tint = Color.White) }
+        Row(Modifier.fillMaxWidth()) { IconBtn(Sym.ArrowBack, "Back", { Nav.back() }, tint = Color.White) }
         Spacer(Modifier.weight(1f))
         Box(Modifier.widthIn(max = 320.dp).fillMaxWidth(0.72f).aspectRatio(1f).clip(RoundedCornerShape(18.dp)).background(Green), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.MusicNote, null, tint = Gold, modifier = Modifier.size(72.dp))
+            Icon(Sym.MusicNote, null, tint = Gold, modifier = Modifier.size(72.dp))
             if (Music.art != null) AsyncImage(Music.art, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         }
         Spacer(Modifier.height(14.dp))
@@ -224,13 +224,13 @@ fun PlayerScreen() {
             Text(dur((len / 1000).toInt()), color = Color.White, style = MaterialTheme.typography.labelSmall)
         }
         Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-            IconBtn(Icons.Filled.SkipPrevious, "Previous", { Music.controller?.seekToPreviousMediaItem() }, tint = Color.White, size = 48.dp)
-            IconBtn(Icons.Filled.Replay10, "Back 10 seconds", { Music.controller?.let { it.seekTo(maxOf(0, it.currentPosition - 10_000)) } }, tint = Color.White, size = 44.dp)
+            IconBtn(Sym.SkipPrevious, "Previous", { Music.controller?.seekToPreviousMediaItem() }, tint = Color.White, size = 48.dp)
+            IconBtn(Sym.Replay10, "Back 10 seconds", { Music.controller?.let { it.seekTo(maxOf(0, it.currentPosition - 10_000)) } }, tint = Color.White, size = 44.dp)
             Box(Modifier.size(64.dp).clip(CircleShape).background(Gold), contentAlignment = Alignment.Center) {
-                IconBtn(if (Music.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (Music.playing) "Pause" else "Play", { Music.toggle() }, tint = GreenDeep, size = 64.dp, modifier = Modifier.firstFocus(always = true))
+                IconBtn(if (Music.playing) Sym.Pause else Sym.PlayArrow, if (Music.playing) "Pause" else "Play", { Music.toggle() }, tint = GreenDeep, size = 64.dp, modifier = Modifier.firstFocus(always = true))
             }
-            IconBtn(Icons.Filled.Forward10, "Forward 10 seconds", { Music.controller?.let { it.seekTo(it.currentPosition + 10_000) } }, tint = Color.White, size = 44.dp)
-            IconBtn(Icons.Filled.SkipNext, "Next", { Music.controller?.seekToNextMediaItem() }, tint = Color.White, size = 48.dp)
+            IconBtn(Sym.Forward10, "Forward 10 seconds", { Music.controller?.let { it.seekTo(it.currentPosition + 10_000) } }, tint = Color.White, size = 44.dp)
+            IconBtn(Sym.SkipNext, "Next", { Music.controller?.seekToNextMediaItem() }, tint = Color.White, size = 48.dp)
         }
         Spacer(Modifier.weight(1f))
     }
