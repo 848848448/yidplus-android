@@ -1,4 +1,7 @@
-## New in 2.1.0
+## New in 2.1.1
+- Join by invite link: the page scrolls, so "Request to join" is always reachable on a small screen
+- "Revoke link" sits with the invite dialog's buttons - never scrolled out of sight
+- Everything from the 2.1.0 chat update:
 - Chats like WhatsApp: the top bar is a search field, filter chips under it (Unread, Groups…), no pencil (the green button starts a new chat), more chats fit on a small screen
 - WhatsApp-style search: recent searches, results grouped by Chats, Contacts, Groups, Channels and Messages, your word in bold
 - Yiddish and Hebrew sit on the right, in the chat list and in messages
