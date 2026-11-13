@@ -14,6 +14,7 @@ fx_block() {
   # Blank-list diagnostic (seen in run 43365788338): chips had counts but no row nodes. Keep the FULL XML
   # (bounds separate never-composed from zero-size/offscreen), and re-dump 10 s later to time the recovery.
   if ! grep -q "Yossi Klein" "$OUT/fx-list-dump.xml" 2>/dev/null; then
+    log "CL WRONG: no chat rows at F02 (blank-list regression; full tree in fx-list-dump.xml)"; FAIL=1
     log "F02 BLANK-LIST: no chat rows in the accessibility tree; dumping again after 10 s"
     sleep 10; timeout 20 adb shell uiautomator dump /sdcard/fx2.xml >/dev/null 2>&1
     timeout 20 adb shell cat /sdcard/fx2.xml > "$OUT/fx-list-dump-retry.xml" 2>/dev/null
