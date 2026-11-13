@@ -97,6 +97,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import androidx.compose.ui.platform.LocalConfiguration
 
 // ═════════════════════════════════════════════════════════════════════════════
 // The signed-in person's own profile and account (the website's Settings page, /api/profile and friends).
@@ -270,6 +271,7 @@ fun SettingsPasswordDialog(title: String, message: String, action: String, dange
 /** The person's own header: photo (tap to change), name, email, and the site's stats under it. */
 @Composable
 fun SettingsProfileHeader(onEdit: () -> Unit) {
+    val compact = LocalConfiguration.current.screenHeightDp < 600
     val me = Session.me
     val p = SettingsProfile.p
     val name = p?.str("nickname")?.ifBlank { null } ?: me?.nickname ?: ""
@@ -277,9 +279,9 @@ fun SettingsProfileHeader(onEdit: () -> Unit) {
     val stats = SettingsProfile.res.data?.optJSONObject("stats")
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxWidth()) {
-            Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp), onClick = onEdit).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp), onClick = onEdit).padding(if (compact) 12.dp else 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box {
-                    Avatar(photo, name, 68.dp)
+                    Avatar(photo, name, if (compact) 56.dp else 68.dp)
                     Box(Modifier.align(Alignment.BottomEnd).size(24.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
                         contentAlignment = Alignment.Center) { Icon(Sym.CameraAlt, null, tint = Color.White, modifier = Modifier.size(13.dp)) }
                 }
@@ -290,7 +292,7 @@ fun SettingsProfileHeader(onEdit: () -> Unit) {
                             modifier = Modifier.padding(start = 6.dp).size(16.dp).clip(CircleShape).background(BadgeGreen).padding(2.dp))
                     }
                     val bio = p?.str("bio").orEmpty()
-                    Text(bio.ifBlank { me?.email ?: "" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(bio.ifBlank { me?.email ?: "" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = if (compact) 1 else 2, overflow = TextOverflow.Ellipsis)
                     val role = when { me?.isOwner == true -> "Owner"; me?.role == "admin_super" -> "Super admin"; me?.role == "admin_limited" -> "Admin"; else -> null }
                     if (role != null) Text(role, Modifier.padding(top = 4.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.tertiaryContainer).padding(horizontal = 6.dp, vertical = 1.dp),
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
@@ -298,7 +300,7 @@ fun SettingsProfileHeader(onEdit: () -> Unit) {
             }
             if (stats != null) {
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                Row(Modifier.fillMaxWidth().padding(vertical = if (compact) 6.dp else 10.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                     Stat(stats.optInt("followers"), "Followers"); Stat(stats.optInt("shorts"), "Videos"); Stat(stats.optInt("profile_views"), "Views"); Stat(stats.optInt("messages"), "Messages")
                 }
             }
