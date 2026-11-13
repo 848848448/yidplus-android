@@ -34,7 +34,20 @@ clst() { local p w="$1"; p=$(clseek "$1" "${2:-}"); if [ -z "$p" ]; then log "CL
 clsl() { local p; p=$(clseek "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1' not found after scrolling"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
 cltop() { local i; for i in 1 2 3 4 5 6; do adb shell input swipe ${1:-240} 200 ${1:-240} 470 250; done; sleep 2.5; }
 # chip swipes stay 70 px away from the screen edges: with gesture navigation an edge swipe is BACK (it left the app in run 43170366208)
-chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && p=$(clpos "Groups"); [ -z "$p" ] && { log "CL chipswipe: no chips row on screen"; return 0; }; set -- $p; adb shell input swipe 410 $2 70 $2 400; sleep 1; }
+# clchip LABEL: tap the filter CHIP (topmost exact-text node in y < 220), not the result-section header of the same name (cltap's "last node" rule tapped the 'Photos' section header at y=235 in CL-31g of run 43516626433, so Photos stayed selected)
+clchip() { local p w="$1"; timeout 30 adb shell uiautomator dump /sdcard/cl.xml >/dev/null 2>&1; p=$(timeout 20 adb shell cat /sdcard/cl.xml 2>/dev/null | python3 -c '
+import sys,re
+t=sys.stdin.read(); lab=sys.argv[1]
+for m in re.finditer(r"<node [^>]*>", t):
+    n=m.group(0)
+    if re.search(r"(text|content-desc)=\"%s\"" % re.escape(lab), n):
+        b=re.search(r"bounds=\"\[(\d+),(\d+)\]\[(\d+),(\d+)\]\"", n)
+        if b:
+            x1,y1,x2,y2=map(int,b.groups())
+            if y2<220 and x2>x1 and x1<480: print((x1+x2)//2, (y1+y2)//2); break
+' "$1"); if [ -z "$p" ]; then log "CL MISSING tap: chip '$1' not in the chips row on screen"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "clchip tapped the '$w' chip at $p"; }
+clchipscroll() { timeout 10 adb shell input swipe 440 162 60 162 300; sleep 0.8; timeout 10 adb shell input swipe 440 162 60 162 300; sleep 1; }
+chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && p=$(clpos "Groups"); [ -z "$p" ] && { log "CL chipswipe: no chips row on screen"; return 0; }; set -- $p; local k; for k in 1 2 3; do adb shell input swipe 440 $2 40 $2 300; sleep 0.8; done; sleep 1; }  # one swipe moved the chips only ~2 chips (CL-02 of run 43511759626 still showed Private first), so the trailing 'Chat folders' button was off screen; 3 swipes reach the end
 chipback() { local p; p=$(clpos "Groups"); [ -z "$p" ] && p=$(clpos "All"); [ -z "$p" ] && { log "CL chipback: no chips row on screen"; return 0; }; set -- $p; adb shell input swipe 70 $2 410 $2 300; sleep 1; }
 size 480x640 240
 
@@ -122,7 +135,7 @@ clst "Invite link"; sleep 2; shot CL-19-invite; cltap "Revoke link"; sleep 1.5; 
 clst "Files"; shot CL-15-info-media-tab; cltap "Files"; sleep 1; shot CL-15b-files; cltap "Links"; sleep 1; shot CL-15c-links; cltap "Voice"; sleep 1; shot CL-15d-voice; cltap "Media"
 clst "Yanky Weiss"; sleep 1; shot CL-17-member-sheet; cltap "Set title"; sleep 1; adb shell input text "Gabbai"; key 4; sleep 1; shot CL-17a-title; cltap "Save"; sleep 2; clfx '"member_title":"Gabbai"'
 clst "Shaya"; sleep 1; cltap "Remove from group"; sleep 1; shot CL-17b-remove-confirm; cltap "Remove"; sleep 2; clfx '"remove":true'
-shot CL-16-members; clst "Report group"; sleep 1; log "CL (owner sees no Report on own group)"; cltop
+shot CL-16-members; if [ -z "$(clseek "Report group" "")" ]; then log "CL NOTE (not a pass): no 'Report group' for the owner after scrolling the whole page; the intended owner permission is not established from requirements"; else log "CL NOTE (not a pass): 'Report group' is shown to the owner of the group; intended owner permission not established"; fi; log "CL MISSING: 'Report group' as a NON-owner is not exercised in this fixture; owner intent unestablished"; cltop
 clhas "Group info"   # still on the info page: its top bar has the Edit (pencil) button
 
 # ── Edit group: every switch saves at once (chat.js _geToggle), Send Media sub-screen, Administrators ──
@@ -159,7 +172,7 @@ clhidekb() { local n; for n in 1 2 3; do case "$(clkbshown)" in *true*) ;; *) lo
 clsearch YID; shot CL-27-search; cltexts search-yid
 clsearch Mendy; shot CL-27b-search-people; clhas "Contacts"; clhas "Mendy Gold"
 clsearch ""; shot CL-31d-search-recent; clhas "Recent searches"
-cltap "Unread"; sleep 1.5; shot CL-31e-chip-unread; cltap "Unread"; sleep 1; cltap "Photos"; sleep 1.5; shot CL-31f-chip-photos; cltap "Photos"; sleep 1; cltap "Links"; sleep 1.5; shot CL-31g-chip-links; cltap "Links"
+cltap "Unread"; sleep 1.5; shot CL-31e-chip-unread; cltap "Unread"; sleep 1; cltap "Photos"; sleep 1.5; shot CL-31f-chip-photos; clchip "Photos"; sleep 1; clchipscroll; clchip "Links"; sleep 1.5; shot CL-31g-chip-links; clchip "Links"
 clsearch zzqx; shot CL-31h-no-results; clhas "No results found"
 clsearch Mendy; cltap "Mendy Gold"; sleep 2; clfx '"other_user_id":"u-mendy"'; key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
 adb shell cmd uimode night yes; sleep 3; view "https://yidplus.com/chat"; sleep 3; shot CL-28-list-dark; cltap "Menu"; sleep 1; shot CL-28b-drawer-dark; key 4; sleep 1
