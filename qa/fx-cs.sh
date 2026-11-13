@@ -27,7 +27,7 @@ csmic() { cspos "Record voice message"; }
 csplaylast() { # tap the LOWEST "Play" node on screen: the newest voice bubble in the open chat
   timeout 30 adb shell uiautomator dump /sdcard/cs.xml >/dev/null 2>&1
   local b; b=$(timeout 20 adb shell cat /sdcard/cs.xml 2>/dev/null | tr '>' '\n' | grep -E -- '(text|content-desc)="Play"' | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ' | awk '{for(i=1;i+3<=NF;i+=4){cx=($i+$(i+2))/2; cy=($(i+1)+$(i+3))/2; if(cy>my){my=cy; bx=cx; by=cy}}} END{if(my)print bx" "by}')
-  [ -z "$b" ] && { log "csplaylast: no Play node"; return 0; }
+  [ -z "$b" ] && { log "CS WRONG: no Play node after reopen (voice bubble not reachable)"; FAIL=1; return 0; }
   set -- $b; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "csplaylast $1 $2"
 }
 csfind() { local n=0; while [ $n -lt ${2:-6} ]; do [ -n "$(cspos "$1")" ] && return 0; adb shell input swipe 240 260 240 470 400; sleep 1; n=$((n+1)); done; log "csfind: '$1' not found"; }
@@ -44,7 +44,19 @@ csrec CS-flow-touch 30
 csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
 # keyboard up: real IME over the open chat, composer proportions with the keyboard visible
 adb shell settings put secure show_ime_with_hard_keyboard 1
-cstap "Message"; sleep 1; cskb "composer tap"; shot CS-24-keyboard-up; key 4; sleep 1
+cstap "Message"; sleep 1; cskb "composer tap"; shot CS-24-keyboard-up
+# CS-24 hard checks with the IME up at 480x640: composer text not clipped, and at least one message stays visible above the composer.
+timeout 20 adb shell uiautomator dump /sdcard/cs24.xml >/dev/null 2>&1
+timeout 20 adb shell cat /sdcard/cs24.xml > "$OUT/CS-24-keyboard-up.xml" 2>/dev/null
+CS24=$(tr '>' '\n' < "$OUT/CS-24-keyboard-up.xml" 2>/dev/null)
+MT=$(echo "$CS24" | sed -n 's/.*text="Message".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1 \2/p' | head -1)
+if [ -z "$MT" ]; then log "CS WRONG: composer not found with the keyboard up"; FAIL=1
+else set -- $MT
+  [ $(( $2 - $1 )) -ge 28 ] && log "CS ok: composer text height $(( $2 - $1 ))px with the keyboard up" || { log "CS WRONG: composer text clipped with the keyboard up (height $(( $2 - $1 ))px)"; FAIL=1; }
+  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\3/p' | awk -F'|' -v top="$1" '$2+4 < top && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
+    && log "CS ok: a message stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up"; FAIL=1; }
+fi
+key 4; sleep 1
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
 for n in 1 2 3 4 5; do adb shell input swipe 240 200 240 600 250; sleep 0.6; done; sleep 3; shot CS-03-older-page-loaded; csfind "עלטערע מעסעדזש 1" 4; cshas "עלטערע מעסעדזש 1"
 # 4: polls (percentages hidden until I vote; quiz with correct/wrong marks; Close Poll for the creator)
@@ -56,7 +68,10 @@ key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voi
 key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked; cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
 # reopen persistence: back to the list, reopen the room, the just-sent voice note must still be there and play
-key 4; sleep 1; csroom 5; shot CS-07d-voice-after-reopen; csplaylast; sleep 4; shot CS-07e-voice-reopen-playing
+key 4; sleep 1; csroom 5; shot CS-07d-voice-after-reopen
+# the reopen lands on the unread divider; the just-sent voice note is at the bottom - scroll there before seeking Play
+for n in 1 2 3 4; do adb shell input swipe 240 540 240 180 250; sleep 0.6; done; sleep 1
+csplaylast; sleep 4; shot CS-07e-voice-reopen-playing
 cspull CS-flow-touch
 # hold = record, release = send
 p=$(csmic); if [ -n "$p" ]; then set -- $p; (adb shell input swipe $1 $2 $1 $2 3500 &) ; sleep 2; shot CS-08-voice-holding; sleep 3; csfx "type=voice"; fi
