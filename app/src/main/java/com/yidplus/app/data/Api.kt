@@ -192,6 +192,8 @@ object Disk {
         return File(dir, "$h.json")
     }
     fun read(key: String): JSONObject? = runCatching { f(key).takeIf { it.exists() }?.readText()?.let { JSONObject(it) } }.getOrNull()
+    /** When the cached entry was written (0 when unknown): lets a screen say how old the cached data it shows is. */
+    fun modified(key: String): Long = runCatching { f(key).takeIf { it.exists() }?.lastModified() ?: 0L }.getOrDefault(0L)
     fun write(key: String, j: JSONObject) { runCatching { val t = File(dir, "tmp-" + System.nanoTime()); t.writeText(j.toString()); t.renameTo(f(key)) } }
     fun clear() { runCatching { dir.listFiles()?.forEach { it.delete() } } }
 }
