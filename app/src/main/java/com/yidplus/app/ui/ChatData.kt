@@ -364,7 +364,10 @@ object ChatVoicePlayer {
         val p = MediaPlayer()
         mp = p
         runCatching {
-            p.setDataSource(ctx.applicationContext, Uri.parse(url), HashMap<String, String>().apply { Api.session()?.let { put("Cookie", "yp_session=$it") } })
+            // Local files (a note just recorded here, a saved clip) need the direct open: the headers variant pipes file://
+            // through the content resolver as a non-seekable stream and m4a playback dies (NuPlayer error -38).
+            if (url.startsWith("content:") || url.startsWith("file:")) p.setDataSource(ctx.applicationContext, Uri.parse(url))
+            else p.setDataSource(ctx.applicationContext, Uri.parse(url), HashMap<String, String>().apply { Api.session()?.let { put("Cookie", "yp_session=$it") } })
             p.setOnPreparedListener { if (startAt > 0f && it.duration > 0) it.seekTo((it.duration * startAt).toInt()); it.start(); applySpeed(it) }
             p.setOnCompletionListener { stop(); onDone?.invoke(id) }
             p.setOnErrorListener { _, _, _ -> stop(); true }
