@@ -152,7 +152,10 @@ adb shell input text "https://yidplus.com/chat?join=clpriv"; sleep 2; key 4; sle
 view "https://yidplus.com/chat"; sleep 3; cltap "Search chats"; sleep 2; shot CL-31-search-open; chkb_cl() { log "CL keyboard after search opens: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }; chkb_cl
 adb shell input text "Yo"; sleep 1; shot CL-31b-search-typing; adb shell input text "ssi"; sleep 3; key 4; shot CL-31c-search-results; cltexts search-yossi
 # each query in a fresh search (close it, open it again, type): no reliance on "Clear" and keyboard Back timing
-clsearch() { local i; for i in 1 2 3; do clpos "Close search" | grep -q . && { cltap "Close search"; sleep 1; } ; done; cltop; cltap "Search chats"; sleep 1.5; [ -n "${1:-}" ] && { adb shell input text "$1"; sleep 3; }; sleep 1; key 4; sleep 1.5; }
+clsearch() { local i; for i in 1 2 3; do clpos "Close search" | grep -q . && { cltap "Close search"; sleep 1; } ; done; cltop; cltap "Search chats"; sleep 1.5; [ -n "${1:-}" ] && { adb shell input text "$1"; sleep 3; }; sleep 1; clhidekb; }
+# hide the on-screen keyboard so the results area is visible; Back first (the system gives it to the keyboard), then Escape; verify with the input-method state and say so when it is still up (CL-27b/CL-31h of run 43498008671 showed the keyboard still covering the results after one Back)
+clkbshown() { timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1; }
+clhidekb() { local n; for n in 1 2 3; do case "$(clkbshown)" in *true*) ;; *) log "CL keyboard hidden after $((n-1)) Back/Escape press(es) ($(clkbshown))"; return 0 ;; esac; if [ $n = 2 ]; then key 111; else key 4; fi; sleep 1.5; done; log "CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered ($(clkbshown))"; }
 clsearch YID; shot CL-27-search; cltexts search-yid
 clsearch Mendy; shot CL-27b-search-people; clhas "Contacts"; clhas "Mendy Gold"
 clsearch ""; shot CL-31d-search-recent; clhas "Recent searches"
