@@ -58,7 +58,7 @@ MT=$(echo "$CS24" | sed -n 's/.*text="Message".*bounds="\[[0-9]*,\([0-9]*\)\]\[[
 if [ -z "$MT" ]; then log "CS WRONG: composer not found with the keyboard up"; FAIL=1
 else set -- $MT
   [ $(( $2 - $1 )) -ge 28 ] && log "CS ok: composer text height $(( $2 - $1 ))px with the keyboard up" || { log "CS WRONG: composer text clipped with the keyboard up (height $(( $2 - $1 ))px)"; FAIL=1; }
-  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\3/p' | awk -F'|' -v top="$1" '$2+4 < top && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
+  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\3/p' | awk -F'|' -v top="$1" '$2+4 < top && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
     && log "CS ok: a message stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up"; FAIL=1; }
 fi
 key 4; sleep 1
@@ -74,8 +74,8 @@ key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked;
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
 # reopen persistence: back to the list, reopen the room, the just-sent voice note must still be there and play
 key 4; sleep 1; csroom 5; shot CS-07d-voice-after-reopen
-# the reopen lands on the unread divider; the just-sent voice note is at the bottom - scroll there before seeking Play
-for n in 1 2 3 4; do adb shell input swipe 240 540 240 180 250; sleep 0.6; done; sleep 1
+# the reopen lands on the unread divider; the just-sent voice note is at the bottom - use the app's own jump-to-newest button, swipes as fallback
+if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; else for n in 1 2 3 4; do adb shell input swipe 240 180 240 540 250; sleep 0.6; done; fi; sleep 1
 csplaylast; sleep 4; shot CS-07e-voice-reopen-playing
 cspull CS-flow-touch
 # hold = record, release = send
