@@ -242,7 +242,9 @@ fun ChatsScreen() {
                 .semantics { contentDescription = "Chat folders" }, contentAlignment = Alignment.Center) { Icon(Sym.Add, null, Modifier.size(20.dp)) }
         }
         // Small screens: a soft fade at the end edge shows the row scrolls, so a half-visible chip reads as "more", not "cut off".
-        if (chipScroll.maxValue > 0 && chipScroll.value < chipScroll.maxValue) Box(Modifier.align(Alignment.CenterEnd).width(28.dp).fillMaxHeight().background(androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface))))
+        // matchParentSize, NOT fillMaxHeight: inside this wrap-content Box, fillMaxHeight takes the parent Column's whole
+        // remaining height and starves the chat list below to zero (the blank-list bug, isolated on feat-2diag cf01e2d/dffe574).
+        if (chipScroll.maxValue > 0 && chipScroll.value < chipScroll.maxValue) Box(Modifier.align(Alignment.CenterEnd).width(28.dp).matchParentSize().background(androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface))))
         }
         }
         // Phone-observed fix: a cached list is kept (offline access), but its age and the refresh state are always visible -
