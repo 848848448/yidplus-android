@@ -58,7 +58,7 @@ class AdminChannelsPage : PageScreen() {
         AdminList("Channels", sub = "Member channels", res = res, tick = 0, header = { AdminSearchField(q, { q = it }, "Search channels") }) { d ->
             val ql = q.trim().lowercase()
             val list = d.optJSONArray("channels").objects().filter { it.str("id") !in gone && (ql.isEmpty() || it.str("nickname").lowercase().contains(ql) || it.str("name").lowercase().contains(ql)) }
-            if (list.isEmpty()) item { EmptyNote(Icons.Filled.Campaign, "No channels yet", modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) }
+            if (list.isEmpty()) item { EmptyNote(Sym.Campaign, "No channels yet", modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) }
             items(list, key = { it.str("id") }) { ch ->
                 val id = ch.str("id")
                 val verified = ver[id] ?: (ch.optInt("verified") == 1 || ch.optBoolean("verified"))
@@ -69,7 +69,7 @@ class AdminChannelsPage : PageScreen() {
                         Column(Modifier.weight(1f).padding(start = 12.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("@$name", style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                                if (verified) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                                if (verified) Icon(Sym.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
                             Text(adminN(ch.optInt("followers")) + " followers · " + adminN(ch.optInt("total_views")) + " views", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                         }
@@ -78,7 +78,7 @@ class AdminChannelsPage : PageScreen() {
                                 Api.put("/api/admin/users", JSONObject().put("id", ch.str("owner_id")).put("verified", !verified))
                             }
                         }
-                        IconBtn(Icons.Filled.Delete, "Delete channel", { del = ch }, tint = MaterialTheme.colorScheme.error)
+                        IconBtn(Sym.Delete, "Delete channel", { del = ch }, tint = MaterialTheme.colorScheme.error)
                     }
                 }
                 HorizontalDivider(Modifier.padding(start = 76.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
@@ -182,9 +182,9 @@ class AdminBroadcastPage : PageScreen() {
                     OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().firstFocus(), minLines = 3, label = { Text("Message") },
                         textStyle = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Content)))
                 }
-                SettingRow(Icons.Filled.Group, "Send to", null, value = segments[seg].second) { ask = "seg" }
+                SettingRow(Sym.Group, "Send to", null, value = segments[seg].second) { ask = "seg" }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.NotificationsActive, "Also send a phone notification", null, switch = push) { push = !push }
+                SettingRow(Sym.NotificationsActive, "Also send a phone notification", null, switch = push) { push = !push }
                 Box(Modifier.padding(16.dp)) {
                     PrimaryButton("Send now", { if (text.isBlank()) toast(c, "⚠ Type a message first.") else { kb?.hide(); ask = "send" } }, Modifier.fillMaxWidth())
                 }
@@ -289,7 +289,7 @@ class AdminBadWordsPage : PageScreen() {
                                 }
                             }.padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text(t, color = Color(0xFFDC2626), style = MaterialTheme.typography.labelLarge, maxLines = 1)
-                            Icon(Icons.Filled.Close, "Remove", tint = Color(0xFFDC2626), modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                            Icon(Sym.Close, "Remove", tint = Color(0xFFDC2626), modifier = Modifier.padding(start = 4.dp).size(16.dp))
                         }
                     }
                 }
