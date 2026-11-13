@@ -24,6 +24,13 @@ csfx() { timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail 
 cskb() { log "keyboard shown after $1: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; }
 csdbl() { local p; p=$(cspos "$1"); [ -z "$p" ] && { log "csdbl: '$1' not found"; return 0; }; set -- $p; adb shell "input tap $1 $2 & sleep 0.12; input tap $1 $2"; sleep 2; log "double-tap $*"; }
 csmic() { cspos "Record voice message"; }
+csdur() { # duration label of the lowest (newest) voice bubble on screen vs the recorded length ($1 = lo, $2 = hi seconds)
+  timeout 30 adb shell uiautomator dump /sdcard/cd.xml >/dev/null 2>&1
+  local d; d=$(timeout 20 adb shell cat /sdcard/cd.xml 2>/dev/null | tr '>' '\n' | sed -n 's/.* text="\([0-9]*:[0-9][0-9]\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[.*/\2 \1/p' | sort -n | tail -1)
+  [ -z "$d" ] && { log "CS MISSING: no duration label on the newest voice bubble after send"; return 0; }
+  local lab=${d#* }; local sec=$(( 10#${lab%%:*} * 60 + 10#${lab##*:} ))
+  if [ $sec -ge $1 ] && [ $sec -le $2 ]; then log "CS ok: newest voice bubble shows $lab for a ~5s recording (expected $1-$2 s)"; else log "CS WRONG: newest voice bubble shows $lab, recording was ~5s (expected $1-$2 s)"; FAIL=1; fi
+}
 csplaylast() { # tap the LOWEST "Play" node on screen: the newest voice bubble in the open chat
   timeout 30 adb shell uiautomator dump /sdcard/cs.xml >/dev/null 2>&1
   local b; b=$(timeout 20 adb shell cat /sdcard/cs.xml 2>/dev/null | tr '>' '\n' | grep -E -- '(text|content-desc)="Play"' | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | grep -oE '[0-9]+' | tr '\n' ' ' | awk '{for(i=1;i+3<=NF;i+=4){cx=($i+$(i+2))/2; cy=($(i+1)+$(i+3))/2; if(cy>my){my=cy; bx=cx; by=cy}}} END{if(my)print bx" "by}')
@@ -55,6 +62,9 @@ csroom 7; shot CS-01-open-unread-line; cshas "5 unread messages"
 timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
 BODY="זאל זיין מיט מזל"   # the last fixture message; its unclipped size is read from this dump (no keyboard) and must be matched with the keyboard up
 bbox() { tr '>' '\n' < "$2" | grep -F "text=\"$1\"" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
+# the room opens at the unread divider when earlier legs left it unread (e.g. the full base leg) and at the bottom otherwise; the keyboard check needs the newest message, so jump there first and take the reference body from that dump
+if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; sleep 1.5; log "CS jumped to newest before the keyboard check"; fi
+timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
 # keyboard up: real IME over the open chat, composer proportions with the keyboard visible
 adb shell settings put secure show_ime_with_hard_keyboard 1
 cstap "Message"; sleep 1; cskb "composer tap"; shot CS-24-keyboard-up
@@ -85,6 +95,7 @@ TY=$(tr '>' '\n' < "$OUT/CS-24b-typed.xml")
 echo "$TY" | grep -q 'text="hello"' && log "CS ok: typed text is in the field with the keyboard up" || { log "CS WRONG: typed text not in the field"; FAIL=1; }
 for d in "Send" "Attach" "Emoji"; do echo "$TY" | grep -q "content-desc=\"$d" && log "CS ok: '$d' present while typing" || { log "CS WRONG: '$d' missing while typing"; FAIL=1; }; done
 shot CS-24b-typed
+adb shell input keyevent KEYCODE_MOVE_END; for i in 1 2 3 4 5 6 7 8; do adb shell input keyevent KEYCODE_DEL; done; sleep 1; log "CS cleared the typed draft"
 for n in 1 2 3 4 5 6; do adb shell input keyevent 67; done; sleep 1
 key 4; sleep 1; sysbars after-keyboard
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
@@ -96,7 +107,7 @@ cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted; csfindup 
 key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
 # 1: voice note recording — tap = hands-free (pause, stop to listen, send)
 key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked; cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
-cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
+cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"; csdur 4 6; shot CS-07a-voice-sent-duration
 # reopen persistence: back to the list, reopen the room, the just-sent voice note must still be there and play
 key 4; sleep 1; csroom 5; shot CS-07d-voice-after-reopen
 # the reopen lands on the unread divider; the just-sent voice note is at the bottom - use the app's own jump-to-newest button, swipes as fallback
