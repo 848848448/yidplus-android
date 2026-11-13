@@ -248,7 +248,8 @@ object NwThumbs {
             if (f.exists()) runCatching { BitmapFactory.decodeFile(f.path) }.getOrNull()?.let { mem.put(url, it); return@withContext it }
             val r = MediaMetadataRetriever()
             try {
-                r.setDataSource(url, HashMap<String, String>().apply { Api.session()?.let { put("Cookie", "yp_session=$it") }; put("User-Agent", Api.UA) })
+                if (url.startsWith("content:") || url.startsWith("file:")) r.setDataSource(c, Uri.parse(url))
+                else r.setDataSource(url, HashMap<String, String>().apply { Api.session()?.let { put("Cookie", "yp_session=$it") }; put("User-Agent", Api.UA) })
                 val b = if (Build.VERSION.SDK_INT >= 27) r.getScaledFrameAtTime(500_000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC, 240, 320) else r.getFrameAtTime(500_000)
                 b?.also { mem.put(url, it); runCatching { f.outputStream().use { o -> it.compress(Bitmap.CompressFormat.JPEG, 80, o) } } }
             } catch (e: Throwable) { null } finally { runCatching { r.release() } }
