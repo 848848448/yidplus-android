@@ -34,12 +34,12 @@ size 480x640 240
 # ── 2.1.0 BLOCKERS at 480x640 (each shot is checked by eye): 5+ chat rows, the FAB covers no row, no pencil,
 #    search empty / typing / results, a non-green theme, dark mode (list + an open chat), the D-pad, no crash ──
 look() { timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_LOOK "$@" >/dev/null 2>&1; sleep 2; }
-clrows() { # full-width chat rows (52 dp = 78 px at 240 dpi) wholly between the top bar and the bottom bar; and what the FAB overlaps
+clrows() { # full-width chat rows (redesign rows are about 100 px at 240 dpi; the old 52 dp = 78 px window made the counter read 0 on every run) wholly between the top bar and the bottom bar; and what the FAB overlaps
   timeout 30 adb shell uiautomator dump /sdcard/clr.xml >/dev/null 2>&1
   local x; x=$(timeout 20 adb shell cat /sdcard/clr.xml 2>/dev/null | tr '>' '\n')
   local fab; fab=$(echo "$x" | grep -F 'content-desc="Start new chat"' | grep -oE 'bounds="[^"]+"' | head -1 | grep -oE '[0-9]+' | tr '\n' ' ')
   local nav; nav=$(echo "$x" | grep -F 'content-desc="Chats' | grep -oE 'bounds="[^"]+"' | head -1 | grep -oE '[0-9]+' | sed -n 2p)
-  local n; n=$(echo "$x" | grep -oE 'bounds="\[0,[0-9]+\]\[480,[0-9]+\]"' | grep -oE '[0-9]+' | paste - - - - | awk -v nb="${nav:-560}" '{h=$4-$2; if (h>=70 && h<=96 && $2>=110 && $4<=nb+2) c++} END{print c+0}')
+  local n; n=$(echo "$x" | grep -oE 'bounds="\[0,[0-9]+\]\[480,[0-9]+\]"' | grep -oE '[0-9]+' | paste - - - - | awk -v nb="${nav:-560}" '{h=$4-$2; if (h>=70 && h<=112 && $2>=110 && $4<=nb+2) c++} END{print c+0}')
   log "CL rows: $n full chat rows visible above the bottom bar (top of bottom bar y=${nav:-?}); FAB bounds: ${fab:-none} ($1)"
   case "$1" in end*) ;; *) [ "${n:-0}" -ge 5 ] && log "CL ok: 5+ rows at 480x640" || log "CL WRONG: only ${n:-0} rows at 480x640";; esac
 }
