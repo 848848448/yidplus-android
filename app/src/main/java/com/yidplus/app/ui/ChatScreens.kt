@@ -326,7 +326,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     // tap (or OK on the keypad) = hands-free right away with Pause, Stop-to-listen, Delete and Send.
     val vr = remember { CsRec(c.applicationContext) }
     val recording = vr.mode != 0
-    fun sendTake(t: Pair<java.io.File, String>?) { t?.let { (f, packed) -> sendFile(null, f, "voice", f.name, "audio/mp4", packed) } }
+    // localPreview: the bubble shows the real voice note (playable from the file) while it uploads, never "Voice message unavailable".
+    fun sendTake(t: Pair<java.io.File, String>?) { t?.let { (f, packed) -> sendFile(null, f, "voice", f.name, "audio/mp4", packed, localPreview = Uri.fromFile(f).toString()) } }
     fun startRec(locked: Boolean) { if (!vr.start(locked)) toast(c, "Can't use the microphone") }
     val micPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRec(true) else toast(c, "Allow the microphone to send voice messages") }
     LaunchedEffect(vr.mode) { while (vr.mode == 1 || vr.mode == 2) { delay(100); vr.tick() } }
@@ -551,7 +552,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     ChIcon(if (emojiOpen) Sym.Keyboard else Sym.EmojiEmotions, if (emojiOpen) "Keyboard" else "Emoji", {
                         emojiOpen = !emojiOpen; attachOpen = false; if (emojiOpen) kb?.hide() else kb?.show()
                     }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = 48.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = 16.sp) }, maxLines = 5,
+                    TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = 52.dp).focusRequester(inputFocus), placeholder = { Text("Message", fontSize = 16.sp) }, maxLines = 5,
                         textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
