@@ -298,6 +298,11 @@ if grep -A3 "FATAL EXCEPTION" "$OUT/logcat.txt" | grep -q "Process: $PKG"; then
 fi
 grep -E "FOCUS" "$OUT/qa.log" > "$OUT/dpad.txt" || true
 cat "$OUT/perf.txt"
+# A leg must not report PASS while its own log says WRONG (run 43399597399: fx4 logged "CL WRONG: only 0 rows" and still printed PASS). MISSING lines are coverage gaps: counted and listed, kept apart from PASS/FAIL.
+WRONGS=$(grep -aEc " [A-Z]+ WRONG" "$OUT/qa.log" || true)
+grep -aE " [A-Z]+ MISSING" "$OUT/qa.log" > "$OUT/GAPS.txt" || true
+if [ "${WRONGS:-0}" -gt 0 ]; then log "RESULT: $WRONGS WRONG line(s) in this leg, forcing FAIL"; FAIL=1; fi
+log "coverage gaps (MISSING lines): $(wc -l < "$OUT/GAPS.txt")"
 if [ "$FAIL" = 0 ]; then echo "PASS" > "$OUT/RESULT"; else echo "FAIL" > "$OUT/RESULT"; fi
 cat "$OUT/RESULT"
 exit "$FAIL"
