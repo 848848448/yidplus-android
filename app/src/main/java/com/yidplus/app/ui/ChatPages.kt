@@ -151,7 +151,8 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
         val code = remember(link) { Regex("""(?:join|invite|code)=([A-Za-z0-9_-]+)""").find(link)?.groupValues?.get(1) ?: link.trim().substringAfterLast('/').takeIf { Regex("""[A-Za-z0-9_-]{6,40}""").matches(it) } }
         LaunchedEffect(code) { preview = null; err = null; if (code != null) { delay(300); runCatching { ClApi.inviteInfo(code) }.onSuccess { preview = it; if (it == null) err = "Invalid invite link" }.onFailure { err = Api.friendly(it) } } }
         var pending by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+        // Scrolls: at 480x640 the group preview + button sit below the fold (more so with the keyboard up).
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
             ChBar("Join by invite link", onBack = { Nav.back() })
             OutlinedTextField(link, { link = it }, Modifier.fillMaxWidth().padding(16.dp).firstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
             val p = preview
