@@ -299,7 +299,7 @@ private fun StatusCircle(label: String, photo: String?, colorName: String, seen:
             if (plus) Box(Modifier.align(Alignment.BottomEnd).size(22.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(2.dp)
                 .clip(CircleShape).background(BadgeGreen).then(if (onPlus != null) Modifier.combinedClickable(onClick = onPlus) else Modifier),
                 contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.Add, "Add status", tint = Color.White, modifier = Modifier.size(15.dp))
+                Icon(Sym.Add, "Add status", tint = Color.White, modifier = Modifier.size(15.dp))
             }
         }
         Spacer(Modifier.height(4.dp))
@@ -329,4 +329,3 @@ private fun StatusRing(seen: List<Boolean>, mine: Boolean, modifier: Modifier) {
         }
     }
 }
-
