@@ -74,6 +74,42 @@ fi
 # keypad focus after open: the focused row must be fully readable (not a clipped sliver), D-pad UP/DOWN must move it; opening position = the unread line (this open) or the newest (the no-unread open below)
 cfoc() { tr '>' '\n' < "$1" | grep 'focused="true"' | grep -v 'class="android.widget.EditText"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
 csdump() { timeout 20 adb shell uiautomator dump /sdcard/f.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/f.xml > "$OUT/$1.xml" 2>/dev/null; cfoc "$OUT/$1.xml"; }
+cfocdesc() { tr '>' '\n' < "$1" | grep 'focused="true"' | grep -v 'class="android.widget.EditText"' | sed -n 's/.*content-desc="\([^"]*\)".*/\1/p' | head -1; }
+# csplayat LABEL: tap the Play button of the voice bubble whose duration label is LABEL (nearest Play node by y), then require Pause at the same bounds
+csplayat() {
+  timeout 30 adb shell uiautomator dump /sdcard/pa.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pa.xml > "$OUT/csplayat.xml" 2>/dev/null
+  local b; b=$(python3 - "$OUT/csplayat.xml" "$1" <<'PYEOF'
+import sys, re
+import xml.etree.ElementTree as ET
+label = sys.argv[2]
+try:
+    root = ET.parse(sys.argv[1]).getroot()
+except Exception as e:
+    print('ERR xml parse failed: %s' % e); sys.exit(0)
+parent = {c: p for p in root.iter() for c in p}
+def bounds(n):
+    m = re.match(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]', n.get('bounds', ''))
+    return tuple(map(int, m.groups())) if m else None
+labels = [n for n in root.iter('node') if n.get('text') == label]
+if len(labels) != 1:
+    print("ERR labels=%d" % len(labels)); sys.exit(0)
+n = labels[0]
+while n is not None:
+    plays = [d for d in n.iter('node') if d.get('content-desc') == 'Play']
+    if plays:
+        if len(plays) > 1:
+            print("ERR ambiguous container has %d Play buttons" % len(plays)); sys.exit(0)
+        b = bounds(plays[0])
+        print("%d %d" % ((b[0] + b[2]) // 2, (b[1] + b[3]) // 2)); sys.exit(0)
+    n = parent.get(n)
+print("ERR no Play button in any ancestor of the label")
+PYEOF
+)
+  case "$b" in ERR*|"") log "CS WRONG: csplayat '$1': ${b:-no answer}"; FAIL=1; return 0 ;; esac
+  set -- $b; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "csplayat tapped the Play button inside the bubble that contains the label, at $1 $2"
+  timeout 30 adb shell uiautomator dump /sdcard/pa2.xml >/dev/null 2>&1
+  if timeout 20 adb shell cat /sdcard/pa2.xml 2>/dev/null | tr '>' '\n' | grep -E 'content-desc="Pause"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | awk -v tx="$1" -v ty="$2" '{cx=($1+$3)/2; cy=($2+$4)/2; dx=cx-tx; dy=cy-ty; if(dx<0)dx=-dx; if(dy<0)dy=-dy; if(dx<30 && dy<30) f=1} END{exit f?0:1}'; then log "CS ok: that exact bubble entered playing state (Pause at the tapped bounds)"; else log "CS WRONG: the tapped bubble did not enter playing state"; FAIL=1; fi
+}
 cs_focus_check() { # $1 label, $2 xml (already dumped)
   local lbl="$1" fb h; fb=$(cfoc "$2"); if [ -z "$fb" ]; then log "CS MISSING: no focused row after opening ($lbl): keypad focus not exercised"; return 0; fi
   set -- $fb; h=$(( $4 - $2 )); if [ "$h" -lt 24 ]; then log "CS WRONG: focused row is a clipped sliver after opening ($lbl bounds $fb, height ${h}px)"; FAIL=1; else log "CS ok: focused row fully readable after opening ($lbl bounds $fb, height ${h}px)"; fi
@@ -188,7 +224,22 @@ cstap "More"; sleep 1; cstap "Copy invite link"; sleep 1; csfx "generate_invite"
 # D-pad / keypad video: move focus with the arrows, OK on the mic = hands-free recording, OK on Send
 csroom 5; csrec CS-flow-dpad 28
 for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
-p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; key 22; sleep 0.6; key 23; sleep 3; shot CS-23-dpad-voice-sent; csfx "type=voice"
+VC0=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice')
+p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3
+csdump CS-22b-dpad-recording >/dev/null
+if ! grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-22b-dpad-recording.xml"; then log "CS WRONG: D-pad voice flow: hands-free recording did not start (no recording controls on screen)"; FAIL=1; fi
+FOUND=""; PATHD=""
+for n in 1 2 3 4 5 6; do d=$(cfocdesc "$OUT/CS-22b-dpad-recording.xml"); PATHD="$PATHD [$d]"; case "$d" in *"Send voice message"*) FOUND=1; break ;; esac; key 22; csdump CS-22b-dpad-recording >/dev/null; done
+if [ -z "$FOUND" ]; then for n in 1 2 3 4 5 6 7 8 9 10 11 12; do d=$(cfocdesc "$OUT/CS-22b-dpad-recording.xml"); PATHD="$PATHD [$d]"; case "$d" in *"Send voice message"*) FOUND=1; break ;; esac; key 21; csdump CS-22b-dpad-recording >/dev/null; done; fi
+if [ -n "$FOUND" ]; then log "CS D-pad reached 'Send voice message' (focus path:$PATHD)"; key 23; sleep 3; shot CS-23-dpad-voice-sent
+  VC1=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice'); if [ "$VC1" -gt "$VC0" ]; then log "CS ok: D-pad OK on Send posted a new voice message ($VC0 -> $VC1 type=voice requests); newest request: $(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep "type=voice" | tail -1 | cut -c1-200)"; else log "CS WRONG: D-pad OK on Send did not post a voice message ($VC0 -> $VC1)"; FAIL=1; fi
+else log "CS WRONG: D-pad could not reach 'Send voice message' while recording (focus path:$PATHD)"; FAIL=1; shot CS-23-dpad-voice-sent; p=$(cspos "Send voice message"); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; sleep 2; fi; fi
+csdump CS-23b-after-send >/dev/null
+if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-23b-after-send.xml"; then
+  log "CS WRONG: a recording is still active after the D-pad send step (it would contaminate later checks); discarding it"; FAIL=1
+  cstap "Delete recording"; sleep 2; csdump CS-23c-after-discard >/dev/null
+  if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-23c-after-discard.xml"; then log "CS WRONG: the recording could not be discarded; later checks are contaminated"; else log "CS recording discarded; composer is clean again"; fi
+else log "CS ok: no recording active after the D-pad send step (test state clean)"; fi
 sleep 14; cspull CS-flow-dpad
 timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -E 'r-cs|polls|reports|reactions|stickers|generate_invite' | cut -c1-400 > "$OUT/fx-cs-requests.txt"
 # ---- offline-replay resilience check (NOT a proof of containment): with the emulator network switched off and a real HTTP probe failing, the fixture chat and voice note must still work.
@@ -210,7 +261,9 @@ else
     log "CS offline-check: the HTTP probe fails with wifi+data off (path removed for this probe)"
     adb logcat -c; csroom 6
     if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; sleep 1; fi
-    csfind "0:12" 8; csplaylast; shot CS-30-network-off-voice
+    csdump CS-30a-pre-offline-replay >/dev/null
+    if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-30a-pre-offline-replay.xml"; then log "CS WRONG: offline replay skipped, a recording is still active so the state is not clean"; FAIL=1
+    else csfind "0:12" 8; csplayat "0:12"; shot CS-30-network-off-voice; fi
     cshas "Message"
     OUTB=$(timeout 30 adb logcat -d 2>/dev/null | grep -E "Unable to resolve host|UnknownHostException|SocketTimeoutException|ConnectException|Failed to connect to" | grep -v "YidplusPush" | cut -c1-220 | head -5)
     if [ -n "$OUTB" ]; then log "CS offline-check NOTE: connection-failure log lines while offline (the app tried something):"; echo "$OUTB" | sed 's/^/  offline-log: /' | tee -a "$OUT/qa.log" >/dev/null; else log "CS offline-check: no connection-failure lines in the log while offline (this alone does not prove nothing was attempted)"; fi
