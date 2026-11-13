@@ -103,8 +103,8 @@ fun AdminSearchField(q: String, onQ: (String) -> Unit, hint: String) {
     val kb = LocalSoftwareKeyboardController.current
     val fm = LocalFocusManager.current
     OutlinedTextField(q, onQ, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), singleLine = true,
-        placeholder = { Text(hint) }, leadingIcon = { Icon(Icons.Filled.Search, null) },
-        trailingIcon = { if (q.isNotEmpty()) IconBtn(Icons.Filled.Close, "Clear", { onQ(""); kb?.hide(); fm.clearFocus() }) },
+        placeholder = { Text(hint) }, leadingIcon = { Icon(Sym.Search, null) },
+        trailingIcon = { if (q.isNotEmpty()) IconBtn(Sym.Close, "Clear", { onQ(""); kb?.hide(); fm.clearFocus() }) },
         shape = RoundedCornerShape(24.dp),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { kb?.hide(); fm.clearFocus() }))
 }
@@ -147,7 +147,7 @@ fun AdminUserRow(u: JSONObject, first: Boolean = false, onClick: () -> Unit) {
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("@$nick", style = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                    if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(16.dp))
+                    if (u.optInt("verified") == 1 || u.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                     roleName[u.str("role")]?.let { AdminTag(it, MaterialTheme.colorScheme.tertiary) }
                     if (u.optInt("blocked") == 1 || u.optBoolean("blocked")) AdminTag("Blocked", MaterialTheme.colorScheme.error)
                     if (adminMutedNow(u)) AdminTag("Muted", Color(0xFFE11D48))
@@ -155,7 +155,7 @@ fun AdminUserRow(u: JSONObject, first: Boolean = false, onClick: () -> Unit) {
                 val sub = listOfNotNull(u.str("email").ifBlank { null }?.takeIf { adminIsOwner }, u.strOrNull("created_at")?.let { "joined " + ago(it) }).joinToString(" · ")
                 if (sub.isNotBlank()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Icon(Icons.Filled.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(Sym.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
     HorizontalDivider(Modifier.padding(start = 78.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
@@ -192,7 +192,7 @@ data class AdminUserPage(val id: String, val rowJson: String) : PageScreen() {
                     Avatar(Api.abs(u.strOrNull("photo_url")), nick, 84.dp)
                     Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("@$nick", style = MaterialTheme.typography.titleLarge.merge(TextStyle(textDirection = TextDirection.Ltr)), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        if (verified) Icon(Icons.Filled.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 6.dp).size(20.dp))
+                        if (verified) Icon(Sym.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 6.dp).size(20.dp))
                     }
                     val line = listOfNotNull(if (u.optInt("online") == 1 || u.optBoolean("online")) "🟢 Online now" else "Offline",
                         u.strOrNull("created_at")?.let { "Joined " + ago(it) }).joinToString(" · ")
@@ -224,34 +224,34 @@ data class AdminUserPage(val id: String, val rowJson: String) : PageScreen() {
             }
             if (protected) SettingsHint("This is the owner's account. It can't be changed here.") else {
                 SettingsCard("Actions") {
-                    SettingRow(Icons.Filled.Verified, if (verified) "Remove verified mark" else "Verify", if (verified) "The ✅ goes away" else "Gives the green ✅ mark", modifier = Modifier.firstFocus()) {
+                    SettingRow(Sym.Verified, if (verified) "Remove verified mark" else "Verify", if (verified) "The ✅ goes away" else "Gives the green ✅ mark", modifier = Modifier.firstFocus()) {
                         adminDo(c, scope, if (!verified) "✅ Verified badge granted!" else "Badge removed.", { patch("verified", if (verified) 0 else 1) }) {
                             Api.put("/api/admin/users", JSONObject().put("id", id).put("verified", !verified))
                         }
                     }
                     RowDivider(64.dp)
-                    SettingRow(Icons.Filled.VolumeOff, if (muted) "Unmute" else "Mute", if (muted) "They can write again" else "They can't send messages for a while") {
+                    SettingRow(Sym.VolumeOff, if (muted) "Unmute" else "Mute", if (muted) "They can write again" else "They can't send messages for a while") {
                         if (muted) adminDo(c, scope, "🔊 Unmuted!", { patch("muted_until", "") }) { Api.post("/api/admin/mute", JSONObject().put("user_id", id).put("hours", 0)) }
                         else ask = "mute"
                     }
                     RowDivider(64.dp)
-                    SettingRow(Icons.Filled.Block, if (blocked) "Unblock" else "Block", if (blocked) "They can use YID PLUS again" else "They can't sign in or post", danger = !blocked) {
+                    SettingRow(Sym.Block, if (blocked) "Unblock" else "Block", if (blocked) "They can use YID PLUS again" else "They can't sign in or post", danger = !blocked) {
                         if (blocked) adminDo(c, scope, "✅ User unblocked.", { patch("blocked", 0) }) { Api.put("/api/admin/users", JSONObject().put("id", id).put("blocked", false)) }
                         else ask = "block"
                     }
                     if (adminIsOwner) {
                         RowDivider(64.dp)
-                        SettingRow(Icons.Filled.Shield, if (role == "admin_super") "Demote to member" else "Promote to super admin", "Role now: " + (roleName[role] ?: "Member")) { ask = "role" }
+                        SettingRow(Sym.Shield, if (role == "admin_super") "Demote to member" else "Promote to super admin", "Role now: " + (roleName[role] ?: "Member")) { ask = "role" }
                         RowDivider(64.dp)
-                        SettingRow(Icons.Filled.Campaign, "Ad-free", "No ads for this person", switch = noAds) {
+                        SettingRow(Sym.Campaign, "Ad-free", "No ads for this person", switch = noAds) {
                             adminDo(c, scope, if (!noAds) "🚫 Ad-free granted!" else "📣 Ads restored.", { patch("no_ads", if (noAds) 0 else 1) }) {
                                 Api.put("/api/admin/users", JSONObject().put("id", id).put("no_ads", !noAds))
                             }
                         }
                         RowDivider(64.dp)
-                        SettingRow(Icons.Filled.Logout, "Kick out", "Signs them out on every device") { ask = "kick" }
+                        SettingRow(Sym.Logout, "Kick out", "Signs them out on every device") { ask = "kick" }
                         RowDivider(64.dp)
-                        SettingRow(Icons.Filled.DeleteForever, "Delete account", "Removes them and everything they posted", danger = true) { ask = "delete" }
+                        SettingRow(Sym.DeleteForever, "Delete account", "Removes them and everything they posted", danger = true) { ask = "delete" }
                     }
                 }
             }
@@ -291,7 +291,7 @@ class AdminReportsPage : PageScreen() {
         var ban by remember { mutableStateOf<JSONObject?>(null) }
         AdminList("Reports", res = res, tick = 0) { d ->
             val list = d.optJSONArray("reports").objects().filter { it.str("id") !in gone }
-            if (list.isEmpty()) item { EmptyNote(Icons.Filled.Flag, "No reports yet 🎉", modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) }
+            if (list.isEmpty()) item { EmptyNote(Sym.Flag, "No reports yet 🎉", modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) }
             items(list, key = { it.str("id") }) { r ->
                 Surface(color = MaterialTheme.colorScheme.surface) {
                     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.Top) {
@@ -333,7 +333,7 @@ class AdminVerifyPage : PageScreen() {
         val gone = remember { mutableStateListOf<String>() }
         AdminList("Verification requests", res = res, tick = 0) { d ->
             val list = d.optJSONArray("requests").objects().filter { it.str("id") !in gone }
-            if (list.isEmpty()) item { EmptyNote(Icons.Filled.Verified, "No pending requests 👍", modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) }
+            if (list.isEmpty()) item { EmptyNote(Sym.Verified, "No pending requests 👍", modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) }
             items(list, key = { it.str("id") }) { r ->
                 Surface(color = MaterialTheme.colorScheme.surface) {
                     Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
