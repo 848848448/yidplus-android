@@ -17,7 +17,7 @@ cstap() { # tap the tallest node whose text/desc is exactly $1 (else contains it
 }
 csnot() { local p; p=$(cspos "$1"); if [ -n "$p" ]; then log "CS WRONG: '$1' is on screen"; else log "CS ok: '$1' not shown"; fi; }
 cshas() { local p; p=$(cspos "$1"); if [ -n "$p" ]; then log "CS ok: '$1' on screen"; else log "CS MISSING: '$1' not on screen"; fi; }
-cslong() { sleep 1; local p; p=$(cspos "$1"); [ -z "$p" ] && { log "cslong: '$1' not found"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press $*"; }
+cslong() { sleep 1; local p n=0; p=$(cspos "$1"); while [ -z "$p" ] && [ $n -lt 8 ]; do adb shell input swipe 240 220 240 440 400; sleep 1; n=$((n+1)); p=$(cspos "$1"); done; [ -z "$p" ] && { log "CS MISSING: cslong: '$1' not found after $n swipes toward older messages"; return 0; }; [ $n -gt 0 ] && log "cslong: '$1' found after $n swipe(s) toward older messages (the chat opens at the newest voice notes, the text messages are above)"; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press $*"; }
 csopen() { # csopen ID TYPE NAME-JSON-ESCAPED [extra json]
   timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
 csfx() { timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400 | sed 's/^/  YidFx: /' | tee -a "$OUT/qa.log" >/dev/null; }
@@ -77,8 +77,10 @@ csdump() { timeout 20 adb shell uiautomator dump /sdcard/f.xml >/dev/null 2>&1; 
 cfocdesc() { tr '>' '\n' < "$1" | grep 'focused="true"' | grep -v 'class="android.widget.EditText"' | sed -n 's/.*content-desc="\([^"]*\)".*/\1/p' | head -1; }
 # csplayat LABEL: tap the Play button of the voice bubble whose duration label is LABEL (nearest Play node by y), then require Pause at the same bounds
 csplayat() {
-  timeout 30 adb shell uiautomator dump /sdcard/pa.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pa.xml > "$OUT/csplayat.xml" 2>/dev/null
-  local b; b=$(python3 - "$OUT/csplayat.xml" "$1" <<'PYEOF'
+  local b tries=0
+  while :; do
+    timeout 30 adb shell uiautomator dump /sdcard/pa.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pa.xml > "$OUT/csplayat.xml" 2>/dev/null
+    b=$(python3 - "$OUT/csplayat.xml" "$1" <<'PYEOF'
 import sys, re
 import xml.etree.ElementTree as ET
 label = sys.argv[2]
@@ -93,22 +95,33 @@ def bounds(n):
 labels = [n for n in root.iter('node') if n.get('text') == label]
 if len(labels) != 1:
     print("ERR labels=%d" % len(labels)); sys.exit(0)
-n = labels[0]
+lb = bounds(labels[0])
+# the bubble is the nearest clickable ancestor of the label that is wide like a bubble (>=300px)
+n = parent.get(labels[0]); bub = None
 while n is not None:
-    plays = [d for d in n.iter('node') if d.get('content-desc') == 'Play']
-    if plays:
-        if len(plays) > 1:
-            lb = bounds(labels[0]); ly = (lb[1] + lb[3]) // 2
-            near = [d for d in plays if bounds(d)[1] < lb[3] and bounds(d)[3] > lb[1] and bounds(d)[2] <= lb[0] + 4]  # same row: vertical overlap with the label and the Play sits left of it
-            if len(near) != 1:
-                print("ERR ambiguous container has %d Play buttons, %d vertically overlapping and left of the label" % (len(plays), len(near))); sys.exit(0)
-            plays = near
-        b = bounds(plays[0])
-        print("%d %d" % ((b[0] + b[2]) // 2, (b[1] + b[3]) // 2)); sys.exit(0)
+    bb = bounds(n)
+    if n.get('clickable') == 'true' and bb and bb[2] - bb[0] >= 300 and bb[0] <= lb[0] and bb[2] >= lb[2] and bb[1] <= lb[1] and bb[3] >= lb[3]:
+        bub = n; break
     n = parent.get(n)
-print("ERR no Play button in any ancestor of the label")
+if bub is None:
+    print("ERR no bubble-sized clickable ancestor of the label"); sys.exit(0)
+bb = bounds(bub)
+if bb[1] < 165: print("SCROLL down %d %d %d %d" % bb); sys.exit(0)   # clipped under the header: bring older content down
+if bb[3] > 486: print("SCROLL up %d %d %d %d" % bb); sys.exit(0)    # clipped under the composer
+plays = [d for d in bub.iter('node') if d.get('content-desc') == 'Play']
+if len(plays) != 1:
+    print("ERR the bubble %s has %d Play buttons inside its own bounds" % (bub.get('bounds'), len(plays))); sys.exit(0)
+b = bounds(plays[0])
+print("TAP %d %d %d %d %d %d" % (((b[0] + b[2]) // 2, (b[1] + b[3]) // 2) + bb))
 PYEOF
 )
+    case "$b" in
+      SCROLL\ down*) tries=$((tries+1)); [ $tries -gt 6 ] && { b="ERR could not bring the bubble fully below the header in 6 swipes"; break; }; set -- "$1"; timeout 10 adb shell input swipe 240 260 240 400 500; sleep 1 ;;
+      SCROLL\ up*) tries=$((tries+1)); [ $tries -gt 6 ] && { b="ERR could not bring the bubble fully above the composer in 6 swipes"; break; }; timeout 10 adb shell input swipe 240 400 240 260 500; sleep 1 ;;
+      *) break ;;
+    esac
+  done
+  case "$b" in TAP*) log "csplayat: target bubble bounds [$(echo $b | awk '{print $4","$5"]["$6","$7}')] fully inside the list area, exactly one Play inside it"; b=$(echo $b | awk '{print $2, $3}') ;; esac
   case "$b" in ERR*|"") log "CS WRONG: csplayat '$1': ${b:-no answer}"; FAIL=1; return 0 ;; esac
   set -- $b; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "csplayat tapped the Play button inside the bubble that contains the label, at $1 $2"
   timeout 30 adb shell uiautomator dump /sdcard/pa2.xml >/dev/null 2>&1
@@ -240,7 +253,7 @@ try:
 except Exception as e:
     print("ERR parse %s" % e); sys.exit(0)
 for n in root.iter('node'):
-    if n.get('focused') == 'true' and n.get('class') != 'android.widget.EditText':
+    if n.get('focused') == 'true':  # EditText included: run 43516626433 base legs showed the composer EditText holding focus ([] paths) while the old filter hid it
         d = n.get('content-desc') or n.get('text') or ''
         if not d:
             for c in n.iter('node'):
@@ -256,7 +269,7 @@ for k in 20 20 20 20 22 22 22 22 22 22; do f=$(csfocusnow CS-22b-focus-mic); PAT
 [ -z "$FOUNDM" ] && { f=$(csfocusnow CS-22b-focus-mic); PATHM="$PATHM [$f]"; case "$f" in *"Record voice message"*) FOUNDM=1 ;; esac; }
 if [ -n "$FOUNDM" ]; then log "CS D-pad reached the mic (focus path:$PATHM)"; key 23; sleep 3
 else log "CS WRONG: D-pad could not reach the mic button (focus path:$PATHM); starting the recording by touch instead"; FAIL=1; p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; fi
-f=$(csfocusnow CS-22c-recording); log "CS focus right after the recording started: [${f:-none}]"
+f=$(csfocusnow CS-22c-recording); log "CS focus right after the recording started: [${f:-none}]"; shot CS-22c-recording-pixels
 if ! grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-22c-recording.xml"; then log "CS WRONG: D-pad voice flow: hands-free recording did not start (no recording controls on screen)"; FAIL=1; fi
 # 2) reach Send voice message with the D-pad: RIGHT first, then LEFT
 FOUND=""; PATHD=""
