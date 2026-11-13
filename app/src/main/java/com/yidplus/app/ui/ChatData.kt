@@ -11,6 +11,7 @@ import android.os.Build
 import android.provider.OpenableColumns
 import android.util.LruCache
 import com.yidplus.app.data.Disk
+import com.yidplus.app.data.Fixture
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -175,6 +176,10 @@ object ChatApi {
     suspend fun deleteSticker(id: String) = Api.delete("/api/chat/stickers?id=" + chEnc(id))
     /** The site's uploadCustomSticker: multipart POST /api/chat/stickers {file} (image ≤ 3 MB). */
     suspend fun uploadSticker(ctx: Context, uri: Uri): JSONObject = withContext(Dispatchers.IO) {
+        if (Fixture.on) {
+            android.util.Log.i("YidFx", "POST /api/chat/stickers <sticker upload> (fixture: kept local, not sent)")
+            return@withContext JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
+        }
         val mime = ctx.contentResolver.getType(uri) ?: "image/png"
         val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: error("Can't read the picture")
         if (bytes.size > 3 * 1024 * 1024) throw Api.ApiError(413, "Sticker too large (max 3MB)", JSONObject())
@@ -221,6 +226,14 @@ object ChatApi {
         val len = file?.length() ?: uri?.let { u -> runCatching { ctx.contentResolver.openAssetFileDescriptor(u, "r")?.use { it.length } }.getOrNull() } ?: -1L
         // The site's checkFileSize(file, 500): nothing over 500 MB.
         if (len > 500L * 1024 * 1024) throw Api.ApiError(413, "That file is too big (max 500 MB)", JSONObject())
+        // QA fixture: keep the upload on disk and record it so the reopened room shows the note; never touch the network.
+        if (Fixture.on) {
+            val bytes = file?.readBytes() ?: uri?.let { u -> ctx.contentResolver.openInputStream(u)?.use { it.readBytes() } } ?: ByteArray(0)
+            val f = java.io.File(ctx.filesDir, "qa-media/up-" + System.nanoTime() + "-" + name.substringAfterLast('/')).apply { parentFile?.mkdirs(); writeBytes(bytes) }
+            android.util.Log.i("YidFx", "POST /api/chat?room_id=$roomId type=$type <$mime ${bytes.size} bytes> (fixture: kept local, not sent)")
+            Fixture.noteSend(roomId, type, text, name, "file://" + f.absolutePath)
+            return@withContext JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
+        }
         // Over 80 MB the site switches to its multipart upload (/api/chat/mpu, 48 MB parts), then posts the message with media_key.
         if (len > 80L * 1024 * 1024) return@withContext uploadBig(ctx, roomId, uri, file, type, name, mime, text, replyTo)
         val body = object : RequestBody() {
