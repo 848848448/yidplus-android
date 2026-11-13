@@ -224,14 +224,14 @@ internal fun CsVoiceBubble(m: ChatMsg) {
     val peaks = remember(m.text) { m.text.substringAfter('|', "").split(',').mapNotNull { it.trim().toIntOrNull() }.ifEmpty { List(32) { i -> 20 + (i * 37 % 60) } } }
     val music = !m.isVoice
     Row(Modifier.padding(4.dp).width(250.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(44.dp).clip(if (music) RoundedCornerShape(10.dp) else CircleShape).background(ChatLook.bar).tap(CircleShape) { m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) } ?: toast(c, "Audio not available") }, contentAlignment = Alignment.Center) {
+        Box(Modifier.size(44.dp).clip(if (music) RoundedCornerShape(10.dp) else CircleShape).background(ChatLook.bar).tap(CircleShape) { (m.media ?: m.local)?.let { ChatVoicePlayer.toggle(c, m.id, it) } ?: toast(c, "Audio not available") }, contentAlignment = Alignment.Center) {
             Icon(if (me && !ChatVoicePlayer.paused) Sym.Pause else Sym.PlayArrow, if (me && !ChatVoicePlayer.paused) "Pause" else "Play", tint = Color.White)
         }
         Column(Modifier.weight(1f).padding(start = 8.dp)) {
             if (music) Text("🎵 " + m.fileName.substringBeforeLast('.').ifBlank { "Audio" }, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ChatLook.ink(), maxLines = 1, overflow = TextOverflow.Ellipsis)
             var w by remember { mutableStateOf(1) }
             val seekMod = Modifier.onSizeChanged { w = it.width.coerceAtLeast(1) }.pointerInput(m.id) {
-                detectTapGestures { o -> m.media?.let { ChatVoicePlayer.seek(c, m.id, it, o.x / w) } }
+                detectTapGestures { o -> (m.media ?: m.local)?.let { ChatVoicePlayer.seek(c, m.id, it, o.x / w) } }
             }
             if (music) {
                 Box(seekMod.fillMaxWidth().height(18.dp), contentAlignment = Alignment.CenterStart) {
