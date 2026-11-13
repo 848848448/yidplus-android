@@ -188,10 +188,10 @@ private fun PostStatus() {
       Column(Modifier.fillMaxSize().imePadding()) {
         // Top bar
         Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconBtn(Icons.Filled.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
+            IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
             Spacer(Modifier.weight(1f))
-            if (media == null) IconBtn(Icons.Filled.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
-            IconBtn(Icons.Filled.PhotoLibrary, "Photo or video", {
+            if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
+            IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
         }
@@ -200,12 +200,14 @@ private fun PostStatus() {
             val m = media
             if (m == null) {
                 val big = if (ime) 22.sp else 28.sp
-                TextField(text, { if (it.length <= 700) text = it }, Modifier.fillMaxWidth().padding(horizontal = 20.dp).focusRequester(fr),
-                    placeholder = { Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = big, textAlign = TextAlign.Center) },
+                // The centred hint hides while the field is focused: the cursor sat inside "Type a status" otherwise.
+                var fieldFocused by remember { mutableStateOf(false) }
+                TextField(text, { if (it.length <= 700) text = it }, Modifier.fillMaxWidth().padding(horizontal = 20.dp).focusRequester(fr).onFocusChanged { fieldFocused = it.isFocused },
+                    placeholder = { if (!fieldFocused) Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = big, textAlign = TextAlign.Center) },
                     textStyle = TextStyle(fontSize = if (text.length > 120) 18.sp else big, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center,
                         textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
             } else if (isVideo) Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.PlayCircle, null, tint = Color.White, modifier = Modifier.size(72.dp))
+                Icon(Sym.PlayCircle, null, tint = Color.White, modifier = Modifier.size(72.dp))
                 Text("Video ready to post", color = Color.White, fontSize = 16.sp)
             } else AsyncImage(m, "Chosen photo", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
         }
@@ -236,7 +238,7 @@ private fun PostStatus() {
                 }
                 Box(Modifier.size(56.dp).clip(CircleShape).background(if (posting) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { post() },
                     contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Filled.Send, "Post status", tint = Color.White, modifier = Modifier.size(24.dp))
+                    Icon(Sym.Send, "Post status", tint = Color.White, modifier = Modifier.size(24.dp))
                 }
             }
         }
