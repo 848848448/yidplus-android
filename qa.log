@@ -1,0 +1,272 @@
+[03:30:15] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[03:30:18] screen 480x640 @ 240 dpi
+[03:30:18] ---- Signed in (QA fixture account) ----
+[03:30:22] fixture true
+[03:30:32] shot F01-home-signedin
+[03:30:32] open https://yidplus.com/chat
+[03:30:37] shot F02-chats-list
+[03:30:39] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Wed"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[03:30:46] shot F03-chat-dm
+[03:30:48] shot F03b-chat-dm-up
+[03:30:52] open https://yidplus.com/chat
+[03:31:06] shot F04-chat-group
+[03:31:08] shot F04b-group-up
+[03:31:10] shot F04c-group-top
+[03:31:13] shot F05-message-actions
+[03:31:23] shot F06-notifications
+[03:31:25] tab Home
+[03:31:29] shot F07-home-header
+[03:31:29] open https://yidplus.com/shorts
+[03:31:38] shot F08-shorts-signedin
+[03:31:38] tab Profile
+[03:31:41] shot F09-profile-signedin
+[03:31:52] shot F09b-profile-scrolled
+[03:32:06] open https://yidplus.com/chat
+[03:32:10] shot F10-chats-dark
+[03:32:16] shot F11-chat-dark
+[03:32:23] screen 1080x2400 @ 420 dpi
+[03:32:32] open https://yidplus.com/chat
+[03:32:36] shot F12-phone-chats
+[03:32:42] shot F13-phone-chat
+[03:32:46] screen 480x640 @ 240 dpi
+[03:32:46] ---- qa/fx-cs.sh ----
+[03:32:54] screenrecord CS-flow-touch started
+[03:33:01] open chat r-cs
+[03:33:01] shot CS-01-open-unread-line
+[03:33:03] CS MISSING: '5 unread messages' not on screen
+[03:33:24] csfind: 'Niggun' not found
+[03:33:24] shot CS-02-formatting-voice-music
+  node: text="גוט מארגן! זעט דא די נייע אלטע פלאן: yidplus.com/chat און code @Yanky" class="android.widget.TextView" content-desc="" bounds="[81,134][445,231]" 
+[03:33:36] shot CS-02b-formatting-album
+[03:33:46] shot CS-03-older-page-loaded
+  node: text="עלטערע מעסעדזש 1" class="android.widget.TextView" content-desc="" bounds="[81,248][290,281]" 
+  node: text="עלטערע מעסעדזש 1" class="android.widget.TextView" content-desc="" bounds="[81,248][290,281]" 
+[03:33:49] CS ok: 'עלטערע מעסעדזש 1' on screen
+[03:33:55] open chat r-cs
+  node: text="  פלאפל" class="android.widget.TextView" content-desc="" bounds="[114,290][439,320]" 
+[03:34:08] shot CS-04-polls
+  node: text="+ Suggest an option" class="android.widget.TextView" content-desc="" bounds="[99,422][291,452]" 
+  node: text="+ Suggest an option" class="android.widget.TextView" content-desc="" bounds="[99,422][291,452]" 
+[03:34:11] CS ok: '+ Suggest an option' on screen
+  node: text="  פלאפל" class="android.widget.TextView" content-desc="" bounds="[114,290][439,320]" 
+[03:34:14] cstap 276 305
+  YidFx: 11-13 03:34:12.048  3430  3478 I YidFx   : PUT /api/polls {"id":"p-cs1","vote":["o2"]}
+[03:34:16] shot CS-05-poll-voted
+[03:34:27] csfindup: 'Close Poll' not found
+[03:34:27] shot CS-05b-quiz-close-poll
+[03:34:28] CS MISSING: 'Close Poll' not on screen
+[03:34:35] open chat r-cs
+  node: text="0:12" class="android.widget.TextView" content-desc="" bounds="[156,147][415,180]" 
+  node: text="" class="android.view.View" content-desc="Play" bounds="[93,259][129,295]" 
+[03:34:57] cstap 111 277
+[03:35:01] shot CS-06-voice-playing
+[03:35:03] cstap: '1x' not on screen
+[03:35:04] shot CS-06b-voice-1.5x
+[03:35:06] cstap: 'Pause' not on screen
+[03:35:13] open chat r-cs
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,506][456,542]" 
+[03:35:16] cstap 438 524
+[03:35:20] shot CS-07-voice-locked
+  node: text="" class="android.widget.Button" content-desc="Pause recording" bounds="[264,487][330,559]" 
+[03:35:23] cstap 297 523
+[03:35:24] shot CS-07b-voice-paused
+  node: text="" class="android.widget.Button" content-desc="Resume recording" bounds="[264,487][330,559]" 
+[03:35:28] cstap 297 523
+  node: text="" class="android.widget.Button" content-desc="Stop and listen" bounds="[330,487][399,559]" 
+[03:35:34] cstap 364 523
+[03:35:35] shot CS-07c-voice-listen
+  node: text="" class="android.view.View" content-desc="Send voice message" bounds="[417,505][453,541]" 
+[03:35:39] cstap 435 523
+[03:35:44] video qa/out/CS-flow-touch.mp4 765570 bytes
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,506][456,542]" 
+[03:35:47] shot CS-08-voice-holding
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,506][456,542]" 
+[03:35:57] shot CS-08b-voice-slid-cancel
+  node: text="ווער קומט היינט ביינאכט?" class="android.widget.TextView" content-desc="" bounds="[81,234][332,267]" 
+[03:36:03] long-press 206 250
+[03:36:03] shot CS-09-long-press-bar
+  node: text="" class="android.widget.Button" content-desc="More actions" bounds="[405,51][477,123]" 
+[03:36:05] CS ok: 'More actions' on screen
+  node: text="" class="android.widget.Button" content-desc="More actions" bounds="[405,51][477,123]" 
+[03:36:09] cstap 441 87
+[03:36:10] shot CS-09b-long-press-all-actions
+  node: text="ווער קומט היינט ביינאכט?" class="android.widget.TextView" content-desc="" bounds="[81,234][332,267]" 
+[03:36:18] long-press 206 250
+[03:36:20] cstap: 'יא, זייער גוט' not on screen
+[03:36:21] shot CS-10-select-2
+  node: text="2" class="android.widget.TextView" content-desc="" bounds="[448,380][459,413]" 
+[03:36:22] CS ok: '2' on screen
+  node: text="" class="android.widget.Button" content-desc="Copy" bounds="[207,51][273,123]" 
+[03:36:26] cstap 240 87
+[03:36:29] cslong: 'יא, זייער גוט' not found
+[03:36:31] cstap: 'זאל זיין מיט מזל' not on screen
+[03:36:34] cstap: 'Forward' not on screen
+[03:36:37] shot CS-11-forward-many
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[81,191][184,234]" 
+[03:36:40] cstap 132 212
+[03:36:50] open chat r-cs
+[03:36:52] cslong: 'מיר טרעפן זיך 8:00' not found
+[03:36:54] cstap: 'More actions' not on screen
+[03:36:56] cstap: 'Report' not on screen
+[03:36:59] cstap: 'Harassment' not on screen
+[03:36:59] shot CS-12-report
+[03:37:01] cstap: 'Submit Report' not on screen
+[03:37:04] csdbl: 'זאל זיין מיט מזל' not found
+[03:37:04] shot CS-13-double-tap-heart
+  node: text="Yanky" class="android.widget.TextView" content-desc="" bounds="[74,368][146,440]" 
+[03:37:08] cstap 110 404
+[03:37:09] shot CS-14-person-card
+  node: text="" class="android.widget.Button" content-desc="More" bounds="[405,51][477,123]" 
+[03:37:15] cstap 441 87
+  node: text="Message options" class="android.widget.TextView" content-desc="" bounds="[267,294][456,324]" 
+[03:37:19] cstap 361 309
+  node: text="1 hour" class="android.widget.TextView" content-desc="" bounds="[259,334][321,364]" 
+[03:37:24] cstap 290 349
+[03:37:24] shot CS-15-message-options
+  node: text="Done" class="android.widget.TextView" content-desc="" bounds="[375,442][426,472]" 
+[03:37:28] cstap 400 457
+[03:37:29] shot CS-15b-options-badge
+  node: text="Message" class="android.widget.TextView" content-desc="" bounds="[96,502][196,535]" 
+[03:37:32] cstap 146 518
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[431,188][446,203]" 
+[03:37:39] cstap 438 195
+  YidFx: 11-13 03:37:36.625  3430  3476 I YidFx   : POST /api/chat {"room_id":"r-cs","type":"text","text":"QA disappear","disappear_seconds":3600}
+[03:37:48] open chat r-cs
+  node: text="" class="android.widget.Button" content-desc="Attach" bounds="[264,491][330,563]" 
+[03:37:52] cstap 297 527
+[03:37:53] shot CS-16-attach-sheet
+  node: text="Poll" class="android.widget.TextView" content-desc="" bounds="[396,490][427,523]" 
+[03:37:57] cstap 411 506
+[03:38:00] shot CS-17-poll-new
+  node: text="Ask a question" class="android.widget.TextView" content-desc="" bounds="[48,129][180,143]" 
+[03:38:03] cstap 114 136
+  node: text="Option 1" class="android.widget.TextView" content-desc="" bounds="[48,422][141,455]" 
+[03:38:10] cstap 94 438
+  node: text="Option 2" class="android.widget.TextView" content-desc="" bounds="[48,260][141,293]" 
+[03:38:16] cstap 94 276
+  node: text="Quiz Mode" class="android.widget.TextView" content-desc="" bounds="[24,462][144,495]" 
+  node: text="Quiz Mode" class="android.widget.TextView" content-desc="" bounds="[24,462][144,495]" 
+[03:38:28] cstap 84 478
+[03:38:29] shot CS-17b-poll-settings
+  node: text="" class="android.widget.Button" content-desc="Create Poll" bounds="[405,51][477,123]" 
+[03:38:32] cstap 441 87
+  YidFx: 11-13 03:38:30.069  3430  3466 I YidFx   : POST /api/polls {"room_id":"r-cs","question":"QA poll","options":["A","B"],"show_who_voted":false,"allow_multiple":false,"allow_add_options":false,"allow_revote":true,"shuffle_options":false,"quiz_mode":true,"duration_minutes":null,"correct_indices":[]}
+[03:38:42] open chat r-cs
+  node: text="" class="android.widget.Button" content-desc="Emoji" bounds="[3,491][75,563]" 
+[03:38:45] cstap 39 527
+[03:38:47] shot CS-18-emoji-recent
+  node: text="Stickers" class="android.widget.TextView" content-desc="" bounds="[75,246][154,279]" 
+[03:38:51] cstap 114 262
+[03:38:54] shot CS-18b-stickers
+[03:39:05] open chat r-g1
+[03:39:05] shot CS-19-group-call-banner
+  node: text="  Call in progress · 2 on the call" class="android.widget.TextView" content-desc="" bounds="[51,144][379,177]" 
+[03:39:06] CS ok: 'Call in progress' on screen
+  node: text="" class="android.widget.Button" content-desc="More" bounds="[405,51][477,123]" 
+[03:39:10] cstap 441 87
+[03:39:11] shot CS-20-menu
+  node: text="Pinned messages" class="android.widget.TextView" content-desc="" bounds="[257,510][451,540]" 
+[03:39:15] cstap 354 525
+[03:39:18] shot CS-21-pinned-list
+  node: text="" class="android.widget.Button" content-desc="More" bounds="[405,51][477,123]" 
+[03:39:24] cstap 441 87
+  node: text="Copy invite link" class="android.widget.TextView" content-desc="" bounds="[257,438][425,468]" 
+[03:39:28] cstap 341 453
+[03:39:37] open chat r-cs
+[03:39:38] screenrecord CS-flow-dpad started
+[03:39:50] shot CS-22-dpad-focus
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,506][456,542]" 
+[03:40:01] shot CS-23-dpad-voice-sent
+[03:40:18] video qa/out/CS-flow-dpad.mp4 90730 bytes
+[03:40:18] CS done
+[03:40:18] ---- qa/fx-ds.sh ----
+[03:40:25] tab Chats
+[03:40:29] shot DS-01-chats
+[03:40:31] ds texts chats:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2" 
+[03:40:31] tab Profile
+[03:40:35] shot DS-05-settings
+[03:40:35] tab Chats
+[03:40:39] shot DS-07-dpad-focus
+[03:40:41] ds look color=1
+[03:40:41] tab Chats
+[03:40:44] shot DS-11-theme-1-chats
+[03:40:44] tab Profile
+[03:40:48] shot DS-11-theme-1-settings
+[03:40:50] ds look color=4
+[03:40:50] tab Chats
+[03:40:53] shot DS-14-theme-4-chats
+[03:40:53] tab Profile
+[03:40:56] shot DS-14-theme-4-settings
+[03:40:58] ds look color=6
+[03:40:58] tab Chats
+[03:41:01] shot DS-16-theme-6-chats
+[03:41:01] tab Profile
+[03:41:04] shot DS-16-theme-6-settings
+[03:41:06] ds look color=0
+[03:41:08] ds look text=0
+[03:41:08] tab Chats
+[03:41:11] shot DS-20-text-small
+[03:41:13] ds look text=2
+[03:41:13] tab Chats
+[03:41:16] shot DS-21-text-large
+[03:41:18] ds look text=1
+[03:41:21] ds look contrast=1
+[03:41:21] tab Chats
+[03:41:26] shot DS-23-contrast-focus
+[03:41:28] ds look contrast=0
+[03:41:30] ds look bar=light
+[03:41:30] tab Profile
+[03:41:33] shot DS-27-lightbar-settings
+[03:41:33] tab Chats
+[03:41:36] shot DS-26-lightbar-chats
+[03:41:38] ds look bar=green
+[03:41:40] ds look dark=2
+[03:41:40] tab Chats
+[03:41:43] shot DS-28-dark-chats
+[03:41:43] tab Profile
+[03:41:47] shot DS-29-dark-settings
+[03:41:49] ds look dark=0
+[03:41:49] open https://yidplus.com/chat?join=fxjoin123
+[03:41:53] shot DS-30-deeplink-join
+[03:41:55] tab Chats
+[03:41:59] ds look snack=Archived
+[03:42:00] shot DS-32-snackbar-undo
+[03:42:07] ds look demo=1
+[03:42:09] shot DS-33-searchpill-and-chips-top
+[03:42:11] shot DS-34-searchpill-hides-on-scroll-down
+[03:42:18] shot DS-35-last-row-above-fab
+[03:42:20] shot DS-36-searchpill-back-on-scroll-up
+[03:42:30] ds tapped 'Unread'
+[03:42:31] shot DS-37-filter-chip-unread-selected
+[03:42:34] ds tapped 'Search…'
+[03:42:36] shot DS-38-search-open
+[03:42:38] shot DS-39-search-typed
+[03:42:42] shot DS-39b-search-closed-by-back
+[03:42:46] tab Chats
+[03:42:48] tab Profile
+[03:42:52] ds look color=1
+[03:42:55] ds look color=4
+[03:42:58] ds look color=6
+[03:43:01] ds look color=0
+[03:43:03] ds look dark=2
+[03:43:03] tab Chats
+[03:43:07] ds look dark=0
+[03:43:09] ds look text=2
+[03:43:13] ds look text=0
+[03:43:17] ds look text=1
+[03:43:26] ds video -rw-r--r-- 1 runner runner 212611 Nov 13 03:43 qa/out/DS-flow.mp4
+[03:43:28] screen 1080x2400 @ 420 dpi
+[03:43:28] tab Chats
+[03:43:33] shot DS-40-phone-chats
+[03:43:33] tab Profile
+[03:43:36] shot DS-41-phone-settings
+[03:43:38] ds look dark=2
+[03:43:38] tab Chats
+[03:43:41] shot DS-42-phone-dark-chats
+[03:43:43] ds look dark=0
+[03:43:46] screen 480x640 @ 240 dpi
+[03:43:48] tab Chats
+[03:43:50] fixture writes the app would have sent: 17
+[03:43:54] fixture false
