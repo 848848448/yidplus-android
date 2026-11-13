@@ -495,7 +495,9 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 msgs.isEmpty() && !loaded -> ChBubbleSkeleton()
                 msgs.isEmpty() -> ChEmpty(Sym.WavingHand, "No messages yet. Say hi!", Modifier.align(Alignment.Center))
                 else -> {
-                    val firstReal = rows.firstOrNull { it is ChItem.M && !it.m.isSystem }
+                    // The row that gets the first D-pad focus is the one the list opens on: the first unread message when the room opens at the unread line, else the newest.
+    // (Focusing the newest while the list sat at the unread line made the focus scroll the list part-way to it and left both hidden.)
+    val firstReal = rows.firstOrNull { it is ChItem.M && !it.m.isSystem && unreadAnchor != null && it.m.id == unreadAnchor } ?: rows.firstOrNull { it is ChItem.M && !it.m.isSystem }
                     val gallery = remember(rows) { msgs.filter { (it.isImage || it.isVideo) && it.media != null && !it.viewOnce }.map { q -> GItem(q.media!!, q.isVideo, null, q.nick) } }
                     // Gap 7: while the "newest" button shows, the list gets room under it so no message hides behind it.
                     val showDown by remember { derivedStateOf { state.firstVisibleItemIndex > 2 } }
