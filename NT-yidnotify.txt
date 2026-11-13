@@ -1,0 +1,91 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of kernel
+11-13 06:46:38.644  2522  2522 I YidNotify: fast check on for 30 min
+11-13 06:47:06.141  2522  2522 I YidNotify: fast check on for 30 min
+11-13 06:48:10.119  2522  2558 I YidNotify: check done: 13 rooms, 0 shown
+11-13 06:48:42.778  3345  3380 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:48:42.778  3345  3380 I YidNotify: qa reset done
+11-13 06:48:46.616  3345  3345 I YidNotify: fast check on for 30 min
+11-13 06:48:53.472  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:48:53.480  3345  3380 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-13 06:48:53.482  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:48:53.482  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:48:53.492  3345  3380 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-13 06:48:53.494  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:48:53.495  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:48:53.499  3345  3380 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-13 06:48:53.499  3345  3380 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-13 06:48:53.499  3345  3380 I YidNotify: qa poll done
+11-13 06:49:31.638  3345  3386 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:50:31.700  3345  3388 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:51:15.869  3345  4134 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:51:15.869  3345  4134 I YidNotify: qa reset done
+11-13 06:51:18.953  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:51:18.959  3345  3380 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-13 06:51:18.961  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:51:18.961  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:51:18.966  3345  3380 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-13 06:51:18.968  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:51:18.968  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:51:18.970  3345  3380 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:51:18.976  3345  3380 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-13 06:51:18.976  3345  3380 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-13 06:51:18.976  3345  3380 I YidNotify: qa poll done
+11-13 06:51:31.787  3345  4134 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:51:35.607  3345  4134 I YidNotify: qa failnext done
+11-13 06:52:00.577  3345  4579 I YidNotify: reply room=nt-g3 sent=false (IOException: QA: simulated network failure)
+11-13 06:52:00.577  3345  4579 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:52:00.606  3345  4579 I YidNotify: fast check on for 15 min
+11-13 06:52:29.030  3345  4579 I YidNotify: reply room=nt-g3 sent=true
+11-13 06:52:29.030  3345  4579 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:52:29.041  3345  4579 I YidNotify: fast check on for 15 min
+11-13 06:52:31.809  3345  4134 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:53:18.313  3345  4134 I YidNotify: mark read room=nt-dm1 site=true
+11-13 06:53:27.382  3345  4134 I YidNotify: check done: 3 rooms, 0 shown (chats only)
+11-13 06:53:27.382  3345  4134 I YidNotify: qa poll done
+11-13 06:53:31.859  3345  3388 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:53:37.416  3345  4579 I YidNotify: qa forget done
+11-13 06:53:38.446  3345  4579 I YidNotify: room nt-g3: nothing new to alert
+11-13 06:53:38.446  3345  4579 I YidNotify: room nt-dm1: already seen up to 2026-11-11T19:31:00.000Z
+11-13 06:53:38.448  3345  4579 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:53:38.451  3345  4579 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:53:38.456  3345  4579 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-13 06:53:38.457  3345  4579 I YidNotify: check done: 3 rooms, 1 shown (chats only)
+11-13 06:53:38.457  3345  4579 I YidNotify: qa poll done
+11-13 06:54:24.004  3345  3345 I YidNotify: fast check on for 30 min
+11-13 06:54:35.911  5455  5491 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:54:35.911  5455  5491 I YidNotify: qa reset done
+11-13 06:54:39.756  5455  5455 I YidNotify: fast check on for 30 min
+11-13 06:54:46.742  5455  5491 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:54:46.750  5455  5491 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-13 06:54:46.752  5455  5491 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:54:46.753  5455  5491 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:54:46.758  5455  5491 I YidNotify: room nt-dm1: notification posted (private, photo=true)
+11-13 06:54:46.760  5455  5491 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:54:46.760  5455  5491 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:54:46.761  5455  5491 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:54:46.765  5455  5491 I YidNotify: room nt-g1: notification posted (group, photo=true)
+11-13 06:54:46.766  5455  5491 I YidNotify: check done: 3 rooms, 3 shown (chats only)
+11-13 06:54:46.766  5455  5491 I YidNotify: qa poll done
+11-13 06:55:24.807  5455  5494 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:55:40.187  5455  5493 I YidNotify: reply room=nt-g1 sent=true
+11-13 06:55:40.188  5455  5493 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:55:40.190  5455  5493 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:55:40.201  5455  5493 I YidNotify: fast check on for 15 min
+11-13 06:56:03.053  5455  5493 I YidNotify: mark read room=nt-dm1 site=true
+11-13 06:56:12.359  5455  5493 I YidNotify: check done: 3 rooms, 0 shown (chats only)
+11-13 06:56:12.359  5455  5493 I YidNotify: qa poll done
+11-13 06:56:22.390  5455  5493 I YidNotify: qa forget done
+11-13 06:56:23.419  5455  5493 W YidNotify: avatar download failed for file:///data/user/0/com.yidplus.app/files/qa-media/img.png: IllegalArgumentException Expected URL scheme 'http' or 'https' but was 'file'
+11-13 06:56:23.425  5455  5493 I YidNotify: room nt-g3: notification posted (group, photo=false)
+11-13 06:56:23.425  5455  5493 I YidNotify: room nt-dm1: already seen up to 2026-11-11T19:31:00.000Z
+11-13 06:56:23.425  5455  5493 I YidNotify: room nt-g1: already seen up to 2026-11-11T19:40:00.000Z
+11-13 06:56:23.426  5455  5493 I YidNotify: check done: 3 rooms, 1 shown (chats only)
+11-13 06:56:23.426  5455  5493 I YidNotify: qa poll done
+11-13 06:56:24.861  5455  5493 I YidNotify: room r-dm1: already seen up to 2026-11-11T19:26:00.000Z
+11-13 06:56:24.861  5455  5493 I YidNotify: room r-g1: already seen up to 2026-11-11T19:19:00.000Z
+11-13 06:56:24.862  5455  5493 I YidNotify: room r-links: already seen up to 2026-11-11T19:24:00.000Z
+11-13 06:56:24.862  5455  5493 I YidNotify: room r-c1: already seen up to 2026-11-11T18:25:00.000Z
+11-13 06:56:24.862  5455  5493 I YidNotify: check done: 13 rooms, 0 shown (chats only)
+11-13 06:56:54.200  5455  5455 I YidNotify: fast check on for 30 min
