@@ -269,7 +269,9 @@ fun ChatsScreen() {
                         val tg = if (f == null && (tab == "all" || tab == "channels" || tab == "unread")) tgRes.data.orEmpty().filter { (it.joined || me == null) && (tab != "unread" || it.unread > 0) }.sortedByDescending { it.lastAt ?: "" } else emptyList()
                         // TEMP QA diagnostic for the blank first composition (runs 43365788338/43367984338): remove before release.
                         android.util.Log.i("YidPerf", "CL diag rooms=${list.size} shown=${shown.size} tg=${tg.size} tab=$tab self=${folder != null} compact=$compact")
-                        LazyColumn(Modifier.fillMaxSize().nestedScroll(pillScroll), state = listState, contentPadding = fabSafePadding(hasFab = me != null)) {
+                        // TEMP QA diagnostic: does the LazyColumn get a size/place, and what does it lay out? Remove before release.
+                        LaunchedEffect(shown) { kotlinx.coroutines.delay(800); android.util.Log.i("YidPerf", "CL li vp=" + listState.layoutInfo.viewportSize + " vis=" + listState.layoutInfo.visibleItemsInfo.size + " total=" + listState.layoutInfo.totalItemsCount + " first=" + listState.firstVisibleItemIndex + " off=" + listState.firstVisibleItemScrollOffset) }
+                        LazyColumn(Modifier.fillMaxSize().nestedScroll(pillScroll).onGloballyPositioned { android.util.Log.i("YidPerf", "CL bounds " + it.boundsInRoot()) }, state = listState, contentPadding = fabSafePadding(hasFab = me != null)) {
                             if (me != null && tab == "all" && f == null && q.isBlank() && !compact) item(key = "nw-status") { StatusStrip() }
                             if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank() && !compact) item(key = "nw-ai") { AiChatRow(compact) { Nav.open(AiChatPage()) } }
                             if (shown.isEmpty() && tg.isEmpty()) item {
