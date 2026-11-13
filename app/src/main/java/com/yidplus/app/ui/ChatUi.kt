@@ -20,6 +20,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -426,7 +427,7 @@ internal fun HideStatusBarWhile(on: Boolean) {
 @Composable
 internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String) -> Unit, ime: Boolean, focus: androidx.compose.ui.focus.FocusRequester, onSend: () -> Unit) {
     val ink = MaterialTheme.colorScheme.onSurface
-    androidx.compose.foundation.text.BasicTextField(text, onChange, modifier.focusRequester(focus), maxLines = 5,
+    androidx.compose.foundation.text.BasicTextField(text, onChange, modifier.focusRequester(focus).csComposerEscape(text), maxLines = 5,
         textStyle = TextStyle(fontSize = 17.sp, textDirection = TextDirection.Content, color = ink),
         cursorBrush = androidx.compose.ui.graphics.SolidColor(ink),
         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Send),
@@ -438,4 +439,19 @@ internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String)
                 inner()
             }
         })
+}
+
+/** Keypad: an empty composer field must not hold the D-pad. LEFT/RIGHT leave it for Emoji / Attach / Camera / mic instead of moving a cursor that has nowhere to go (HYPOTHESIS from run 43516626433 base legs: focus stayed on the EditText for 6 RIGHT presses; untested). */
+@Composable
+internal fun Modifier.csComposerEscape(text: String): Modifier {
+    val fm = androidx.compose.ui.platform.LocalFocusManager.current
+    return this.onPreviewKeyEvent { e ->
+        if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && text.isEmpty()) {
+            when (e.key) {
+                androidx.compose.ui.input.key.Key.DirectionRight -> fm.moveFocus(androidx.compose.ui.focus.FocusDirection.Right)
+                androidx.compose.ui.input.key.Key.DirectionLeft -> fm.moveFocus(androidx.compose.ui.focus.FocusDirection.Left)
+                else -> false
+            }
+        } else false
+    }
 }
