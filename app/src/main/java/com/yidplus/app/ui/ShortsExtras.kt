@@ -145,7 +145,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                 Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("@" + name.ifBlank { "yidplus" }, fontSize = 18.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                        if (verified) Icon(Icons.Filled.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
+                        if (verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
                     }
                     Text("${clips.size} videos", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -161,7 +161,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
             }
             when {
                 loading -> SoSkeleton(rows = 3)
-                clips.isEmpty() -> SoEmpty(Icons.Filled.Movie, "No videos yet")
+                clips.isEmpty() -> SoEmpty(Sym.Movie, "No videos yet")
                 else -> LazyVerticalGrid(GridCells.Adaptive(104.dp), Modifier.fillMaxSize(), contentPadding = PaddingValues(2.dp),
                     horizontalArrangement = Arrangement.spacedBy(2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     items(clips.size, key = { clips[it].key }) { i ->
@@ -173,7 +173,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                         }) {
                             SoVideoPoster(s.poster, "", s.duration, Modifier.fillMaxSize(), fit = ContentScale.Crop)
                             if (s.likes > 0) Row(Modifier.align(Alignment.BottomEnd).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.Favorite, null, tint = Color.White, modifier = Modifier.size(13.dp))
+                                Icon(Sym.Favorite, null, tint = Color.White, modifier = Modifier.size(13.dp))
                                 Text(" " + soNum(s.likes), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
@@ -222,13 +222,13 @@ class SoUploadShortPage : PageScreen() {
             TopBar("Upload a Short", onBack = { if (progress == null) Nav.back() }) {
                 if (Session.me != null && file != null) TextButton({ send() }, enabled = progress == null) { Text("Upload", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (progress == null) Color.White else Color.White.copy(alpha = .5f)) }
             }
-            if (Session.me == null) { SoEmpty(Icons.Filled.Upload, "Sign in to upload Shorts", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
+            if (Session.me == null) { SoEmpty(Sym.Upload, "Sign in to upload Shorts", action = "Sign in", onAction = { Nav.go(Tab.Profile) }); return@Column }
             val short = LocalConfiguration.current.screenHeightDp < 560
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(16.dp)) {
                 Box(Modifier.fillMaxWidth().height(if (short) 104.dp else 150.dp).clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp)) { if (progress == null) pick.launch("video/*") }
                     .background(if (file == null) MaterialTheme.colorScheme.surfaceVariant else Green.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(if (file == null) Icons.Filled.VideoLibrary else Icons.Filled.CheckCircle, null, tint = Green, modifier = Modifier.size(44.dp))
+                        Icon(if (file == null) Sym.VideoLibrary else Sym.CheckCircle, null, tint = Green, modifier = Modifier.size(44.dp))
                         Text(if (file == null) "Choose a video (up to 100 MB)" else "Video ready" + (if (sizeMb > 0) " · %.1f MB".format(sizeMb) else "") + " · tap to change",
                             fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp), textAlign = TextAlign.Center)
                     }
@@ -264,7 +264,7 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
     Column(modifier.fillMaxWidth()
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Black.copy(alpha = .45f), Color.Transparent)))) {
             Row(Modifier.fillMaxWidth().padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconBtn(Icons.Filled.Search, "Search Shorts", { Nav.open(SoSearchPage(4)) }, tint = Color.White, size = if (smallScreen) 34.dp else 40.dp)
+                IconBtn(Sym.Search, "Search Shorts", { Nav.open(SoSearchPage(4)) }, tint = Color.White, size = if (smallScreen) 34.dp else 40.dp)
                 // The feeds always fit at 480 px (For You · Following · Uploads · Saved); on a small screen the topics
                 // button rides at the end of the same row instead of taking room from the names.
                 androidx.compose.foundation.lazy.LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterHorizontally),
@@ -282,19 +282,19 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
                     if (tab == ShortsTab.ForYou && smallScreen && who == null) item {
                         Box {
                             var topicsOpen by remember { mutableStateOf(false) }
-                            IconBtn(Icons.Filled.Tune, "Topics", { topicsOpen = true }, tint = if (topic == "All") Color.White else Gold, size = 34.dp)
+                            IconBtn(Sym.Tune, "Topics", { topicsOpen = true }, tint = if (topic == "All") Color.White else Gold, size = 34.dp)
                             DropdownMenu(topicsOpen, { topicsOpen = false }) {
                                 for ((v, label) in SO_SHORT_TOPICS) DropdownMenuItem(text = { Text((if (v == topic) "✓ " else "   ") + label) }, onClick = { SoShortTopics.topic = v; topicsOpen = false })
                             }
                         }
                     }
                 }
-                IconBtn(Icons.Filled.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = if (smallScreen) 36.dp else 40.dp)
+                IconBtn(Sym.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = if (smallScreen) 36.dp else 40.dp)
             }
             if (who != null) Row(Modifier.padding(start = 12.dp, bottom = 4.dp).tap(RoundedCornerShape(16.dp)) { Feeds.who = null }
                 .background(Color.White.copy(alpha = .2f), RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("@" + Feeds.whoName.ifBlank { "creator" }, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                Icon(Icons.Filled.Close, "Show everyone", tint = Color.White, modifier = Modifier.padding(start = 6.dp).size(16.dp))
+                Icon(Sym.Close, "Show everyone", tint = Color.White, modifier = Modifier.padding(start = 6.dp).size(16.dp))
             }
             else if (tab == ShortsTab.ForYou && !smallScreen) SoChips(SO_SHORT_TOPICS.map { it.second }, SO_SHORT_TOPICS.indexOfFirst { it.first == topic }.coerceAtLeast(0),
                 { SoShortTopics.topic = SO_SHORT_TOPICS[it].first }, dark = true)
@@ -341,7 +341,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
         run {
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (loading && list.isEmpty()) SoSkeleton(rows = 3, avatar = 36.dp)
-                else if (list.isEmpty()) SoEmpty(Icons.Filled.ChatBubbleOutline, "No comments yet. Be the first.")
+                else if (list.isEmpty()) SoEmpty(Sym.ChatBubbleOutline, "No comments yet. Be the first.")
                 else LazyColumn {
                     items(list, key = { it.id }) { cm ->
                         Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) {}.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -354,7 +354,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                                 }
                                 Text(cm.text, Modifier.padding(top = 2.dp), style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left))
                             }
-                            if (s.fromSrc && (cm.mine || canDelete)) IconBtn(Icons.Filled.Delete, "Delete", {
+                            if (s.fromSrc && (cm.mine || canDelete)) IconBtn(Sym.Delete, "Delete", {
                                 scope.launch { runCatching { Api.delete("/api/src-comments?vid=" + URLEncoder.encode(s.key, "UTF-8") + "&id=" + URLEncoder.encode(cm.id, "UTF-8")) }; load() } }, size = 32.dp)
                         }
                     }
@@ -367,9 +367,8 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
             } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(text, { if (it.length <= 300) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
                     textStyle = TextStyle(textDirection = TextDirection.Content), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { post() }))
-                IconBtn(Icons.AutoMirrored.Filled.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)
+                IconBtn(Sym.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)
             }
         }
     }
 }
-
