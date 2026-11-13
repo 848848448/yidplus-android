@@ -354,13 +354,15 @@ object ChatVoicePlayer {
     /** Called with the finished clip's id; the chat plays the next voice note (the site's _autoPlayNextVoice). */
     var onDone: ((String) -> Unit)? = null
     private var mp: MediaPlayer? = null
+    /** True once onPrepared fired. getDuration/start/seek before that make MediaPlayer call the error listener with -38 ("getDuration in wrong state", logcat run 43405368761 and the original 07:22:42 failure), and stop() killed the note: tick() polls every frame and raced prepareAsync. */
+    @Volatile private var ready = false
     private fun applySpeed(p: MediaPlayer) { if (Build.VERSION.SDK_INT >= 23) runCatching { val was = p.isPlaying; p.playbackParams = p.playbackParams.setSpeed(speed); if (!was && paused) p.pause() } }
     fun cycleSpeed() { speed = when (speed) { 1f -> 1.5f; 1.5f -> 2f; else -> 1f }; mp?.let { if (it.isPlaying) applySpeed(it) } }
     fun speedLabel(): String = when (speed) { 1.5f -> "1.5x"; 2f -> "2x"; else -> "1x" }
     fun toggle(ctx: Context, id: String, url: String, startAt: Float = 0f) {
-        if (playing == id && mp != null) { val p = mp!!; if (p.isPlaying) { p.pause(); paused = true } else { p.start(); applySpeed(p); paused = false }; return }
+        if (playing == id && mp != null) { if (!ready) return; val p = mp!!; if (p.isPlaying) { p.pause(); paused = true } else { p.start(); applySpeed(p); paused = false }; return }
         stop()
-        playing = id; paused = false; progress = startAt
+        playing = id; paused = false; progress = startAt; ready = false
         val p = MediaPlayer()
         mp = p
         runCatching {
@@ -368,7 +370,7 @@ object ChatVoicePlayer {
             // through the content resolver as a non-seekable stream and m4a playback dies (NuPlayer error -38).
             if (url.startsWith("content:") || url.startsWith("file:")) p.setDataSource(ctx.applicationContext, Uri.parse(url))
             else p.setDataSource(ctx.applicationContext, Uri.parse(url), HashMap<String, String>().apply { Api.session()?.let { put("Cookie", "yp_session=$it") } })
-            p.setOnPreparedListener { if (startAt > 0f && it.duration > 0) it.seekTo((it.duration * startAt).toInt()); it.start(); applySpeed(it) }
+            p.setOnPreparedListener { ready = true; if (startAt > 0f && it.duration > 0) it.seekTo((it.duration * startAt).toInt()); it.start(); applySpeed(it) }
             p.setOnCompletionListener { stop(); onDone?.invoke(id) }
             p.setOnErrorListener { _, _, _ -> stop(); true }
             p.prepareAsync()
@@ -377,11 +379,11 @@ object ChatVoicePlayer {
     /** Tap on the waveform: jump there (the site's _seekVoice); starts the clip when it is not playing. */
     fun seek(ctx: Context, id: String, url: String, f: Float) {
         val p = mp
-        if (playing == id && p != null) { runCatching { if (p.duration > 0) { p.seekTo((p.duration * f.coerceIn(0f, 1f)).toInt()); progress = f } } }
+        if (playing == id && p != null) { if (!ready) return; runCatching { if (p.duration > 0) { p.seekTo((p.duration * f.coerceIn(0f, 1f)).toInt()); progress = f } } }
         else toggle(ctx, id, url, f.coerceIn(0f, 0.98f))
     }
-    fun tick() { val p = mp ?: return; runCatching { if (p.duration > 0) { progress = p.currentPosition.toFloat() / p.duration; position = p.currentPosition / 1000 } } }
-    fun stop() { runCatching { mp?.release() }; mp = null; playing = null; paused = false; progress = 0f; position = 0 }
+    fun tick() { val p = mp ?: return; if (!ready) return; runCatching { if (p.duration > 0) { progress = p.currentPosition.toFloat() / p.duration; position = p.currentPosition / 1000 } } }
+    fun stop() { ready = false; runCatching { mp?.release() }; mp = null; playing = null; paused = false; progress = 0f; position = 0 }
 }
 
 class ChatVoiceRecorder(private val ctx: Context) {
