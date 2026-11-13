@@ -148,9 +148,9 @@ fun ProfileScreen() {
                         SettingsTopCard { Nav.open(SettingsEditProfile()) }
                         SettingsCard {
                             // TODO(coordinator): SavedItemsPage / HistoryPage come from feat-new2 (ui/SavedHistory.kt); wire with Nav.open(SavedItemsPage()) / Nav.open(HistoryPage()).
-                            SettingRow(Icons.Filled.Bookmark, "Saved Items", "Messages, posts and Shorts you saved") { Nav.open(SavedItemsPage()) }
+                            SettingRow(Sym.Bookmark, "Saved Items", "Messages, posts and Shorts you saved") { Nav.open(SavedItemsPage()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.History, "History", "What you watched and opened") { Nav.open(HistoryPage()) }
+                            SettingRow(Sym.History, "History", "What you watched and opened") { Nav.open(HistoryPage()) }
                         }
                     }
                     ReadingCard()
@@ -159,39 +159,39 @@ fun ProfileScreen() {
                     if (signedIn) {
                         StatsCard()
                         SettingsCard("Account") {
-                            SettingRow(Icons.Filled.Edit, "Profile", "Name, photo, cover, bio, location, links") { Nav.open(SettingsEditProfile()) }
+                            SettingRow(Sym.Edit, "Profile", "Name, photo, cover, bio, location, links") { Nav.open(SettingsEditProfile()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Lock, "Privacy", "Private account, active status, read receipts, who can message you") { Nav.open(SettingsPrivacy()) }
+                            SettingRow(Sym.Lock, "Privacy", "Private account, active status, read receipts, who can message you") { Nav.open(SettingsPrivacy()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Security, "Security", "Password, two-factor authentication") { Nav.open(SettingsSecurity()) }
+                            SettingRow(Sym.Security, "Security", "Password, two-factor authentication") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Chat, "Chat", "Wallpaper, muted chats, silent calls") { Nav.open(SettingsChat()) }
+                            SettingRow(Sym.Chat, "Chat", "Wallpaper, muted chats, silent calls") { Nav.open(SettingsChat()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.NotificationsActive, "Notifications", "New messages, likes, followers, channel updates") { Nav.open(SettingsNotifPrefs()) }
+                            SettingRow(Sym.NotificationsActive, "Notifications", "New messages, likes, followers, channel updates") { Nav.open(SettingsNotifPrefs()) }
                             RowDivider(64.dp)
                             val devs = SettingsProfile.res.data?.optJSONArray("sessions")?.length() ?: 0
-                            SettingRow(Icons.Filled.Devices, "Devices", if (devs > 0) "$devs active · sign out other devices" else "Where you're signed in") { Nav.open(SettingsSecurity()) }
+                            SettingRow(Sym.Devices, "Devices", if (devs > 0) "$devs active · sign out other devices" else "Where you're signed in") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Block, "Blocked users", null) { Nav.open(SettingsBlocked()) }
+                            SettingRow(Sym.Block, "Blocked users", null) { Nav.open(SettingsBlocked()) }
                             RowDivider(64.dp)
-                            SettingRow(Icons.Filled.Notifications, "Activity", "Likes, comments, follows") { Nav.open(SoNotifsPage()) }
+                            SettingRow(Sym.Notifications, "Activity", "Likes, comments, follows") { Nav.open(SoNotifsPage()) }
                         }
                         VerificationCard()
                         ShareProfileCard()
                     }
                     AppSettings()
                     if (signedIn && settingsIsAdmin) SettingsCard("Admin") {
-                        SettingRow(Icons.Filled.AdminPanelSettings, "Admin panel", "Users, reports, channels, broadcasts, features, stats") { Nav.open(AdminPage()) }
+                        SettingRow(Sym.AdminPanelSettings, "Admin panel", "Users, reports, channels, broadcasts, features, stats") { Nav.open(AdminPage()) }
                     }
                     if (signedIn) SettingsCard {
-                        SettingRow(Icons.Filled.DeleteForever, "Delete Account", "Removes your account and everything in it", danger = true) { deleting = 1 }
+                        SettingRow(Sym.DeleteForever, "Delete Account", "Removes your account and everything in it", danger = true) { deleting = 1 }
                         RowDivider(64.dp)
-                        SettingRow(Icons.AutoMirrored.Filled.Logout, "Sign Out", Session.me?.email) { signingOut = true }
+                        SettingRow(Sym.Logout, "Sign Out", Session.me?.email) { signingOut = true }
                     }
                     SettingsCard {
-                        SettingRow(Icons.Filled.PrivacyTip, "Privacy Policy", null) { Nav.open(Screen.Web(Api.BASE + "/privacy.html")) }
+                        SettingRow(Sym.PrivacyTip, "Privacy Policy", null) { Nav.open(Screen.Web(Api.BASE + "/privacy.html")) }
                         RowDivider(64.dp)
-                        SettingRow(Icons.Filled.Description, "Terms of Service", null) { Nav.open(Screen.Web(Api.BASE + "/terms.html")) }
+                        SettingRow(Sym.Description, "Terms of Service", null) { Nav.open(Screen.Web(Api.BASE + "/terms.html")) }
                     }
                     Text("YID PLUS ${BuildConfig.VERSION_NAME}", Modifier.fillMaxWidth().padding(vertical = 20.dp), textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -241,7 +241,7 @@ private fun LoginForm() {
         if (!form) {
             PrimaryButton("Sign in with email", { form = true }, Modifier.fillMaxWidth().firstFocus())
             SecondaryButton("Sign in with Google", { GoogleAuth.start(c) }, Modifier.fillMaxWidth())
-            if (com.yidplus.app.data.SiteConfig.registrationOpen) SecondaryButton("Create an account", { Nav.open(Screen.Web(Api.BASE + "/?signup=1")) }, Modifier.fillMaxWidth(), icon = Icons.Filled.PersonAdd)
+            if (com.yidplus.app.data.SiteConfig.registrationOpen) SecondaryButton("Create an account", { Nav.open(Screen.Web(Api.BASE + "/?signup=1")) }, Modifier.fillMaxWidth(), icon = Sym.PersonAdd)
             return@Column
         }
         OutlinedTextField(email, { email = it.trim() }, Modifier.fillMaxWidth().firstFocus(always = true), label = { Text("Email") }, singleLine = true,
@@ -268,7 +268,7 @@ private fun AppSettings() {
     val themes = listOf("Same as phone", "Light", "Dark")
     val sizes = listOf("Small", "Normal", "Large")
     SettingsCard("App") {
-        SettingRow(Icons.Filled.Notifications, "Phone notifications", if (Prefs.notify) "New messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off", switch = Prefs.notify) {
+        SettingRow(Sym.Notifications, "Phone notifications", if (Prefs.notify) "New messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off", switch = Prefs.notify) {
             Prefs.enableNotify(!Prefs.notify)
             if (Prefs.notify) {
                 NotifyWorker.schedule(c)
@@ -277,11 +277,11 @@ private fun AppSettings() {
             }
         }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
+        SettingRow(Sym.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.Keyboard, "Keypad help", "↑↓ move · OK open · Back goes back · Shorts: 1 like, 3 comments") { Prefs.keypadHintSeen = false; Feeds.tab = ShortsTab.ForYou; Nav.go(Tab.Shorts) }
+        SettingRow(Sym.Keyboard, "Keypad help", "↑↓ move · OK open · Back goes back · Shorts: 1 like, 3 comments") { Prefs.keypadHintSeen = false; Feeds.tab = ShortsTab.ForYou; Nav.go(Tab.Shorts) }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.CleaningServices, "Clear cache", "Frees space; your account and settings stay") {
+        SettingRow(Sym.CleaningServices, "Clear cache", "Frees space; your account and settings stay") {
             scope.launch {
                 withContext(Dispatchers.IO) { runCatching { Disk.clear() }; runCatching { coil.Coil.imageLoader(c).diskCache?.clear() } }
                 runCatching { coil.Coil.imageLoader(c).memoryCache?.clear() }
@@ -290,13 +290,13 @@ private fun AppSettings() {
         }
     }
     SettingsCard("Help") {
-        SettingRow(Icons.Filled.Feedback, "Send feedback", "Report a problem or share an idea") { Nav.open(SettingsFeedback()) }
+        SettingRow(Sym.Feedback, "Send feedback", "Report a problem or share an idea") { Nav.open(SettingsFeedback()) }
         if (Session.me != null || SettingsProfile.demo) {
             RowDivider(64.dp)
-            SettingRow(Icons.Filled.Download, "Download my data", "A copy of your profile, saved to Downloads") { scope.launch { toast(c, settingsExportData(c)) } }
+            SettingRow(Sym.Download, "Download my data", "A copy of your profile, saved to Downloads") { scope.launch { toast(c, settingsExportData(c)) } }
         }
         RowDivider(64.dp)
-        SettingRow(Icons.Filled.Info, "About YID PLUS", "Version ${BuildConfig.VERSION_NAME} · privacy · terms") { Nav.open(SettingsAbout()) }
+        SettingRow(Sym.Info, "About YID PLUS", "Version ${BuildConfig.VERSION_NAME} · privacy · terms") { Nav.open(SettingsAbout()) }
     }
     when (pick) {
         "theme" -> SettingsChoiceDialog("Theme", themes, Prefs.theme, { Prefs.setThemeMode(it) }, { pick = null })
@@ -314,13 +314,13 @@ class SettingsAbout : PageScreen() {
                 Text("Version ${BuildConfig.VERSION_NAME} · native app", Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             SettingsCard {
-                SettingRow(Icons.Filled.SystemUpdate, "Check for updates", UpdateUi.status, modifier = Modifier.firstFocus()) { UpdateUi.check(c, force = true, userAsked = true) }
+                SettingRow(Sym.SystemUpdate, "Check for updates", UpdateUi.status, modifier = Modifier.firstFocus()) { UpdateUi.check(c, force = true, userAsked = true) }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.PrivacyTip, "Privacy policy", null) { Nav.open(Screen.Web(Api.BASE + "/privacy.html")) }
+                SettingRow(Sym.PrivacyTip, "Privacy policy", null) { Nav.open(Screen.Web(Api.BASE + "/privacy.html")) }
                 RowDivider(64.dp)
-                SettingRow(Icons.Filled.Description, "Terms of use", null) { Nav.open(Screen.Web(Api.BASE + "/terms.html")) }
+                SettingRow(Sym.Description, "Terms of use", null) { Nav.open(Screen.Web(Api.BASE + "/terms.html")) }
                 RowDivider(64.dp)
-                SettingRow(Icons.AutoMirrored.Filled.OpenInNew, "Open yidplus.com in the browser", null) { openUrl(c, Api.BASE) }
+                SettingRow(Sym.OpenInNew, "Open yidplus.com in the browser", null) { openUrl(c, Api.BASE) }
             }
         }
     }
