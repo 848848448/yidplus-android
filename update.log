@@ -1,0 +1,14 @@
+install old: Success
+installed version: 2.0.3  latest release: 2.1.1
+shot 01-update-available
+tapped 'Update' at 791 1621
+shot 02-allow-updates
+tapped 'Open settings' at 732 1325
+shot 03-android-settings
+shot 04-downloading
+shot 05-android-install-prompt
+confirmed Android's install prompt at 865 1276
+version after update: 2.1.1
+shot 06-after-update
+shot 07-new-version-running
+shot 08-notification
