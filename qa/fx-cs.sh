@@ -71,6 +71,31 @@ if [ -z "$(cspos "unread messages")" ]; then
   elif [ -n "$CT" ] && [ "$NB" -gt $(( CT - 28 )) ]; then log "CS WRONG: newest message bottom y=$NB runs under the composer (composer text top y=$CT)"; FAIL=1
   else log "CS ok: newest message fully above the composer when the room opens (bottom y=$NB, composer text top y=$CT)"; fi
 fi
+# keypad focus after open: the focused row must be fully readable (not a clipped sliver), D-pad UP/DOWN must move it; opening position = the unread line (this open) or the newest (the no-unread open below)
+cfoc() { tr '>' '\n' < "$1" | grep 'focused="true"' | grep -v 'class="android.widget.EditText"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
+csdump() { timeout 20 adb shell uiautomator dump /sdcard/f.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/f.xml > "$OUT/$1.xml" 2>/dev/null; cfoc "$OUT/$1.xml"; }
+cs_focus_check() { # $1 label, $2 xml (already dumped)
+  local lbl="$1" fb h; fb=$(cfoc "$2"); if [ -z "$fb" ]; then log "CS MISSING: no focused row after opening ($lbl): keypad focus not exercised"; return 0; fi
+  set -- $fb; h=$(( $4 - $2 )); if [ "$h" -lt 24 ]; then log "CS WRONG: focused row is a clipped sliver after opening ($lbl bounds $fb, height ${h}px)"; FAIL=1; else log "CS ok: focused row fully readable after opening ($lbl bounds $fb, height ${h}px)"; fi
+}
+cs_focus_check "unread open" "$OUT/CS-01-open-unread-line.xml"
+F1=$(cfoc "$OUT/CS-01-open-unread-line.xml")
+if [ -n "$F1" ]; then
+  key 19; sleep 1; F2=$(csdump CS-01b-dpad-up); key 20; sleep 1; F3=$(csdump CS-01c-dpad-down)
+  if [ -n "$F2" ] && [ "$F2" != "$F1" ]; then log "CS ok: D-pad UP moved the focus ($F1 -> $F2)"; else log "CS WRONG: D-pad UP did not move the focus (before [$F1] after [$F2])"; FAIL=1; fi
+  if [ -n "$F3" ] && [ "$F3" != "$F2" ]; then log "CS ok: D-pad DOWN moved the focus again ($F2 -> $F3)"; else log "CS WRONG: D-pad DOWN did not move the focus (before [$F2] after [$F3])"; FAIL=1; fi
+fi
+log "CS MISSING: D-pad OK/selection on a bubble is not exercised (only focus movement is)"
+# no-unread open: the newest message is the open position, fully above the composer, and the focused row is readable
+CSR_SAVE="$CSR"; CSR='{"id":"r-cs","type":"group","nick":"CS QA","unread":0,"members":3}'; csroom 7; shot CS-01d-open-no-unread
+timeout 20 adb shell uiautomator dump /sdcard/nu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/nu.xml > "$OUT/CS-01d-open-no-unread.xml" 2>/dev/null
+NB0=$(tr '>' '\n' < "$OUT/CS-01d-open-no-unread.xml" | grep -F 'text="מיר טרעפן זיך 8:00"' | sed -n 's/.*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,\([0-9]*\)\]".*/\1/p' | head -1)
+CT0=$(tr '>' '\n' < "$OUT/CS-01d-open-no-unread.xml" | sed -n 's/.*text="Message".*bounds="\[[0-9]*,\([0-9]*\)\]\[.*/\1/p' | head -1)
+if [ -z "$NB0" ]; then log "CS WRONG: no-unread open: newest message not on screen"; FAIL=1
+elif [ -n "$CT0" ] && [ "$NB0" -gt $(( CT0 - 28 )) ]; then log "CS WRONG: no-unread open: newest message bottom y=$NB0 runs under the composer (composer top y=$CT0)"; FAIL=1
+else log "CS ok: no-unread open shows the newest message fully above the composer (bottom y=$NB0, composer top y=$CT0)"; fi
+cs_focus_check "no-unread open" "$OUT/CS-01d-open-no-unread.xml"
+CSR="$CSR_SAVE"; csroom 6
 # the room opens at the unread divider when earlier legs left it unread (e.g. the full base leg) and at the bottom otherwise; the keyboard check needs the newest message, so jump there first and take the reference body from that dump
 if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; sleep 1.5; log "CS jumped to newest before the keyboard check"; fi
 timeout 20 adb shell uiautomator dump /sdcard/pre.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/pre.xml > "$OUT/CS-01-open-unread-line.xml" 2>/dev/null
@@ -166,26 +191,32 @@ for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
 p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input tap $1 $2; fi; sleep 3; key 22; sleep 0.6; key 23; sleep 3; shot CS-23-dpad-voice-sent; csfx "type=voice"
 sleep 14; cspull CS-flow-dpad
 timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -E 'r-cs|polls|reports|reactions|stickers|generate_invite' | cut -c1-400 > "$OUT/fx-cs-requests.txt"
-# ---- containment: the fixture must not need the network. Turn the emulator network off, CONFIRM it is off (a ping must fail), then use the chat and the voice player.
-# Evidence is the app's own log (no socket capture): any "Unable to resolve host"/UnknownHost/connect failure from the app while the network is off is an outbound attempt.
-PRE=$(timeout 20 adb shell "ping -c 1 -W 3 1.1.1.1; echo rc=\$?" 2>&1 | tr '\n' ' ' | cut -c1-200)
-adb shell svc wifi disable 2>/dev/null; adb shell svc data disable 2>/dev/null; sleep 4
-PING=$(timeout 20 adb shell "ping -c 1 -W 3 1.1.1.1; echo rc=\$?" 2>&1 | tr '\n' ' ' | cut -c1-200)
-case "$PRE" in
-  *"rc=0"*) : ;;
-  *) log "CS MISSING: containment not tested, ping does not work even with the network on, so network state cannot be confirmed ($PRE)"; PING="rc=skip" ;;
-esac
-case "$PING" in
-  "rc=skip") : ;;
-  *"rc=0"*) log "CS MISSING: containment not tested, the emulator network could not be turned off (ping still works: $PING)" ;;
-  *)
-    log "CS containment: emulator network confirmed OFF (ping failed: $PING)"
+# ---- offline-replay resilience check (NOT a proof of containment): with the emulator network switched off and a real HTTP probe failing, the fixture chat and voice note must still work.
+# It does not prove that no connection was ever attempted: that needs a socket capture, which this harness does not have.
+W0=$(timeout 15 adb shell settings get global wifi_on 2>/dev/null | tr -d '\r'); D0=$(timeout 15 adb shell settings get global mobile_data 2>/dev/null | tr -d '\r')
+log "CS offline-check: initial state wifi_on=$W0 mobile_data=$D0"
+cshttp() { timeout 25 adb shell "printf 'GET / HTTP/1.0\r\nHost: one.one.one.one\r\n\r\n' | toybox nc -w 5 1.1.1.1 80 2>&1 | head -1; echo done" 2>&1 | tr -d '\r' | head -2 | tr '\n' ' ' | cut -c1-160; }
+cshttp_ok() { case "$1" in *HTTP/1*) return 0 ;; *) return 1 ;; esac; }
+PRE=$(cshttp); log "CS offline-check: HTTP probe with the network on: [$PRE]"
+log "CS offline-check: routes before: $(timeout 15 adb shell 'ip route' 2>&1 | tr '\r\n' '; ' | cut -c1-200)"
+if ! cshttp_ok "$PRE"; then
+  log "CS MISSING: offline-replay check not run, the HTTP probe does not work even with the network on, so the network path cannot be shown to change"
+else
+  adb shell svc wifi disable 2>/dev/null; adb shell svc data disable 2>/dev/null; sleep 5
+  OFF=$(cshttp); log "CS offline-check: HTTP probe after disabling wifi+data: [$OFF]; routes after: $(timeout 15 adb shell 'ip route' 2>&1 | tr '\r\n' '; ' | cut -c1-200)"
+  if cshttp_ok "$OFF"; then
+    log "CS MISSING: offline-replay check not run, the HTTP probe still succeeds after wifi+data were disabled (the network path was not removed)"
+  else
+    log "CS offline-check: the HTTP probe fails with wifi+data off (path removed for this probe)"
     adb logcat -c; csroom 6
     if [ -n "$(cspos "Newest")" ]; then cstap "Newest"; sleep 1; fi
     csfind "0:12" 8; csplaylast; shot CS-30-network-off-voice
     cshas "Message"
     OUTB=$(timeout 30 adb logcat -d 2>/dev/null | grep -E "Unable to resolve host|UnknownHostException|SocketTimeoutException|ConnectException|Failed to connect to" | grep -v "YidplusPush" | cut -c1-220 | head -5)
-    if [ -n "$OUTB" ]; then log "CS WRONG: outbound network attempts with the network off:"; echo "$OUTB" | sed 's/^/  outbound: /' | tee -a "$OUT/qa.log" >/dev/null; FAIL=1; else log "CS ok: no outbound connection failures in the log during the network-off chat and voice test (log-based, not a socket capture)"; fi ;;
-esac
-adb shell svc wifi enable 2>/dev/null; adb shell svc data enable 2>/dev/null; sleep 4; log "CS network restored: $(timeout 20 adb shell 'ping -c 1 -W 3 1.1.1.1 >/dev/null 2>&1; echo rc=$?' 2>&1 | tr -d '\r')"
+    if [ -n "$OUTB" ]; then log "CS offline-check NOTE: connection-failure log lines while offline (the app tried something):"; echo "$OUTB" | sed 's/^/  offline-log: /' | tee -a "$OUT/qa.log" >/dev/null; else log "CS offline-check: no connection-failure lines in the log while offline (this alone does not prove nothing was attempted)"; fi
+  fi
+  # restore ONLY what was on before
+  [ "$W0" = "1" ] && adb shell svc wifi enable 2>/dev/null; [ "$D0" = "1" ] && adb shell svc data enable 2>/dev/null; sleep 5
+  log "CS offline-check: restored; HTTP probe now: [$(cshttp)] wifi_on=$(timeout 15 adb shell settings get global wifi_on 2>/dev/null | tr -d '\r') mobile_data=$(timeout 15 adb shell settings get global mobile_data 2>/dev/null | tr -d '\r')"
+fi
 log "CS done"
