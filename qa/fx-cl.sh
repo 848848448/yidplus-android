@@ -14,6 +14,7 @@ chipw() { case "$1" in All|Unread|Private|Groups|Status|"Chat folders") [ -z "$(
 cltap() { local p w="$1"; chipw "$1"; p=$(clpos "$1"); if [ -z "$p" ]; then log "CL MISSING tap: '$w' not on screen"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "cltap '$w'"; }
 cllong() { sleep 1; local p; p=$(clpos "$1"); [ -z "$p" ] && { log "CL MISSING long-press: '$1'"; return 0; }; set -- $p; adb shell input swipe $1 $2 $1 $2 900; sleep 2; log "long-press '$1'"; }
 clhas() { local p; chipw "$1"; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL ok: '$1' on screen"; else log "CL MISSING: '$1' not on screen"; fi; }
+clmust() { local p; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL ok: '$1' on screen ($2)"; else log "CL WRONG: '$1' missing ($2)"; fi; }
 clnot() { local p; p=$(clpos "$1"); if [ -n "$p" ]; then log "CL WRONG: '$1' is on screen"; else log "CL ok: '$1' not shown"; fi; }
 clfx() { local l; l=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -F -- "$1" | tail -1 | cut -c1-400); if [ -n "$l" ]; then echo "  YidFx: $l" >> "$OUT/qa.log"; log "CL ok: sent $1"; else log "CL MISSING: no request with '$1'"; fi; }
 clopen() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$1\",\"type\":\"$2\",\"nick\":\"$3\"$4}'" >/dev/null 2>&1; sleep "${5:-5}"; log "open chat $1"; }
@@ -75,7 +76,7 @@ view "https://yidplus.com/chat"; sleep 8; shot CL-01-list; cltexts list
 clnot "Empty Chat"; clhas "Menu"; clhas "Status"
 chipswipe; shot CL-02-chips-end; clhas "Work"; clhas "Chat folders"
 cltap "Work"; sleep 2; shot CL-04-folder-work; cltexts folder; clhas "DealPoint"; clnot "Yossi Klein"; chipswipe; cltap "Work"; sleep 1; chipback
-cltap "Unread"; sleep 2; shot CL-05-tab-unread; cltap "All"; sleep 1
+cltap "Unread"; sleep 2; shot CL-05-tab-unread; cltexts unread-tab; clmust "Yossi Klein" "Unread tab: this chat has 3 unread in the fixture"; clmust "חברים פון שול" "Unread tab: 12 unread in the fixture"; clnot "Yanky Weiss"; cltap "All"; sleep 1
 p=$(clseek "יידישע נייעס"); [ -n "$p" ] && log "CL ok: Telegram channel row in the list"; shot CL-03-list-telegram-rows; cltop
 
 # ── Long-press selection: Pin (on this phone), Mute 8 h / 1 week / Always, Mark as read, Delete ──
