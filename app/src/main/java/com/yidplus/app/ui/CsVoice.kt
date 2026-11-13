@@ -113,7 +113,7 @@ class CsRec(ctx: Context) {
 
 /** The round button at the end of the composer: Send when there is text; otherwise the mic with hold / slide / lock (touch) and tap / OK (locked). */
 @Composable
-internal fun CsMicButton(canSend: Boolean, editing: Boolean, busy: Boolean, r: CsRec, onSend: () -> Unit, onStart: (locked: Boolean) -> Unit, onRelease: () -> Unit, onCancel: () -> Unit) {
+internal fun CsMicButton(size: androidx.compose.ui.unit.Dp = 48.dp, canSend: Boolean, editing: Boolean, busy: Boolean, r: CsRec, onSend: () -> Unit, onStart: (locked: Boolean) -> Unit, onRelease: () -> Unit, onCancel: () -> Unit) {
     val d = LocalDensity.current; val hap = LocalHapticFeedback.current
     val cancelPx = with(d) { 90.dp.toPx() }; val lockPx = with(d) { 60.dp.toPx() }
     val src = remember { MutableInteractionSource() }
@@ -122,7 +122,7 @@ internal fun CsMicButton(canSend: Boolean, editing: Boolean, busy: Boolean, r: C
     val isBusy by rememberUpdatedState(busy)
     val doSend by rememberUpdatedState(onSend); val doStart by rememberUpdatedState(onStart)
     val doRelease by rememberUpdatedState(onRelease); val doCancel by rememberUpdatedState(onCancel)
-    Box(Modifier.size(48.dp).clip(CircleShape).background(if (r.mode == 1) Color(0xFFE53935) else ChatLook.bar)
+    Box(Modifier.size(size).clip(CircleShape).background(if (r.mode == 1) Color(0xFFE53935) else ChatLook.bar)
         .then(if (focused) Modifier.border(2.dp, Color(0xFFFFD54F), CircleShape) else Modifier)
         .onKeyEvent { e -> if (e.type == KeyEventType.KeyUp && (e.key == Key.DirectionCenter || e.key == Key.Enter || e.key == Key.NumPadEnter)) { if (send) onSend() else if (!busy) onStart(true); true } else false }
         .focusable(interactionSource = src)
