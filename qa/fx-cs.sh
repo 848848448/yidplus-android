@@ -42,6 +42,11 @@ adb shell pm grant $PKG android.permission.CAMERA 2>/dev/null
 csrec() { (adb shell screenrecord --size 480x640 --bit-rate 2000000 --time-limit "${2:-30}" "/sdcard/$1.mp4" >/dev/null 2>&1 &); sleep 1; log "screenrecord $1 started"; }
 cspull() { sleep 2; timeout 30 adb pull "/sdcard/$1.mp4" "$OUT/$1.mp4" >/dev/null 2>&1 && log "video $OUT/$1.mp4 $(stat -c %s "$OUT/$1.mp4" 2>/dev/null) bytes"; }
 CSR='{"id":"r-cs","type":"group","nick":"CS QA","unread":5,"members":3}'
+sysbars() { # $1 = label; uiautomator does not dump the system UI, so measure the app: with the status bar hidden its first text sits at y<30, with the bar back it is at y>=40
+  timeout 20 adb shell uiautomator dump /sdcard/sb.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/sb.xml > "$OUT/sysbars-$1.xml" 2>/dev/null
+  TOPY=$(tr '>' '\n' < "$OUT/sysbars-$1.xml" | sed -n 's/.*text="[^"]\+".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1 \2/p' | awk '$2-$1>=12 {print $1}' | sort -n | head -1)
+  if [ -n "$TOPY" ] && [ "$TOPY" -ge 40 ]; then log "CS ok: status bar back ($1; first text at y=$TOPY)"; else log "CS WRONG: status bar still hidden or screen empty ($1; first text at y=${TOPY:-none})"; FAIL=1; fi
+}
 csroom() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '$CSR'" >/dev/null 2>&1; sleep "${1:-6}"; log "open chat r-cs"; }
 
 csrec CS-flow-touch 30
@@ -58,14 +63,14 @@ MT=$(echo "$CS24" | sed -n 's/.*text="Message".*bounds="\[[0-9]*,\([0-9]*\)\]\[[
 if [ -z "$MT" ]; then log "CS WRONG: composer not found with the keyboard up"; FAIL=1
 else set -- $MT
   [ $(( $2 - $1 )) -ge 28 ] && log "CS ok: composer text height $(( $2 - $1 ))px with the keyboard up" || { log "CS WRONG: composer text clipped with the keyboard up (height $(( $2 - $1 ))px)"; FAIL=1; }
-  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\2|\3/p' | awk -F'|' -v top="$1" '$3+4 <= top && ($3-$2) >= 12 && $2 >= 40 && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
-    && log "CS ok: a real message node (>=12px tall) stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up (nodes under 12px tall or off-pane do not count)"; FAIL=1; }
+  echo "$CS24" | sed -n 's/.*text="\([^"]*\)".*bounds="\[[0-9]*,\([0-9]*\)\]\[[0-9]*,\([0-9]*\)\]".*/\1|\2|\3/p' | awk -F'|' -v top="$1" '$3+4 <= top && ($3-$2) >= 20 && $2 >= 40 && $1 !~ /^[0-9]+:[0-9]+ ?(AM|PM)?$/ && $1 != "" && $1 != "Message" && $1 != "CS QA" && $1 != "3 members" && $1 !~ /^[0-9]+$/ && $1 !~ /^(Status|All|Unread|Private|Groups|Channels|Chats|Shorts|Settings|Search chats|AI chat|Start new chat|Menu)$/ && $1 !~ /Suggest contact/ {found=1} END{if(!found) exit 1}' \
+    && log "CS ok: message body text (>=20px tall, not a time stamp) stays visible above the composer with the keyboard up" || { log "CS WRONG: no message visible above the composer with the keyboard up (clipped slivers, time stamps and off-pane nodes do not count)"; FAIL=1; }
 fi
-key 4; sleep 1
+key 4; sleep 1; sysbars after-keyboard
 csfind "Niggun"; shot CS-02-formatting-voice-music; csfind "גוט מארגן"; shot CS-02b-formatting-album
 for n in 1 2 3 4 5; do adb shell input swipe 240 200 240 600 250; sleep 0.6; done; sleep 3; shot CS-03-older-page-loaded; csfind "עלטערע מעסעדזש 1" 4; cshas "עלטערע מעסעדזש 1"
 # 4: polls (percentages hidden until I vote; quiz with correct/wrong marks; Close Poll for the creator)
-key 4; sleep 1; csroom 4; csfind "פלאפל"; shot CS-04-polls; csfindup "+ Suggest an option" 2; cshas "+ Suggest an option"
+key 4; sleep 1; sysbars after-leaving-room; csroom 4; csfind "פלאפל"; shot CS-04-polls; csfindup "+ Suggest an option" 2; cshas "+ Suggest an option"
 cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted; csfindup "Close Poll" 3; shot CS-05b-quiz-close-poll; cshas "Close Poll"
 # 9: voice: play, speed, seek
 key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
