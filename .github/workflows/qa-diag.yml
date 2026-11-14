@@ -75,10 +75,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: log5a, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: log5b, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: log5c, wait: '2', mode: 'tapfield', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: log5d, wait: '2', mode: 'tapfield', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log6a, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log6b, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log6c, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log6d, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log6e, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log6f, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
