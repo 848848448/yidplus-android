@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Apply the diagnostic logging patch (workspace only, never committed; QA logging, no behaviour change)
-        run: git apply --check diag/app-diag8.patch && git apply diag/app-diag8.patch && git diff --stat
+        run: git apply --check diag/app-diag11.patch && git apply diag/app-diag11.patch && git diff --stat
       - name: Signing key (from repository secrets only)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -82,14 +82,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx16a, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx16b, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx16c, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx16d, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx16e, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx16f, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx16g, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx16h, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx18a, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx18b, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx18c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx18d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -98,7 +94,7 @@ jobs:
           path: dist/
       - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl9.sh qa/fx-cl.sh
+        run: cp diag/fx-cl14.sh qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
