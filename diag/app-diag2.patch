@@ -1,0 +1,78 @@
+diff --git a/app/src/main/java/com/yidplus/app/MainActivity.kt b/app/src/main/java/com/yidplus/app/MainActivity.kt
+index 19d42bb..cc19e9b 100644
+--- a/app/src/main/java/com/yidplus/app/MainActivity.kt
++++ b/app/src/main/java/com/yidplus/app/MainActivity.kt
+@@ -95,7 +95,9 @@ class MainActivity : ComponentActivity() {
+         })
+         // On a keypad phone the very first arrow press only leaves "touch mode" (Android eats that press). Catch it
+         // here so the screen's first item gets the focus, instead of whatever Android picks (the top bar's search icon).
+-        window.decorView.viewTreeObserver.addOnTouchModeChangeListener { inTouch -> if (!inTouch) Keys.keypad = true }
++        window.decorView.viewTreeObserver.addOnTouchModeChangeListener { inTouch -> android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} touchModeChanged inTouch=$inTouch keypadBefore=${Keys.keypad} ime=${diagImeUp()}"); if (!inTouch) Keys.keypad = true }
++        var diagLastIme = false
++        window.decorView.viewTreeObserver.addOnGlobalLayoutListener { val v = diagImeUp(); if (v != diagLastIme) { diagLastIme = v; android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} imeVisibleChanged=$v touchMode=${window.decorView.isInTouchMode} keypad=${Keys.keypad}") } }
+         if (savedInstanceState == null) handle(intent)
+         lifecycleScope.launch {
+             delay(1200)
+@@ -153,7 +155,15 @@ class MainActivity : ComponentActivity() {
+         }
+     }
+ 
++    private fun diagImeUp(): Boolean = androidx.core.view.ViewCompat.getRootWindowInsets(window.decorView)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) ?: false
++
++    override fun onWindowFocusChanged(hasFocus: Boolean) {
++        super.onWindowFocusChanged(hasFocus)
++        android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} windowFocus=$hasFocus touchMode=${window.decorView.isInTouchMode} ime=${diagImeUp()}")
++    }
++
+     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
++        if (event.keyCode == KeyEvent.KEYCODE_BACK || event.keyCode == KeyEvent.KEYCODE_ESCAPE || event.keyCode == KeyEvent.KEYCODE_SHIFT_LEFT) android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} dispatchKeyEvent code=${event.keyCode} action=${event.action} touchMode=${window.decorView.isInTouchMode} keypad=${Keys.keypad} ime=${diagImeUp()} focusView=${window.currentFocus?.javaClass?.simpleName}")
+         if (event.keyCode in DPAD && !Keys.keypad && Nav.tab == Tab.Shorts && Nav.stack.isEmpty()) Keys.keypad = true
+         if (event.keyCode in DPAD && !Keys.keypad) {
+             // First D-pad press: show the keypad focus on the screen's first item (that press only wakes the focus,
+diff --git a/app/src/main/java/com/yidplus/app/ui/AppRoot.kt b/app/src/main/java/com/yidplus/app/ui/AppRoot.kt
+index be4e904..a1ab270 100644
+--- a/app/src/main/java/com/yidplus/app/ui/AppRoot.kt
++++ b/app/src/main/java/com/yidplus/app/ui/AppRoot.kt
+@@ -70,7 +70,7 @@ fun AppRoot(onExit: () -> Unit) {
+         LaunchedEffect(Unit) { Session.refresh() }
+         // A feature the owner switched off on the site disappears here too (and its screen closes).
+         LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
+-        BackHandler { if (!Nav.back()) onExit() }
++        BackHandler { android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} AppRoot BackHandler fired stack=${Nav.stack.size}"); if (!Nav.back()) onExit() }
+         val top = Nav.stack.lastOrNull()
+         val immersive = top is Screen.Video || top is Screen.Photo || top is Screen.Gallery || (top is PageScreen && top.immersive) || top is Screen.Player || (top == null && Nav.tab == Tab.Shorts)
+         val holder = rememberSaveableStateHolder()
+diff --git a/app/src/main/java/com/yidplus/app/ui/ChatPages.kt b/app/src/main/java/com/yidplus/app/ui/ChatPages.kt
+index 04bc2f0..5e3ce62 100644
+--- a/app/src/main/java/com/yidplus/app/ui/ChatPages.kt
++++ b/app/src/main/java/com/yidplus/app/ui/ChatPages.kt
+@@ -149,12 +149,12 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
+         var preview by remember { mutableStateOf<JSONObject?>(null) }
+         var err by remember { mutableStateOf<String?>(null) }
+         val code = remember(link) { Regex("""(?:join|invite|code)=([A-Za-z0-9_-]+)""").find(link)?.groupValues?.get(1) ?: link.trim().substringAfterLast('/').takeIf { Regex("""[A-Za-z0-9_-]{6,40}""").matches(it) } }
+-        LaunchedEffect(code) { preview = null; err = null; if (code != null) { delay(300); runCatching { ClApi.inviteInfo(code) }.onSuccess { preview = it; if (it == null) err = "Invalid invite link" }.onFailure { err = Api.friendly(it) } } }
++        LaunchedEffect(code) { android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} join code effect start len=${code?.length}"); preview = null; err = null; if (code != null) { delay(300); android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} join inviteInfo call len=${code.length}"); runCatching { ClApi.inviteInfo(code) }.onSuccess { android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} join inviteInfo result null=${it == null}"); preview = it; if (it == null) err = "Invalid invite link" }.onFailure { android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} join inviteInfo failed"); err = Api.friendly(it) } } }
+         var pending by remember { mutableStateOf(false) }
+         // Scrolls: at 480x640 the group preview + button sit below the fold (more so with the keyboard up).
+         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
+             ChBar("Join by invite link", onBack = { Nav.back() })
+-            OutlinedTextField(link, { link = it }, Modifier.fillMaxWidth().padding(16.dp).firstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
++            OutlinedTextField(link, { android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} join field change len=${it.length}"); link = it }, Modifier.fillMaxWidth().padding(16.dp).firstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
+             val p = preview
+             if (p != null) Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                 ChAvatar(Api.abs(p.chStr("photo_url").ifBlank { null }), p.chStr("name"), p.chStr("id"), 80.dp)
+diff --git a/app/src/main/java/com/yidplus/app/ui/Common.kt b/app/src/main/java/com/yidplus/app/ui/Common.kt
+index 34b1fc4..52f730c 100644
+--- a/app/src/main/java/com/yidplus/app/ui/Common.kt
++++ b/app/src/main/java/com/yidplus/app/ui/Common.kt
+@@ -114,8 +114,8 @@ fun Modifier.firstFocus(always: Boolean = false): Modifier = composed {
+     var got by remember { mutableStateOf(false) }
+     // A list item may not be placed yet (or the window not focused yet) on the first try: try again for up to ~2 s,
+     // and stop for good once it has had the focus, so it never pulls the focus back after you move.
+-    LaunchedEffect(k) { if (k || always) { for (i in 0 until 16) { delay(if (i == 0) 60 else 120); if (got) break; runCatching { fr.requestFocus() } } } }
+-    this.focusRequester(fr).onFocusChanged { if (it.isFocused || it.hasFocus) got = true }
++    LaunchedEffect(k) { android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} firstFocus effect k=$k always=$always got=$got"); if (k || always) { for (i in 0 until 16) { delay(if (i == 0) 60 else 120); if (got) break; android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} firstFocus requestFocus try=$i"); runCatching { fr.requestFocus() } } } }
++    this.focusRequester(fr).onFocusChanged { android.util.Log.i("YidDiag", "t=${android.os.SystemClock.uptimeMillis()} firstFocus focusChanged isFocused=${it.isFocused} hasFocus=${it.hasFocus} keypad=${Keys.keypad}"); if (it.isFocused || it.hasFocus) got = true }
+ }
+ 
+ @Composable
