@@ -1,0 +1,629 @@
+[15:59:48] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[15:59:50] screen 480x640 @ 240 dpi
+[15:59:50] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[15:59:50] ---- Signed in (QA fixture account) ----
+[15:59:54] fixture true
+[16:00:04] shot F01-home-signedin
+[16:00:04] open https://yidplus.com/chat
+[16:00:09] shot F02-chats-list
+[16:00:11] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[16:00:18] shot F03-chat-dm
+[16:00:20] shot F03b-chat-dm-up
+[16:00:23] open https://yidplus.com/chat
+[16:00:38] shot F04-chat-group
+[16:00:40] shot F04b-group-up
+[16:00:42] shot F04c-group-top
+[16:00:45] shot F05-message-actions
+[16:00:55] shot F06-notifications
+[16:00:57] tab Home
+[16:01:00] shot F07-home-header
+[16:01:00] open https://yidplus.com/shorts
+[16:01:09] shot F08-shorts-signedin
+[16:01:09] tab Profile
+[16:01:13] shot F09-profile-signedin
+[16:01:24] shot F09b-profile-scrolled
+[16:01:38] open https://yidplus.com/chat
+[16:01:42] shot F10-chats-dark
+[16:01:48] shot F11-chat-dark
+[16:01:55] screen 1080x2400 @ 420 dpi
+[16:02:03] open https://yidplus.com/chat
+[16:02:08] shot F12-phone-chats
+[16:02:14] shot F13-phone-chat
+[16:02:18] screen 480x640 @ 240 dpi
+[16:02:18] ---- qa/fx-ad.sh ----
+[16:02:25] ---- AD: Settings (signed in) ----
+[16:02:25] tab Profile
+[16:02:29] shot AD-01-settings-top
+[16:02:31] shot AD-02-settings-reading
+[16:02:34] shot AD-03-settings-appearance-color
+[16:02:36] shot AD-04-settings-stats-account
+[16:02:38] shot AD-05-settings-verify-share
+[16:02:42] shot AD-06-settings-bottom
+[16:02:42] tab Profile
+[16:03:08] adfind tapped after 3 swipes
+[16:03:10] PROOF colour theme: LOOK color_theme=1 Ocean Blue
+[16:03:32] adfind tapped after 3 swipes
+[16:03:34] shot AD-07-ocean-blue-large-text
+[16:03:38] shot AD-07c-after-large-text-scroll
+[16:04:00] adfind tapped after 3 swipes
+[16:04:23] adfind tapped after 3 swipes
+[16:04:29] ad page EditProfile
+[16:04:29] shot AD-07b-edit-profile
+[16:04:36] adfind tapped after 1 swipes
+[16:04:43] adt '378'
+[16:04:46] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[16:04:50] ad page Privacy
+[16:04:50] shot AD-08-privacy
+[16:04:54] adt '96'
+[16:04:56] PROOF private account: PUT /api/profile {"is_private":1}
+[16:05:03] adfind tapped after 1 swipes
+[16:05:05] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[16:05:10] ad page NotifPrefs
+[16:05:14] adt '96'
+[16:05:16] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[16:05:16] shot AD-09-notif-prefs
+[16:05:21] ad page ChatSettings
+[16:05:25] adt '161'
+[16:05:26] shot AD-10-chat-settings
+[16:05:27] ---- AD: Notifications page ----
+[16:05:33] shot AD-11-notifications
+[16:05:36] adt '357'
+[16:05:38] PROOF mark all read: POST /api/notifications {"read":"all"}
+[16:05:38] shot AD-13-notifications-all-read
+[16:05:57] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[16:05:57] shot AD-12-notification-opened
+[16:06:00] ---- AD: Admin (native) ----
+[16:06:06] ad page Admin
+[16:06:06] shot AD-20-admin-dashboard
+[16:06:09] shot AD-21-admin-manage
+[16:06:11] shot AD-22-admin-features
+[16:06:22] adfind tapped after 2 swipes
+[16:06:24] PROOF feature switch: PUT /api/settings {"key":"feat_music","value":"on"}
+[16:06:24] shot AD-23-admin-music-switched
+[16:06:27] adt '96'
+[16:06:32] shot AD-24-admin-web-sections
+[16:06:38] ad page AdminUsers
+[16:06:38] shot AD-25-admin-users
+[16:06:40] adtap text
+[16:06:45] shot AD-26-admin-users-search
+[16:06:51] ad page AdminUser
+[16:06:51] shot AD-27-admin-user
+[16:06:55] adt '96'
+[16:06:57] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[16:07:15] adfind tapped after 2 swipes
+[16:07:21] adt '96'
+[16:07:23] PROOF mute user: POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+[16:07:45] adfind tapped after 3 swipes
+[16:07:47] shot AD-28-admin-block-confirm
+[16:07:51] adt '371'
+[16:07:53] PROOF block user: PUT /api/admin/users {"id":"u-yanky","blocked":true}
+[16:07:57] adfind tapped after 0 swipes
+[16:08:02] adt '383'
+[16:08:04] PROOF promote: PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+[16:08:04] shot AD-29-admin-user-after
+[16:08:11] ad page AdminReports
+[16:08:11] shot AD-30-admin-reports
+[16:08:14] adt '221'
+[16:08:16] PROOF dismiss report: DELETE /api/reports?id=r1 < 0 bytes>
+[16:08:20] adt '129'
+[16:08:25] adt '352'
+[16:08:27] PROOF ban from report: PUT /api/admin/users {"id":"u-mendy","blocked":true}
+[16:08:34] ad page AdminVerify
+[16:08:34] shot AD-31-admin-verify
+[16:08:37] adt '256'
+[16:08:39] PROOF approve verify: PUT /api/verify-request {"id":"v1","action":"approve"}
+[16:08:47] ad page AdminChannels
+[16:08:47] shot AD-32-admin-channels
+[16:08:50] adt '313'
+[16:08:52] PROOF verify channel: PUT /api/admin/users {"id":"u-chan1","verified":true}
+[16:09:00] ad page AdminTelegram
+[16:09:00] shot AD-33-admin-telegram
+[16:09:02] adtap text
+[16:09:10] adt '180'
+[16:09:12] PROOF add telegram channel: POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+[16:09:18] ad page AdminBroadcast
+[16:09:18] shot AD-34-admin-broadcast
+[16:09:20] adtap text
+[16:09:28] adt '192'
+[16:09:30] shot AD-35-broadcast-confirm
+[16:09:34] adt '374'
+[16:09:37] PROOF broadcast: POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+[16:09:43] ad page AdminBadWords
+[16:09:43] shot AD-36-admin-word-filter
+[16:09:45] adtap text
+[16:09:53] adt '395'
+[16:09:55] PROOF add bad word: POST /api/admin/bad-words {"word":"testbadword"}
+[16:09:59] adt '42'
+[16:10:01] PROOF remove bad word: DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+[16:10:07] ad page AdminWeb
+[16:10:07] shot AD-37-admin-web-pin
+[16:10:16] dump failed: ERROR: null root node returned by UiTestAutomationBridge.
+[16:10:17] adt: 'Unlock' not on screen; screen has: Back|Word filter|Blurred for everyone, with a warning while typing|Words|Phrases|Add a word|Add|spamword|Remove|badword|Remove|scam|Remove|Tap a word to take it off the list. Pasting a long list at once is on the website's admin page.|
+[16:10:24] PROOF admin pin: POST /api/admin/verify-pin {"pin":"1234"}
+[16:10:24] shot AD-38-admin-web-after-pin
+[16:10:25] ---- AD: dark mode ----
+[16:10:28] tab Profile
+[16:10:31] shot AD-40-settings-dark
+[16:10:36] ad page Admin
+[16:10:36] shot AD-41-admin-dark
+[16:10:42] shot AD-42-notifications-dark
+AdminWeb: --------- beginning of main
+AdminWeb: --------- beginning of system
+AdminWeb: --------- beginning of kernel
+AdminWeb: 11-14 16:10:10.460  4923  4923 I YidAdminWeb: webview 83.0.4103.120
+AdminWeb: 11-14 16:10:11.608  4923  4923 I YidAdminWeb: LOG An <img> element was lazyloaded with loading=lazy, but had no dimensions specified. Specifying dimensions improves performance. See https://crbug.com/954323 @:67
+[16:10:46] ---- qa/fx-ch.sh ----
+[16:10:53] open https://yidplus.com/chat
+[16:11:01] shot CH-01-chat-list
+[16:11:03] CH list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="2"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="3"  text="Channels"  text="Settings" 
+[16:11:05] shot CH-02-chips-scrolled
+[16:11:07] shot CH-02b-list-scrolled
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[396,405][468,477]" 
+[16:11:12] chtap 432 441
+[16:11:14] shot CH-03-fab-menu
+  node: text="New group" class="android.widget.TextView" content-desc="" bounds="[260,198][379,228]" 
+[16:11:18] chtap 319 213
+  node: text="Group name" class="android.widget.TextView" content-desc="" bounds="[150,179][284,212]" 
+[16:11:24] chtap 217 195
+[16:11:27] shot CH-03b-new-group
+  node: text="" class="android.widget.Button" content-desc="Create" bounds="[405,51][477,123]" 
+[16:11:31] chtap 441 87
+[16:11:45] open https://yidplus.com/chat
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[396,405][468,477]" 
+[16:11:53] chtap 432 441
+  node: text="New chat" class="android.widget.TextView" content-desc="" bounds="[260,126][364,156]" 
+[16:11:59] chtap 312 141
+[16:12:05] shot CH-03c-new-chat
+[16:12:07] chtap: 'Dovid New' not on screen
+[16:12:21] open https://yidplus.com/chat
+  node: text="" class="android.view.View" content-desc="Search chats" bounds="[72,53][408,106]" 
+[16:12:28] chtap 240 79
+[16:12:32] keyboard shown after typing in search: mInputShown=true
+[16:12:35] keyboard shown after Back from search: mInputShown=false
+[16:12:35] shot CH-04-search-closed
+[16:12:41] open chat r-g1
+[16:12:41] shot CH-05-group-bottom
+  node: text="Yanky is typing…" class="android.widget.TextView" content-desc="" bounds="[141,90][287,123]" 
+[16:12:43] CH ok: 'typing' on screen
+  YidFx: 11-14 16:12:35.743  7408  7448 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+[16:12:45] shot CH-05b-group-up
+[16:12:47] shot CH-05c-group-top
+[16:12:49] open chat r-g1
+[16:12:49] shot CH-06-group-reopen-instant
+[16:13:00] open chat r-g2
+[16:13:00] shot CH-07-group-photo-header
+  node: text="&#128222; Group voice call · 12 min · 2:30 PM" class="android.widget.TextView" content-desc="" bounds="[72,430][408,454]" 
+[16:13:01] CH ok: 'Group voice call' on screen
+[16:13:09] open chat r-dm4
+[16:13:09] shot CH-07b-dm-missed-call
+  node: text="&#128222; Missed voice call · 6:30 PM" class="android.widget.TextView" content-desc="" bounds="[105,430][375,454]" 
+[16:13:10] CH ok: 'Missed voice call' on screen
+[16:13:19] open chat r-dm1
+[16:13:19] shot CH-08-dm-online-ticks-reacts
+[16:13:27] open chat r-dm2
+[16:13:27] shot CH-09-dm-last-seen-voice
+[16:13:36] open chat r-spy
+[16:13:36] shot CH-10-admin-spectating
+  node: text="&#128065; Viewing as Admin" class="android.widget.TextView" content-desc="" bounds="[141,87][329,120]" 
+[16:13:37] CH ok: 'Viewing as Admin' on screen
+[16:13:39] CH ok: 'Join group' not shown
+[16:13:47] open chat r-g4
+[16:13:47] shot CH-11-not-joined-group
+  node: text="Join group" class="android.widget.TextView" content-desc="" bounds="[188,502][292,532]" 
+[16:13:51] chtap 240 517
+  YidFx: 11-14 16:13:49.164  7408  7448 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+[16:14:02] open chat r-links
+[16:14:02] shot CH-12-links-cards
+[16:14:05] shot CH-12b-links-up
+[16:14:08] shot CH-12c-links-top
+[16:14:13] screen 1080x2400 @ 420 dpi
+[16:14:20] open chat r-links
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[16:14:23] bubble at: 232 1978
+[16:14:26] shot CH-13-swipe-reply
+  node: text="Reply to Berel Links" class="android.widget.TextView" content-desc="" bounds="[135,1218][442,1276]" 
+[16:14:27] CH ok: 'Reply to' on screen
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[16:14:35] chtap 1006 1423
+[16:14:36] shot CH-13b-swipe-reply-sent
+  YidFx: 11-14 16:14:33.417  7408  7448 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,902][417,951]" 
+[16:14:42] long-press 232 926
+[16:14:43] shot CH-14-long-press-menu
+  node: text="" class="android.widget.Button" content-desc="Reply" bounds="[368,90][484,216]" 
+[16:14:46] chtap 426 153
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[16:14:55] chtap 1006 1423
+  YidFx: 11-14 16:14:53.060  7408  7448 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,757][417,806]" 
+[16:15:02] long-press 232 781
+  node: text="&#128077;" class="android.widget.TextView" content-desc="" bounds="[646,256][719,324]" 
+[16:15:05] chtap 682 290
+[16:15:08] shot CH-14b-reacted
+  YidFx: 11-14 16:15:03.796  7408  7450 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,684][417,733]" 
+[16:15:14] long-press 232 708
+  node: text="" class="android.widget.Button" content-desc="Forward" bounds="[716,90][832,216]" 
+[16:15:17] chtap 774 153
+[16:15:21] shot CH-15-forward
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[190,460][1038,518]" 
+[16:15:24] chtap 614 489
+  YidFx: 11-14 16:15:22.610  7408  8412 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1532][417,1581]" 
+[16:15:35] long-press 232 1556
+[16:15:37] chtap: 'Pin' not on screen
+[16:15:39] shot CH-16-pinned
+[16:15:45] chtap: 'Send' not on screen
+[16:15:46] shot CH-17-sent-text
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[122,1532][491,1581]" 
+[16:15:52] long-press 306 1556
+[16:15:54] chtap: 'Delete' not on screen
+[16:15:55] shot CH-17b-delete-confirm
+[16:15:56] chtap: 'Yes' not on screen
+  node: text="" class="android.view.View" content-desc="Photo" bounds="[32,226][505,456]" 
+[16:16:05] shot CH-18-photo-viewer
+  node: text="" class="android.widget.Button" content-desc="Attach" bounds="[701,2140][817,2266]" 
+[16:16:14] chtap 759 2203
+[16:16:16] shot CH-19-attach-sheet
+  node: text="Gallery" class="android.widget.TextView" content-desc="" bounds="[119,1765][219,1823]" 
+[16:16:20] chtap 169 1794
+[16:16:24] shot CH-19b-picker
+[16:16:25] chtap: 'ch_test.png' not on screen
+[16:16:31] shot CH-19c-photo-sent
+[16:16:32] chtap: 'Record voice message' not on screen
+[16:16:36] shot CH-20-recording
+[16:16:38] chtap: 'Send voice message' not on screen
+[16:16:47] screen 480x640 @ 240 dpi
+[16:16:55] open chat r-links
+[16:16:55] shot CH-21-links-dark
+[16:16:57] open https://yidplus.com/chat
+[16:17:00] shot CH-22-list-dark
+[16:17:02] CH perf: 11-14 16:13:21.538  7408  7408 I YidPerf : Chat content 58 ms after open (cache) 11-14 16:13:29.940  7408  7408 I YidPerf : Chat content 44 ms after open (cache) 11-14 16:13:41.457  7408  7408 I YidPerf : Chat content 44 ms after open 11-14 16:13:55.531  7408  7408 I YidPerf : Chat content 80 ms after open 11-14 16:14:13.222  7408  7408 I YidPerf : Chat content 92 ms after open (cache) 11-14 16:16:51.068  7408  7408 I YidPerf : Chat content 844 ms after open 
+[16:17:02] CH all writes: 48
+[16:17:02] ---- qa/fx-cl.sh ----
+[16:17:12] screen 480x640 @ 240 dpi
+[16:17:15] CL nav mode: 2
+[16:17:17] open https://yidplus.com/chat
+[16:17:34] shot CL-B01-list-480x640
+[16:17:36] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (top)
+[16:17:36] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[16:17:38] CL ok: 'New chat' not shown
+[16:17:39] CL ok: 'Edit' not shown
+[16:17:41] CL ok: 'Search chats' on screen
+[16:17:42] CL ok: 'Start new chat' on screen
+[16:17:45] CL ok: 'Status' on screen
+[16:17:47] CL ok: 'AI chat' on screen
+[16:17:48] CL texts blockers-list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:18:03] shot CL-B02-list-end-fab-hidden-while-scrolling-down
+[16:18:04] CL rows: 4 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: none (end-scrolling)
+[16:18:07] shot CL-B02b-list-end-fab-back-last-row-above-it
+[16:18:09] CL rows: 5 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (end-fab-back)
+[16:18:23] cltap 'Search chats'
+[16:18:25] shot CL-B03-search-empty
+[16:18:26] CL texts search-empty:  content-desc="Close search"  content-desc="Search field"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[16:18:28] CL ok: 'Close search' on screen
+[16:18:30] shot CL-B04-search-typing-yo
+[16:18:36] shot CL-B05-search-results-yossi
+[16:18:38] CL ok: 'Yossi Klein' on screen
+[16:18:39] CL texts search-results:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="Messages"  text="YK"  text="Yossi Klein"  text="Wed"  text="Yossi Klein: Yossi here — see you at the simcha tonight"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:18:46] open https://yidplus.com/chat
+[16:19:00] shot CL-B06-list-theme-ocean
+[16:19:01] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (ocean)
+[16:19:01] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[16:19:03] open https://yidplus.com/chat
+[16:19:17] shot CL-B07-list-dark
+[16:19:18] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (dark)
+[16:19:18] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[16:19:23] open chat r-dm1
+[16:19:24] shot CL-B08-chat-open-dark
+[16:19:28] open https://yidplus.com/chat
+[16:19:50] shot CL-B09-dpad-focus-row
+[16:19:54] shot CL-B10-dpad-ok-opened-chat
+[16:19:57] CL ok: app alive after blockers
+[16:19:57] open https://yidplus.com/chat
+[16:20:25] cltap 'Search chats'
+[16:20:34] CL chips row scrolled off with the list: scrolling to the top to reach 'Private'
+[16:20:45] cltap 'Private'
+[16:20:51] cltap 'All'
+[16:20:56] cltap 'Menu'
+[16:21:05] CL video: 343548 bytes
+[16:21:05] open https://yidplus.com/chat
+[16:21:14] shot CL-01-list
+[16:21:15] CL texts list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:21:17] CL ok: 'Empty Chat' not shown
+[16:21:18] CL ok: 'Menu' on screen
+[16:21:21] CL ok: 'Status' on screen
+[16:21:29] shot CL-02-chips-end
+[16:21:30] CL ok: 'Work' on screen
+[16:21:34] CL ok: 'Chat folders' on screen
+[16:21:37] cltap 'Work'
+[16:21:39] shot CL-04-folder-work
+[16:21:41] CL texts folder:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Groups"  text="Groups"  text="12"  content-desc="Channels"  text="Channels"  text="1"  content-desc="Work"  text="Work"  content-desc="Chat folders"  text="D"  text="DealPoint"  text="Mon"  text="די פרייז איז $45"  text="P"  text="Python לערנען"  text="Sun"  text="Shimel'a: ווער קען העלפן?"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:21:42] CL ok: 'DealPoint' on screen
+[16:21:44] CL ok: 'Yossi Klein' not shown
+[16:21:56] cltap 'Work'
+[16:22:06] cltap 'All'
+[16:22:17] CL All tab, rows with an unread badge at this point: Yossi Klein,חברים פון שול,Berel Links,
+[16:22:22] cltap 'Unread'
+[16:22:24] shot CL-05-tab-unread
+[16:22:25] CL texts unread-tab:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="5"  content-desc="Groups"  text="Groups"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YP"  text="YID PLUS נייעס"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:22:27] CL Unread tab: 4 badged rows, 3 full rows; badged titles: Yossi Klein,חברים פון שול,Berel Links,YID PLUS נייעס,
+[16:22:27] CL ok: 'Yossi Klein' (unread in All) is in the Unread tab
+[16:22:27] CL ok: 'חברים פון שול' (unread in All) is in the Unread tab
+[16:22:27] CL ok: 'Berel Links' (unread in All) is in the Unread tab
+[16:22:27] CL ok: every full row in the Unread tab has an unread badge
+[16:22:32] cltap 'All'
+[16:22:45] CL ok: Telegram channel row in the list
+[16:22:45] shot CL-03-list-telegram-rows
+[16:22:58] long-press '258'
+[16:22:58] shot CL-06-selected
+[16:23:00] CL ok: 'Pin' on screen
+[16:23:01] CL ok: 'Mark as read' on screen
+[16:23:05] cltap 'Pin'
+[16:23:14] shot CL-07-pinned-top
+[16:23:16] CL texts pinned:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  content-desc="Pinned"  text="2"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:23:21] long-press '258'
+[16:23:24] cltap 'Unpin'
+[16:23:25] CL unpinned again
+[16:23:38] long-press '258'
+[16:23:42] cltap 'Mute'
+[16:23:43] shot CL-08-mute-choices
+[16:23:46] cltap '8 hours'
+[16:23:50] cltap 'OK'
+  YidFx: 11-14 16:23:48.271  9025  9060 I YidFx   : PUT /api/chat/rooms {"room_id":"r-dm1","muted":true}
+[16:23:52] CL ok: sent "room_id":"r-dm1","muted":true
+[16:24:04] long-press '258'
+[16:24:08] cltap 'Mark as read'
+  YidFx: 11-14 16:24:06.547  9025  9060 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+[16:24:10] CL ok: sent /api/chat/read
+[16:24:26] long-press '258'
+[16:24:30] cltap 'Delete'
+[16:24:31] shot CL-09-delete-confirm
+[16:24:35] cltap 'Delete chat'
+  YidFx: 11-14 16:24:33.007  9025  9060 I YidFx   : DELETE /api/chat/rooms?room_id=r-dm3 < 0 bytes>
+[16:24:37] CL ok: sent DELETE /api/chat/rooms?room_id=r-dm3
+[16:24:50] long-press '258'
+[16:24:54] cltap 'Berel Links' (scrolled)
+[16:24:54] shot CL-10-two-selected
+[16:25:07] cltap 'Menu'
+[16:25:09] shot CL-11-drawer
+[16:25:11] CL texts drawer:  text="מ"  text="משה'לע"  text="@משה'לע"  text="My Profile"  text="Saved Messages"  text="Chat Folders"  text="New Group"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:25:20] CL ok: 'Admin Panel' in the side menu
+[16:25:20] shot CL-11b-drawer-bottom
+[16:25:26] cltap 'Menu'
+[16:25:31] cltap 'Chat Folders'
+[16:25:34] shot CL-12-folders
+[16:25:36] CL ok: 'Work' on screen
+[16:25:39] cltap 'Folder name'
+[16:25:53] cltap 'Python' (scrolled)
+[16:25:53] shot CL-12b-folder-new
+[16:26:04] cltap 'Create'
+  YidFx: 11-14 16:26:02.718  9025 12137 I YidFx   : POST /api/chat/folders {"name":"Family and friends","icon":"📁","filter":"custom","room_ids":["r-g3"],"sort_order":1}
+[16:26:06] CL ok: sent "name":"Family and friends"
+[16:26:10] cltap 'Delete folder Work'
+[16:26:11] shot CL-12c-folder-delete
+[16:26:15] cltap 'Delete'
+  YidFx: 11-14 16:26:13.008  9025 12137 I YidFx   : DELETE /api/chat/folders?id=cl-f1 < 0 bytes>
+[16:26:17] CL ok: sent DELETE /api/chat/folders?id=cl-f1
+[16:26:22] cltap 'Menu'
+[16:26:32] cltap 'Chat settings' (scrolled)
+[16:26:34] shot CL-13-chat-settings
+[16:26:37] cltap 'Large'
+[16:26:38] shot CL-13b-font-large
+[16:26:42] cltap 'Read receipts'
+[16:26:46] cltap 'Medium'
+[16:26:49] open https://yidplus.com/chat
+[16:26:58] long-press '258'
+[16:27:02] cltap 'Mute'
+[16:27:08] cltap 'Cancel'
+[16:27:13] open chat r-g1
+[16:27:17] cltap 'More'
+[16:27:20] cltap 'Group info'
+[16:27:29] cltap 'Edit'
+[16:27:44] CL video 2: 343125 bytes
+[16:27:50] open chat r-g1
+[16:27:54] cltap 'More'
+[16:27:57] cltap 'Group info'
+[16:28:00] shot CL-14-group-info
+[16:28:02] CL texts info:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="ח"  content-desc="Change photo"  text="חברים פון שול"  text="Group · 6 members"  text="Message"  text="Call"  text="Video"  text="Add"  text="א גרופע פאר די חברים פון שול · Shul friends" 
+[16:28:09] cltap 'Mute notifications' (scrolled)
+[16:28:10] shot CL-14b-mute
+[16:28:14] cltap '1 week'
+[16:28:17] cltap 'OK'
+  YidFx: 11-14 16:28:15.767  9025 13512 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","muted":true}
+[16:28:19] CL ok: sent "room_id":"r-g1","muted":true
+[16:28:23] cltap 'Disappearing messages' (scrolled)
+[16:28:24] shot CL-18-disappearing
+[16:28:28] cltap '1 day'
+  YidFx: 11-14 16:28:26.021  9025 13511 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","auto_delete_minutes":1440}
+[16:28:30] CL ok: sent "auto_delete_minutes":1440
+[16:28:33] cltap 'Invite link' (scrolled)
+[16:28:35] shot CL-19-invite
+[16:28:39] cltap 'Revoke link'
+[16:28:40] shot CL-19b-revoke-confirm
+[16:28:42] CL texts revoke:  text="Revoke the current invite link and create a new one? The old link will stop working."  text="Cancel"  text="Revoke" 
+[16:28:46] cltap 'Revoke'
+  YidFx: 11-14 16:28:43.991  9025 13512 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","revoke_invite":true}
+[16:28:48] CL ok: sent "revoke_invite":true
+[16:28:51] cltap 'Close'
+[16:28:58] cltap 'Files' (scrolled)
+[16:28:58] shot CL-15-info-media-tab
+[16:29:02] cltap 'Files'
+[16:29:03] shot CL-15b-files
+[16:29:07] cltap 'Links'
+[16:29:08] shot CL-15c-links
+[16:29:11] cltap 'Voice'
+[16:29:12] shot CL-15d-voice
+[16:29:16] cltap 'Media'
+[16:29:30] cltap 'Yanky Weiss' (scrolled)
+[16:29:31] shot CL-17-member-sheet
+[16:29:35] cltap 'Set title'
+[16:29:39] shot CL-17a-title
+[16:29:42] cltap 'Save'
+  YidFx: 11-14 16:29:40.747  9025 13512 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-yanky","member_title":"Gabbai"}
+[16:29:44] CL ok: sent "member_title":"Gabbai"
+[16:29:48] cltap 'Shaya' (scrolled)
+[16:29:52] cltap 'Remove from group'
+[16:29:54] shot CL-17b-remove-confirm
+[16:29:57] cltap 'Remove'
+  YidFx: 11-14 16:29:55.571  9025 13511 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-shaya","remove":true}
+[16:29:59] CL ok: sent "remove":true
+[16:29:59] shot CL-16-members
+  clseek 'Report group': 7 swipes in 25 s; screen texts:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="BL"  text="Berel Links"  text="S"  text="Shaya"  text="בעל קורא"  text="YW"  text="Yanky Weiss"  text="Leave group"  text="Delete for everyone" 
+[16:30:24] CL NOTE (not a pass): no 'Report group' for the owner after scrolling the whole page; the intended owner permission is not established from requirements
+[16:30:24] CL MISSING: 'Report group' as a NON-owner is not exercised in this fixture; owner intent unestablished
+[16:30:33] CL ok: 'Group info' on screen
+[16:30:37] cltap 'Edit'
+[16:30:40] shot CL-20-edit-top
+[16:30:42] CL texts edit:  content-desc="Back"  text="Edit group"  text="חברים פון שול"  text="ח"  content-desc="Change photo"  text="חברים פון שול"  text="Group name"  text="א גרופע פאר די חברים פון שול · Shul friends"  text="Description"  text="212"  text="Save name &amp; description"  text="Group type"  text="Public group" 
+[16:30:49] cltap 'Approve new members' (scrolled)
+  YidFx: 11-14 16:30:47.209  9025 15206 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","approve_members":false}
+[16:30:51] CL ok: sent "approve_members":false
+[16:30:51] shot CL-20b-edit-mid
+[16:30:58] cltap 'Send Messages' (scrolled)
+  YidFx: 11-14 16:30:56.505  9025 15205 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","read_only":true}
+[16:31:00] CL ok: sent "read_only":true
+[16:31:00] shot CL-20c-edit-flipped
+[16:31:04] cltap 'Send Media' (scrolled)
+[16:31:06] shot CL-21-send-media
+[16:31:17] cltap 'Polls' (scrolled)
+  YidFx: 11-14 16:31:15.064  9025 15206 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":false,"pin_messages":false,"change_info":false}}
+[16:31:19] CL ok: sent "polls":true
+[16:31:32] cltap 'Add Users' (scrolled)
+  YidFx: 11-14 16:31:30.120  9025 15206 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":true,"pin_messages":false,"change_info":false}}
+[16:31:34] CL ok: sent "add_users":true
+[16:31:52] cltap 'Administrators' (scrolled)
+[16:31:54] shot CL-22-admins
+[16:32:07] cltap 'Members' (scrolled)
+[16:32:09] shot CL-22b-members
+[16:32:11] shot CL-20d-edit-bottom
+[16:32:21] open chat r-dm1
+[16:32:24] cltap 'More'
+[16:32:28] cltap 'Contact info'
+[16:32:31] shot CL-23-contact-info
+[16:32:31] CL note: fixture me is the site owner, so online is shown (site rule: admins only)
+[16:32:42] cltap 'Report Yossi Klein' (scrolled)
+[16:32:43] shot CL-24-report
+[16:32:46] cltap 'Harassment'
+[16:32:50] cltap 'Submit Report'
+  YidFx: 11-14 16:32:48.319  9025 15205 I YidFx   : POST /api/reports {"reported_id":"u-yossi","room_id":"r-dm1","message_id":null,"reason":"harassment","details":""}
+[16:32:52] CL ok: sent /api/reports
+[16:32:57] open https://yidplus.com/chat
+[16:33:03] cltap 'Start new chat'
+[16:33:08] cltap 'New group'
+[16:33:10] shot CL-25-new-group
+[16:33:10] CL new group: Everyone can write left at its default (on)
+[16:33:13] cltap 'Group name'
+[16:33:19] cltap 'Create group' (scrolled)
+[16:33:20] CL (1-letter name must not send)
+[16:33:31] cltap 'Group name'
+[16:33:33] shot CL-25b-new-group-filled
+[16:33:37] cltap 'Create group' (scrolled)
+  YidFx: 11-14 16:33:35.113  9025 15205 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[16:33:40] CL ok: sent "name":"QA Group"
+  YidFx: 11-14 16:33:35.113  9025 15205 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[16:33:40] CL ok: sent "type":"group"
+[16:33:42] open https://yidplus.com/chat
+[16:33:49] cltap 'Start new chat'
+[16:33:53] cltap 'Join by invite link'
+[16:33:55] CL animation scales before: window_animation_scale=0 transition_animation_scale=0 animator_duration_scale=0 
+[16:33:55] CL animation scales after: window_animation_scale=0 transition_animation_scale=0 animator_duration_scale=0  mode off
+[16:33:55] CL wm logging: Loaded 378 log definitions from /system/etc/protolog.conf.json.gz|
+[16:33:58] CL probe join wait 2s mode ctrl
+[16:33:58] CL probe input-queue before-back:  FocusedApplications:| FocusedWindows:| PendingEvent: <none>| InboundQueue: <empty>| Connections:| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>|
+[16:33:58] CL ime-diag join-before-back:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=125 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:33:58] shot CL-diag-j0-before-back
+[16:34:00] shot CL-diag-j1-just-after-back
+[16:34:03] CL ime-diag join-after-back:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=false| mCurTokenDisplayId=0| mShowRequested=false mShowExplicitlyRequested=false mShowForced=false mInputShown=false| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=125 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:34:03] CL imms full dump lines: 461; StartInput history header: 17
+[16:34:03] CL probe: keyboard already hidden after Back, nothing to probe
+[16:34:03] CL yiddiag lines: 600
+[16:34:03] shot CL-diag-join-after-back
+[16:34:04] CL ime-diag join-logcat: --------- beginning of main|--------- beginning of kernel|--------- beginning of system|11-14 16:33:29.596  1340  1340 I LatinIME: Starting input. Cursor position = 0,0|11-14 16:33:51.850  1340  1340 I LatinIME: Starting input. Cursor position = 0,0|11-14 16:33:55.931   501   596 D InputDispatcher: Waiting to send key to Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity} because there are unprocessed events that may cause focus to ch|
+[16:34:04] shot CL-26-invite-private
+[16:34:05] CL ok: 'Request to join' on screen
+[16:34:09] cltap 'Request to join' (scrolled)
+  YidFx: 11-14 16:34:07.211  9025 15731 I YidFx   : POST /api/invite {"code":"clpriv"}
+[16:34:11] CL ok: sent "code":"clpriv"
+[16:34:11] shot CL-26b-request-sent
+[16:34:13] open https://yidplus.com/chat
+[16:34:20] cltap 'Search chats'
+[16:34:22] shot CL-31-search-open
+[16:34:22] CL keyboard after search opens: mInputShown=true
+[16:34:23] shot CL-31b-search-typing
+[16:34:28] shot CL-31c-search-results
+[16:34:30] CL texts search-yossi:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="Messages"  text="YK"  text="Yossi Klein"  text="Wed"  text="Yossi Klein: Yossi here — see you at the simcha tonight"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:34:35] cltap 'Close search'
+[16:34:50] cltap 'Search chats'
+[16:34:56] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:34:59] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=false| mCurTokenDisplayId=0| mShowRequested=false mShowExplicitlyRequested=false mShowForced=false mInputShown=false| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:34:59] CL keyboard hidden after 1 Back/Escape press(es) (mInputShown=false)
+[16:35:00] shot CL-27-search
+[16:35:01] CL texts search-yid:  content-desc="Close search"  text="YID"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YP"  text="YID PLUS נייעס"  text="Wed"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  text="Public groups"  text="YP"  text="YID PLUS Community"  text="340 members"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[16:35:06] cltap 'Close search'
+[16:35:22] cltap 'Search chats'
+[16:35:28] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:35:31] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=false| mCurTokenDisplayId=0| mShowRequested=false mShowExplicitlyRequested=false mShowForced=false mInputShown=false| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:35:31] CL keyboard hidden after 1 Back/Escape press(es) (mInputShown=false)
+[16:35:31] shot CL-27b-search-people
+[16:35:32] CL ok: 'Contacts' on screen
+[16:35:34] CL ok: 'Mendy Gold' on screen
+[16:35:39] cltap 'Close search'
+[16:35:55] cltap 'Search chats'
+[16:35:57] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:36:00] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=false| mCurTokenDisplayId=0| mShowRequested=false mShowExplicitlyRequested=false mShowForced=false mInputShown=false| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:36:00] CL keyboard hidden after 1 Back/Escape press(es) (mInputShown=false)
+[16:36:00] shot CL-31d-search-recent
+[16:36:02] CL ok: 'Recent searches' on screen
+[16:36:07] cltap 'Unread'
+[16:36:08] shot CL-31e-chip-unread
+[16:36:14] cltap 'Unread'
+[16:36:18] cltap 'Photos'
+[16:36:20] shot CL-31f-chip-photos
+[16:36:23] clchip tapped the 'Photos' chip at 353 162
+[16:36:31] clchip tapped the 'Links' chip at 186 162
+[16:36:33] shot CL-31g-chip-links
+[16:36:36] clchip tapped the 'Links' chip at 216 162
+[16:36:38] shot CL-31g2-links-toggled-off
+[16:36:39] CL chip 'Links' node after toggle (expected off): <node index="0" text="Links" resource-id="" class="android.widget.TextView" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false"
+[16:36:44] cltap 'Close search'
+[16:37:00] cltap 'Search chats'
+[16:37:06] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:37:09] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=false| mCurTokenDisplayId=0| mShowRequested=false mShowExplicitlyRequested=false mShowForced=false mInputShown=false| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:37:09] CL keyboard hidden after 1 Back/Escape press(es) (mInputShown=false)
+[16:37:09] shot CL-31h-no-results
+[16:37:10] CL ok: 'No results found' on screen
+[16:37:15] cltap 'Close search'
+[16:37:31] cltap 'Search chats'
+[16:37:37] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:37:40] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@c231cb6 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{b531f1e uid=10130 pid=9025 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=false| mCurTokenDisplayId=0| mShowRequested=false mShowExplicitlyRequested=false mShowForced=false mInputShown=false| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{876ddb7 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[16:37:40] CL keyboard hidden after 1 Back/Escape press(es) (mInputShown=false)
+[16:37:44] cltap 'Mendy Gold'
+  YidFx: 11-14 16:37:42.046  9025 15206 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-mendy"}
+[16:37:46] CL ok: sent "other_user_id":"u-mendy"
+[16:37:56] open https://yidplus.com/chat
+[16:37:59] shot CL-28-list-dark
+[16:38:02] cltap 'Menu'
+[16:38:03] shot CL-28b-drawer-dark
+[16:38:11] open chat r-g1
+[16:38:14] cltap 'More'
+[16:38:18] cltap 'Group info'
+[16:38:20] shot CL-28c-info-dark
+[16:38:27] open https://yidplus.com/chat
+[16:38:30] shot CL-29-list-theme1
+[16:38:36] long-press '258'
+[16:38:36] shot CL-29b-select-theme1
+[16:38:40] shot CL-29c-list-lightbar
+[16:38:44] cltap 'Menu'
+[16:38:45] shot CL-29d-drawer-lightbar
+[16:38:52] screen 1080x2400 @ 420 dpi
+[16:38:52] open https://yidplus.com/chat
+[16:38:56] shot CL-30-list-1080
+[16:39:00] cltap 'Menu'
+[16:39:01] shot CL-30b-drawer-1080
+[16:39:05] screen 480x640 @ 240 dpi
+[16:39:07] CL all writes: 72
+[16:39:07] fixture writes the app would have sent: 72
+[16:39:11] fixture false
