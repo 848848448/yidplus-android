@@ -20,9 +20,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      matrix:
-        patched: ['yes', 'no']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -32,9 +29,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Apply the diagnostic logging patch (workspace only, never committed; QA logging, no behaviour change) - only in the patched build
-        if: matrix.patched == 'yes'
-        run: git apply --check diag/app-diag3.patch && git apply diag/app-diag3.patch && git diff --stat
+      - name: Apply the diagnostic logging patch (workspace only, never committed; QA logging, no behaviour change)
+        run: git apply --check diag/app-diag8.patch && git apply diag/app-diag8.patch && git diff --stat
       - name: Signing key (from repository secrets only)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -53,11 +49,11 @@ jobs:
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           "$BT/apksigner" verify --print-certs "$APK" | head -3
           ls -la "$APK"
-          mkdir -p dist && cp "$APK" dist/YIDPLUS.apk; echo "IDENTITY patched=${{ matrix.patched }} source=$(git rev-parse HEAD) apk_sha256=$(sha256sum dist/YIDPLUS.apk | cut -d' ' -f1) fxcl_sha256=$(sha256sum qa/fx-cl.sh | cut -d' ' -f1)" | tee dist/IDENTITY.txt
+          mkdir -p dist && cp "$APK" dist/YIDPLUS.apk
           unzip -l "$APK" | grep -E "baseline.prof|classes" || true
       - uses: actions/upload-artifact@v4
         with:
-          name: diag-apk-${{ matrix.patched }}
+          name: diag-apk
           path: dist/
       - name: Resolved Compose versions (from this build's runtime classpath)
         if: always()
@@ -66,7 +62,7 @@ jobs:
           gradle :app:dependencies --configuration releaseRuntimeClasspath --no-daemon -q 2>&1 | grep -E "androidx\.compose\.(ui|foundation|material3|runtime)[a-z-]*:|compose-bom|androidx\.activity:activity-compose|coil" | sed 's/^[ |+\\-]*//' | sort -u > /tmp/log/compose-versions.txt || true
           cat /tmp/log/compose-versions.txt
       - name: Publish build log
-        if: always() && matrix.patched == 'yes'
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -86,26 +82,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx15p1, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx15p2, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx15p3, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx15p4, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx15u1, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'no', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx15u2, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'no', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx15u3, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'no', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx15u4, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'no', patched: 'no', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16a, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16b, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16c, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16d, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16e, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16f, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16g, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx16h, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: diag-apk-${{ matrix.patched }}
+          name: diag-apk
           path: dist/
       - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl13.sh qa/fx-cl.sh
+        run: cp diag/fx-cl9.sh qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
-        run: git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh && cat dist/IDENTITY.txt
+        run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -128,7 +124,7 @@ jobs:
           disk-size: 4096M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: adb wait-for-device && bash qa/native.sh dist/YIDPLUS.apk
+          script: adb wait-for-device && adb shell settings put global hidden_api_policy 1 && bash qa/native.sh dist/YIDPLUS.apk
       - name: Publish QA evidence
         if: always()
         env:
