@@ -1,0 +1,40 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of kernel
+11-14 07:47:25.617 27164 27206 I YidFx   : POST /api/telegram-read {"username":"fxnews"}
+11-14 07:47:25.634 27164 27200 I YidFx   : GET-unfixtured /api/telegram-ingest?username=fxnews&limit=15&before=101
+11-14 07:47:35.925 27418 27418 I YidFx   : LK-STEP react-tg
+11-14 07:47:41.984 27164 27201 I YidFx   : POST /api/telegram-reactions {"username":"fxnews","tg_msg_id":104,"emoji":"👍"}
+11-14 07:47:45.986 27486 27486 I YidFx   : LK-STEP share-tg
+11-14 07:47:54.923 27570 27570 I YidFx   : LK-STEP join-tg
+11-14 07:48:08.885 27164 27200 I YidFx   : POST /api/telegram-read {"username":"fxnews"}
+11-14 07:48:08.905 27164 27201 I YidFx   : GET-unfixtured /api/telegram-ingest?username=fxnews&limit=15&before=101
+11-14 07:48:35.582 27755 27755 I YidFx   : LK-STEP like-post
+11-14 07:48:37.185 27164 27199 I YidFx   : PUT /api/posts {"id":"fxp1","like":true}
+11-14 07:48:41.169 27792 27792 I YidFx   : LK-STEP comment-post
+11-14 07:48:51.498 27854 27854 I YidFx   : LK-STEP send-comment
+11-14 07:48:53.063 27164 27206 I YidFx   : POST /api/posts/comments {"post_id":"fxp1","text":"Shkoyach"}
+11-14 07:50:10.076 28327 28327 I YidFx   : LK-STEP new-post
+11-14 07:50:19.703 27164 27206 I YidFx   : POST /api/posts {"caption":"Test post from the app","content":""}
+11-14 07:50:43.101 28481 28481 I YidFx   : LK-STEP new-photo-post
+11-14 07:51:15.518 27164 27164 I YidFx   : LK-QA picked qa-pick.png 899 bytes
+11-14 07:51:19.151 27164 28408 I YidFx   : POST /api/posts multipart/form-data caption=Photo post,file=upload.png (image/png, 899 bytes)
+11-14 07:51:31.797 27164 27206 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-14 07:51:41.781 28752 28752 I YidFx   : LK-STEP like-short
+11-14 07:51:51.417 28817 28817 I YidFx   : LK-STEP comment-short
+11-14 07:52:17.723 28989 28989 I YidFx   : LK-STEP swipe-short
+11-14 07:52:40.856 29087 29087 I YidFx   : LK-STEP like-upload
+11-14 07:52:50.422 29146 29146 I YidFx   : LK-STEP save-upload
+11-14 07:53:01.451 29223 29223 I YidFx   : LK-STEP follow-creator
+11-14 07:53:35.690 29425 29425 I YidFx   : LK-STEP comment-upload
+11-14 07:54:01.901 29590 29590 I YidFx   : LK-STEP upload-short
+11-14 07:57:27.117 30234 30271 I YidFx   : POST /api/chat {"room_id":"nt-g1","type":"text","text":"Thanks I will be there"}
+11-14 07:57:27.118 30234 30271 I YidFx   : POST /api/chat/read {"room_id":"nt-g1"}
+11-14 07:58:59.564 30234 30271 I YidFx   : POST /api/chat {"room_id":"nt-g3","type":"text","text":"Second message"}
+11-14 07:58:59.565 30234 30271 I YidFx   : POST /api/chat/read {"room_id":"nt-g3"}
+11-14 07:59:44.048 30234 30271 I YidFx   : POST /api/chat/read {"room_id":"nt-dm1"}
+11-14 08:00:21.513 30234 31647 I YidFx   : POST /api/chat/read {"room_id":"nt-g1","receipts":true}
+11-14 08:01:47.892 31811 31847 I YidFx   : POST /api/chat {"room_id":"nt-g1","type":"text","text":"Thanks I will be there"}
+11-14 08:01:47.893 31811 31847 I YidFx   : POST /api/chat/read {"room_id":"nt-g1"}
+11-14 08:02:10.346 31811 31847 I YidFx   : POST /api/chat/read {"room_id":"nt-dm1"}
+11-14 08:02:48.169 31811 31857 I YidFx   : POST /api/chat/read {"room_id":"nt-g1","receipts":true}
