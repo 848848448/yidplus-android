@@ -1,0 +1,78 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of kernel
+11-14 23:03:14.967  2619  2654 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-14 23:03:19.935  2619  2655 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-14 23:03:44.995  2619  2654 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-14 23:04:26.447  2619  2656 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-14 23:04:51.740  3305  3346 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-14 23:05:49.166  3458  3458 I YidFx   : LOOK color_theme=1 Ocean Blue
+11-14 23:06:41.869  3458  3458 I YidFx   : LOOK color_theme=0 Emerald Teal
+11-14 23:07:24.474  3458  4510 I YidFx   : PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+11-14 23:07:35.181  3458  3496 I YidFx   : PUT /api/profile {"is_private":1}
+11-14 23:07:44.444  3458  4509 I YidFx   : PUT /api/profile {"read_receipts":0}
+11-14 23:07:55.365  3458  3495 I YidFx   : PUT /api/profile {"notif_likes":0}
+11-14 23:08:17.443  3458  4510 I YidFx   : POST /api/notifications {"read":"all"}
+11-14 23:08:35.566  4985  5018 I YidFx   : POST /api/notifications {"read":"n1"}
+11-14 23:08:35.580  4985  5018 I YidFx   : GET-unfixtured /api/posts?user_id=u-yanky
+11-14 23:08:35.580  4985  5018 I YidFx   : GET-unfixtured /api/channel-follows?channel_owner_id=u-yanky&check=1
+11-14 23:09:02.895  4985  5017 I YidFx   : PUT /api/settings {"key":"feat_music","value":"on"}
+11-14 23:09:08.557  4985  5017 I YidFx   : PUT /api/settings {"key":"feat_music","value":"off"}
+11-14 23:09:36.032  4985  5020 I YidFx   : PUT /api/admin/users {"id":"u-yanky","verified":true}
+11-14 23:10:02.097  4985  5020 I YidFx   : POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+11-14 23:10:31.872  4985  5019 I YidFx   : PUT /api/admin/users {"id":"u-yanky","blocked":true}
+11-14 23:10:43.015  4985  5020 I YidFx   : PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+11-14 23:10:55.111  4985  5959 I YidFx   : DELETE /api/reports?id=r1 < 0 bytes>
+11-14 23:11:06.286  4985  5959 I YidFx   : PUT /api/admin/users {"id":"u-mendy","blocked":true}
+11-14 23:11:18.300  4985  5019 I YidFx   : PUT /api/verify-request {"id":"v1","action":"approve"}
+11-14 23:11:31.328  4985  5960 I YidFx   : PUT /api/admin/users {"id":"u-chan1","verified":true}
+11-14 23:12:14.769  4985  5019 I YidFx   : POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+11-14 23:12:34.192  4985  5020 I YidFx   : POST /api/admin/bad-words {"word":"testbadword"}
+11-14 23:12:39.820  4985  5020 I YidFx   : DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+11-14 23:12:52.839  4985  5959 I YidFx   : POST /api/admin/verify-pin {"pin":"1234"}
+11-14 23:15:17.860  7475  7516 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-14 23:15:36.333  7475  7517 I YidFx   : POST /api/chat/read {"room_id":"r-g2","receipts":true}
+11-14 23:15:46.252  7475  7511 I YidFx   : POST /api/chat/read {"room_id":"r-dm4","receipts":true}
+11-14 23:15:55.234  7475  7517 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-14 23:16:03.637  7475  7511 I YidFx   : POST /api/chat/read {"room_id":"r-dm2","receipts":true}
+11-14 23:16:31.292  7475  7511 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+11-14 23:16:37.634  7475  7517 I YidFx   : POST /api/chat/read {"room_id":"r-links","receipts":true}
+11-14 23:16:55.287  7475  7517 I YidFx   : POST /api/chat/read {"room_id":"r-links","receipts":true}
+11-14 23:17:09.693  7475  7517 I YidFx   : POST /api/chat/typing {"room_id":"r-links"}
+11-14 23:17:15.258  7475  7516 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+11-14 23:17:15.259  7475  7516 I YidFx   : POST /api/chat/read {"room_id":"r-links","receipts":true}
+11-14 23:17:29.349  7475  7516 I YidFx   : POST /api/chat/typing {"room_id":"r-links"}
+11-14 23:17:34.714  7475  7516 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+11-14 23:17:34.716  7475  7516 I YidFx   : POST /api/chat/read {"room_id":"r-links","receipts":true}
+11-14 23:17:45.427  7475  7516 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+11-14 23:18:04.055  7475  8478 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+11-14 23:18:09.203  7475  8478 I YidFx   : POST /api/chat/read {"room_id":"r-links","receipts":true}
+11-14 23:18:47.268  7475  7516 I YidFx   : POST /api/chat/read {"room_id":"r-links","receipts":true}
+11-14 23:21:59.642  9069  9111 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-14 23:22:30.896  9069  9112 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-14 23:22:49.869  9069  9112 I YidFx   : POST /api/chat/read {"room_id":"r-dm2","receipts":true}
+11-14 23:26:28.324  9069 12166 I YidFx   : PUT /api/chat/rooms {"room_id":"r-dm1","muted":true}
+11-14 23:26:46.476  9069 12166 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-14 23:27:12.841  9069 12166 I YidFx   : DELETE /api/chat/rooms?room_id=r-dm3 < 0 bytes>
+11-14 23:28:42.461  9069 12166 I YidFx   : POST /api/chat/folders {"name":"Family and friends","icon":"📁","filter":"custom","room_ids":["r-g3"],"sort_order":1}
+11-14 23:28:52.775  9069 12627 I YidFx   : DELETE /api/chat/folders?id=cl-f1 < 0 bytes>
+11-14 23:29:50.565  9069 13550 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-14 23:30:15.893  9069 12166 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-14 23:30:24.471  9069 12166 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-14 23:30:55.573  9069 13573 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","muted":true}
+11-14 23:31:05.858  9069 13573 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","auto_delete_minutes":1440}
+11-14 23:31:23.877  9069 12166 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","revoke_invite":true}
+11-14 23:32:20.793  9069 13573 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-yanky","member_title":"Gabbai"}
+11-14 23:32:35.679  9069 13573 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-shaya","remove":true}
+11-14 23:33:27.090  9069 13550 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","approve_members":false}
+11-14 23:33:36.389  9069 13550 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","read_only":true}
+11-14 23:33:54.899  9069 13573 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":false,"pin_messages":false,"change_info":false}}
+11-14 23:34:10.001  9069 13573 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":true,"pin_messages":false,"change_info":false}}
+11-14 23:34:41.415  9069 13550 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":false,"pin_messages":false,"change_info":false}}
+11-14 23:34:47.947  9069 13550 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-14 23:34:52.489  9069 13573 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-14 23:35:24.618  9069 13573 I YidFx   : POST /api/reports {"reported_id":"u-yossi","room_id":"r-dm1","message_id":null,"reason":"harassment","details":""}
+11-14 23:35:28.778  9069 13573 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-14 23:36:11.085  9069 13573 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+11-14 23:42:26.087  9069 19096 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+11-14 23:42:41.731  9069 19964 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
