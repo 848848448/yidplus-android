@@ -188,7 +188,13 @@ internal fun CsLockedBar(r: CsRec, onDelete: () -> Unit, onSend: () -> Unit) {
     val c = ctx()
     // The mic that had keypad focus is replaced by this bar, which dropped focus (fx5 run 43511759626: focus [none] right after the start). Put it on Send so OK sends and the D-pad reaches Delete/Pause/Stop.
     val sendFocus = remember { androidx.compose.ui.focus.FocusRequester() }
-    LaunchedEffect(Unit) { kotlinx.coroutines.delay(150); try { sendFocus.requestFocus() } catch (_: Exception) {} }
+    // In touch mode Compose does not give programmatic focus to clickable items, so a touch-started recording could not focus Send (base legs of run 43530063480: [none]; HYPOTHESIS). Request it whenever the input mode is the keypad's: at once for a keypad start, and on the first D-pad press after a touch start.
+    val inputMode = androidx.compose.ui.platform.LocalInputModeManager.current
+    LaunchedEffect(Unit) {
+        snapshotFlow { inputMode.inputMode }.collect { m ->
+            if (m == androidx.compose.ui.input.InputMode.Keyboard) { kotlinx.coroutines.delay(150); try { sendFocus.requestFocus() } catch (_: Exception) {} }
+        }
+    }
     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 6.dp, vertical = 6.dp)) {
         if (r.mode == 2 && r.paused) Text("Paused. Stop to listen before sending.", Modifier.padding(start = 12.dp, bottom = 2.dp), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(verticalAlignment = Alignment.CenterVertically) {
