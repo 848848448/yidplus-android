@@ -1,0 +1,682 @@
+[10:19:47] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[10:19:50] screen 480x640 @ 240 dpi
+[10:19:50] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[10:19:50] ---- Signed in (QA fixture account) ----
+[10:19:54] fixture true
+[10:20:03] shot F01-home-signedin
+[10:20:03] open https://yidplus.com/chat
+[10:20:08] shot F02-chats-list
+[10:20:10] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[10:20:17] shot F03-chat-dm
+[10:20:19] shot F03b-chat-dm-up
+[10:20:22] open https://yidplus.com/chat
+[10:20:37] shot F04-chat-group
+[10:20:39] shot F04b-group-up
+[10:20:41] shot F04c-group-top
+[10:20:44] shot F05-message-actions
+[10:20:54] shot F06-notifications
+[10:20:56] tab Home
+[10:20:59] shot F07-home-header
+[10:20:59] open https://yidplus.com/shorts
+[10:21:08] shot F08-shorts-signedin
+[10:21:08] tab Profile
+[10:21:11] shot F09-profile-signedin
+[10:21:23] shot F09b-profile-scrolled
+[10:21:36] open https://yidplus.com/chat
+[10:21:40] shot F10-chats-dark
+[10:21:47] shot F11-chat-dark
+[10:21:54] screen 1080x2400 @ 420 dpi
+[10:22:02] open https://yidplus.com/chat
+[10:22:06] shot F12-phone-chats
+[10:22:12] shot F13-phone-chat
+[10:22:16] screen 480x640 @ 240 dpi
+[10:22:16] ---- qa/fx-ad.sh ----
+[10:22:23] ---- AD: Settings (signed in) ----
+[10:22:23] tab Profile
+[10:22:27] shot AD-01-settings-top
+[10:22:29] shot AD-02-settings-reading
+[10:22:31] shot AD-03-settings-appearance-color
+[10:22:33] shot AD-04-settings-stats-account
+[10:22:36] shot AD-05-settings-verify-share
+[10:22:40] shot AD-06-settings-bottom
+[10:22:40] tab Profile
+[10:23:05] adfind tapped after 3 swipes
+[10:23:07] PROOF colour theme: LOOK color_theme=1 Ocean Blue
+[10:23:29] adfind tapped after 3 swipes
+[10:23:31] shot AD-07-ocean-blue-large-text
+[10:23:35] shot AD-07c-after-large-text-scroll
+[10:23:57] adfind tapped after 3 swipes
+[10:24:19] adfind tapped after 3 swipes
+[10:24:25] ad page EditProfile
+[10:24:25] shot AD-07b-edit-profile
+[10:24:33] adfind tapped after 1 swipes
+[10:24:40] adt '378'
+[10:24:43] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[10:24:47] ad page Privacy
+[10:24:47] shot AD-08-privacy
+[10:24:50] adt '96'
+[10:24:52] PROOF private account: PUT /api/profile {"is_private":1}
+[10:24:59] adfind tapped after 1 swipes
+[10:25:02] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[10:25:07] ad page NotifPrefs
+[10:25:10] adt '96'
+[10:25:12] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[10:25:12] shot AD-09-notif-prefs
+[10:25:18] ad page ChatSettings
+[10:25:21] adt '161'
+[10:25:22] shot AD-10-chat-settings
+[10:25:24] ---- AD: Notifications page ----
+[10:25:29] shot AD-11-notifications
+[10:25:32] adt '357'
+[10:25:34] PROOF mark all read: POST /api/notifications {"read":"all"}
+[10:25:34] shot AD-13-notifications-all-read
+[10:25:53] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[10:25:53] shot AD-12-notification-opened
+[10:25:56] ---- AD: Admin (native) ----
+[10:26:02] ad page Admin
+[10:26:02] shot AD-20-admin-dashboard
+[10:26:05] shot AD-21-admin-manage
+[10:26:07] shot AD-22-admin-features
+[10:26:18] adfind tapped after 2 swipes
+[10:26:20] PROOF feature switch: PUT /api/settings {"key":"feat_music","value":"on"}
+[10:26:20] shot AD-23-admin-music-switched
+[10:26:23] adt '96'
+[10:26:27] shot AD-24-admin-web-sections
+[10:26:34] ad page AdminUsers
+[10:26:34] shot AD-25-admin-users
+[10:26:36] adtap text
+[10:26:41] shot AD-26-admin-users-search
+[10:26:47] ad page AdminUser
+[10:26:47] shot AD-27-admin-user
+[10:26:51] adt '96'
+[10:26:53] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[10:27:11] adfind tapped after 2 swipes
+[10:27:17] adt '96'
+[10:27:19] PROOF mute user: POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+[10:27:41] adfind tapped after 3 swipes
+[10:27:43] shot AD-28-admin-block-confirm
+[10:27:46] adt '371'
+[10:27:48] PROOF block user: PUT /api/admin/users {"id":"u-yanky","blocked":true}
+[10:27:52] adfind tapped after 0 swipes
+[10:27:57] adt '383'
+[10:27:59] PROOF promote: PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+[10:28:00] shot AD-29-admin-user-after
+[10:28:06] ad page AdminReports
+[10:28:06] shot AD-30-admin-reports
+[10:28:10] adt '221'
+[10:28:12] PROOF dismiss report: DELETE /api/reports?id=r1 < 0 bytes>
+[10:28:15] adt '129'
+[10:28:21] adt '352'
+[10:28:23] PROOF ban from report: PUT /api/admin/users {"id":"u-mendy","blocked":true}
+[10:28:29] ad page AdminVerify
+[10:28:29] shot AD-31-admin-verify
+[10:28:33] adt '256'
+[10:28:35] PROOF approve verify: PUT /api/verify-request {"id":"v1","action":"approve"}
+[10:28:42] ad page AdminChannels
+[10:28:42] shot AD-32-admin-channels
+[10:28:46] adt '313'
+[10:28:48] PROOF verify channel: PUT /api/admin/users {"id":"u-chan1","verified":true}
+[10:28:55] ad page AdminTelegram
+[10:28:55] shot AD-33-admin-telegram
+[10:28:57] adtap text
+[10:29:05] adt '180'
+[10:29:07] PROOF add telegram channel: POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+[10:29:13] ad page AdminBroadcast
+[10:29:13] shot AD-34-admin-broadcast
+[10:29:15] adtap text
+[10:29:23] adt '192'
+[10:29:25] shot AD-35-broadcast-confirm
+[10:29:29] adt '374'
+[10:29:32] PROOF broadcast: POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+[10:29:38] ad page AdminBadWords
+[10:29:38] shot AD-36-admin-word-filter
+[10:29:40] adtap text
+[10:29:48] adt '395'
+[10:29:50] PROOF add bad word: POST /api/admin/bad-words {"word":"testbadword"}
+[10:29:54] adt '42'
+[10:29:56] PROOF remove bad word: DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+[10:30:02] ad page AdminWeb
+[10:30:02] shot AD-37-admin-web-pin
+[10:30:18] adt: 'Unlock' not on screen; screen has: Back|Admin · website|Section: ads|Open in the browser|
+[10:30:25] PROOF admin pin: POST /api/admin/verify-pin {"pin":"1234"}
+[10:30:25] shot AD-38-admin-web-after-pin
+[10:30:26] ---- AD: dark mode ----
+[10:30:29] tab Profile
+[10:30:33] shot AD-40-settings-dark
+[10:30:38] ad page Admin
+[10:30:38] shot AD-41-admin-dark
+[10:30:43] shot AD-42-notifications-dark
+AdminWeb: --------- beginning of main
+AdminWeb: --------- beginning of system
+AdminWeb: --------- beginning of kernel
+AdminWeb: 11-14 10:30:04.722  4948  4948 I YidAdminWeb: webview 83.0.4103.120
+AdminWeb: 11-14 10:30:05.552  4948  4948 I YidAdminWeb: LOG An <img> element was lazyloaded with loading=lazy, but had no dimensions specified. Specifying dimensions improves performance. See https://crbug.com/954323 @:67
+[10:30:47] ---- qa/fx-ch.sh ----
+[10:30:54] open https://yidplus.com/chat
+[10:31:02] shot CH-01-chat-list
+[10:31:04] CH list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="2"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="3"  text="Channels"  text="Settings" 
+[10:31:06] shot CH-02-chips-scrolled
+[10:31:08] shot CH-02b-list-scrolled
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[396,405][468,477]" 
+[10:31:13] chtap 432 441
+[10:31:15] shot CH-03-fab-menu
+  node: text="New group" class="android.widget.TextView" content-desc="" bounds="[260,198][379,228]" 
+[10:31:19] chtap 319 213
+  node: text="Group name" class="android.widget.TextView" content-desc="" bounds="[150,179][284,212]" 
+[10:31:26] chtap 217 195
+[10:31:28] shot CH-03b-new-group
+  node: text="" class="android.widget.Button" content-desc="Create" bounds="[405,51][477,123]" 
+[10:31:32] chtap 441 87
+[10:31:46] open https://yidplus.com/chat
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[396,405][468,477]" 
+[10:31:54] chtap 432 441
+  node: text="New chat" class="android.widget.TextView" content-desc="" bounds="[260,126][364,156]" 
+[10:31:59] chtap 312 141
+[10:32:06] shot CH-03c-new-chat
+[10:32:07] chtap: 'Dovid New' not on screen
+[10:32:22] open https://yidplus.com/chat
+  node: text="" class="android.view.View" content-desc="Search chats" bounds="[72,53][408,106]" 
+[10:32:29] chtap 240 79
+[10:32:32] keyboard shown after typing in search: mInputShown=true
+[10:32:36] keyboard shown after Back from search: mInputShown=false
+[10:32:36] shot CH-04-search-closed
+[10:32:42] open chat r-g1
+[10:32:42] shot CH-05-group-bottom
+  node: text="Yanky is typing…" class="android.widget.TextView" content-desc="" bounds="[141,90][287,123]" 
+[10:32:43] CH ok: 'typing' on screen
+  YidFx: 11-14 10:32:35.690  7438  7475 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+[10:32:45] shot CH-05b-group-up
+[10:32:47] shot CH-05c-group-top
+[10:32:50] open chat r-g1
+[10:32:50] shot CH-06-group-reopen-instant
+[10:33:00] open chat r-g2
+[10:33:00] shot CH-07-group-photo-header
+  node: text="&#128222; Group voice call · 12 min · 2:30 PM" class="android.widget.TextView" content-desc="" bounds="[72,430][408,454]" 
+[10:33:02] CH ok: 'Group voice call' on screen
+[10:33:09] open chat r-dm4
+[10:33:09] shot CH-07b-dm-missed-call
+  node: text="&#128222; Missed voice call · 6:30 PM" class="android.widget.TextView" content-desc="" bounds="[105,430][375,454]" 
+[10:33:11] CH ok: 'Missed voice call' on screen
+[10:33:19] open chat r-dm1
+[10:33:19] shot CH-08-dm-online-ticks-reacts
+[10:33:28] open chat r-dm2
+[10:33:28] shot CH-09-dm-last-seen-voice
+[10:33:36] open chat r-spy
+[10:33:36] shot CH-10-admin-spectating
+  node: text="&#128065; Viewing as Admin" class="android.widget.TextView" content-desc="" bounds="[141,87][329,120]" 
+[10:33:38] CH ok: 'Viewing as Admin' on screen
+[10:33:39] CH ok: 'Join group' not shown
+[10:33:48] open chat r-g4
+[10:33:48] shot CH-11-not-joined-group
+  node: text="Join group" class="android.widget.TextView" content-desc="" bounds="[188,502][292,532]" 
+[10:33:51] chtap 240 517
+  YidFx: 11-14 10:33:49.125  7438  7484 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+[10:34:02] open chat r-links
+[10:34:03] shot CH-12-links-cards
+[10:34:05] shot CH-12b-links-up
+[10:34:08] shot CH-12c-links-top
+[10:34:13] screen 1080x2400 @ 420 dpi
+[10:34:20] open chat r-links
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[10:34:24] bubble at: 232 1978
+[10:34:26] shot CH-13-swipe-reply
+  node: text="Reply to Berel Links" class="android.widget.TextView" content-desc="" bounds="[135,1218][442,1276]" 
+[10:34:28] CH ok: 'Reply to' on screen
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[10:34:35] chtap 1006 1423
+[10:34:36] shot CH-13b-swipe-reply-sent
+  YidFx: 11-14 10:34:33.110  7438  7485 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,902][417,951]" 
+[10:34:42] long-press 232 926
+[10:34:43] shot CH-14-long-press-menu
+  node: text="" class="android.widget.Button" content-desc="Reply" bounds="[368,90][484,216]" 
+[10:34:46] chtap 426 153
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[10:34:54] chtap 1006 1423
+  YidFx: 11-14 10:34:52.469  7438  7478 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,757][417,806]" 
+[10:35:02] long-press 232 781
+  node: text="&#128077;" class="android.widget.TextView" content-desc="" bounds="[646,256][719,324]" 
+[10:35:05] chtap 682 290
+[10:35:07] shot CH-14b-reacted
+  YidFx: 11-14 10:35:03.138  7438  7485 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,684][417,733]" 
+[10:35:13] long-press 232 708
+  node: text="" class="android.widget.Button" content-desc="Forward" bounds="[716,90][832,216]" 
+[10:35:17] chtap 774 153
+[10:35:20] shot CH-15-forward
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[190,460][1038,518]" 
+[10:35:24] chtap 614 489
+  YidFx: 11-14 10:35:21.666  7438  7485 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1532][417,1581]" 
+[10:35:35] long-press 232 1556
+[10:35:37] chtap: 'Pin' not on screen
+[10:35:39] shot CH-16-pinned
+[10:35:44] chtap: 'Send' not on screen
+[10:35:45] shot CH-17-sent-text
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[122,1532][491,1581]" 
+[10:35:51] long-press 306 1556
+[10:35:53] chtap: 'Delete' not on screen
+[10:35:54] shot CH-17b-delete-confirm
+[10:35:56] chtap: 'Yes' not on screen
+  node: text="" class="android.view.View" content-desc="Photo" bounds="[32,226][505,456]" 
+[10:36:05] shot CH-18-photo-viewer
+  node: text="" class="android.widget.Button" content-desc="Attach" bounds="[701,2140][817,2266]" 
+[10:36:13] chtap 759 2203
+[10:36:15] shot CH-19-attach-sheet
+  node: text="Gallery" class="android.widget.TextView" content-desc="" bounds="[119,1765][219,1823]" 
+[10:36:19] chtap 169 1794
+[10:36:23] shot CH-19b-picker
+[10:36:24] chtap: 'ch_test.png' not on screen
+[10:36:30] shot CH-19c-photo-sent
+[10:36:31] chtap: 'Record voice message' not on screen
+[10:36:35] shot CH-20-recording
+[10:36:37] chtap: 'Send voice message' not on screen
+[10:36:46] screen 480x640 @ 240 dpi
+[10:36:54] open chat r-links
+[10:36:54] shot CH-21-links-dark
+[10:36:56] open https://yidplus.com/chat
+[10:36:59] shot CH-22-list-dark
+[10:37:01] CH perf: 11-14 10:33:21.565  7438  7438 I YidPerf : Chat content 51 ms after open (cache) 11-14 10:33:29.984  7438  7438 I YidPerf : Chat content 59 ms after open (cache) 11-14 10:33:41.440  7438  7438 I YidPerf : Chat content 28 ms after open 11-14 10:33:55.435  7438  7438 I YidPerf : Chat content 39 ms after open 11-14 10:34:12.999  7438  7438 I YidPerf : Chat content 74 ms after open (cache) 11-14 10:36:49.799  7438  7438 I YidPerf : Chat content 1232 ms after open 
+[10:37:01] CH all writes: 48
+[10:37:01] ---- qa/fx-cl.sh ----
+[10:37:10] screen 480x640 @ 240 dpi
+[10:37:13] CL nav mode: 2
+[10:37:15] open https://yidplus.com/chat
+[10:37:33] shot CL-B01-list-480x640
+[10:37:35] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (top)
+[10:37:35] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[10:37:36] CL ok: 'New chat' not shown
+[10:37:38] CL ok: 'Edit' not shown
+[10:37:39] CL ok: 'Search chats' on screen
+[10:37:41] CL ok: 'Start new chat' on screen
+[10:37:44] CL ok: 'Status' on screen
+[10:37:45] CL ok: 'AI chat' on screen
+[10:37:47] CL texts blockers-list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[10:38:01] shot CL-B02-list-end-fab-hidden-while-scrolling-down
+[10:38:03] CL rows: 4 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: none (end-scrolling)
+[10:38:06] shot CL-B02b-list-end-fab-back-last-row-above-it
+[10:38:07] CL rows: 5 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (end-fab-back)
+[10:38:21] cltap 'Search chats'
+[10:38:23] shot CL-B03-search-empty
+[10:38:25] CL texts search-empty:  content-desc="Close search"  content-desc="Search field"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[10:38:26] CL ok: 'Close search' on screen
+[10:38:28] shot CL-B04-search-typing-yo
+[10:38:34] shot CL-B05-search-results-yossi
+[10:38:36] CL ok: 'Yossi Klein' on screen
+[10:38:37] CL texts search-results:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="Messages"  text="YK"  text="Yossi Klein"  text="Wed"  text="Yossi Klein: Yossi here — see you at the simcha tonight"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[10:38:44] open https://yidplus.com/chat
+[10:38:58] shot CL-B06-list-theme-ocean
+[10:38:59] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (ocean)
+[10:38:59] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[10:39:01] open https://yidplus.com/chat
+[10:39:15] shot CL-B07-list-dark
+[10:39:16] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (dark)
+[10:39:16] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[10:39:22] open chat r-dm1
+[10:39:22] shot CL-B08-chat-open-dark
+[10:39:26] open https://yidplus.com/chat
+[10:39:48] shot CL-B09-dpad-focus-row
+[10:39:52] shot CL-B10-dpad-ok-opened-chat
+[10:39:55] CL ok: app alive after blockers
+[10:39:55] open https://yidplus.com/chat
+[10:40:23] cltap 'Search chats'
+[10:40:31] CL chips row scrolled off with the list: scrolling to the top to reach 'Private'
+[10:40:42] cltap 'Private'
+[10:40:49] cltap 'All'
+[10:40:53] cltap 'Menu'
+[10:41:03] CL video: 366360 bytes
+[10:41:03] open https://yidplus.com/chat
+[10:41:11] shot CL-01-list
+[10:41:12] CL texts list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[10:41:14] CL ok: 'Empty Chat' not shown
+[10:41:16] CL ok: 'Menu' on screen
+[10:41:19] CL ok: 'Status' on screen
+[10:41:26] shot CL-02-chips-end
+[10:41:28] CL ok: 'Work' on screen
+[10:41:31] CL ok: 'Chat folders' on screen
+[10:41:34] cltap 'Work'
+[10:41:36] shot CL-04-folder-work
+[10:41:38] CL texts folder:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Groups"  text="Groups"  text="12"  content-desc="Channels"  text="Channels"  text="1"  content-desc="Work"  text="Work"  content-desc="Chat folders"  text="D"  text="DealPoint"  text="Mon"  text="די פרייז איז $45"  text="P"  text="Python לערנען"  text="Sun"  text="Shimel'a: ווער קען העלפן?"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[10:41:39] CL ok: 'DealPoint' on screen
+[10:41:41] CL ok: 'Yossi Klein' not shown
+[10:41:53] cltap 'Work'
+[10:42:03] cltap 'All'
+[10:42:13] CL All tab, rows with an unread badge at this point: Yossi Klein,חברים פון שול,Berel Links,
+[10:42:19] cltap 'Unread'
+[10:42:21] shot CL-05-tab-unread
+[10:42:22] CL texts unread-tab:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="5"  content-desc="Groups"  text="Groups"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YP"  text="YID PLUS נייעס"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[10:42:24] CL Unread tab: 4 badged rows, 3 full rows; badged titles: Yossi Klein,חברים פון שול,Berel Links,YID PLUS נייעס,
+[10:42:24] CL ok: 'Yossi Klein' (unread in All) is in the Unread tab
+[10:42:24] CL ok: 'חברים פון שול' (unread in All) is in the Unread tab
+[10:42:24] CL ok: 'Berel Links' (unread in All) is in the Unread tab
+[10:42:24] CL ok: every full row in the Unread tab has an unread badge
+[10:42:29] cltap 'All'
+[10:42:42] CL ok: Telegram channel row in the list
+[10:42:42] shot CL-03-list-telegram-rows
+[10:42:54] long-press '258'
+[10:42:55] shot CL-06-selected
+[10:42:56] CL ok: 'Pin' on screen
+[10:42:58] CL ok: 'Mark as read' on screen
+[10:43:01] cltap 'Pin'
+[10:43:11] shot CL-07-pinned-top
+[10:43:12] CL texts pinned:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  content-desc="Pinned"  text="2"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[10:43:17] long-press '258'
+[10:43:21] cltap 'Unpin'
+[10:43:22] CL unpinned again
+[10:43:35] long-press '258'
+[10:43:38] cltap 'Mute'
+[10:43:39] shot CL-08-mute-choices
+[10:43:43] cltap '8 hours'
+[10:43:46] cltap 'OK'
+  YidFx: 11-14 10:43:44.279  9028  9069 I YidFx   : PUT /api/chat/rooms {"room_id":"r-dm1","muted":true}
+[10:43:48] CL ok: sent "room_id":"r-dm1","muted":true
+[10:44:01] long-press '258'
+[10:44:05] cltap 'Mark as read'
+  YidFx: 11-14 10:44:02.571  9028 11617 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+[10:44:07] CL ok: sent /api/chat/read
+[10:44:23] long-press '258'
+[10:44:26] cltap 'Delete'
+[10:44:27] shot CL-09-delete-confirm
+[10:44:31] cltap 'Delete chat'
+  YidFx: 11-14 10:44:28.949  9028  9069 I YidFx   : DELETE /api/chat/rooms?room_id=r-dm3 < 0 bytes>
+[10:44:33] CL ok: sent DELETE /api/chat/rooms?room_id=r-dm3
+[10:44:47] long-press '258'
+[10:44:50] cltap 'Berel Links' (scrolled)
+[10:44:50] shot CL-10-two-selected
+[10:45:03] cltap 'Menu'
+[10:45:06] shot CL-11-drawer
+[10:45:07] CL texts drawer:  text="מ"  text="משה'לע"  text="@משה'לע"  text="My Profile"  text="Saved Messages"  text="Chat Folders"  text="New Group"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[10:45:16] CL ok: 'Admin Panel' in the side menu
+[10:45:16] shot CL-11b-drawer-bottom
+[10:45:22] cltap 'Menu'
+[10:45:27] cltap 'Chat Folders'
+[10:45:30] shot CL-12-folders
+[10:45:32] CL ok: 'Work' on screen
+[10:45:35] cltap 'Folder name'
+[10:45:49] cltap 'Python' (scrolled)
+[10:45:49] shot CL-12b-folder-new
+[10:46:00] cltap 'Create'
+  YidFx: 11-14 10:45:58.047  9028 11617 I YidFx   : POST /api/chat/folders {"name":"Family and friends","icon":"📁","filter":"custom","room_ids":["r-g3"],"sort_order":1}
+[10:46:02] CL ok: sent "name":"Family and friends"
+[10:46:06] cltap 'Delete folder Work'
+[10:46:07] shot CL-12c-folder-delete
+[10:46:10] cltap 'Delete'
+  YidFx: 11-14 10:46:08.300  9028  9069 I YidFx   : DELETE /api/chat/folders?id=cl-f1 < 0 bytes>
+[10:46:12] CL ok: sent DELETE /api/chat/folders?id=cl-f1
+[10:46:18] cltap 'Menu'
+[10:46:27] cltap 'Chat settings' (scrolled)
+[10:46:29] shot CL-13-chat-settings
+[10:46:33] cltap 'Large'
+[10:46:34] shot CL-13b-font-large
+[10:46:38] cltap 'Read receipts'
+[10:46:42] cltap 'Medium'
+[10:46:45] open https://yidplus.com/chat
+[10:46:53] long-press '258'
+[10:46:58] cltap 'Mute'
+[10:47:04] cltap 'Cancel'
+[10:47:09] open chat r-g1
+[10:47:12] cltap 'More'
+[10:47:16] cltap 'Group info'
+[10:47:24] cltap 'Edit'
+[10:47:40] CL video 2: 334261 bytes
+[10:47:46] open chat r-g1
+[10:47:49] cltap 'More'
+[10:47:53] cltap 'Group info'
+[10:47:56] shot CL-14-group-info
+[10:47:57] CL texts info:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="ח"  content-desc="Change photo"  text="חברים פון שול"  text="Group · 6 members"  text="Message"  text="Call"  text="Video"  text="Add"  text="א גרופע פאר די חברים פון שול · Shul friends" 
+[10:48:05] cltap 'Mute notifications' (scrolled)
+[10:48:06] shot CL-14b-mute
+[10:48:09] cltap '1 week'
+[10:48:13] cltap 'OK'
+  YidFx: 11-14 10:48:10.702  9028  9069 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","muted":true}
+[10:48:15] CL ok: sent "room_id":"r-g1","muted":true
+[10:48:18] cltap 'Disappearing messages' (scrolled)
+[10:48:19] shot CL-18-disappearing
+[10:48:23] cltap '1 day'
+  YidFx: 11-14 10:48:20.970  9028  9069 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","auto_delete_minutes":1440}
+[10:48:25] CL ok: sent "auto_delete_minutes":1440
+[10:48:29] cltap 'Invite link' (scrolled)
+[10:48:31] shot CL-19-invite
+[10:48:34] cltap 'Revoke link'
+[10:48:36] shot CL-19b-revoke-confirm
+[10:48:37] CL texts revoke:  text="Revoke the current invite link and create a new one? The old link will stop working."  text="Cancel"  text="Revoke" 
+[10:48:41] cltap 'Revoke'
+  YidFx: 11-14 10:48:38.855  9028 13520 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","revoke_invite":true}
+[10:48:43] CL ok: sent "revoke_invite":true
+[10:48:46] cltap 'Close'
+[10:48:54] cltap 'Files' (scrolled)
+[10:48:54] shot CL-15-info-media-tab
+[10:48:57] cltap 'Files'
+[10:48:58] shot CL-15b-files
+[10:49:02] cltap 'Links'
+[10:49:03] shot CL-15c-links
+[10:49:06] cltap 'Voice'
+[10:49:08] shot CL-15d-voice
+[10:49:11] cltap 'Media'
+[10:49:25] cltap 'Yanky Weiss' (scrolled)
+[10:49:26] shot CL-17-member-sheet
+[10:49:30] cltap 'Set title'
+[10:49:34] shot CL-17a-title
+[10:49:37] cltap 'Save'
+  YidFx: 11-14 10:49:35.416  9028 13520 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-yanky","member_title":"Gabbai"}
+[10:49:39] CL ok: sent "member_title":"Gabbai"
+[10:49:43] cltap 'Shaya' (scrolled)
+[10:49:48] cltap 'Remove from group'
+[10:49:49] shot CL-17b-remove-confirm
+[10:49:52] cltap 'Remove'
+  YidFx: 11-14 10:49:50.232  9028  9069 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-shaya","remove":true}
+[10:49:54] CL ok: sent "remove":true
+[10:49:54] shot CL-16-members
+  clseek 'Report group': 7 swipes in 25 s; screen texts:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="BL"  text="Berel Links"  text="S"  text="Shaya"  text="בעל קורא"  text="YW"  text="Yanky Weiss"  text="Leave group"  text="Delete for everyone" 
+[10:50:19] CL NOTE (not a pass): no 'Report group' for the owner after scrolling the whole page; the intended owner permission is not established from requirements
+[10:50:19] CL MISSING: 'Report group' as a NON-owner is not exercised in this fixture; owner intent unestablished
+[10:50:28] CL ok: 'Group info' on screen
+[10:50:32] cltap 'Edit'
+[10:50:35] shot CL-20-edit-top
+[10:50:36] CL texts edit:  content-desc="Back"  text="Edit group"  text="חברים פון שול"  text="ח"  content-desc="Change photo"  text="חברים פון שול"  text="Group name"  text="א גרופע פאר די חברים פון שול · Shul friends"  text="Description"  text="212"  text="Save name &amp; description"  text="Group type"  text="Public group" 
+[10:50:44] cltap 'Approve new members' (scrolled)
+  YidFx: 11-14 10:50:41.525  9028  9069 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","approve_members":false}
+[10:50:46] CL ok: sent "approve_members":false
+[10:50:46] shot CL-20b-edit-mid
+[10:50:53] cltap 'Send Messages' (scrolled)
+  YidFx: 11-14 10:50:50.753  9028 14706 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","read_only":true}
+[10:50:55] CL ok: sent "read_only":true
+[10:50:55] shot CL-20c-edit-flipped
+[10:50:58] cltap 'Send Media' (scrolled)
+[10:51:01] shot CL-21-send-media
+[10:51:11] cltap 'Polls' (scrolled)
+  YidFx: 11-14 10:51:09.115  9028 14706 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":false,"pin_messages":false,"change_info":false}}
+[10:51:13] CL ok: sent "polls":true
+[10:51:26] cltap 'Add Users' (scrolled)
+  YidFx: 11-14 10:51:24.112  9028 14706 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":true,"pin_messages":false,"change_info":false}}
+[10:51:28] CL ok: sent "add_users":true
+[10:51:46] cltap 'Administrators' (scrolled)
+[10:51:48] shot CL-22-admins
+[10:52:01] cltap 'Members' (scrolled)
+[10:52:03] shot CL-22b-members
+[10:52:05] shot CL-20d-edit-bottom
+[10:52:15] open chat r-dm1
+[10:52:19] cltap 'More'
+[10:52:22] cltap 'Contact info'
+[10:52:25] shot CL-23-contact-info
+[10:52:25] CL note: fixture me is the site owner, so online is shown (site rule: admins only)
+[10:52:36] cltap 'Report Yossi Klein' (scrolled)
+[10:52:37] shot CL-24-report
+[10:52:40] cltap 'Harassment'
+[10:52:44] cltap 'Submit Report'
+  YidFx: 11-14 10:52:41.926  9028 14706 I YidFx   : POST /api/reports {"reported_id":"u-yossi","room_id":"r-dm1","message_id":null,"reason":"harassment","details":""}
+[10:52:46] CL ok: sent /api/reports
+[10:52:51] open https://yidplus.com/chat
+[10:52:57] cltap 'Start new chat'
+[10:53:02] cltap 'New group'
+[10:53:04] shot CL-25-new-group
+[10:53:04] CL new group: Everyone can write left at its default (on)
+[10:53:07] cltap 'Group name'
+[10:53:13] cltap 'Create group' (scrolled)
+[10:53:14] CL (1-letter name must not send)
+[10:53:25] cltap 'Group name'
+[10:53:27] shot CL-25b-new-group-filled
+[10:53:30] cltap 'Create group' (scrolled)
+  YidFx: 11-14 10:53:28.134  9028 15298 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[10:53:33] CL ok: sent "name":"QA Group"
+  YidFx: 11-14 10:53:28.134  9028 15298 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[10:53:33] CL ok: sent "type":"group"
+[10:53:36] open https://yidplus.com/chat
+[10:53:42] cltap 'Start new chat'
+[10:53:47] cltap 'Join by invite link'
+[10:53:57] CL probe join wait 8s
+[10:53:57] CL probe input-queue before-back:  FocusedApplications:| FocusedWindows:| PendingEvent: <none>| InboundQueue: <empty>| Connections:| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>|
+[10:53:58] CL ime-diag join-before-back:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=125 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:54:02] CL ime-diag join-after-back:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=125 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:54:02] CL probe: keyboard still up after Back at the join step
+[10:54:02] CL probe input-queue still-up:  FocusedApplications:| FocusedWindows:| PendingEvent: <none>| InboundQueue: <empty>| Connections:| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>| WaitQueue: <empty>| OutboundQueue: <empty>|
+[10:54:02] shot CL-probe-0-after-back
+[10:54:07] CL probe sample after-chevron-tap: mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:54:07] shot CL-probe-1-after-chevron
+[10:54:11] CL probe sample after-ime-check-key: mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:54:11] shot CL-probe-2-after-check-key
+[10:54:11] CL probe: keyboard STILL up after chevron and check key
+[10:54:12] shot CL-diag-join-after-back
+[10:54:12] CL ime-diag join-logcat: --------- beginning of main|--------- beginning of system|--------- beginning of kernel|11-14 10:53:22.693  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:53:44.800  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:53:57.611  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:54:02.071   507   600 D InputDispatcher: Waiting to send key to Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity} because there are unprocessed events that may cause focus to ch|11-14 10:54:02.188  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:54:06.901  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:54:12] shot CL-26-invite-private
+[10:54:13] CL MISSING: 'Request to join' not on screen
+  clseek 'Request to join': 7 swipes in 25 s; screen texts:  content-desc="Start new chat"  content-desc="Back"  text="Join by invite link"  text="https://yidplus.com/chat?join=clpriv"  text="Paste the invite link" 
+[10:54:38] CL MISSING tap: 'Request to join' not found after scrolling
+[10:54:40] CL MISSING: no request with '"code":"clpriv"'
+[10:54:40] shot CL-26b-request-sent
+[10:54:42] open https://yidplus.com/chat
+[10:54:49] cltap 'Search chats'
+[10:54:51] shot CL-31-search-open
+[10:54:51] CL keyboard after search opens: mInputShown=true
+[10:54:53] shot CL-31b-search-typing
+[10:54:58] shot CL-31c-search-results
+[10:54:59] CL texts search-yossi:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[10:55:04] cltap 'Close search'
+[10:55:20] cltap 'Search chats'
+[10:55:26] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:55:29] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:55:32] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:55:32] CL ime-diag logcat-after-press-1: --------- beginning of main|--------- beginning of system|--------- beginning of kernel|11-14 10:54:40.224  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:54:42.408  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:54:42.494  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:54:42.618  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:54:47.108  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:54:56.304  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:02.302  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:55:17.874  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:26.001  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:55:32] shot CL-diag-still-up-1
+[10:55:35] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:55:38] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:55:38] CL ime-diag logcat-after-press-2: --------- beginning of main|--------- beginning of system|11-14 10:54:40.224  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:54:42.408  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:54:42.494  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:54:42.618  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:54:47.108  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:54:56.304  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:02.302  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|--------- beginning of kernel|11-14 10:55:17.874  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:26.001  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:55:38] shot CL-diag-still-up-2
+[10:55:41] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:55:44] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:55:44] CL ime-diag logcat-after-press-3: --------- beginning of main|--------- beginning of system|11-14 10:54:47.108  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:54:56.304  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:02.302  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|--------- beginning of kernel|11-14 10:55:17.874  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:26.001  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:38.262  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:55:44] shot CL-diag-still-up-3
+[10:55:44] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[10:55:44] shot CL-27-search
+[10:55:46] CL texts search-yid:  content-desc="Close search"  text="YID"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[10:55:51] cltap 'Close search'
+[10:56:07] cltap 'Search chats'
+[10:56:13] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:56:16] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:56:19] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:56:19] CL ime-diag logcat-after-press-1: --------- beginning of main|--------- beginning of system|11-14 10:55:17.874  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:26.001  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of kernel|11-14 10:55:38.262  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:49.150  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:56:04.757  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:12.852  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:56:19] shot CL-diag-still-up-1
+[10:56:22] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:56:25] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:56:25] CL ime-diag logcat-after-press-2: --------- beginning of main|--------- beginning of system|11-14 10:55:26.001  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of kernel|11-14 10:55:38.262  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:55:49.150  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:56:04.757  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:12.852  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:56:25] shot CL-diag-still-up-2
+[10:56:28] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:56:31] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:56:31] CL ime-diag logcat-after-press-3: --------- beginning of main|--------- beginning of kernel|11-14 10:55:38.262  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of system|11-14 10:55:49.150  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:56:04.757  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:12.852  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:25.176  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:56:31] shot CL-diag-still-up-3
+[10:56:31] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[10:56:31] shot CL-27b-search-people
+[10:56:33] CL MISSING: 'Contacts' not on screen
+[10:56:34] CL MISSING: 'Mendy Gold' not on screen
+[10:56:39] cltap 'Close search'
+[10:56:55] cltap 'Search chats'
+[10:56:58] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:57:01] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:57:04] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:57:04] CL ime-diag logcat-after-press-1: --------- beginning of main|--------- beginning of system|11-14 10:56:04.757  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:12.852  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of kernel|11-14 10:56:25.176  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:37.566  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:56:53.208  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:57.758  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:57:04] shot CL-diag-still-up-1
+[10:57:07] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:57:10] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:57:10] CL ime-diag logcat-after-press-2: --------- beginning of main|--------- beginning of system|11-14 10:56:12.852  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of kernel|11-14 10:56:25.176  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:37.566  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:56:53.208  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:57.758  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:57:10] shot CL-diag-still-up-2
+[10:57:13] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:57:16] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:57:16] CL ime-diag logcat-after-press-3: --------- beginning of main|--------- beginning of kernel|11-14 10:56:25.176  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of system|11-14 10:56:37.566  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:56:53.208  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:56:57.758  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:57:10.053  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:57:16] shot CL-diag-still-up-3
+[10:57:16] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[10:57:16] shot CL-31d-search-recent
+[10:57:18] CL MISSING: 'Recent searches' not on screen
+[10:57:23] cltap 'Unread'
+[10:57:24] shot CL-31e-chip-unread
+[10:57:30] cltap 'Unread'
+[10:57:34] cltap 'Photos'
+[10:57:36] shot CL-31f-chip-photos
+[10:57:39] clchip tapped the 'Photos' chip at 353 162
+[10:57:47] clchip tapped the 'Links' chip at 186 162
+[10:57:49] shot CL-31g-chip-links
+[10:57:53] clchip tapped the 'Links' chip at 216 162
+[10:57:54] shot CL-31g2-links-toggled-off
+[10:57:55] CL chip 'Links' node after toggle (expected off): <node index="0" text="Links" resource-id="" class="android.widget.TextView" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false"
+[10:58:00] cltap 'Close search'
+[10:58:16] cltap 'Search chats'
+[10:58:22] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:58:25] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:58:28] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:58:28] CL ime-diag logcat-after-press-1: --------- beginning of main|--------- beginning of system|--------- beginning of kernel|11-14 10:57:58.302  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:58:13.825  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:58:21.912  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:58:28] shot CL-diag-still-up-1
+[10:58:31] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:58:34] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:58:34] CL ime-diag logcat-after-press-2: --------- beginning of main|--------- beginning of system|11-14 10:57:58.302  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|--------- beginning of kernel|11-14 10:58:13.825  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:58:21.912  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:58:34] shot CL-diag-still-up-2
+[10:58:37] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:58:40] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:58:40] CL ime-diag logcat-after-press-3: --------- beginning of main|--------- beginning of system|11-14 10:57:58.302  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|--------- beginning of kernel|11-14 10:58:13.825  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:58:21.912  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:58:34.221  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:58:40] shot CL-diag-still-up-3
+[10:58:40] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[10:58:40] shot CL-31h-no-results
+[10:58:42] CL MISSING: 'No results found' not on screen
+[10:58:47] cltap 'Close search'
+[10:59:03] cltap 'Search chats'
+[10:59:09] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:59:12] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:59:15] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:59:15] CL ime-diag logcat-after-press-1: --------- beginning of main|--------- beginning of system|11-14 10:58:13.825  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:58:21.912  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of kernel|11-14 10:58:34.221  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:58:45.059  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:59:00.691  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:59:08.777  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:59:15] shot CL-diag-still-up-1
+[10:59:18] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:59:21] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:59:21] CL ime-diag logcat-after-press-2: --------- beginning of main|--------- beginning of system|11-14 10:58:21.912  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of kernel|11-14 10:58:34.221  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:58:45.059  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:59:00.691  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:59:08.777  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:59:21] shot CL-diag-still-up-2
+[10:59:24] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@b3074e4 softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{92e8992 uid=10130 pid=9028 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{3976d4d u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[10:59:27] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[10:59:27] CL ime-diag logcat-after-press-3: --------- beginning of main|--------- beginning of kernel|11-14 10:58:34.221  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|--------- beginning of system|11-14 10:58:45.059  1315  1315 I LatinIME: Starting input. Cursor position = -1,-1|11-14 10:59:00.691  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:59:08.777  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|11-14 10:59:21.052  1315  1315 I LatinIME: Starting input. Cursor position = 0,0|
+[10:59:27] shot CL-diag-still-up-3
+[10:59:27] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[10:59:29] CL MISSING tap: 'Mendy Gold' not on screen
+[10:59:31] CL MISSING: no request with '"other_user_id":"u-mendy"'
+[10:59:41] open https://yidplus.com/chat
+[10:59:44] shot CL-28-list-dark
+[10:59:45] CL MISSING tap: 'Menu' not on screen
+[10:59:47] shot CL-28b-drawer-dark
+[10:59:54] open chat r-g1
+[10:59:58] cltap 'More'
+[11:00:01] cltap 'Group info'
+[11:00:03] shot CL-28c-info-dark
+[11:00:10] open https://yidplus.com/chat
+[11:00:13] shot CL-29-list-theme1
+[11:00:19] long-press '258'
+[11:00:19] shot CL-29b-select-theme1
+[11:00:23] shot CL-29c-list-lightbar
+[11:00:27] cltap 'Menu'
+[11:00:28] shot CL-29d-drawer-lightbar
+[11:00:35] screen 1080x2400 @ 420 dpi
+[11:00:35] open https://yidplus.com/chat
+[11:00:39] shot CL-30-list-1080
+[11:00:43] cltap 'Menu'
+[11:00:44] shot CL-30b-drawer-1080
+[11:00:47] screen 480x640 @ 240 dpi
+[11:00:49] CL all writes: 76
+[11:00:49] fixture writes the app would have sent: 76
+[11:00:54] fixture false
