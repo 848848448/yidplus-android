@@ -208,6 +208,58 @@ key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voi
 if csfindexact "0:08" 12; then csplayat "0:08"; sleep 2; shot CS-06w-webm-playing; else log "CS MISSING: the WebM voice bubble 0:08 is not on screen"; fi
 # 1: voice note recording — tap = hands-free (pause, stop to listen, send)
 key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked
+csfocusnow() { timeout 20 adb shell uiautomator dump /sdcard/f.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/f.xml > "$OUT/$1.xml" 2>/dev/null; python3 - "$OUT/$1.xml" <<'PYEOF'
+import sys
+import xml.etree.ElementTree as ET
+try:
+    root = ET.parse(sys.argv[1]).getroot()
+except Exception as e:
+    print("ERR parse %s" % e); sys.exit(0)
+for n in root.iter('node'):
+    if n.get('focused') == 'true':  # EditText included: run 43516626433 base legs showed the composer EditText holding focus ([] paths) while the old filter hid it
+        d = n.get('content-desc') or n.get('text') or ''
+        if not d:
+            for c in n.iter('node'):
+                d = c.get('content-desc') or c.get('text') or ''
+                if d: break
+        print("%s|%s|%s" % (n.get('class', '').split('.')[-1], d, n.get('bounds')))
+        break
+PYEOF
+}
+
+# csedit: centre of the composer EditText ("x y"), from a fresh dump
+csedit() { timeout 20 adb shell uiautomator dump /sdcard/ce.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/ce.xml 2>/dev/null | tr '>' '\n' | grep 'class="android.widget.EditText"' | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | head -1 | grep -oE '[0-9]+' | tr '\n' ' ' | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
+# csclean: leave the composer with NO draft and the mic showing, or return 1 (a draft swaps the mic for Send and would make later voice steps fail for the wrong reason)
+csclean() { local try p
+  for try in 1 2 3; do
+    [ -n "$(cspos "Record voice message")" ] && { log "CS clean-state: mic present, no draft (try $try)"; return 0; }
+    p=$(csedit); [ -n "$p" ] && { set -- $p; adb shell input tap $1 $2; sleep 1; }
+    adb shell input keyevent KEYCODE_MOVE_END; for i in $(seq 1 30); do adb shell input keyevent KEYCODE_DEL; done; sleep 1.5
+  done
+  [ -n "$(cspos "Record voice message")" ] && return 0 || return 1; }
+# targeted composer-escape check (clean state, no voice steps): from the composer text field, RIGHT must reach the controls beside it. Empty draft first, then with a typed draft (Send), each ending with a verified clean composer.
+VOICEBAD=""
+csroom 5
+if ! csclean; then log "CS BLOCKED: composer could not be cleaned before the escape check; the escape check and every voice step are INVALID this run (not an app verdict)"; VOICEBAD=1; FAIL=1
+else
+  # focus the text field by touch, hide the keyboard, keep the focus
+  p=$(csedit); [ -n "$p" ] && { set -- $p; adb shell input tap $1 $2; sleep 1; adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  f0=$(csfocusnow CS-24e-escape-start); EP=""
+  case "$f0" in EditText*) log "CS escape check start (empty draft): focus [$f0]"
+    for k in 22 22 22 22; do key $k; sleep 0.5; f=$(csfocusnow CS-24e-escape-step); EP="$EP [$f]"; case "$f" in *"Record voice message"*|*Attach*|*Emoji*|*Camera*) break ;; esac; done
+    case "$EP" in *"Record voice message"*|*Attach*|*Emoji*|*Camera*) log "CS ok: RIGHT from the empty composer field reached a composer control (focus path:$EP)" ;; *) log "CS WRONG: RIGHT from the empty composer field did not reach Attach/Emoji/Camera/mic (focus path:$EP)"; FAIL=1 ;; esac ;;
+    *) log "CS MISSING: the composer field did not hold focus after a touch (focus: [$f0]); escape check not exercised" ;; esac
+  shot CS-24e-escape-empty
+  # with a typed draft
+  p=$(csedit); [ -n "$p" ] && { set -- $p; adb shell input tap $1 $2; sleep 1; }
+  adb shell input text ab; sleep 1; adb shell input keyevent KEYCODE_BACK; sleep 1
+  if [ -n "$(cspos "Send")" ]; then EP2=""; for k in 22 22 22 22; do key $k; sleep 0.5; f=$(csfocusnow CS-24f-escape-draft-step); EP2="$EP2 [$f]"; case "$f" in *Send*|*Attach*|*Emoji*|*Camera*) break ;; esac; done
+    case "$EP2" in *Send*|*Attach*|*Emoji*|*Camera*) log "CS ok: RIGHT from the composer field with a typed draft reached a composer control (focus path:$EP2)" ;; *) log "CS WRONG: RIGHT from the composer field with a typed draft did not reach a control (focus path:$EP2)"; FAIL=1 ;; esac
+  else log "CS MISSING: typing a draft did not turn the mic into Send; draft escape check not exercised"; fi
+  shot CS-24f-escape-draft
+  if csclean; then log "CS ok: composer cleaned again after the escape check (no draft, mic present)"; else log "CS BLOCKED: composer could not be cleaned after the escape check; later voice steps are INVALID this run (not an app verdict)"; VOICEBAD=1; FAIL=1; fi
+fi
+if [ -n "$VOICEBAD" ]; then log "CS BLOCKED: touch-start voice steps skipped (composer not clean)"; else
 # touch-start recording: the decisive check is the ACTION, not the focus dump. After the touch start and ONE D-pad DOWN, OK must post a NEW fixture voice message and end the recording. The focus dumps are informational (uiautomator can fail to dump while the recording animates; run 43540218049 showed the gold ring on Send in the pixels while the dump said none), so each is retried and its XML kept.
 VT0=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice')
 f=$(csfocusnow CS-07x-touch-start-focus); log "CS touch-start recording: focus right after the touch start: [${f:-none}] (informational)"
@@ -222,6 +274,7 @@ if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' 
 # fresh touch-start recording for the pause/resume/listen/send checks below
 if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-07z-touch-start-after-ok.xml"; then cstap "Delete recording"; sleep 2; fi
 cstap "Record voice message"; sleep 3
+fi
 cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
 # duration check on its own straight recording (no pause), timed with the clock: T0 and T1 are both taken right after a cstap returns (each includes the same 1.5 s post-tap wait), so T1-T0 is the recording length within ~1 s
@@ -266,24 +319,7 @@ cstap "More"; sleep 1; cstap "Copy invite link"; sleep 1; csfx "generate_invite"
 csroom 5; csrec CS-flow-dpad 28
 for k in 20 20 20 22 22 22; do key $k; sleep 0.7; done; shot CS-22-dpad-focus
 VC0=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice')
-csfocusnow() { timeout 20 adb shell uiautomator dump /sdcard/f.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/f.xml > "$OUT/$1.xml" 2>/dev/null; python3 - "$OUT/$1.xml" <<'PYEOF'
-import sys
-import xml.etree.ElementTree as ET
-try:
-    root = ET.parse(sys.argv[1]).getroot()
-except Exception as e:
-    print("ERR parse %s" % e); sys.exit(0)
-for n in root.iter('node'):
-    if n.get('focused') == 'true':  # EditText included: run 43516626433 base legs showed the composer EditText holding focus ([] paths) while the old filter hid it
-        d = n.get('content-desc') or n.get('text') or ''
-        if not d:
-            for c in n.iter('node'):
-                d = c.get('content-desc') or c.get('text') or ''
-                if d: break
-        print("%s|%s|%s" % (n.get('class', '').split('.')[-1], d, n.get('bounds')))
-        break
-PYEOF
-}
+if [ -n "$VOICEBAD" ]; then log "CS BLOCKED: D-pad voice flow skipped (composer not clean); not an app verdict"; else
 # 1) reach the mic with the D-pad only: DOWN a few times, then RIGHT a few times
 FOUNDM=""; PATHM=""
 for k in 20 20 20 20 22 22 22 22 22 22; do f=$(csfocusnow CS-22b-focus-mic); PATHM="$PATHM [$f]"; case "$f" in *"Record voice message"*) FOUNDM=1; break ;; esac; key $k; done
@@ -304,6 +340,7 @@ if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' 
   cstap "Delete recording"; sleep 2; csdump CS-23c-after-discard >/dev/null
   if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-23c-after-discard.xml"; then log "CS WRONG: the recording could not be discarded; later checks are contaminated"; else log "CS recording discarded; composer is clean again"; fi
 else log "CS ok: no recording active after the D-pad send step (test state clean)"; fi
+fi
 sleep 14; cspull CS-flow-dpad
 timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -E 'r-cs|polls|reports|reactions|stickers|generate_invite' | cut -c1-400 > "$OUT/fx-cs-requests.txt"
 # ---- offline-replay resilience check (NOT a proof of containment): with the emulator network switched off and a real HTTP probe failing, the fixture chat and voice note must still work.
