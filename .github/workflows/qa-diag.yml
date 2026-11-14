@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Apply the diagnostic logging patch (workspace only, never committed; QA logging, no behaviour change)
-        run: git apply --check diag/app-diag2.patch && git apply diag/app-diag2.patch && git diff --stat
+        run: git apply --check diag/app-diag3.patch && git apply diag/app-diag3.patch && git diff --stat
       - name: Signing key (from repository secrets only)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -55,12 +55,18 @@ jobs:
         with:
           name: diag-apk
           path: dist/
+      - name: Resolved Compose versions (from this build's runtime classpath)
+        if: always()
+        run: |
+          mkdir -p /tmp/log
+          gradle :app:dependencies --configuration releaseRuntimeClasspath --no-daemon -q 2>&1 | grep -E "androidx\.compose\.(ui|foundation|material3|runtime)[a-z-]*:|compose-bom|androidx\.activity:activity-compose|coil" | sed 's/^[ |+\\-]*//' | sort -u > /tmp/log/compose-versions.txt || true
+          cat /tmp/log/compose-versions.txt
       - name: Publish build log
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p /tmp/log && (grep -E "^e: |error:|FAILED|BUILD|What went wrong" -A3 build.log | head -300 > /tmp/log/errors.txt || true)
+          mkdir -p /tmp/log; (grep -E "^e: |error:|FAILED|BUILD|What went wrong" -A3 build.log | head -300 > /tmp/log/errors.txt || true)
           tail -400 build.log > /tmp/log/build-tail.txt 2>/dev/null || true
           ls -la dist/ > /tmp/log/dist.txt 2>/dev/null || true
           cd /tmp/log && git init -q && git checkout -q -b ci-log-diag-${{ github.ref_name }} && git add -A
@@ -75,12 +81,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: jn7a, wait: '2', mode: 'ctrl', af: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: jn7b, wait: '2', mode: 'ctrl', af: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: jn7c, wait: '2', mode: 'ctrl', af: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: jn7d, wait: '2', mode: 'ctrl', af: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: jn7e, wait: '2', mode: 'ctrl', af: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: jn7f, wait: '2', mode: 'ctrl', af: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: an8a, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: an8b, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: an8c, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: an8d, wait: '2', mode: 'ctrl', anim: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: an8e, wait: '2', mode: 'ctrl', anim: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: an8f, wait: '2', mode: 'ctrl', anim: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -89,7 +95,7 @@ jobs:
           path: dist/
       - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl6.sh qa/fx-cl.sh
+        run: cp diag/fx-cl7.sh qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
@@ -103,7 +109,7 @@ jobs:
           QA_FX: ${{ matrix.fx }}
           CL_JOIN_WAIT: ${{ matrix.wait }}
           CL_JOIN_MODE: ${{ matrix.mode }}
-          CL_AUTOFILL: ${{ matrix.af }}
+          CL_ANIM: ${{ matrix.anim }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
