@@ -1,0 +1,17 @@
+candidate 2.2.0 built from 19c571cddccdc0ca14070721b9c61ee671a8ddb1
+feed latest: {"versionCode":20101,"versionName":"2.1.1","sha256":"534fda6380e9c5a01b0d0f368c526f062c37ed30f8e3201d224374328ce20108","size":5811704}
+old apk sha256: 534fda6380e9c5a01b0d0f368c526f062c37ed30f8e3201d224374328ce20108 size 5811704
+new apk sha256: 3e1416cea6ce341ede27137b04870b7d92609cc5f738b481e7eb8c1a7de2bf90 size 5795324
+--- old badging
+package: name='com.yidplus.app' versionCode='20101' versionName='2.1.1' platformBuildVersionName='14' platformBuildVersionCode='34' compileSdkVersion='34' compileSdkVersionCodename='14'
+minSdkVersion:'24'
+--- new badging
+package: name='com.yidplus.app' versionCode='20200' versionName='2.2.0' platformBuildVersionName='14' platformBuildVersionCode='34' compileSdkVersion='34' compileSdkVersionCodename='14'
+minSdkVersion:'24'
+--- old cert
+V2 Signer: certificate DN: CN=YID PLUS, O=YID PLUS, C=US
+V2 Signer: certificate SHA-256 digest: c5e50a23521cf2cb9b235d28192902ecb8be0583572c7f0ad676e10891144521
+--- new cert
+V2 Signer: certificate DN: CN=YID PLUS, O=YID PLUS, C=US
+V2 Signer: certificate SHA-256 digest: c5e50a23521cf2cb9b235d28192902ecb8be0583572c7f0ad676e10891144521
+OK cert identical, candidate versionCode 20200 > feed 20101, old apk hash equals the feed
