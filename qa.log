@@ -1,0 +1,668 @@
+[08:23:14] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[08:23:17] screen 480x640 @ 240 dpi
+[08:23:17] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[08:23:17] ---- Signed in (QA fixture account) ----
+[08:23:21] fixture true
+[08:23:30] shot F01-home-signedin
+[08:23:30] open https://yidplus.com/chat
+[08:23:35] shot F02-chats-list
+[08:23:37] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[08:23:44] shot F03-chat-dm
+[08:23:46] shot F03b-chat-dm-up
+[08:23:49] open https://yidplus.com/chat
+[08:24:04] shot F04-chat-group
+[08:24:06] shot F04b-group-up
+[08:24:08] shot F04c-group-top
+[08:24:11] shot F05-message-actions
+[08:24:21] shot F06-notifications
+[08:24:23] tab Home
+[08:24:26] shot F07-home-header
+[08:24:26] open https://yidplus.com/shorts
+[08:24:35] shot F08-shorts-signedin
+[08:24:35] tab Profile
+[08:24:39] shot F09-profile-signedin
+[08:24:50] shot F09b-profile-scrolled
+[08:25:04] open https://yidplus.com/chat
+[08:25:08] shot F10-chats-dark
+[08:25:14] shot F11-chat-dark
+[08:25:21] screen 1080x2400 @ 420 dpi
+[08:25:29] open https://yidplus.com/chat
+[08:25:34] shot F12-phone-chats
+[08:25:40] shot F13-phone-chat
+[08:25:44] screen 480x640 @ 240 dpi
+[08:25:44] ---- qa/fx-ad.sh ----
+[08:25:51] ---- AD: Settings (signed in) ----
+[08:25:51] tab Profile
+[08:25:55] shot AD-01-settings-top
+[08:25:57] shot AD-02-settings-reading
+[08:26:00] shot AD-03-settings-appearance-color
+[08:26:02] shot AD-04-settings-stats-account
+[08:26:04] shot AD-05-settings-verify-share
+[08:26:08] shot AD-06-settings-bottom
+[08:26:08] tab Profile
+[08:26:33] adfind tapped after 3 swipes
+[08:26:35] PROOF colour theme: LOOK color_theme=1 Ocean Blue
+[08:26:58] adfind tapped after 3 swipes
+[08:27:00] shot AD-07-ocean-blue-large-text
+[08:27:04] shot AD-07c-after-large-text-scroll
+[08:27:26] adfind tapped after 3 swipes
+[08:27:48] adfind tapped after 3 swipes
+[08:27:54] ad page EditProfile
+[08:27:54] shot AD-07b-edit-profile
+[08:28:02] adfind tapped after 1 swipes
+[08:28:09] adt '378'
+[08:28:12] PROOF save profile: PUT /api/profile {"location":"Brooklyn, NY_Monsey"}
+[08:28:16] ad page Privacy
+[08:28:16] shot AD-08-privacy
+[08:28:19] adt '96'
+[08:28:21] PROOF private account: PUT /api/profile {"is_private":1}
+[08:28:29] adfind tapped after 1 swipes
+[08:28:31] PROOF read receipts: PUT /api/profile {"read_receipts":0}
+[08:28:36] ad page NotifPrefs
+[08:28:40] adt '96'
+[08:28:42] PROOF notif likes: PUT /api/profile {"notif_likes":0}
+[08:28:42] shot AD-09-notif-prefs
+[08:28:47] ad page ChatSettings
+[08:28:51] adt '161'
+[08:28:52] shot AD-10-chat-settings
+[08:28:53] ---- AD: Notifications page ----
+[08:28:58] shot AD-11-notifications
+[08:29:02] adt '357'
+[08:29:04] PROOF mark all read: POST /api/notifications {"read":"all"}
+[08:29:04] shot AD-13-notifications-all-read
+[08:29:22] PROOF open one notification: POST /api/notifications {"read":"n1"}
+[08:29:22] shot AD-12-notification-opened
+[08:29:26] ---- AD: Admin (native) ----
+[08:29:32] ad page Admin
+[08:29:32] shot AD-20-admin-dashboard
+[08:29:34] shot AD-21-admin-manage
+[08:29:36] shot AD-22-admin-features
+[08:29:47] adfind tapped after 2 swipes
+[08:29:49] PROOF feature switch: PUT /api/settings {"key":"feat_music","value":"on"}
+[08:29:49] shot AD-23-admin-music-switched
+[08:29:53] adt '96'
+[08:29:57] shot AD-24-admin-web-sections
+[08:30:03] ad page AdminUsers
+[08:30:04] shot AD-25-admin-users
+[08:30:06] adtap text
+[08:30:10] shot AD-26-admin-users-search
+[08:30:17] ad page AdminUser
+[08:30:17] shot AD-27-admin-user
+[08:30:20] adt '96'
+[08:30:22] PROOF verify user: PUT /api/admin/users {"id":"u-yanky","verified":true}
+[08:30:41] adfind tapped after 2 swipes
+[08:30:47] adt '96'
+[08:30:49] PROOF mute user: POST /api/admin/mute {"user_id":"u-yanky","hours":24}
+[08:31:11] adfind tapped after 3 swipes
+[08:31:13] shot AD-28-admin-block-confirm
+[08:31:16] adt '371'
+[08:31:18] PROOF block user: PUT /api/admin/users {"id":"u-yanky","blocked":true}
+[08:31:22] adfind tapped after 0 swipes
+[08:31:27] adt '383'
+[08:31:30] PROOF promote: PUT /api/admin/users {"id":"u-yanky","role":"admin_super"}
+[08:31:30] shot AD-29-admin-user-after
+[08:31:36] ad page AdminReports
+[08:31:36] shot AD-30-admin-reports
+[08:31:40] adt '221'
+[08:31:42] PROOF dismiss report: DELETE /api/reports?id=r1 < 0 bytes>
+[08:31:45] adt '129'
+[08:31:51] adt '352'
+[08:31:53] PROOF ban from report: PUT /api/admin/users {"id":"u-mendy","blocked":true}
+[08:31:59] ad page AdminVerify
+[08:31:59] shot AD-31-admin-verify
+[08:32:03] adt '256'
+[08:32:05] PROOF approve verify: PUT /api/verify-request {"id":"v1","action":"approve"}
+[08:32:12] ad page AdminChannels
+[08:32:12] shot AD-32-admin-channels
+[08:32:16] adt '313'
+[08:32:18] PROOF verify channel: PUT /api/admin/users {"id":"u-chan1","verified":true}
+[08:32:25] ad page AdminTelegram
+[08:32:25] shot AD-33-admin-telegram
+[08:32:27] adtap text
+[08:32:35] adt '180'
+[08:32:37] PROOF add telegram channel: POST /api/telegram-channels {"username":"yidplustest","title":"","is_private":false,"allowed_users":""}
+[08:32:43] ad page AdminBroadcast
+[08:32:44] shot AD-34-admin-broadcast
+[08:32:46] adtap text
+[08:32:53] adt '192'
+[08:32:56] shot AD-35-broadcast-confirm
+[08:32:59] adt '374'
+[08:33:02] PROOF broadcast: POST /api/broadcasts {"text":"Shalom_everyone","segment":"all","sender_email":"avrumy@example.com"}
+[08:33:08] ad page AdminBadWords
+[08:33:09] shot AD-36-admin-word-filter
+[08:33:11] adtap text
+[08:33:19] adt '395'
+[08:33:21] PROOF add bad word: POST /api/admin/bad-words {"word":"testbadword"}
+[08:33:24] adt '42'
+[08:33:26] PROOF remove bad word: DELETE /api/admin/bad-words?id=w1 < 0 bytes>
+[08:33:32] ad page AdminWeb
+[08:33:33] shot AD-37-admin-web-pin
+[08:33:41] dump failed: ERROR: null root node returned by UiTestAutomationBridge.
+[08:33:42] adt: 'Unlock' not on screen; screen has: Back|Word filter|Blurred for everyone, with a warning while typing|Words|Phrases|Add a word|Add|spamword|Remove|badword|Remove|scam|Remove|Tap a word to take it off the list. Pasting a long list at once is on the website's admin page.|
+[08:33:49] PROOF admin pin: POST /api/admin/verify-pin {"pin":"1234"}
+[08:33:49] shot AD-38-admin-web-after-pin
+[08:33:50] ---- AD: dark mode ----
+[08:33:53] tab Profile
+[08:33:56] shot AD-40-settings-dark
+[08:34:01] ad page Admin
+[08:34:01] shot AD-41-admin-dark
+[08:34:07] shot AD-42-notifications-dark
+AdminWeb: --------- beginning of main
+AdminWeb: --------- beginning of system
+AdminWeb: --------- beginning of kernel
+AdminWeb: 11-14 08:33:35.150  4911  4911 I YidAdminWeb: webview 83.0.4103.120
+AdminWeb: 11-14 08:33:36.107  4911  4911 I YidAdminWeb: LOG An <img> element was lazyloaded with loading=lazy, but had no dimensions specified. Specifying dimensions improves performance. See https://crbug.com/954323 @:67
+[08:34:11] ---- qa/fx-ch.sh ----
+[08:34:18] open https://yidplus.com/chat
+[08:34:26] shot CH-01-chat-list
+[08:34:28] CH list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="2"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="3"  text="Channels"  text="Settings" 
+[08:34:30] shot CH-02-chips-scrolled
+[08:34:32] shot CH-02b-list-scrolled
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[396,405][468,477]" 
+[08:34:37] chtap 432 441
+[08:34:39] shot CH-03-fab-menu
+  node: text="New group" class="android.widget.TextView" content-desc="" bounds="[260,198][379,228]" 
+[08:34:43] chtap 319 213
+  node: text="Group name" class="android.widget.TextView" content-desc="" bounds="[150,179][284,212]" 
+[08:34:49] chtap 217 195
+[08:34:52] shot CH-03b-new-group
+  node: text="" class="android.widget.Button" content-desc="Create" bounds="[405,51][477,123]" 
+[08:34:55] chtap 441 87
+[08:35:10] open https://yidplus.com/chat
+  node: text="" class="android.widget.Button" content-desc="Start new chat" bounds="[396,405][468,477]" 
+[08:35:18] chtap 432 441
+  node: text="New chat" class="android.widget.TextView" content-desc="" bounds="[260,126][364,156]" 
+[08:35:23] chtap 312 141
+[08:35:30] shot CH-03c-new-chat
+[08:35:31] chtap: 'Dovid New' not on screen
+[08:35:46] open https://yidplus.com/chat
+  node: text="" class="android.view.View" content-desc="Search chats" bounds="[72,53][408,106]" 
+[08:35:53] chtap 240 79
+[08:35:56] keyboard shown after typing in search: mInputShown=true
+[08:36:00] keyboard shown after Back from search: mInputShown=false
+[08:36:00] shot CH-04-search-closed
+[08:36:06] open chat r-g1
+[08:36:06] shot CH-05-group-bottom
+  node: text="Yanky is typing…" class="android.widget.TextView" content-desc="" bounds="[141,90][287,123]" 
+[08:36:07] CH ok: 'typing' on screen
+  YidFx: 11-14 08:35:59.852  7400  7435 I YidFx   : POST /api/chat/read {"room_id":"r-g1","receipts":true}
+[08:36:09] shot CH-05b-group-up
+[08:36:11] shot CH-05c-group-top
+[08:36:14] open chat r-g1
+[08:36:14] shot CH-06-group-reopen-instant
+[08:36:24] open chat r-g2
+[08:36:24] shot CH-07-group-photo-header
+  node: text="&#128222; Group voice call · 12 min · 2:30 PM" class="android.widget.TextView" content-desc="" bounds="[72,430][408,454]" 
+[08:36:26] CH ok: 'Group voice call' on screen
+[08:36:33] open chat r-dm4
+[08:36:33] shot CH-07b-dm-missed-call
+  node: text="&#128222; Missed voice call · 6:30 PM" class="android.widget.TextView" content-desc="" bounds="[105,430][375,454]" 
+[08:36:35] CH ok: 'Missed voice call' on screen
+[08:36:43] open chat r-dm1
+[08:36:43] shot CH-08-dm-online-ticks-reacts
+[08:36:52] open chat r-dm2
+[08:36:52] shot CH-09-dm-last-seen-voice
+[08:37:00] open chat r-spy
+[08:37:00] shot CH-10-admin-spectating
+  node: text="&#128065; Viewing as Admin" class="android.widget.TextView" content-desc="" bounds="[141,87][329,120]" 
+[08:37:02] CH ok: 'Viewing as Admin' on screen
+[08:37:03] CH ok: 'Join group' not shown
+[08:37:12] open chat r-g4
+[08:37:12] shot CH-11-not-joined-group
+  node: text="Join group" class="android.widget.TextView" content-desc="" bounds="[188,502][292,532]" 
+[08:37:15] chtap 240 517
+  YidFx: 11-14 08:37:13.225  7400  7437 I YidFx   : POST /api/chat/join {"room_id":"r-g4"}
+[08:37:27] open chat r-links
+[08:37:27] shot CH-12-links-cards
+[08:37:30] shot CH-12b-links-up
+[08:37:33] shot CH-12c-links-top
+[08:37:37] screen 1080x2400 @ 420 dpi
+[08:37:44] open chat r-links
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1954][417,2003]" 
+[08:37:48] bubble at: 232 1978
+[08:37:50] shot CH-13-swipe-reply
+  node: text="Reply to Berel Links" class="android.widget.TextView" content-desc="" bounds="[135,1218][442,1276]" 
+[08:37:52] CH ok: 'Reply to' on screen
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[08:37:59] chtap 1006 1423
+[08:38:01] shot CH-13b-swipe-reply-sent
+  YidFx: 11-14 08:37:57.317  7400  7436 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Swipe reply OK","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,902][417,951]" 
+[08:38:07] long-press 232 926
+[08:38:07] shot CH-14-long-press-menu
+  node: text="" class="android.widget.Button" content-desc="Reply" bounds="[368,90][484,216]" 
+[08:38:11] chtap 426 153
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[975,1392][1038,1455]" 
+[08:38:19] chtap 1006 1423
+  YidFx: 11-14 08:38:16.923  7400  7437 I YidFx   : POST /api/chat {"room_id":"r-links","type":"text","text":"Menu reply","reply_to_id":"l9"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,757][417,806]" 
+[08:38:26] long-press 232 781
+  node: text="&#128077;" class="android.widget.TextView" content-desc="" bounds="[646,256][719,324]" 
+[08:38:30] chtap 682 290
+[08:38:32] shot CH-14b-reacted
+  YidFx: 11-14 08:38:27.666  7400  7437 I YidFx   : POST /api/chat/reactions {"message_id":"l9","emoji":"👍"}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,684][417,733]" 
+[08:38:38] long-press 232 708
+  node: text="" class="android.widget.Button" content-desc="Forward" bounds="[716,90][832,216]" 
+[08:38:42] chtap 774 153
+[08:38:45] shot CH-15-forward
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[190,460][1038,518]" 
+[08:38:48] chtap 614 489
+  YidFx: 11-14 08:38:46.432  7400  7437 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"See you at 8 tonight","forwarded":true}
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[48,1532][417,1581]" 
+[08:39:00] long-press 232 1556
+[08:39:01] chtap: 'Pin' not on screen
+[08:39:04] shot CH-16-pinned
+[08:39:09] chtap: 'Send' not on screen
+[08:39:10] shot CH-17-sent-text
+  node: text="See you at 8 tonight" class="android.widget.TextView" content-desc="" bounds="[122,1532][491,1581]" 
+[08:39:16] long-press 306 1556
+[08:39:18] chtap: 'Delete' not on screen
+[08:39:19] shot CH-17b-delete-confirm
+[08:39:21] chtap: 'Yes' not on screen
+  node: text="" class="android.view.View" content-desc="Photo" bounds="[32,226][505,456]" 
+[08:39:30] shot CH-18-photo-viewer
+  node: text="" class="android.widget.Button" content-desc="Attach" bounds="[701,2140][817,2266]" 
+[08:39:38] chtap 759 2203
+[08:39:40] shot CH-19-attach-sheet
+  node: text="Gallery" class="android.widget.TextView" content-desc="" bounds="[119,1765][219,1823]" 
+[08:39:44] chtap 169 1794
+[08:39:48] shot CH-19b-picker
+[08:39:50] chtap: 'ch_test.png' not on screen
+[08:39:55] shot CH-19c-photo-sent
+[08:39:56] chtap: 'Record voice message' not on screen
+[08:40:01] shot CH-20-recording
+[08:40:02] chtap: 'Send voice message' not on screen
+[08:40:11] screen 480x640 @ 240 dpi
+[08:40:19] open chat r-links
+[08:40:19] shot CH-21-links-dark
+[08:40:22] open https://yidplus.com/chat
+[08:40:25] shot CH-22-list-dark
+[08:40:27] CH perf: 11-14 08:36:45.605  7400  7400 I YidPerf : Chat content 53 ms after open (cache) 11-14 08:36:54.023  7400  7400 I YidPerf : Chat content 41 ms after open (cache) 11-14 08:37:05.551  7400  7400 I YidPerf : Chat content 49 ms after open 11-14 08:37:19.601  7400  7400 I YidPerf : Chat content 84 ms after open 11-14 08:37:37.174  7400  7400 I YidPerf : Chat content 89 ms after open (cache) 11-14 08:40:14.978  7400  7400 I YidPerf : Chat content 905 ms after open 
+[08:40:27] CH all writes: 48
+[08:40:27] ---- qa/fx-cl.sh ----
+[08:40:36] screen 480x640 @ 240 dpi
+[08:40:39] CL nav mode: 2
+[08:40:41] open https://yidplus.com/chat
+[08:40:59] shot CL-B01-list-480x640
+[08:41:00] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (top)
+[08:41:00] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[08:41:02] CL ok: 'New chat' not shown
+[08:41:04] CL ok: 'Edit' not shown
+[08:41:05] CL ok: 'Search chats' on screen
+[08:41:07] CL ok: 'Start new chat' on screen
+[08:41:10] CL ok: 'Status' on screen
+[08:41:11] CL ok: 'AI chat' on screen
+[08:41:13] CL texts blockers-list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:41:27] shot CL-B02-list-end-fab-hidden-while-scrolling-down
+[08:41:29] CL rows: 4 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: none (end-scrolling)
+[08:41:32] shot CL-B02b-list-end-fab-back-last-row-above-it
+[08:41:33] CL rows: 5 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: none (end-fab-back)
+[08:41:47] cltap 'Search chats'
+[08:41:49] shot CL-B03-search-empty
+[08:41:51] CL texts search-empty:  content-desc="Close search"  content-desc="Search field"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[08:41:52] CL ok: 'Close search' on screen
+[08:41:55] shot CL-B04-search-typing-yo
+[08:42:00] shot CL-B05-search-results-yossi
+[08:42:02] CL ok: 'Yossi Klein' on screen
+[08:42:04] CL texts search-results:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos"  text="Chats"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="Messages"  text="YK"  text="Yossi Klein"  text="Wed"  text="Yossi Klein: Yossi here — see you at the simcha tonight"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:42:10] open https://yidplus.com/chat
+[08:42:24] shot CL-B06-list-theme-ocean
+[08:42:26] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (ocean)
+[08:42:26] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[08:42:28] open https://yidplus.com/chat
+[08:42:42] shot CL-B07-list-dark
+[08:42:43] CL rows: 3 full chat rows visible above the bottom bar (top of bottom bar y=543); FAB bounds: 396 453 468 525  (dark)
+[08:42:43] CL ok: 3 comfortable full rows (each 70-112px tall) at 480x640; the count is not the point, the rows must be real, full width and unclipped (rationale: readable rows over an inherited 5-row count; the viewport is ~365px between top chrome and bottom bar)
+[08:42:48] open chat r-dm1
+[08:42:48] shot CL-B08-chat-open-dark
+[08:42:53] open https://yidplus.com/chat
+[08:43:14] shot CL-B09-dpad-focus-row
+[08:43:19] shot CL-B10-dpad-ok-opened-chat
+[08:43:22] CL ok: app alive after blockers
+[08:43:22] open https://yidplus.com/chat
+[08:43:50] cltap 'Search chats'
+[08:44:02] cltap 'Private'
+[08:44:09] cltap 'All'
+[08:44:13] cltap 'Menu'
+[08:44:22] CL video: 287051 bytes
+[08:44:22] open https://yidplus.com/chat
+[08:44:31] shot CL-01-list
+[08:44:32] CL texts list:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  text="YP"  text="YID PLUS נייעס"  text="Wed"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  text="ח"  text="חיים"  text="א דאנק! &#128077;"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:44:34] CL ok: 'Empty Chat' not shown
+[08:44:35] CL ok: 'Menu' on screen
+[08:44:38] CL ok: 'Status' on screen
+[08:44:46] shot CL-02-chips-end
+[08:44:47] CL ok: 'Work' on screen
+[08:44:51] CL ok: 'Chat folders' on screen
+[08:44:54] cltap 'Work'
+[08:44:56] shot CL-04-folder-work
+[08:44:58] CL texts folder:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Groups"  text="Groups"  text="12"  content-desc="Channels"  text="Channels"  text="1"  content-desc="Work"  text="Work"  content-desc="Chat folders"  text="D"  text="DealPoint"  text="Mon"  text="די פרייז איז $45"  text="P"  text="Python לערנען"  text="Sun"  text="Shimel'a: ווער קען העלפן?"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:44:59] CL ok: 'DealPoint' on screen
+[08:45:01] CL ok: 'Yossi Klein' not shown
+[08:45:13] cltap 'Work'
+[08:45:23] cltap 'All'
+[08:45:34] CL All tab, rows with an unread badge at this point: Yossi Klein,חברים פון שול,Berel Links,
+[08:45:39] cltap 'Unread'
+[08:45:41] shot CL-05-tab-unread
+[08:45:42] CL texts unread-tab:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="5"  content-desc="Groups"  text="Groups"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="2"  text="YP"  text="YID PLUS נייעס"  text="נייע ווערסיע פון דער אפ איז ארויס &#127881;"  text="1"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:45:44] CL Unread tab: 4 badged rows, 3 full rows; badged titles: Yossi Klein,חברים פון שול,Berel Links,YID PLUS נייעס,
+[08:45:44] CL ok: 'Yossi Klein' (unread in All) is in the Unread tab
+[08:45:44] CL ok: 'חברים פון שול' (unread in All) is in the Unread tab
+[08:45:44] CL ok: 'Berel Links' (unread in All) is in the Unread tab
+[08:45:44] CL ok: every full row in the Unread tab has an unread badge
+[08:45:49] cltap 'All'
+[08:46:02] CL ok: Telegram channel row in the list
+[08:46:02] shot CL-03-list-telegram-rows
+[08:46:15] long-press '258'
+[08:46:15] shot CL-06-selected
+[08:46:17] CL ok: 'Pin' on screen
+[08:46:18] CL ok: 'Mark as read' on screen
+[08:46:22] cltap 'Pin'
+[08:46:32] shot CL-07-pinned-top
+[08:46:33] CL texts pinned:  content-desc="Menu"  content-desc="Search chats"  text="Search chats"  content-desc="AI chat"  text="&#129302;"  content-desc="Status, 2 new"  text="Status"  text="2"  content-desc="All"  text="All"  text="18"  content-desc="Unread"  text="Unread"  content-desc="Private"  text="Private"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  content-desc="Pinned"  text="2"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="YW"  text="Yanky Weiss"  text="Wed"  text="&#127908; Voice message 0:12"  content-desc="Start new chat"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:46:38] long-press '258'
+[08:46:42] cltap 'Unpin'
+[08:46:43] CL unpinned again
+[08:46:55] long-press '258'
+[08:46:59] cltap 'Mute'
+[08:47:00] shot CL-08-mute-choices
+[08:47:03] cltap '8 hours'
+[08:47:07] cltap 'OK'
+  YidFx: 11-14 08:47:05.031  9016 11749 I YidFx   : PUT /api/chat/rooms {"room_id":"r-dm1","muted":true}
+[08:47:09] CL ok: sent "room_id":"r-dm1","muted":true
+[08:47:22] long-press '258'
+[08:47:25] cltap 'Mark as read'
+  YidFx: 11-14 08:47:23.358  9016 11750 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+[08:47:27] CL ok: sent /api/chat/read
+[08:47:44] long-press '258'
+[08:47:47] cltap 'Delete'
+[08:47:48] shot CL-09-delete-confirm
+[08:47:52] cltap 'Delete chat'
+  YidFx: 11-14 08:47:49.929  9016 11750 I YidFx   : DELETE /api/chat/rooms?room_id=r-dm3 < 0 bytes>
+[08:47:54] CL ok: sent DELETE /api/chat/rooms?room_id=r-dm3
+[08:48:08] long-press '258'
+[08:48:11] cltap 'Berel Links' (scrolled)
+[08:48:11] shot CL-10-two-selected
+[08:48:25] cltap 'Menu'
+[08:48:27] shot CL-11-drawer
+[08:48:29] CL texts drawer:  text="מ"  text="משה'לע"  text="@משה'לע"  text="My Profile"  text="Saved Messages"  text="Chat Folders"  text="New Group"  content-desc="Chats, 18 unread"  text="18"  text="Chats"  content-desc="Shorts"  text="Shorts"  content-desc="Channels"  text="Channels"  content-desc="Settings"  text="Settings" 
+[08:48:37] CL ok: 'Admin Panel' in the side menu
+[08:48:37] shot CL-11b-drawer-bottom
+[08:48:43] cltap 'Menu'
+[08:48:49] cltap 'Chat Folders'
+[08:48:52] shot CL-12-folders
+[08:48:53] CL ok: 'Work' on screen
+[08:48:57] cltap 'Folder name'
+[08:49:11] cltap 'Python' (scrolled)
+[08:49:11] shot CL-12b-folder-new
+[08:49:22] cltap 'Create'
+  YidFx: 11-14 08:49:19.645  9016 11750 I YidFx   : POST /api/chat/folders {"name":"Family and friends","icon":"📁","filter":"custom","room_ids":["r-g3"],"sort_order":1}
+[08:49:24] CL ok: sent "name":"Family and friends"
+[08:49:27] cltap 'Delete folder Work'
+[08:49:28] shot CL-12c-folder-delete
+[08:49:32] cltap 'Delete'
+  YidFx: 11-14 08:49:29.913  9016 11750 I YidFx   : DELETE /api/chat/folders?id=cl-f1 < 0 bytes>
+[08:49:34] CL ok: sent DELETE /api/chat/folders?id=cl-f1
+[08:49:40] cltap 'Menu'
+[08:49:49] cltap 'Chat settings' (scrolled)
+[08:49:51] shot CL-13-chat-settings
+[08:49:55] cltap 'Large'
+[08:49:56] shot CL-13b-font-large
+[08:49:59] cltap 'Read receipts'
+[08:50:04] cltap 'Medium'
+[08:50:06] open https://yidplus.com/chat
+[08:50:15] long-press '258'
+[08:50:20] cltap 'Mute'
+[08:50:25] cltap 'Cancel'
+[08:50:31] open chat r-g1
+[08:50:34] cltap 'More'
+[08:50:38] cltap 'Group info'
+[08:50:46] cltap 'Edit'
+[08:51:02] CL video 2: 346724 bytes
+[08:51:08] open chat r-g1
+[08:51:11] cltap 'More'
+[08:51:15] cltap 'Group info'
+[08:51:18] shot CL-14-group-info
+[08:51:19] CL texts info:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="ח"  content-desc="Change photo"  text="חברים פון שול"  text="Group · 6 members"  text="Message"  text="Call"  text="Video"  text="Add"  text="א גרופע פאר די חברים פון שול · Shul friends" 
+[08:51:27] cltap 'Mute notifications' (scrolled)
+[08:51:28] shot CL-14b-mute
+[08:51:31] cltap '1 week'
+[08:51:35] cltap 'OK'
+  YidFx: 11-14 08:51:32.772  9016 11750 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","muted":true}
+[08:51:37] CL ok: sent "room_id":"r-g1","muted":true
+[08:51:40] cltap 'Disappearing messages' (scrolled)
+[08:51:42] shot CL-18-disappearing
+[08:51:45] cltap '1 day'
+  YidFx: 11-14 08:51:43.044  9016 11750 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","auto_delete_minutes":1440}
+[08:51:47] CL ok: sent "auto_delete_minutes":1440
+[08:51:51] cltap 'Invite link' (scrolled)
+[08:51:53] shot CL-19-invite
+[08:51:56] cltap 'Revoke link'
+[08:51:58] shot CL-19b-revoke-confirm
+[08:51:59] CL texts revoke:  text="Revoke the current invite link and create a new one? The old link will stop working."  text="Cancel"  text="Revoke" 
+[08:52:03] cltap 'Revoke'
+  YidFx: 11-14 08:52:00.959  9016 11750 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","revoke_invite":true}
+[08:52:05] CL ok: sent "revoke_invite":true
+[08:52:09] cltap 'Close'
+[08:52:16] cltap 'Files' (scrolled)
+[08:52:16] shot CL-15-info-media-tab
+[08:52:19] cltap 'Files'
+[08:52:20] shot CL-15b-files
+[08:52:24] cltap 'Links'
+[08:52:25] shot CL-15c-links
+[08:52:29] cltap 'Voice'
+[08:52:30] shot CL-15d-voice
+[08:52:33] cltap 'Media'
+[08:52:48] cltap 'Yanky Weiss' (scrolled)
+[08:52:49] shot CL-17-member-sheet
+[08:52:52] cltap 'Set title'
+[08:52:56] shot CL-17a-title
+[08:53:00] cltap 'Save'
+  YidFx: 11-14 08:52:57.816  9016 11749 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-yanky","member_title":"Gabbai"}
+[08:53:02] CL ok: sent "member_title":"Gabbai"
+[08:53:05] cltap 'Shaya' (scrolled)
+[08:53:10] cltap 'Remove from group'
+[08:53:11] shot CL-17b-remove-confirm
+[08:53:15] cltap 'Remove'
+  YidFx: 11-14 08:53:12.728  9016 11749 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","member_id":"u-shaya","remove":true}
+[08:53:17] CL ok: sent "remove":true
+[08:53:17] shot CL-16-members
+  clseek 'Report group': 7 swipes in 25 s; screen texts:  content-desc="Back"  text="Group info"  content-desc="Edit"  text="BL"  text="Berel Links"  text="S"  text="Shaya"  text="בעל קורא"  text="YW"  text="Yanky Weiss"  text="Leave group"  text="Delete for everyone" 
+[08:53:42] CL NOTE (not a pass): no 'Report group' for the owner after scrolling the whole page; the intended owner permission is not established from requirements
+[08:53:42] CL MISSING: 'Report group' as a NON-owner is not exercised in this fixture; owner intent unestablished
+[08:53:51] CL ok: 'Group info' on screen
+[08:53:54] cltap 'Edit'
+[08:53:58] shot CL-20-edit-top
+[08:53:59] CL texts edit:  content-desc="Back"  text="Edit group"  text="חברים פון שול"  text="ח"  content-desc="Change photo"  text="חברים פון שול"  text="Group name"  text="א גרופע פאר די חברים פון שול · Shul friends"  text="Description"  text="212"  text="Save name &amp; description"  text="Group type"  text="Public group" 
+[08:54:06] cltap 'Approve new members' (scrolled)
+  YidFx: 11-14 08:54:04.199  9016 14707 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","approve_members":false}
+[08:54:08] CL ok: sent "approve_members":false
+[08:54:08] shot CL-20b-edit-mid
+[08:54:16] cltap 'Send Messages' (scrolled)
+  YidFx: 11-14 08:54:13.484  9016 14706 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","read_only":true}
+[08:54:18] CL ok: sent "read_only":true
+[08:54:18] shot CL-20c-edit-flipped
+[08:54:21] cltap 'Send Media' (scrolled)
+[08:54:23] shot CL-21-send-media
+[08:54:34] cltap 'Polls' (scrolled)
+  YidFx: 11-14 08:54:31.985  9016 14707 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":false,"pin_messages":false,"change_info":false}}
+[08:54:36] CL ok: sent "polls":true
+[08:54:49] cltap 'Add Users' (scrolled)
+  YidFx: 11-14 08:54:47.019  9016 14707 I YidFx   : PUT /api/chat/rooms {"room_id":"r-g1","permissions":{"photos":true,"videos":true,"stickers":true,"music":true,"files":true,"voice":true,"video_msg":true,"links":true,"polls":true,"reactions":true,"add_users":true,"pin_messages":false,"change_info":false}}
+[08:54:51] CL ok: sent "add_users":true
+[08:55:09] cltap 'Administrators' (scrolled)
+[08:55:11] shot CL-22-admins
+[08:55:24] cltap 'Members' (scrolled)
+[08:55:26] shot CL-22b-members
+[08:55:28] shot CL-20d-edit-bottom
+[08:55:38] open chat r-dm1
+[08:55:42] cltap 'More'
+[08:55:45] cltap 'Contact info'
+[08:55:48] shot CL-23-contact-info
+[08:55:48] CL note: fixture me is the site owner, so online is shown (site rule: admins only)
+[08:55:59] cltap 'Report Yossi Klein' (scrolled)
+[08:56:00] shot CL-24-report
+[08:56:04] cltap 'Harassment'
+[08:56:07] cltap 'Submit Report'
+  YidFx: 11-14 08:56:05.262  9016 14707 I YidFx   : POST /api/reports {"reported_id":"u-yossi","room_id":"r-dm1","message_id":null,"reason":"harassment","details":""}
+[08:56:09] CL ok: sent /api/reports
+[08:56:14] open https://yidplus.com/chat
+[08:56:21] cltap 'Start new chat'
+[08:56:25] cltap 'New group'
+[08:56:27] shot CL-25-new-group
+[08:56:27] CL new group: Everyone can write left at its default (on)
+[08:56:31] cltap 'Group name'
+[08:56:36] cltap 'Create group' (scrolled)
+[08:56:37] CL (1-letter name must not send)
+[08:56:48] cltap 'Group name'
+[08:56:50] shot CL-25b-new-group-filled
+[08:56:54] cltap 'Create group' (scrolled)
+  YidFx: 11-14 08:56:51.874  9016 15716 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[08:56:57] CL ok: sent "name":"QA Group"
+  YidFx: 11-14 08:56:51.874  9016 15716 I YidFx   : POST /api/chat/rooms {"type":"group","name":"QA Group","emoji":"👥","visibility":"private","read_only":false}
+[08:56:57] CL ok: sent "type":"group"
+[08:56:59] open https://yidplus.com/chat
+[08:57:06] cltap 'Start new chat'
+[08:57:11] cltap 'Join by invite link'
+[08:57:20] shot CL-26-invite-private
+[08:57:21] CL MISSING: 'Request to join' not on screen
+  clseek 'Request to join': 7 swipes in 25 s; screen texts:  content-desc="Start new chat"  content-desc="Back"  text="Join by invite link"  text="https://yidplus.com/chat?join=clpriv"  text="Paste the invite link" 
+[08:57:46] CL MISSING tap: 'Request to join' not found after scrolling
+[08:57:48] CL MISSING: no request with '"code":"clpriv"'
+[08:57:48] shot CL-26b-request-sent
+[08:57:51] open https://yidplus.com/chat
+[08:57:57] cltap 'Search chats'
+[08:58:00] shot CL-31-search-open
+[08:58:00] CL keyboard after search opens: mInputShown=true
+[08:58:01] shot CL-31b-search-typing
+[08:58:06] shot CL-31c-search-results
+[08:58:08] CL texts search-yossi:  content-desc="Close search"  text="Yossi"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[08:58:13] cltap 'Close search'
+[08:58:29] cltap 'Search chats'
+[08:58:35] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:58:38] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:58:41] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[08:58:41] CL ime-diag logcat-after-press-1: 11-14 08:58:34.688 17046 17046 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 08:58:34.688 17046 17046 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 08:58:34.688 17046 17046 I AndroidRuntime: Using default boot image|11-14 08:58:34.688 17046 17046 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 08:58:34.688 17046 17046 I AndroidRuntime: Leaving lock profiling enabled|11-14 08:58:34.688 17046 17046 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 08:58:34.684 17046 17046 W app_process: type=1400 audit(0.0:3320): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:58:34.684 17046 17046 W app_process: type=1400 audit(0.0:3323): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:58:34.742 17046 17046 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 08:58:34.755 17046 17046 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 08:58:34.760 17046 17046 D AndroidRuntime: Shutting down VM|11-14 08:58:34.885  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[08:58:41] shot CL-diag-still-up-1
+[08:58:44] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:58:47] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[08:58:47] CL ime-diag logcat-after-press-2: 11-14 08:58:40.889 17126 17126 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<|11-14 08:58:40.890 17126 17126 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 08:58:40.890 17126 17126 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 08:58:40.890 17126 17126 I AndroidRuntime: Using default boot image|11-14 08:58:40.890 17126 17126 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 08:58:40.890 17126 17126 I AndroidRuntime: Leaving lock profiling enabled|11-14 08:58:40.890 17126 17126 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 08:58:40.888 17126 17126 W app_process: type=1400 audit(0.0:3324): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:58:40.888 17126 17126 W app_process: type=1400 audit(0.0:3327): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:58:40.925 17126 17126 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 08:58:40.935 17126 17126 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 08:58:40.938 17126 17126 D AndroidRuntime: Shutting down VM|
+[08:58:47] shot CL-diag-still-up-2
+[08:58:50] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=129 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:58:53] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[08:58:53] CL ime-diag logcat-after-press-3: 11-14 08:58:47.045 17204 17204 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 08:58:47.045 17204 17204 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 08:58:47.045 17204 17204 I AndroidRuntime: Using default boot image|11-14 08:58:47.045 17204 17204 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 08:58:47.045 17204 17204 I AndroidRuntime: Leaving lock profiling enabled|11-14 08:58:47.045 17204 17204 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 08:58:47.044 17204 17204 W app_process: type=1400 audit(0.0:3328): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:58:47.044 17204 17204 W app_process: type=1400 audit(0.0:3331): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:58:47.085 17204 17204 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 08:58:47.095 17204 17204 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 08:58:47.098 17204 17204 D AndroidRuntime: Shutting down VM|11-14 08:58:47.187  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[08:58:53] shot CL-diag-still-up-3
+[08:58:53] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[08:58:53] shot CL-27-search
+[08:58:55] CL texts search-yid:  content-desc="Close search"  text="YID"  content-desc="Search field"  content-desc="Clear"  text="Unread"  text="Groups"  text="Photos"  text="Videos" 
+[08:59:00] cltap 'Close search'
+[08:59:16] cltap 'Search chats'
+[08:59:22] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:59:25] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:59:28] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[08:59:28] CL ime-diag logcat-after-press-1: 11-14 08:59:21.905 17532 17532 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 08:59:21.905 17532 17532 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 08:59:21.905 17532 17532 I AndroidRuntime: Using default boot image|11-14 08:59:21.905 17532 17532 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 08:59:21.905 17532 17532 I AndroidRuntime: Leaving lock profiling enabled|11-14 08:59:21.905 17532 17532 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 08:59:21.904 17532 17532 W app_process: type=1400 audit(0.0:3392): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:59:21.904 17532 17532 W app_process: type=1400 audit(0.0:3395): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:59:21.945 17532 17532 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 08:59:21.954 17532 17532 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 08:59:21.959 17532 17532 D AndroidRuntime: Shutting down VM|11-14 08:59:22.053  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[08:59:28] shot CL-diag-still-up-1
+[08:59:31] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:59:34] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[08:59:34] CL ime-diag logcat-after-press-2: 11-14 08:59:28.098 17610 17610 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<|11-14 08:59:28.099 17610 17610 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 08:59:28.099 17610 17610 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 08:59:28.099 17610 17610 I AndroidRuntime: Using default boot image|11-14 08:59:28.099 17610 17610 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 08:59:28.099 17610 17610 I AndroidRuntime: Leaving lock profiling enabled|11-14 08:59:28.099 17610 17610 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 08:59:28.096 17610 17610 W app_process: type=1400 audit(0.0:3396): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:59:28.096 17610 17610 W app_process: type=1400 audit(0.0:3399): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:59:28.134 17610 17610 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 08:59:28.144 17610 17610 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 08:59:28.147 17610 17610 D AndroidRuntime: Shutting down VM|
+[08:59:34] shot CL-diag-still-up-2
+[08:59:37] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=131 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[08:59:40] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[08:59:40] CL ime-diag logcat-after-press-3: 11-14 08:59:34.268 17688 17688 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 08:59:34.268 17688 17688 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 08:59:34.268 17688 17688 I AndroidRuntime: Using default boot image|11-14 08:59:34.268 17688 17688 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 08:59:34.268 17688 17688 I AndroidRuntime: Leaving lock profiling enabled|11-14 08:59:34.268 17688 17688 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 08:59:34.264 17688 17688 W app_process: type=1400 audit(0.0:3400): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:59:34.264 17688 17688 W app_process: type=1400 audit(0.0:3403): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 08:59:34.318 17688 17688 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 08:59:34.330 17688 17688 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 08:59:34.336 17688 17688 D AndroidRuntime: Shutting down VM|11-14 08:59:34.387  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[08:59:40] shot CL-diag-still-up-3
+[08:59:41] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[08:59:41] shot CL-27b-search-people
+[08:59:42] CL MISSING: 'Contacts' not on screen
+[08:59:44] CL MISSING: 'Mendy Gold' not on screen
+[08:59:49] cltap 'Close search'
+[09:00:04] cltap 'Search chats'
+[09:00:07] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:00:10] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:00:13] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:00:13] CL ime-diag logcat-after-press-1: 11-14 09:00:06.693 18020 18020 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:00:06.693 18020 18020 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:00:06.693 18020 18020 I AndroidRuntime: Using default boot image|11-14 09:00:06.693 18020 18020 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:00:06.693 18020 18020 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:00:06.693 18020 18020 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:00:06.692 18020 18020 W app_process: type=1400 audit(0.0:3464): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:00:06.692 18020 18020 W app_process: type=1400 audit(0.0:3467): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:00:06.728 18020 18020 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:00:06.738 18020 18020 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:00:06.754 18020 18020 D AndroidRuntime: Shutting down VM|11-14 09:00:06.827  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[09:00:13] shot CL-diag-still-up-1
+[09:00:16] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:00:19] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:00:19] CL ime-diag logcat-after-press-2: 11-14 09:00:12.878 18098 18098 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<|11-14 09:00:12.879 18098 18098 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:00:12.879 18098 18098 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:00:12.879 18098 18098 I AndroidRuntime: Using default boot image|11-14 09:00:12.879 18098 18098 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:00:12.879 18098 18098 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:00:12.879 18098 18098 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:00:12.876 18098 18098 W app_process: type=1400 audit(0.0:3468): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:00:12.876 18098 18098 W app_process: type=1400 audit(0.0:3471): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:00:12.914 18098 18098 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:00:12.924 18098 18098 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:00:12.926 18098 18098 D AndroidRuntime: Shutting down VM|
+[09:00:19] shot CL-diag-still-up-2
+[09:00:22] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=133 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:00:25] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:00:25] CL ime-diag logcat-after-press-3: 11-14 09:00:19.048 18176 18176 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:00:19.048 18176 18176 I AndroidRuntime: Using default boot image|11-14 09:00:19.048 18176 18176 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:00:19.048 18176 18176 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:00:19.048 18176 18176 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:00:19.044 18176 18176 W app_process: type=1400 audit(0.0:3472): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:00:19.044 18176 18176 W app_process: type=1400 audit(0.0:3473): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:00:19.044 18176 18176 W app_process: type=1400 audit(0.0:3475): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:00:19.084 18176 18176 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:00:19.094 18176 18176 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:00:19.098 18176 18176 D AndroidRuntime: Shutting down VM|11-14 09:00:19.172  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[09:00:25] shot CL-diag-still-up-3
+[09:00:25] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[09:00:25] shot CL-31d-search-recent
+[09:00:27] CL MISSING: 'Recent searches' not on screen
+[09:00:32] cltap 'Unread'
+[09:00:34] shot CL-31e-chip-unread
+[09:00:39] cltap 'Unread'
+[09:00:43] cltap 'Photos'
+[09:00:45] shot CL-31f-chip-photos
+[09:00:48] clchip tapped the 'Photos' chip at 353 162
+[09:00:56] clchip tapped the 'Links' chip at 186 162
+[09:00:58] shot CL-31g-chip-links
+[09:01:02] clchip tapped the 'Links' chip at 216 162
+[09:01:03] shot CL-31g2-links-toggled-off
+[09:01:04] CL chip 'Links' node after toggle (expected off): <node index="0" text="Links" resource-id="" class="android.widget.TextView" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false"
+[09:01:09] cltap 'Close search'
+[09:01:25] cltap 'Search chats'
+[09:01:31] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:01:34] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:01:37] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:01:37] CL ime-diag logcat-after-press-1: 11-14 09:01:31.095 18785 18785 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:01:31.096 18785 18785 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:01:31.096 18785 18785 I AndroidRuntime: Using default boot image|11-14 09:01:31.096 18785 18785 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:01:31.096 18785 18785 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:01:31.096 18785 18785 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:01:31.092 18785 18785 W app_process: type=1400 audit(0.0:3605): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:01:31.092 18785 18785 W app_process: type=1400 audit(0.0:3607): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:01:31.136 18785 18785 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:01:31.146 18785 18785 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:01:31.149 18785 18785 D AndroidRuntime: Shutting down VM|11-14 09:01:31.229  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[09:01:37] shot CL-diag-still-up-1
+[09:01:40] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:01:43] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:01:43] CL ime-diag logcat-after-press-2: 11-14 09:01:37.294 18863 18863 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<|11-14 09:01:37.295 18863 18863 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:01:37.295 18863 18863 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:01:37.295 18863 18863 I AndroidRuntime: Using default boot image|11-14 09:01:37.295 18863 18863 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:01:37.295 18863 18863 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:01:37.295 18863 18863 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:01:37.292 18863 18863 W app_process: type=1400 audit(0.0:3608): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:01:37.292 18863 18863 W app_process: type=1400 audit(0.0:3611): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:01:37.335 18863 18863 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:01:37.345 18863 18863 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:01:37.348 18863 18863 D AndroidRuntime: Shutting down VM|
+[09:01:43] shot CL-diag-still-up-2
+[09:01:46] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=135 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:01:50] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:01:50] CL ime-diag logcat-after-press-3: 11-14 09:01:43.468 18941 18941 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:01:43.469 18941 18941 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:01:43.469 18941 18941 I AndroidRuntime: Using default boot image|11-14 09:01:43.469 18941 18941 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:01:43.469 18941 18941 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:01:43.469 18941 18941 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:01:43.468 18941 18941 W app_process: type=1400 audit(0.0:3613): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:01:43.468 18941 18941 W app_process: type=1400 audit(0.0:3615): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:01:43.510 18941 18941 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:01:43.520 18941 18941 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:01:43.523 18941 18941 D AndroidRuntime: Shutting down VM|11-14 09:01:43.632  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[09:01:50] shot CL-diag-still-up-3
+[09:01:50] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[09:01:50] shot CL-31h-no-results
+[09:01:51] CL MISSING: 'No results found' not on screen
+[09:01:56] cltap 'Close search'
+[09:02:12] cltap 'Search chats'
+[09:02:18] CL ime-diag before-hide:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:02:21] CL ime-diag after-press-1:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:02:24] CL ime-diag sample-after-press-1: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:02:25] CL ime-diag logcat-after-press-1: 11-14 09:02:18.372 19268 19268 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:02:18.372 19268 19268 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:02:18.372 19268 19268 I AndroidRuntime: Using default boot image|11-14 09:02:18.372 19268 19268 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:02:18.372 19268 19268 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:02:18.372 19268 19268 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:02:18.368 19268 19268 W app_process: type=1400 audit(0.0:3676): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:02:18.368 19268 19268 W app_process: type=1400 audit(0.0:3679): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:02:18.414 19268 19268 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:02:18.424 19268 19268 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:02:18.429 19268 19268 D AndroidRuntime: Shutting down VM|11-14 09:02:18.534  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[09:02:25] shot CL-diag-still-up-1
+[09:02:28] CL ime-diag after-press-2:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:02:31] CL ime-diag sample-after-press-2: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:02:31] CL ime-diag logcat-after-press-2: 11-14 09:02:24.559 19346 19346 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:02:24.559 19346 19346 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:02:24.559 19346 19346 I AndroidRuntime: Using default boot image|11-14 09:02:24.559 19346 19346 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:02:24.559 19346 19346 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:02:24.560 19346 19346 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:02:24.556 19346 19346 W app_process: type=1400 audit(0.0:3680): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:02:24.556 19346 19346 W app_process: type=1400 audit(0.0:3681): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:02:24.556 19346 19346 W app_process: type=1400 audit(0.0:3683): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:02:24.595 19346 19346 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:02:24.606 19346 19346 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:02:24.608 19346 19346 D AndroidRuntime: Shutting down VM|
+[09:02:31] shot CL-diag-still-up-2
+[09:02:34] CL ime-diag after-press-3:  mCurFocusedWindow=android.os.BinderProxy@1a4bdd softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{bc57ab8 uid=10130 pid=9016 displayId=0}| mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=true| mCurTokenDisplayId=0| mShowRequested=true mShowExplicitlyRequested=true mShowForced=false mInputShown=true| mSystemReady=true mInteractive=true| mActive=true mRestartOnNextWindowFocus=false mBindSequence=137 mCurId=com.android.inputmethod.latin/.LatinIME| focus:  mCurrentFocus=Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| mInputMethodTarget in display# 0 Window{83dd352 u0 com.yidplus.app/com.yidplus.app.MainActivity}| hwkb: 1 ime: com.android.inputmethod.latin/.LatinIME
+[09:02:37] CL ime-diag sample-after-press-3: mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true mInputShown=true 
+[09:02:37] CL ime-diag logcat-after-press-3: 11-14 09:02:30.717 19424 19424 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"|11-14 09:02:30.717 19424 19424 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"|11-14 09:02:30.717 19424 19424 I AndroidRuntime: Using default boot image|11-14 09:02:30.717 19424 19424 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"|11-14 09:02:30.717 19424 19424 I AndroidRuntime: Leaving lock profiling enabled|11-14 09:02:30.717 19424 19424 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"|11-14 09:02:30.716 19424 19424 W app_process: type=1400 audit(0.0:3684): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:02:30.716 19424 19424 W app_process: type=1400 audit(0.0:3687): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=1175 scontext=u:r:shell:s0|11-14 09:02:30.752 19424 19424 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat|11-14 09:02:30.762 19424 19424 D AndroidRuntime: Calling main entry com.android.commands.input.Input|11-14 09:02:30.766 19424 19424 D AndroidRuntime: Shutting down VM|11-14 09:02:30.838  1390  1390 I LatinIME: Starting input. Cursor position = 0,0|
+[09:02:37] shot CL-diag-still-up-3
+[09:02:37] CL WRONG: the keyboard is still up after Back and Escape, so the search results area is covered (mInputShown=true)
+[09:02:39] CL MISSING tap: 'Mendy Gold' not on screen
+[09:02:41] CL MISSING: no request with '"other_user_id":"u-mendy"'
+[09:02:51] open https://yidplus.com/chat
+[09:02:54] shot CL-28-list-dark
+[09:02:55] CL MISSING tap: 'Menu' not on screen
+[09:02:56] shot CL-28b-drawer-dark
+[09:03:04] open chat r-g1
+[09:03:07] cltap 'More'
+[09:03:11] cltap 'Group info'
+[09:03:13] shot CL-28c-info-dark
+[09:03:20] open https://yidplus.com/chat
+[09:03:23] shot CL-29-list-theme1
+[09:03:29] long-press '258'
+[09:03:29] shot CL-29b-select-theme1
+[09:03:33] shot CL-29c-list-lightbar
+[09:03:37] cltap 'Menu'
+[09:03:38] shot CL-29d-drawer-lightbar
+[09:03:45] screen 1080x2400 @ 420 dpi
+[09:03:45] open https://yidplus.com/chat
+[09:03:49] shot CL-30-list-1080
+[09:03:53] cltap 'Menu'
+[09:03:54] shot CL-30b-drawer-1080
+[09:03:58] screen 480x640 @ 240 dpi
+[09:04:00] CL all writes: 76
+[09:04:00] fixture writes the app would have sent: 76
+[09:04:04] fixture false
