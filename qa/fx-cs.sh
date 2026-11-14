@@ -132,6 +132,7 @@ cs_focus_check() { # $1 label, $2 xml (already dumped)
   local lbl="$1" fb h; fb=$(cfoc "$2"); if [ -z "$fb" ]; then log "CS MISSING: no focused row after opening ($lbl): keypad focus not exercised"; return 0; fi
   set -- $fb; h=$(( $4 - $2 )); if [ "$h" -lt 24 ]; then log "CS WRONG: focused row is a clipped sliver after opening ($lbl bounds $fb, height ${h}px)"; FAIL=1; else log "CS ok: focused row fully readable after opening ($lbl bounds $fb, height ${h}px)"; fi
 }
+F2=""; F3=""  # native.sh runs with set -u: F3 was only set inside the focused-row branch, so the bubble-OK check killed the base legs (run 43552454924, exit 1 right after the "no focused row" line)
 cs_focus_check "unread open" "$OUT/CS-01-open-unread-line.xml"
 F1=$(cfoc "$OUT/CS-01-open-unread-line.xml")
 if [ -n "$F1" ]; then
