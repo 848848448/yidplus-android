@@ -205,7 +205,12 @@ cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted; csfindup 
 # 9: voice: play, speed, seek
 key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
 # 1: voice note recording — tap = hands-free (pause, stop to listen, send)
-key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked; cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
+key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked
+# touch-start recording: focus state right after the touch start, then after ONE D-pad press (the keypad takes over from touch mode)
+f=$(csfocusnow CS-07x-touch-start-focus); log "CS touch-start recording: focus right after the touch start: [${f:-none}]"
+key 20; sleep 1.5; f=$(csfocusnow CS-07y-touch-start-after-dpad); shot CS-07y-touch-start-after-dpad; log "CS touch-start recording: focus after one D-pad DOWN: [${f:-none}]"
+case "$f" in *"Send voice message"*) log "CS ok: touch-start recording then D-pad reaches Send" ;; *) log "CS WRONG: touch-start recording then one D-pad press did not focus Send (focus: [${f:-none}])" ;; esac
+cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
 # duration check on its own straight recording (no pause), timed with the clock: T0 and T1 are both taken right after a cstap returns (each includes the same 1.5 s post-tap wait), so T1-T0 is the recording length within ~1 s
 key 4; csroom 5; cstap "Record voice message"; T0=$(date +%s); sleep 6; cstap "Stop and listen"; T1=$(date +%s); cstap "Send voice message"; sleep 3
