@@ -81,12 +81,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: an8a, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: an8b, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: an8c, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: an8d, wait: '2', mode: 'ctrl', anim: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: an8e, wait: '2', mode: 'ctrl', anim: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: an8f, wait: '2', mode: 'ctrl', anim: 'on', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: hs9a, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: hs9b, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: hs9c, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: hs9d, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -95,7 +93,7 @@ jobs:
           path: dist/
       - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl7.sh qa/fx-cl.sh
+        run: cp diag/fx-cl8.sh qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
