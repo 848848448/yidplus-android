@@ -77,6 +77,8 @@ jobs:
           - { target: default, part: fx3, fx: 'qa/fx-nt.sh' }
           - { target: default, part: fx4, fx: 'qa/fx-cl.sh' }
           - { target: default, part: fx5, fx: 'qa/fx-cs.sh qa/fx-ds.sh' }
+          - { target: default, part: cs, fx: 'qa/fx-cs.sh' }
+          - { target: google_apis, part: cs, fx: 'qa/fx-cs.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
