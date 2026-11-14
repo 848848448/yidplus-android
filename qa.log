@@ -1,0 +1,101 @@
+[06:50:12] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[06:50:15] screen 480x640 @ 240 dpi
+[06:50:15] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[06:50:15] ---- Signed in (QA fixture account) ----
+[06:50:19] fixture true
+[06:50:28] shot F01-home-signedin
+[06:50:28] open https://yidplus.com/chat
+[06:50:33] shot F02-chats-list
+[06:50:34] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[06:50:42] shot F03-chat-dm
+[06:50:44] shot F03b-chat-dm-up
+[06:50:47] open https://yidplus.com/chat
+[06:51:01] shot F04-chat-group
+[06:51:03] shot F04b-group-up
+[06:51:05] shot F04c-group-top
+[06:51:08] shot F05-message-actions
+[06:51:18] shot F06-notifications
+[06:51:20] tab Home
+[06:51:23] shot F07-home-header
+[06:51:23] open https://yidplus.com/shorts
+[06:51:32] shot F08-shorts-signedin
+[06:51:33] tab Profile
+[06:51:36] shot F09-profile-signedin
+[06:51:47] shot F09b-profile-scrolled
+[06:52:00] open https://yidplus.com/chat
+[06:52:04] shot F10-chats-dark
+[06:52:11] shot F11-chat-dark
+[06:52:17] screen 1080x2400 @ 420 dpi
+[06:52:25] open https://yidplus.com/chat
+[06:52:30] shot F12-phone-chats
+[06:52:36] shot F13-phone-chat
+[06:52:39] screen 480x640 @ 240 dpi
+[06:52:39] ---- qa/fx-nt.sh ----
+[06:52:46] ---- NT chat notifications ----
+[06:52:46] ---- NT round 480 ----
+[06:53:00] shot NT-480-00-heads-up
+[06:53:09] NT 480-1-posted: chat notifications=3 summary=0 rooms: shortcut=chat_nt-dm1 shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (ברענג די קינדער 🍰) android.text=String (🎤 Voice message 0:12) android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (Tap to select language and layout) 
+[06:53:14] shot NT-480-01-shade
+[06:53:16] NT find "expand" in "Family": rc=0 expanded;
+[06:53:17] shot NT-480-02-group-expanded
+[06:53:39] NT find "expand" in "Yanky": rc=0 tap collapse other chat at 433 377 (ui 2);tap expand at 433 365 (ui 5);expanded;
+[06:53:40] shot NT-480-02b-dm-expanded
+[06:55:12] NT find "Reply" in "Family": rc=1 end of the list, turning back;end of the list, turning back;end of the list, turning back;end of the list, turning back;end of the list, turning back;end of the list, turning back;end of the list, turning back;end of the list, turning back;end of the list, turning back;end of the list, turning back;
+[06:55:13] NT 480: Reply not reachable in the shade list (last row); replying from the heads-up instead
+[06:55:35] NT: no REPLY on the heads-up
+[06:55:35] NT WARN 480: the group's Reply could not be reached here (it is the LAST row and this emulator's shade never scrolls its button row into view; no heads-up pop-up on this emulator). Inline Reply is proven below on the Python group (Not sent -> Retry) and at 1080x2400 on this group.
+[06:55:35] NT 480-2-after-reply: chat notifications=3 summary=0 rooms: shortcut=chat_nt-dm1 shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (ברענג די קינדער 🍰) android.text=String (🎤 Voice message 0:12) android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (Tap to select language and layout) 
+[06:56:15] NT find "Reply" in "Python": rc=0 tap collapse other chat at 433 377 (ui 29);tap expand at 433 389 (ui 34);tap Reply at 156 345 (ui 37);
+[06:56:22] NT: no send arrow on screen, pressing Enter
+[06:56:31] shot NT-480-05-not-sent-retry
+[06:57:07] NT find "Retry" in "Python": rc=0 tap collapse other chat at 433 377 (ui 38);tap expand at 433 393 (ui 41);tap Retry at 260 409 (ui 45);
+[06:57:17] shot NT-480-06-retry-sent
+[06:57:17] NT 480-3-after-retry: chat notifications=3 summary=0 rooms: shortcut=chat_nt-dm1 shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (ברענג די קינדער 🍰) android.text=String (🎤 Voice message 0:12) android.text=String (Tap to select language and layout) 
+[06:57:33] NT find "Mark as read" in "Yanky": rc=0 tap Mark as read at 302 340 (ui 48);
+[06:57:40] shot NT-480-07-after-mark-read
+[06:57:40] NT 480-4-after-read: chat notifications=2 summary=0 rooms: shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (ברענג די קינדער 🍰) android.text=String (Tap to select language and layout) android.text=String (Performance is impacted. To disable, check bootloader.) 
+[06:58:01] NT 480-5-after-poll-again: chat notifications=2 summary=0 rooms: shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (מיר עסן 7 אזייגער) android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (Tap to select language and layout) android.text=String (Performance is impacted. To disable, check bootloader.) 
+[06:58:07] shot NT-480-08-after-poll-again
+[06:58:25] NT find "body" in "Family": rc=0 tap collapse other chat at 433 377 (ui 49);tap expand at 433 363 (ui 52);tap title at 179 344 (ui 53);
+[06:58:33] shot NT-480-09-tap-opens-chat
+[06:58:33] NT 480-6-after-open: chat notifications=1 summary=0 rooms: shortcut=chat_nt-g3 texts: android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (Tap to select language and layout) android.text=String (Performance is impacted. To disable, check bootloader.) 
+[06:58:40] screen 1080x2400 @ 420 dpi
+[06:58:47] ---- NT round 1080 ----
+[06:59:02] shot NT-1080-00-heads-up
+[06:59:11] NT 1080-1-posted: chat notifications=3 summary=0 rooms: shortcut=chat_nt-dm1 shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (ברענג די קינדער 🍰) android.text=String (🎤 Voice message 0:12) android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (Tap to select language and layout) 
+[06:59:16] shot NT-1080-01-shade
+[06:59:25] NT find "expand" in "Family": rc=0 tap collapse other chat at 998 658 (ui 54);tap expand at 998 900 (ui 55);expanded;
+[06:59:26] shot NT-1080-02-group-expanded
+[06:59:40] NT find "expand" in "Yanky": rc=0 tap collapse other chat at 998 658 (ui 57);tap expand at 998 1113 (ui 58);expanded;
+[06:59:41] shot NT-1080-02b-dm-expanded
+[06:59:57] NT find "Reply" in "Family": rc=0 tap collapse other chat at 998 658 (ui 60);tap expand at 998 900 (ui 61);tap Reply at 274 1483 (ui 62);
+[07:00:00] shot NT-1080-03-reply-box
+[07:00:03] shot NT-1080-03b-reply-typed
+[07:00:05] NT tapped send
+[07:00:13] shot NT-1080-04-reply-sent
+[07:00:13] NT 1080-2-after-reply: chat notifications=3 summary=0 rooms: shortcut=chat_nt-dm1 shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (ברענג די קינדער 🍰) android.text=String (🎤 Voice message 0:12) android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (Tap to select language and layout) 
+[07:00:29] NT find "Mark as read" in "Yanky": rc=0 tap collapse other chat at 998 658 (ui 63);tap expand at 998 1113 (ui 64);tap Mark as read at 533 1299 (ui 65);
+[07:00:36] shot NT-1080-07-after-mark-read
+[07:00:36] NT 1080-4-after-read: chat notifications=2 summary=0 rooms: shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (ברענג די קינדער 🍰) android.text=String (קוק וואס איך האב געזען היינט 😄) android.text=String (Tap to select language and layout) android.text=String (Performance is impacted. To disable, check bootloader.) 
+[07:00:57] NT 1080-5-after-poll-again: chat notifications=2 summary=0 rooms: shortcut=chat_nt-g1 shortcut=chat_nt-g3 texts: android.text=String (📷 Photo) android.text=String (ברענג די קינדער 🍰) android.text=String (Tap to select language and layout) android.text=String (Performance is impacted. To disable, check bootloader.) 
+[07:01:03] shot NT-1080-08-after-poll-again
+[07:01:14] NT find "body" in "Family": rc=0 tap collapse other chat at 998 658 (ui 66);tap expand at 998 900 (ui 67);tap title at 314 865 (ui 68);
+[07:01:22] shot NT-1080-09-tap-opens-chat
+[07:01:22] NT 1080-6-after-open: chat notifications=1 summary=0 rooms: shortcut=chat_nt-g3 texts: android.text=String (📷 Photo) android.text=String (Tap to select language and layout) android.text=String (Performance is impacted. To disable, check bootloader.) 
+[07:01:29] screen 480x640 @ 240 dpi
+[07:01:29] NT YidFx lines: 13; YidNotify lines: 88
+[07:01:29] NT fx: 11-14 06:57:05.550  3452  5112 I YidFx   : POST /api/chat {"room_id":"nt-g3","type":"text","text":"Second message"}
+[07:01:29] NT fx: 11-14 06:57:05.550  3452  5112 I YidFx   : POST /api/chat/read {"room_id":"nt-g3"}
+[07:01:29] NT fx: 11-14 06:57:31.317  3452  4708 I YidFx   : POST /api/chat/read {"room_id":"nt-dm1"}
+[07:01:29] NT fx: 11-14 06:58:23.770  3452  4708 I YidFx   : POST /api/chat/read {"room_id":"nt-g1","receipts":true}
+[07:01:29] NT fx: 11-14 07:00:04.766  5701  6069 I YidFx   : POST /api/chat {"room_id":"nt-g1","type":"text","text":"Thanks I will be there"}
+[07:01:29] NT fx: 11-14 07:00:04.768  5701  6069 I YidFx   : POST /api/chat/read {"room_id":"nt-g1"}
+[07:01:29] NT fx: 11-14 07:00:27.140  5701  6069 I YidFx   : POST /api/chat/read {"room_id":"nt-dm1"}
+[07:01:29] NT fx: 11-14 07:01:11.960  5701  5738 I YidFx   : POST /api/chat/read {"room_id":"nt-g1","receipts":true}
+[07:01:29] NT check: reply POSTs=1 (want 2), read POSTs dm1=2 (want 2)
+[07:01:29] NT check 480: dm1 shown after mark-read=0, after polls=0 (want 0, 0); summary rows=0 (want 0)
+[07:01:29] NT check 1080: dm1 shown after mark-read=0, after polls=0 (want 0, 0); summary rows=0 (want 0)
+[07:01:31] fixture writes the app would have sent: 13
+[07:01:35] fixture false
