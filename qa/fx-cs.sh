@@ -139,7 +139,12 @@ if [ -n "$F1" ]; then
   if [ -n "$F2" ] && [ "$F2" != "$F1" ]; then log "CS ok: D-pad UP moved the focus ($F1 -> $F2)"; else log "CS WRONG: D-pad UP did not move the focus (before [$F1] after [$F2])"; FAIL=1; fi
   if [ -n "$F3" ] && [ "$F3" != "$F2" ]; then log "CS ok: D-pad DOWN moved the focus again ($F2 -> $F3)"; else log "CS WRONG: D-pad DOWN did not move the focus (before [$F2] after [$F3])"; FAIL=1; fi
 fi
-log "CS MISSING: D-pad OK/selection on a bubble is not exercised (only focus movement is)"
+# D-pad OK on the focused bubble opens the message action sheet (the app's own doc: "Long-press (or keypad OK) on a message"): needs a focused row first, else it stays MISSING
+if [ -n "$F3" ]; then key 23; sleep 1.5; csdump CS-01e-dpad-ok-bubble >/dev/null; shot CS-01e-dpad-ok-bubble
+  if grep -qE 'content-desc="Forward"|text="Forward"|content-desc="Save message"|text="Save message"' "$OUT/CS-01e-dpad-ok-bubble.xml"; then log "CS ok: D-pad OK on the focused bubble opened the message action sheet (Forward/Save message on screen, focused row was $F3)"; else log "CS WRONG: D-pad OK on the focused bubble did not open the action sheet (focused row $F3)"; FAIL=1; fi
+  key 4; sleep 1; csdump CS-01f-after-sheet-close >/dev/null
+  if grep -qE 'content-desc="Save message"|text="Save message"' "$OUT/CS-01f-after-sheet-close.xml"; then log "CS WRONG: the action sheet is still open after BACK"; FAIL=1; else log "CS ok: BACK closed the action sheet"; fi
+else log "CS MISSING: D-pad OK on a bubble not exercised (no focused row after opening)"; fi
 # no-unread open: the newest message is the open position, fully above the composer, and the focused row is readable
 CSR_SAVE="$CSR"; CSR='{"id":"r-cs","type":"group","nick":"CS QA","unread":0,"members":3}'; csroom 7; shot CS-01d-open-no-unread
 timeout 20 adb shell uiautomator dump /sdcard/nu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/nu.xml > "$OUT/CS-01d-open-no-unread.xml" 2>/dev/null
@@ -206,8 +211,6 @@ cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted; csfindup 
 key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
 # WebM/Opus voice note (live voice media is audio/webm; the other fixtures are m4a): the 0:08 bubble is a generated 8 s Opus-in-WebM file. Exact-label find, structural bubble, then Pause must appear at the tapped Play bounds.
 if csfindexact "0:08" 12; then csplayat "0:08"; sleep 2; shot CS-06w-webm-playing; else log "CS MISSING: the WebM voice bubble 0:08 is not on screen"; fi
-# 1: voice note recording — tap = hands-free (pause, stop to listen, send)
-key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked
 csfocusnow() { timeout 20 adb shell uiautomator dump /sdcard/f.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/f.xml > "$OUT/$1.xml" 2>/dev/null; python3 - "$OUT/$1.xml" <<'PYEOF'
 import sys
 import xml.etree.ElementTree as ET
@@ -232,6 +235,7 @@ csedit() { timeout 20 adb shell uiautomator dump /sdcard/ce.xml >/dev/null 2>&1;
 # csclean: leave the composer with NO draft and the mic showing, or return 1 (a draft swaps the mic for Send and would make later voice steps fail for the wrong reason)
 csclean() { local try p
   for try in 1 2 3; do
+    [ -n "$(cspos "Delete recording")" ] && { cstap "Delete recording"; sleep 2; }
     [ -n "$(cspos "Record voice message")" ] && { log "CS clean-state: mic present, no draft (try $try)"; return 0; }
     p=$(csedit); [ -n "$p" ] && { set -- $p; adb shell input tap $1 $2; sleep 1; }
     adb shell input keyevent KEYCODE_MOVE_END; for i in $(seq 1 30); do adb shell input keyevent KEYCODE_DEL; done; sleep 1.5
@@ -253,13 +257,19 @@ else
   # with a typed draft
   p=$(csedit); [ -n "$p" ] && { set -- $p; adb shell input tap $1 $2; sleep 1; }
   adb shell input text ab; sleep 1; adb shell input keyevent KEYCODE_BACK; sleep 1
-  if [ -n "$(cspos "Send")" ]; then EP2=""; for k in 22 22 22 22; do key $k; sleep 0.5; f=$(csfocusnow CS-24f-escape-draft-step); EP2="$EP2 [$f]"; case "$f" in *Send*|*Attach*|*Emoji*|*Camera*) break ;; esac; done
-    case "$EP2" in *Send*|*Attach*|*Emoji*|*Camera*) log "CS ok: RIGHT from the composer field with a typed draft reached a composer control (focus path:$EP2)" ;; *) log "CS WRONG: RIGHT from the composer field with a typed draft did not reach a control (focus path:$EP2)"; FAIL=1 ;; esac
+  if [ -n "$(cspos "Send")" ]; then
+    # cursor editing must survive: LEFT moves the caret into the draft, the next RIGHT moves it back (focus stays in the field), only a RIGHT at the END of the draft may leave it
+    key 21; sleep 0.5; fm=$(csfocusnow CS-24g-draft-caret-left); key 22; sleep 0.5; fr=$(csfocusnow CS-24g-draft-caret-right)
+    case "$fm|$fr" in EditText*"|EditText"*) log "CS ok: with a typed draft, LEFT then RIGHT kept the focus in the field (caret editing preserved: [$fm] -> [$fr])" ;; *) log "CS NOTE: with a typed draft, LEFT then RIGHT left the field (focus [$fm] -> [$fr]); caret editing may not be preserved (intended behaviour not grounded)" ;; esac
+    EP2=""; for k in 22 22 22 22; do key $k; sleep 0.5; f=$(csfocusnow CS-24f-escape-draft-step); EP2="$EP2 [$f]"; case "$f" in *Send*|*Attach*|*Emoji*|*Camera*) break ;; esac; done
+    case "$EP2" in *Send*|*Attach*|*Emoji*|*Camera*) log "CS NOTE (not scored): RIGHT from the end of a typed draft reached a composer control (focus path:$EP2)" ;; *) log "CS NOTE (not scored): RIGHT presses from the end of a typed draft did not leave the field (focus path:$EP2); caret editing vs keypad escape intended behaviour is not grounded" ;; esac
   else log "CS MISSING: typing a draft did not turn the mic into Send; draft escape check not exercised"; fi
   shot CS-24f-escape-draft
   if csclean; then log "CS ok: composer cleaned again after the escape check (no draft, mic present)"; else log "CS BLOCKED: composer could not be cleaned after the escape check; later voice steps are INVALID this run (not an app verdict)"; VOICEBAD=1; FAIL=1; fi
 fi
-if [ -n "$VOICEBAD" ]; then log "CS BLOCKED: touch-start voice steps skipped (composer not clean)"; else
+if [ -n "$VOICEBAD" ]; then log "CS BLOCKED: touch-start voice steps skipped (composer not clean); discarding the recording the previous line started"; [ -n "$(cspos "Delete recording")" ] && { cstap "Delete recording"; sleep 2; }; else
+# 1: voice note recording — tap = hands-free (pause, stop to listen, send)
+key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked
 # touch-start recording: the decisive check is the ACTION, not the focus dump. After the touch start and ONE D-pad DOWN, OK must post a NEW fixture voice message and end the recording. The focus dumps are informational (uiautomator can fail to dump while the recording animates; run 43540218049 showed the gold ring on Send in the pixels while the dump said none), so each is retried and its XML kept.
 VT0=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice')
 f=$(csfocusnow CS-07x-touch-start-focus); log "CS touch-start recording: focus right after the touch start: [${f:-none}] (informational)"
@@ -275,6 +285,7 @@ if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' 
 if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-07z-touch-start-after-ok.xml"; then cstap "Delete recording"; sleep 2; fi
 cstap "Record voice message"; sleep 3
 fi
+if [ -n "$VOICEBAD" ]; then log "CS BLOCKED: pause/resume/listen/send, duration, reopen and hold/slide voice steps skipped (composer not clean); not app verdicts"; else
 cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
 # duration check on its own straight recording (no pause), timed with the clock: T0 and T1 are both taken right after a cstap returns (each includes the same 1.5 s post-tap wait), so T1-T0 is the recording length within ~1 s
@@ -290,6 +301,7 @@ cspull CS-flow-touch
 p=$(csmic); if [ -n "$p" ]; then set -- $p; (adb shell input swipe $1 $2 $1 $2 3500 &) ; sleep 2; shot CS-08-voice-holding; sleep 3; csfx "type=voice"; fi
 # hold + slide left = cancel (nothing sent)
 p=$(csmic); if [ -n "$p" ]; then set -- $p; adb shell input swipe $1 $2 $(( $1 - 260 )) $2 2500; sleep 2; shot CS-08b-voice-slid-cancel; fi
+fi
 # long-press = WhatsApp's top action bar + reaction strip; ⋮ = every action; tap more messages to select several
 cslong "ווער קומט היינט ביינאכט?"; shot CS-09-long-press-bar; cshas "More actions"; cstap "More actions"; sleep 1; shot CS-09b-long-press-all-actions; key 4; sleep 1
 cslong "ווער קומט היינט ביינאכט?"; cstap "יא, זייער גוט"; sleep 1; shot CS-10-select-2; cshas "2"
