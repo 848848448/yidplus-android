@@ -29,6 +29,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Apply the diagnostic logging patch (workspace only, never committed; QA logging, no behaviour change)
+        run: git apply --check diag/app-diag.patch && git apply diag/app-diag.patch && git diff --stat
       - name: Signing key (from repository secrets only)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -73,11 +75,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: probe4a, wait: '2', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: probe4b, wait: '2', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: probe4c, wait: '2', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: wait8a, wait: '8', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: wait8b, wait: '8', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log5a, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log5b, wait: '2', mode: 'ctrl', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log5c, wait: '2', mode: 'tapfield', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: log5d, wait: '2', mode: 'tapfield', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -86,7 +87,7 @@ jobs:
           path: dist/
       - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl4.sh qa/fx-cl.sh
+        run: cp diag/fx-cl5.sh qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
@@ -99,6 +100,7 @@ jobs:
         env:
           QA_FX: ${{ matrix.fx }}
           CL_JOIN_WAIT: ${{ matrix.wait }}
+          CL_JOIN_MODE: ${{ matrix.mode }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
