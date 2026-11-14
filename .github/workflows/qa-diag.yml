@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Apply the diagnostic logging patch (workspace only, never committed; QA logging, no behaviour change)
-        run: git apply --check diag/app-diag3.patch && git apply diag/app-diag3.patch && git diff --stat
+        run: git apply --check diag/app-diag4.patch && git apply diag/app-diag4.patch && git diff --stat
       - name: Signing key (from repository secrets only)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -69,6 +69,7 @@ jobs:
           mkdir -p /tmp/log; (grep -E "^e: |error:|FAILED|BUILD|What went wrong" -A3 build.log | head -300 > /tmp/log/errors.txt || true)
           tail -400 build.log > /tmp/log/build-tail.txt 2>/dev/null || true
           ls -la dist/ > /tmp/log/dist.txt 2>/dev/null || true
+          cp app/build/outputs/mapping/release/mapping.txt /tmp/log/mapping.txt 2>/dev/null || true
           cd /tmp/log && git init -q && git checkout -q -b ci-log-diag-${{ github.ref_name }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native build log ${{ github.run_id }} ${{ job.status }}"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log-diag-${{ github.ref_name }}
@@ -81,10 +82,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: hs9a, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: hs9b, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: hs9c, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: hs9d, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: st10a, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: st10b, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: st10c, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: st10d, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: st10e, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: st10f, wait: '2', mode: 'ctrl', anim: 'off', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -93,7 +96,7 @@ jobs:
           path: dist/
       - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl8.sh qa/fx-cl.sh
+        run: cp diag/fx-cl9.sh qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
@@ -118,7 +121,7 @@ jobs:
           disk-size: 4096M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash qa/native.sh dist/YIDPLUS.apk
+          script: adb wait-for-device && adb shell settings put global hidden_api_policy 1 && bash qa/native.sh dist/YIDPLUS.apk
       - name: Publish QA evidence
         if: always()
         env:
