@@ -1,0 +1,104 @@
+name: In-place update check (artifact only, nothing is published)
+
+# Builds a signed candidate with the repository signing secrets (same secrets as native.yml and release.yml),
+# checks its version/cert against the PUBLIC latest release (v2.1.1 APK and version.json), then on an emulator
+# installs the public APK, leaves a marker file in its private data, updates in place with `adb install -r`
+# and checks the marker survived and the new version runs. It publishes only a log branch; no release, no tag.
+on:
+  push:
+    branches: [feat-212look]
+    paths: ['.github/workflows/qa-inplace.yml', 'qa/inplace.sh']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: qa-inplace
+  cancel-in-progress: true
+
+env:
+  CANDIDATE_VERSION: '2.2.0'
+
+jobs:
+  inplace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Signing key (from repository secrets only)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          test -n "$KEYSTORE_B64" || { echo "KEYSTORE_B64 secret missing"; exit 1; }
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.p12"
+      - name: Build signed candidate
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          set -o pipefail
+          gradle :app:assembleRelease -PversionName=$CANDIDATE_VERSION --no-daemon 2>&1 | tail -30
+      - name: Compare with the public latest release
+        run: |
+          set -e
+          mkdir -p dist qa/out
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          NEW=app/build/outputs/apk/release/app-release.apk
+          cp "$NEW" dist/new.apk
+          curl -fsSL -o dist/latest.json "https://github.com/${{ github.repository }}/releases/latest/download/version.json"
+          LV=$(jq -r .versionName dist/latest.json)
+          curl -fsSL -o dist/old.apk "https://github.com/${{ github.repository }}/releases/download/v$LV/YIDPLUS.apk"
+          {
+            echo "candidate $CANDIDATE_VERSION built from ${GITHUB_SHA}"
+            echo "feed latest: $(jq -c '{versionCode,versionName,sha256,size}' dist/latest.json)"
+            echo "old apk sha256: $(sha256sum dist/old.apk | cut -d' ' -f1) size $(stat -c%s dist/old.apk)"
+            echo "new apk sha256: $(sha256sum dist/new.apk | cut -d' ' -f1) size $(stat -c%s dist/new.apk)"
+            echo "--- old badging"; "$BT/aapt2" dump badging dist/old.apk | head -2
+            echo "--- new badging"; "$BT/aapt2" dump badging dist/new.apk | head -2
+            echo "--- old cert"; "$BT/apksigner" verify --print-certs dist/old.apk | grep -E "SHA-256|DN" | head -3
+            echo "--- new cert"; "$BT/apksigner" verify --print-certs dist/new.apk | grep -E "SHA-256|DN" | head -3
+          } | tee qa/out/compare.txt
+          OLDC=$("$BT/apksigner" verify --print-certs dist/old.apk | grep -m1 "SHA-256" | awk '{print $NF}')
+          NEWC=$("$BT/apksigner" verify --print-certs dist/new.apk | grep -m1 "SHA-256" | awk '{print $NF}')
+          [ "$OLDC" = "$NEWC" ] || { echo "FAIL signing certificate differs"; echo "FAIL cert" > qa/out/RESULT; exit 1; }
+          NC=$("$BT/aapt2" dump badging dist/new.apk | grep -o "versionCode='[0-9]*'" | head -1 | grep -o '[0-9]*')
+          LC=$(jq -r .versionCode dist/latest.json)
+          [ "$NC" -gt "$LC" ] || { echo "FAIL candidate versionCode $NC is not above the feed $LC"; echo "FAIL version" > qa/out/RESULT; exit 1; }
+          [ "$(sha256sum dist/old.apk | cut -d' ' -f1)" = "$(jq -r .sha256 dist/latest.json)" ] || { echo "FAIL old apk hash differs from the feed"; exit 1; }
+          echo "OK cert identical, candidate versionCode $NC > feed $LC, old apk hash equals the feed" | tee -a qa/out/compare.txt
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: In-place update on an emulator
+        timeout-minutes: 25
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 3072M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash qa/inplace.sh dist/old.apk dist/new.apk
+      - name: Publish evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          test -d qa/out || exit 0
+          cd qa/out && git init -q && git checkout -q -b qa-inplace-evidence && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "in-place update check ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-inplace-evidence
+      - name: Result
+        run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT
