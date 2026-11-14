@@ -46,6 +46,8 @@ for m in re.finditer(r"<node [^>]*>", t):
             x1,y1,x2,y2=map(int,b.groups())
             if y2<220 and x2>x1 and x1<480: print((x1+x2)//2, (y1+y2)//2); break
 ' "$1"); if [ -z "$p" ]; then log "CL MISSING tap: chip '$1' not in the chips row on screen"; return 0; fi; set -- $p; timeout 10 adb shell input tap $1 $2; sleep 1.5; log "clchip tapped the '$w' chip at $p"; }
+# clcheck LABEL on|off: the chip's own node must (not) be in the selected state; uiautomator exposes selection of a chip as selected/checked on its node or a check-mark child, so this logs what the node says and does not pass on a guess
+clcheck() { timeout 30 adb shell uiautomator dump /sdcard/cc.xml >/dev/null 2>&1; local l; l=$(timeout 20 adb shell cat /sdcard/cc.xml 2>/dev/null | tr '>' '\n' | grep -F "text=\"$1\"" | grep -E 'bounds="\[[0-9]+,1[0-9][0-9]\]' | head -1 | cut -c1-260); log "CL chip '$1' node after toggle (expected $2): ${l:-not found in the chips row}"; }
 clchipscroll() { timeout 10 adb shell input swipe 440 162 60 162 300; sleep 0.8; timeout 10 adb shell input swipe 440 162 60 162 300; sleep 1; }
 chipswipe() { local p; p=$(clpos "All"); [ -z "$p" ] && p=$(clpos "Groups"); [ -z "$p" ] && { log "CL chipswipe: no chips row on screen"; return 0; }; set -- $p; local k; for k in 1 2 3; do adb shell input swipe 440 $2 40 $2 300; sleep 0.8; done; sleep 1; }  # one swipe moved the chips only ~2 chips (CL-02 of run 43511759626 still showed Private first), so the trailing 'Chat folders' button was off screen; 3 swipes reach the end
 chipback() { local p; p=$(clpos "Groups"); [ -z "$p" ] && p=$(clpos "All"); [ -z "$p" ] && { log "CL chipback: no chips row on screen"; return 0; }; set -- $p; adb shell input swipe 70 $2 410 $2 300; sleep 1; }
@@ -172,7 +174,7 @@ clhidekb() { local n; for n in 1 2 3; do case "$(clkbshown)" in *true*) ;; *) lo
 clsearch YID; shot CL-27-search; cltexts search-yid
 clsearch Mendy; shot CL-27b-search-people; clhas "Contacts"; clhas "Mendy Gold"
 clsearch ""; shot CL-31d-search-recent; clhas "Recent searches"
-cltap "Unread"; sleep 1.5; shot CL-31e-chip-unread; cltap "Unread"; sleep 1; cltap "Photos"; sleep 1.5; shot CL-31f-chip-photos; clchip "Photos"; sleep 1; clchipscroll; clchip "Links"; sleep 1.5; shot CL-31g-chip-links; clchip "Links"
+cltap "Unread"; sleep 1.5; shot CL-31e-chip-unread; cltap "Unread"; sleep 1; cltap "Photos"; sleep 1.5; shot CL-31f-chip-photos; clchip "Photos"; sleep 1; clchipscroll; clchip "Links"; sleep 1.5; shot CL-31g-chip-links; clchip "Links"; sleep 1; shot CL-31g2-links-toggled-off; clcheck "Links" off
 clsearch zzqx; shot CL-31h-no-results; clhas "No results found"
 clsearch Mendy; cltap "Mendy Gold"; sleep 2; clfx '"other_user_id":"u-mendy"'; key 4; sleep 1; key 4; sleep 1; key 4; sleep 1
 adb shell cmd uimode night yes; sleep 3; view "https://yidplus.com/chat"; sleep 3; shot CL-28-list-dark; cltap "Menu"; sleep 1; shot CL-28b-drawer-dark; key 4; sleep 1
