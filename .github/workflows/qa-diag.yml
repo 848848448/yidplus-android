@@ -73,9 +73,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: seqplain1, diag: 'no', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: seqplain2, diag: 'no', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: seqdiag2, diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: seqdiag3a, diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: seqdiag3b, diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: seqdiag3c, diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: google_apis, part: seqdiag3g, diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -84,7 +85,7 @@ jobs:
           path: dist/
       - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl2.sh qa/fx-cl.sh
+        run: cp diag/fx-cl3.sh qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
