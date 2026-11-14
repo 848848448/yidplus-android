@@ -1,0 +1,600 @@
+11-14 21:39:25.788  9015  9015 I YidDiag : t=1258105 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:39:25.818  9015  9015 I YidDiag : t=1258134 firstFocus effect k=true always=false got=false
+11-14 21:39:25.884  9015  9015 I YidDiag : t=1258200 firstFocus requestFocus try=0
+11-14 21:39:25.884  9015  9015 I YidDiag : t=1258200 firstFocus focusChanged isFocused=true hasFocus=true keypad=true
+11-14 21:39:30.091  9015  9015 I YidDiag : t=1262407 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=false keypad=true ime=false focusView=C
+11-14 21:39:30.091  9015  9015 I YidDiag : t=1262408 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=false keypad=true ime=false focusView=C
+11-14 21:39:30.092  9015  9015 I YidDiag : t=1262408 AppRoot BackHandler fired stack=1
+11-14 21:39:33.414  9015  9015 I YidDiag : t=1265730 touchModeChanged inTouch=true keypadBefore=true ime=false
+11-14 21:39:36.358  9015  9015 I YidDiag : t=1268675 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:39:36.360  9015  9015 I YidDiag : t=1268676 firstFocus effect k=true always=false got=false
+11-14 21:39:36.420  9015  9015 I YidDiag : t=1268736 firstFocus requestFocus try=0
+11-14 21:39:36.546  9015  9015 I YidDiag : t=1268862 firstFocus requestFocus try=1
+11-14 21:39:36.669  9015  9015 I YidDiag : t=1268985 firstFocus requestFocus try=2
+11-14 21:39:36.789  9015  9015 I YidDiag : t=1269105 firstFocus requestFocus try=3
+11-14 21:39:36.909  9015  9015 I YidDiag : t=1269225 firstFocus requestFocus try=4
+11-14 21:39:37.030  9015  9015 I YidDiag : t=1269346 firstFocus requestFocus try=5
+11-14 21:39:37.150  9015  9015 I YidDiag : t=1269466 firstFocus requestFocus try=6
+11-14 21:39:37.270  9015  9015 I YidDiag : t=1269587 firstFocus requestFocus try=7
+11-14 21:39:37.391  9015  9015 I YidDiag : t=1269707 firstFocus requestFocus try=8
+11-14 21:39:37.511  9015  9015 I YidDiag : t=1269828 firstFocus requestFocus try=9
+11-14 21:39:37.632  9015  9015 I YidDiag : t=1269948 firstFocus requestFocus try=10
+11-14 21:39:37.752  9015  9015 I YidDiag : t=1270068 firstFocus requestFocus try=11
+11-14 21:39:37.873  9015  9015 I YidDiag : t=1270189 firstFocus requestFocus try=12
+11-14 21:39:37.993  9015  9015 I YidDiag : t=1270310 firstFocus requestFocus try=13
+11-14 21:39:38.114  9015  9015 I YidDiag : t=1270430 firstFocus requestFocus try=14
+11-14 21:39:38.234  9015  9015 I YidDiag : t=1270550 firstFocus requestFocus try=15
+11-14 21:39:40.298  9015  9015 I YidDiag : t=1272615 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=272 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:39:40.298  9015  9015 I YidDiag : t=1272615 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:39:42.124  9015  9015 I YidDiag : t=1274440 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=true keypad=true ime=true focusView=C
+11-14 21:39:42.125  9015  9015 I YidDiag : t=1274441 touchModeChanged inTouch=false keypadBefore=true ime=true
+11-14 21:39:42.126  9015  9015 I YidDiag : t=1274442 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:39:44.685  9015  9015 I YidDiag : t=1277001 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=272 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:39:44.685  9015  9015 I YidDiag : t=1277001 imeVisibleChanged=false animScale=0.0 touchMode=false keypad=true
+11-14 21:39:44.749  9015  9015 I YidDiag : t=1277065 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=272 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:39:44.775  9015  9015 I YidDiag : t=1277091 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=272 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:39:44.799  9015  9015 I YidDiag : t=1277115 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=272 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:39:44.836  9015  9015 I YidDiag : t=1277153 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=272 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:39:44.936  9015  9015 I YidDiag : t=1277252 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=272 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:39:46.503  9015  9015 I YidDiag : t=1278819 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=false keypad=true ime=false focusView=C
+11-14 21:39:46.504  9015  9015 I YidDiag : t=1278820 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=false keypad=true ime=false focusView=C
+11-14 21:39:46.534  9015  9015 I YidDiag : t=1278851 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:39:46.554  9015  9015 I YidDiag : t=1278871 firstFocus effect k=true always=false got=false
+11-14 21:39:46.615  9015  9015 I YidDiag : t=1278931 firstFocus requestFocus try=0
+11-14 21:39:46.615  9015  9015 I YidDiag : t=1278932 firstFocus focusChanged isFocused=true hasFocus=true keypad=true
+11-14 21:39:46.635  9015  9015 I YidDiag : t=1278951 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:39:50.905  9015  9015 I YidDiag : t=1283221 touchModeChanged inTouch=true keypadBefore=true ime=false
+11-14 21:40:11.628  9015  9015 I YidDiag : t=1303945 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:40:11.636  9015  9015 I YidDiag : t=1303952 firstFocus effect k=true always=true got=false
+11-14 21:40:11.697  9015  9015 I YidDiag : t=1304013 firstFocus requestFocus try=0
+11-14 21:40:11.817  9015  9015 I YidDiag : t=1304134 firstFocus requestFocus try=1
+11-14 21:40:11.938  9015  9015 I YidDiag : t=1304254 firstFocus requestFocus try=2
+11-14 21:40:12.058  9015  9015 I YidDiag : t=1304374 firstFocus requestFocus try=3
+11-14 21:40:12.178  9015  9015 I YidDiag : t=1304495 firstFocus requestFocus try=4
+11-14 21:40:12.299  9015  9015 I YidDiag : t=1304615 firstFocus requestFocus try=5
+11-14 21:40:12.419  9015  9015 I YidDiag : t=1304736 firstFocus requestFocus try=6
+11-14 21:40:12.540  9015  9015 I YidDiag : t=1304856 firstFocus requestFocus try=7
+11-14 21:40:12.660  9015  9015 I YidDiag : t=1304976 firstFocus requestFocus try=8
+11-14 21:40:12.780  9015  9015 I YidDiag : t=1305097 firstFocus requestFocus try=9
+11-14 21:40:12.901  9015  9015 I YidDiag : t=1305217 firstFocus requestFocus try=10
+11-14 21:40:13.021  9015  9015 I YidDiag : t=1305337 firstFocus requestFocus try=11
+11-14 21:40:13.141  9015  9015 I YidDiag : t=1305458 firstFocus requestFocus try=12
+11-14 21:40:13.262  9015  9015 I YidDiag : t=1305578 firstFocus requestFocus try=13
+11-14 21:40:13.382  9015  9015 I YidDiag : t=1305698 firstFocus requestFocus try=14
+11-14 21:40:13.503  9015  9015 I YidDiag : t=1305819 firstFocus requestFocus try=15
+11-14 21:40:15.629  9015  9015 I YidDiag : t=1307945 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:40:15.629  9015  9015 I YidDiag : t=1307946 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:40:52.761  9015  9015 I YidDiag : t=1345077 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:40:52.767  9015  9015 I YidDiag : t=1345083 firstFocus effect k=true always=false got=false
+11-14 21:40:52.827  9015  9015 I YidDiag : t=1345144 firstFocus requestFocus try=0
+11-14 21:40:52.948  9015  9015 I YidDiag : t=1345264 firstFocus requestFocus try=1
+11-14 21:40:53.068  9015  9015 I YidDiag : t=1345385 firstFocus requestFocus try=2
+11-14 21:40:53.189  9015  9015 I YidDiag : t=1345505 firstFocus requestFocus try=3
+11-14 21:40:53.309  9015  9015 I YidDiag : t=1345626 firstFocus requestFocus try=4
+11-14 21:40:53.430  9015  9015 I YidDiag : t=1345746 firstFocus requestFocus try=5
+11-14 21:40:53.550  9015  9015 I YidDiag : t=1345866 firstFocus requestFocus try=6
+11-14 21:40:53.670  9015  9015 I YidDiag : t=1345987 firstFocus requestFocus try=7
+11-14 21:40:53.791  9015  9015 I YidDiag : t=1346107 firstFocus requestFocus try=8
+11-14 21:40:53.911  9015  9015 I YidDiag : t=1346227 firstFocus requestFocus try=9
+11-14 21:40:54.031  9015  9015 I YidDiag : t=1346348 firstFocus requestFocus try=10
+11-14 21:40:54.152  9015  9015 I YidDiag : t=1346468 firstFocus requestFocus try=11
+11-14 21:40:54.272  9015  9015 I YidDiag : t=1346588 firstFocus requestFocus try=12
+11-14 21:40:54.392  9015  9015 I YidDiag : t=1346708 firstFocus requestFocus try=13
+11-14 21:40:54.512  9015  9015 I YidDiag : t=1346829 firstFocus requestFocus try=14
+11-14 21:40:54.633  9015  9015 I YidDiag : t=1346949 firstFocus requestFocus try=15
+11-14 21:41:26.345  9015  9015 I YidDiag : t=1378661 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:41:26.346  9015  9015 I YidDiag : t=1378662 firstFocus effect k=true always=false got=false
+11-14 21:41:26.416  9015  9015 I YidDiag : t=1378732 firstFocus requestFocus try=0
+11-14 21:41:26.536  9015  9015 I YidDiag : t=1378852 firstFocus requestFocus try=1
+11-14 21:41:26.666  9015  9015 I YidDiag : t=1378982 firstFocus requestFocus try=2
+11-14 21:41:26.787  9015  9015 I YidDiag : t=1379103 firstFocus requestFocus try=3
+11-14 21:41:26.907  9015  9015 I YidDiag : t=1379224 firstFocus requestFocus try=4
+11-14 21:41:27.031  9015  9015 I YidDiag : t=1379347 firstFocus requestFocus try=5
+11-14 21:41:27.151  9015  9015 I YidDiag : t=1379468 firstFocus requestFocus try=6
+11-14 21:41:27.287  9015  9015 I YidDiag : t=1379603 firstFocus requestFocus try=7
+11-14 21:41:27.412  9015  9015 I YidDiag : t=1379729 firstFocus requestFocus try=8
+11-14 21:41:27.533  9015  9015 I YidDiag : t=1379849 firstFocus requestFocus try=9
+11-14 21:41:27.653  9015  9015 I YidDiag : t=1379970 firstFocus requestFocus try=10
+11-14 21:41:27.780  9015  9015 I YidDiag : t=1380097 firstFocus requestFocus try=11
+11-14 21:41:27.901  9015  9015 I YidDiag : t=1380217 firstFocus requestFocus try=12
+11-14 21:41:28.021  9015  9015 I YidDiag : t=1380338 firstFocus requestFocus try=13
+11-14 21:41:28.142  9015  9015 I YidDiag : t=1380458 firstFocus requestFocus try=14
+11-14 21:41:28.262  9015  9015 I YidDiag : t=1380579 firstFocus requestFocus try=15
+11-14 21:42:04.696  9015  9015 I YidDiag : t=1417013 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:42:04.698  9015  9015 I YidDiag : t=1417014 firstFocus effect k=true always=false got=false
+11-14 21:42:04.766  9015  9015 I YidDiag : t=1417083 firstFocus requestFocus try=0
+11-14 21:42:04.887  9015  9015 I YidDiag : t=1417203 firstFocus requestFocus try=1
+11-14 21:42:05.009  9015  9015 I YidDiag : t=1417325 firstFocus requestFocus try=2
+11-14 21:42:05.131  9015  9015 I YidDiag : t=1417447 firstFocus requestFocus try=3
+11-14 21:42:05.253  9015  9015 I YidDiag : t=1417570 firstFocus requestFocus try=4
+11-14 21:42:05.377  9015  9015 I YidDiag : t=1417694 firstFocus requestFocus try=5
+11-14 21:42:05.498  9015  9015 I YidDiag : t=1417814 firstFocus requestFocus try=6
+11-14 21:42:05.618  9015  9015 I YidDiag : t=1417935 firstFocus requestFocus try=7
+11-14 21:42:05.742  9015  9015 I YidDiag : t=1418058 firstFocus requestFocus try=8
+11-14 21:42:05.864  9015  9015 I YidDiag : t=1418180 firstFocus requestFocus try=9
+11-14 21:42:05.984  9015  9015 I YidDiag : t=1418300 firstFocus requestFocus try=10
+11-14 21:42:06.112  9015  9015 I YidDiag : t=1418429 firstFocus requestFocus try=11
+11-14 21:42:06.233  9015  9015 I YidDiag : t=1418549 firstFocus requestFocus try=12
+11-14 21:42:06.353  9015  9015 I YidDiag : t=1418670 firstFocus requestFocus try=13
+11-14 21:42:06.480  9015  9015 I YidDiag : t=1418796 firstFocus requestFocus try=14
+11-14 21:42:06.600  9015  9015 I YidDiag : t=1418916 firstFocus requestFocus try=15
+11-14 21:42:21.183  9015  9015 I YidDiag : t=1433499 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:42:21.200  9015  9015 I YidDiag : t=1433516 firstFocus effect k=true always=false got=false
+11-14 21:42:25.224  9015  9015 I YidDiag : t=1437540 firstFocus effect k=true always=false got=false
+11-14 21:42:25.284  9015  9015 I YidDiag : t=1437601 firstFocus requestFocus try=0
+11-14 21:42:25.406  9015  9015 I YidDiag : t=1437722 firstFocus requestFocus try=1
+11-14 21:42:25.529  9015  9015 I YidDiag : t=1437845 firstFocus requestFocus try=2
+11-14 21:42:25.651  9015  9015 I YidDiag : t=1437967 firstFocus requestFocus try=3
+11-14 21:42:25.771  9015  9015 I YidDiag : t=1438087 firstFocus requestFocus try=4
+11-14 21:42:25.891  9015  9015 I YidDiag : t=1438207 firstFocus requestFocus try=5
+11-14 21:42:26.016  9015  9015 I YidDiag : t=1438332 firstFocus requestFocus try=6
+11-14 21:42:26.136  9015  9015 I YidDiag : t=1438452 firstFocus requestFocus try=7
+11-14 21:42:26.264  9015  9015 I YidDiag : t=1438581 firstFocus requestFocus try=8
+11-14 21:42:26.385  9015  9015 I YidDiag : t=1438701 firstFocus requestFocus try=9
+11-14 21:42:26.514  9015  9015 I YidDiag : t=1438830 firstFocus requestFocus try=10
+11-14 21:42:26.635  9015  9015 I YidDiag : t=1438951 firstFocus requestFocus try=11
+11-14 21:42:26.760  9015  9015 I YidDiag : t=1439076 firstFocus requestFocus try=12
+11-14 21:42:26.880  9015  9015 I YidDiag : t=1439196 firstFocus requestFocus try=13
+11-14 21:42:27.001  9015  9015 I YidDiag : t=1439317 firstFocus requestFocus try=14
+11-14 21:42:27.127  9015  9015 I YidDiag : t=1439443 firstFocus requestFocus try=15
+11-14 21:42:41.168  9015  9015 I YidDiag : t=1453485 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:42:41.185  9015  9015 I YidDiag : t=1453501 firstFocus effect k=true always=false got=false
+11-14 21:42:44.247  9015  9015 I YidDiag : t=1456563 firstFocus effect k=true always=false got=false
+11-14 21:42:44.311  9015  9015 I YidDiag : t=1456627 firstFocus requestFocus try=0
+11-14 21:42:44.433  9015  9015 I YidDiag : t=1456749 firstFocus requestFocus try=1
+11-14 21:42:44.554  9015  9015 I YidDiag : t=1456870 firstFocus requestFocus try=2
+11-14 21:42:44.675  9015  9015 I YidDiag : t=1456992 firstFocus requestFocus try=3
+11-14 21:42:44.797  9015  9015 I YidDiag : t=1457113 firstFocus requestFocus try=4
+11-14 21:42:44.917  9015  9015 I YidDiag : t=1457233 firstFocus requestFocus try=5
+11-14 21:42:45.038  9015  9015 I YidDiag : t=1457354 firstFocus requestFocus try=6
+11-14 21:42:45.162  9015  9015 I YidDiag : t=1457479 firstFocus requestFocus try=7
+11-14 21:42:45.283  9015  9015 I YidDiag : t=1457599 firstFocus requestFocus try=8
+11-14 21:42:45.403  9015  9015 I YidDiag : t=1457720 firstFocus requestFocus try=9
+11-14 21:42:45.530  9015  9015 I YidDiag : t=1457846 firstFocus requestFocus try=10
+11-14 21:42:45.650  9015  9015 I YidDiag : t=1457966 firstFocus requestFocus try=11
+11-14 21:42:45.773  9015  9015 I YidDiag : t=1458089 firstFocus requestFocus try=12
+11-14 21:42:45.893  9015  9015 I YidDiag : t=1458209 firstFocus requestFocus try=13
+11-14 21:42:46.014  9015  9015 I YidDiag : t=1458330 firstFocus requestFocus try=14
+11-14 21:42:46.134  9015  9015 I YidDiag : t=1458450 firstFocus requestFocus try=15
+11-14 21:42:58.566  9015  9015 I YidDiag : t=1470883 windowFocus=false touchMode=true ime=false
+11-14 21:43:06.845  9015  9015 I YidDiag : t=1479161 windowFocus=true touchMode=true ime=false
+11-14 21:43:47.285  9015  9015 I YidDiag : t=1519601 windowFocus=false touchMode=true ime=false
+11-14 21:43:51.957  9015  9015 I YidDiag : t=1524273 windowFocus=true touchMode=true ime=false
+11-14 21:43:56.201  9015  9015 I YidDiag : t=1528518 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:43:56.203  9015  9015 I YidDiag : t=1528519 firstFocus effect k=true always=false got=false
+11-14 21:43:56.264  9015  9015 I YidDiag : t=1528581 firstFocus requestFocus try=0
+11-14 21:43:56.385  9015  9015 I YidDiag : t=1528701 firstFocus requestFocus try=1
+11-14 21:43:56.509  9015  9015 I YidDiag : t=1528825 firstFocus requestFocus try=2
+11-14 21:43:56.630  9015  9015 I YidDiag : t=1528946 firstFocus requestFocus try=3
+11-14 21:43:56.750  9015  9015 I YidDiag : t=1529067 firstFocus requestFocus try=4
+11-14 21:43:56.871  9015  9015 I YidDiag : t=1529187 firstFocus requestFocus try=5
+11-14 21:43:56.998  9015  9015 I YidDiag : t=1529314 firstFocus requestFocus try=6
+11-14 21:43:57.118  9015  9015 I YidDiag : t=1529434 firstFocus requestFocus try=7
+11-14 21:43:57.242  9015  9015 I YidDiag : t=1529558 firstFocus requestFocus try=8
+11-14 21:43:57.362  9015  9015 I YidDiag : t=1529678 firstFocus requestFocus try=9
+11-14 21:43:57.483  9015  9015 I YidDiag : t=1529799 firstFocus requestFocus try=10
+11-14 21:43:57.603  9015  9015 I YidDiag : t=1529920 firstFocus requestFocus try=11
+11-14 21:43:57.730  9015  9015 I YidDiag : t=1530046 firstFocus requestFocus try=12
+11-14 21:43:57.851  9015  9015 I YidDiag : t=1530167 firstFocus requestFocus try=13
+11-14 21:43:57.971  9015  9015 I YidDiag : t=1530288 firstFocus requestFocus try=14
+11-14 21:43:58.100  9015  9015 I YidDiag : t=1530416 firstFocus requestFocus try=15
+11-14 21:44:13.699  9015  9015 I YidDiag : t=1546015 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:44:13.699  9015  9015 I YidDiag : t=1546016 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:44:25.410  9015  9015 I YidDiag : t=1557727 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:44:25.418  9015  9015 I YidDiag : t=1557734 firstFocus effect k=true always=true got=false
+11-14 21:44:25.479  9015  9015 I YidDiag : t=1557796 firstFocus requestFocus try=0
+11-14 21:44:25.600  9015  9015 I YidDiag : t=1557916 firstFocus requestFocus try=1
+11-14 21:44:25.720  9015  9015 I YidDiag : t=1558036 firstFocus requestFocus try=2
+11-14 21:44:25.841  9015  9015 I YidDiag : t=1558157 firstFocus requestFocus try=3
+11-14 21:44:25.961  9015  9015 I YidDiag : t=1558277 firstFocus requestFocus try=4
+11-14 21:44:26.081  9015  9015 I YidDiag : t=1558398 firstFocus requestFocus try=5
+11-14 21:44:26.202  9015  9015 I YidDiag : t=1558518 firstFocus requestFocus try=6
+11-14 21:44:26.323  9015  9015 I YidDiag : t=1558639 firstFocus requestFocus try=7
+11-14 21:44:26.443  9015  9015 I YidDiag : t=1558759 firstFocus requestFocus try=8
+11-14 21:44:26.563  9015  9015 I YidDiag : t=1558880 firstFocus requestFocus try=9
+11-14 21:44:26.684  9015  9015 I YidDiag : t=1559000 firstFocus requestFocus try=10
+11-14 21:44:26.804  9015  9015 I YidDiag : t=1559120 firstFocus requestFocus try=11
+11-14 21:44:26.924  9015  9015 I YidDiag : t=1559241 firstFocus requestFocus try=12
+11-14 21:44:27.045  9015  9015 I YidDiag : t=1559361 firstFocus requestFocus try=13
+11-14 21:44:27.165  9015  9015 I YidDiag : t=1559482 firstFocus requestFocus try=14
+11-14 21:44:27.286  9015  9015 I YidDiag : t=1559602 firstFocus requestFocus try=15
+11-14 21:44:39.913  9015  9015 I YidDiag : t=1572229 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:44:39.913  9015  9015 I YidDiag : t=1572230 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:44:43.827  9015  9015 I YidDiag : t=1576144 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:44:43.837  9015  9015 I YidDiag : t=1576153 firstFocus effect k=true always=true got=false
+11-14 21:44:43.897  9015  9015 I YidDiag : t=1576213 firstFocus requestFocus try=0
+11-14 21:44:44.018  9015  9015 I YidDiag : t=1576334 firstFocus requestFocus try=1
+11-14 21:44:44.138  9015  9015 I YidDiag : t=1576454 firstFocus requestFocus try=2
+11-14 21:44:44.259  9015  9015 I YidDiag : t=1576575 firstFocus requestFocus try=3
+11-14 21:44:44.379  9015  9015 I YidDiag : t=1576695 firstFocus requestFocus try=4
+11-14 21:44:44.500  9015  9015 I YidDiag : t=1576816 firstFocus requestFocus try=5
+11-14 21:44:44.620  9015  9015 I YidDiag : t=1576936 firstFocus requestFocus try=6
+11-14 21:44:44.740  9015  9015 I YidDiag : t=1577057 firstFocus requestFocus try=7
+11-14 21:44:44.861  9015  9015 I YidDiag : t=1577177 firstFocus requestFocus try=8
+11-14 21:44:44.981  9015  9015 I YidDiag : t=1577298 firstFocus requestFocus try=9
+11-14 21:44:45.102  9015  9015 I YidDiag : t=1577419 firstFocus requestFocus try=10
+11-14 21:44:45.223  9015  9015 I YidDiag : t=1577539 firstFocus requestFocus try=11
+11-14 21:44:45.343  9015  9015 I YidDiag : t=1577659 firstFocus requestFocus try=12
+11-14 21:44:45.463  9015  9015 I YidDiag : t=1577780 firstFocus requestFocus try=13
+11-14 21:44:45.584  9015  9015 I YidDiag : t=1577900 firstFocus requestFocus try=14
+11-14 21:44:45.704  9015  9015 I YidDiag : t=1578021 firstFocus requestFocus try=15
+11-14 21:44:57.779  9015  9015 I YidDiag : t=1590095 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:44:57.779  9015  9015 I YidDiag : t=1590095 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:45:00.722  9015  9015 I YidDiag : t=1593038 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=true keypad=true ime=true focusView=C
+11-14 21:45:00.723  9015  9015 I YidDiag : t=1593039 touchModeChanged inTouch=false keypadBefore=true ime=true
+11-14 21:45:00.725  9015  9015 I YidDiag : t=1593041 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:45:01.284  9015  9015 I YidDiag : t=1593601 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:45:01.284  9015  9015 I YidDiag : t=1593601 imeVisibleChanged=false animScale=0.0 touchMode=false keypad=true
+11-14 21:45:01.434  9015  9015 I YidDiag : t=1593751 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:45:01.436  9015  9015 I YidDiag : t=1593753 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:45:01.443  9015  9015 I YidDiag : t=1593760 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:45:01.446  9015  9015 I YidDiag : t=1593762 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:45:01.537  9015  9015 I YidDiag : t=1593853 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:45:04.230  9015  9015 I YidDiag : t=1596547 touchModeChanged inTouch=true keypadBefore=true ime=false
+11-14 21:45:28.452  9015  9015 I YidDiag : t=1620769 windowFocus=false touchMode=true ime=false
+11-14 21:45:33.110  9015  9015 I YidDiag : t=1625426 windowFocus=true touchMode=true ime=false
+11-14 21:45:37.213  9015  9015 I YidDiag : t=1629529 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=C
+11-14 21:45:37.214  9015  9015 I YidDiag : t=1629530 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=C
+11-14 21:45:37.214  9015  9015 I YidDiag : t=1629531 AppRoot BackHandler fired stack=1
+11-14 21:45:41.135  9015  9015 I YidDiag : t=1633452 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:45:41.142  9015  9015 I YidDiag : t=1633458 firstFocus effect k=true always=true got=false
+11-14 21:45:41.202  9015  9015 I YidDiag : t=1633518 firstFocus requestFocus try=0
+11-14 21:45:41.322  9015  9015 I YidDiag : t=1633639 firstFocus requestFocus try=1
+11-14 21:45:41.443  9015  9015 I YidDiag : t=1633759 firstFocus requestFocus try=2
+11-14 21:45:41.564  9015  9015 I YidDiag : t=1633880 firstFocus requestFocus try=3
+11-14 21:45:41.684  9015  9015 I YidDiag : t=1634000 firstFocus requestFocus try=4
+11-14 21:45:41.805  9015  9015 I YidDiag : t=1634121 firstFocus requestFocus try=5
+11-14 21:45:41.925  9015  9015 I YidDiag : t=1634241 firstFocus requestFocus try=6
+11-14 21:45:42.045  9015  9015 I YidDiag : t=1634362 firstFocus requestFocus try=7
+11-14 21:45:42.166  9015  9015 I YidDiag : t=1634482 firstFocus requestFocus try=8
+11-14 21:45:42.286  9015  9015 I YidDiag : t=1634602 firstFocus requestFocus try=9
+11-14 21:45:42.406  9015  9015 I YidDiag : t=1634723 firstFocus requestFocus try=10
+11-14 21:45:42.527  9015  9015 I YidDiag : t=1634843 firstFocus requestFocus try=11
+11-14 21:45:42.647  9015  9015 I YidDiag : t=1634963 firstFocus requestFocus try=12
+11-14 21:45:42.767  9015  9015 I YidDiag : t=1635084 firstFocus requestFocus try=13
+11-14 21:45:42.888  9015  9015 I YidDiag : t=1635204 firstFocus requestFocus try=14
+11-14 21:45:43.008  9015  9015 I YidDiag : t=1635324 firstFocus requestFocus try=15
+11-14 21:45:50.327  9015  9015 I YidDiag : t=1642643 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:45:50.338  9015  9015 I YidDiag : t=1642655 firstFocus effect k=true always=false got=false
+11-14 21:45:50.399  9015  9015 I YidDiag : t=1642715 firstFocus requestFocus try=0
+11-14 21:45:50.519  9015  9015 I YidDiag : t=1642836 firstFocus requestFocus try=1
+11-14 21:45:50.640  9015  9015 I YidDiag : t=1642956 firstFocus requestFocus try=2
+11-14 21:45:50.760  9015  9015 I YidDiag : t=1643076 firstFocus requestFocus try=3
+11-14 21:45:50.880  9015  9015 I YidDiag : t=1643197 firstFocus requestFocus try=4
+11-14 21:45:51.001  9015  9015 I YidDiag : t=1643317 firstFocus requestFocus try=5
+11-14 21:45:51.121  9015  9015 I YidDiag : t=1643437 firstFocus requestFocus try=6
+11-14 21:45:51.241  9015  9015 I YidDiag : t=1643558 firstFocus requestFocus try=7
+11-14 21:45:51.362  9015  9015 I YidDiag : t=1643678 firstFocus requestFocus try=8
+11-14 21:45:51.482  9015  9015 I YidDiag : t=1643798 firstFocus requestFocus try=9
+11-14 21:45:51.602  9015  9015 I YidDiag : t=1643918 firstFocus requestFocus try=10
+11-14 21:45:51.723  9015  9015 I YidDiag : t=1644039 firstFocus requestFocus try=11
+11-14 21:45:51.843  9015  9015 I YidDiag : t=1644159 firstFocus requestFocus try=12
+11-14 21:45:51.963  9015  9015 I YidDiag : t=1644280 firstFocus requestFocus try=13
+11-14 21:45:52.084  9015  9015 I YidDiag : t=1644400 firstFocus requestFocus try=14
+11-14 21:45:52.204  9015  9015 I YidDiag : t=1644520 firstFocus requestFocus try=15
+11-14 21:46:07.268  9015  9015 I YidDiag : t=1659584 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:07.269  9015  9015 I YidDiag : t=1659585 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:07.269  9015  9015 I YidDiag : t=1659585 AppRoot BackHandler fired stack=1
+11-14 21:46:21.320  9015  9015 I YidDiag : t=1673636 windowFocus=false touchMode=true ime=false
+11-14 21:46:26.879  9015  9015 I YidDiag : t=1679196 windowFocus=true touchMode=true ime=false
+11-14 21:46:28.877  9015  9015 I YidDiag : t=1681193 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:28.877  9015  9015 I YidDiag : t=1681194 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:31.136  9015  9015 I YidDiag : t=1683452 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:46:31.171  9015  9015 I YidDiag : t=1683487 firstFocus effect k=true always=false got=false
+11-14 21:46:31.254  9015  9015 I YidDiag : t=1683571 firstFocus requestFocus try=0
+11-14 21:46:31.375  9015  9015 I YidDiag : t=1683691 firstFocus requestFocus try=1
+11-14 21:46:31.495  9015  9015 I YidDiag : t=1683812 firstFocus requestFocus try=2
+11-14 21:46:31.616  9015  9015 I YidDiag : t=1683932 firstFocus requestFocus try=3
+11-14 21:46:31.736  9015  9015 I YidDiag : t=1684052 firstFocus requestFocus try=4
+11-14 21:46:31.856  9015  9015 I YidDiag : t=1684173 firstFocus requestFocus try=5
+11-14 21:46:31.977  9015  9015 I YidDiag : t=1684293 firstFocus requestFocus try=6
+11-14 21:46:32.097  9015  9015 I YidDiag : t=1684414 firstFocus requestFocus try=7
+11-14 21:46:32.218  9015  9015 I YidDiag : t=1684534 firstFocus requestFocus try=8
+11-14 21:46:32.338  9015  9015 I YidDiag : t=1684655 firstFocus requestFocus try=9
+11-14 21:46:32.459  9015  9015 I YidDiag : t=1684775 firstFocus requestFocus try=10
+11-14 21:46:32.579  9015  9015 I YidDiag : t=1684896 firstFocus requestFocus try=11
+11-14 21:46:32.700  9015  9015 I YidDiag : t=1685016 firstFocus requestFocus try=12
+11-14 21:46:32.820  9015  9015 I YidDiag : t=1685136 firstFocus requestFocus try=13
+11-14 21:46:32.940  9015  9015 I YidDiag : t=1685257 firstFocus requestFocus try=14
+11-14 21:46:33.061  9015  9015 I YidDiag : t=1685377 firstFocus requestFocus try=15
+11-14 21:46:35.851  9015  9015 I YidDiag : t=1688168 windowFocus=false touchMode=true ime=false
+11-14 21:46:39.486  9015  9015 I YidDiag : t=1691803 windowFocus=true touchMode=true ime=false
+11-14 21:46:54.303  9015  9015 I YidDiag : t=1706619 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:54.304  9015  9015 I YidDiag : t=1706620 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:54.304  9015  9015 I YidDiag : t=1706620 AppRoot BackHandler fired stack=3
+11-14 21:46:56.640  9015  9015 I YidDiag : t=1708956 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:56.641  9015  9015 I YidDiag : t=1708957 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:56.641  9015  9015 I YidDiag : t=1708957 AppRoot BackHandler fired stack=2
+11-14 21:46:56.667  9015  9015 I YidDiag : t=1708983 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:46:56.681  9015  9015 I YidDiag : t=1708998 firstFocus effect k=true always=false got=false
+11-14 21:46:56.744  9015  9015 I YidDiag : t=1709060 firstFocus requestFocus try=0
+11-14 21:46:56.864  9015  9015 I YidDiag : t=1709181 firstFocus requestFocus try=1
+11-14 21:46:56.985  9015  9015 I YidDiag : t=1709301 firstFocus requestFocus try=2
+11-14 21:46:57.105  9015  9015 I YidDiag : t=1709421 firstFocus requestFocus try=3
+11-14 21:46:57.226  9015  9015 I YidDiag : t=1709542 firstFocus requestFocus try=4
+11-14 21:46:57.346  9015  9015 I YidDiag : t=1709663 firstFocus requestFocus try=5
+11-14 21:46:57.467  9015  9015 I YidDiag : t=1709783 firstFocus requestFocus try=6
+11-14 21:46:57.587  9015  9015 I YidDiag : t=1709904 firstFocus requestFocus try=7
+11-14 21:46:57.708  9015  9015 I YidDiag : t=1710024 firstFocus requestFocus try=8
+11-14 21:46:57.828  9015  9015 I YidDiag : t=1710145 firstFocus requestFocus try=9
+11-14 21:46:57.949  9015  9015 I YidDiag : t=1710265 firstFocus requestFocus try=10
+11-14 21:46:58.069  9015  9015 I YidDiag : t=1710385 firstFocus requestFocus try=11
+11-14 21:46:58.190  9015  9015 I YidDiag : t=1710506 firstFocus requestFocus try=12
+11-14 21:46:58.310  9015  9015 I YidDiag : t=1710626 firstFocus requestFocus try=13
+11-14 21:46:58.431  9015  9015 I YidDiag : t=1710747 firstFocus requestFocus try=14
+11-14 21:46:58.551  9015  9015 I YidDiag : t=1710867 firstFocus requestFocus try=15
+11-14 21:46:58.966  9015  9015 I YidDiag : t=1711283 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:58.967  9015  9015 I YidDiag : t=1711283 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:46:58.967  9015  9015 I YidDiag : t=1711283 AppRoot BackHandler fired stack=1
+11-14 21:47:05.235  9015  9015 I YidDiag : t=1717551 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:47:05.278  9015  9015 I YidDiag : t=1717594 firstFocus effect k=true always=false got=false
+11-14 21:47:05.338  9015  9015 I YidDiag : t=1717654 firstFocus requestFocus try=0
+11-14 21:47:05.459  9015  9015 I YidDiag : t=1717775 firstFocus requestFocus try=1
+11-14 21:47:05.579  9015  9015 I YidDiag : t=1717895 firstFocus requestFocus try=2
+11-14 21:47:05.699  9015  9015 I YidDiag : t=1718016 firstFocus requestFocus try=3
+11-14 21:47:05.820  9015  9015 I YidDiag : t=1718136 firstFocus requestFocus try=4
+11-14 21:47:05.940  9015  9015 I YidDiag : t=1718256 firstFocus requestFocus try=5
+11-14 21:47:06.060  9015  9015 I YidDiag : t=1718376 firstFocus requestFocus try=6
+11-14 21:47:06.181  9015  9015 I YidDiag : t=1718497 firstFocus requestFocus try=7
+11-14 21:47:06.301  9015  9015 I YidDiag : t=1718617 firstFocus requestFocus try=8
+11-14 21:47:06.421  9015  9015 I YidDiag : t=1718738 firstFocus requestFocus try=9
+11-14 21:47:06.542  9015  9015 I YidDiag : t=1718858 firstFocus requestFocus try=10
+11-14 21:47:06.662  9015  9015 I YidDiag : t=1718978 firstFocus requestFocus try=11
+11-14 21:47:06.782  9015  9015 I YidDiag : t=1719099 firstFocus requestFocus try=12
+11-14 21:47:06.903  9015  9015 I YidDiag : t=1719219 firstFocus requestFocus try=13
+11-14 21:47:07.023  9015  9015 I YidDiag : t=1719339 firstFocus requestFocus try=14
+11-14 21:47:07.143  9015  9015 I YidDiag : t=1719460 firstFocus requestFocus try=15
+11-14 21:47:12.962  9015  9015 I YidDiag : t=1725278 windowFocus=false touchMode=true ime=false
+11-14 21:47:16.561  9015  9015 I YidDiag : t=1728878 windowFocus=true touchMode=true ime=false
+11-14 21:47:28.348  9015  9015 I YidDiag : t=1740664 windowFocus=false touchMode=true ime=false
+11-14 21:47:36.621  9015  9015 I YidDiag : t=1748938 windowFocus=true touchMode=true ime=false
+11-14 21:47:42.285  9015  9015 I YidDiag : t=1754601 windowFocus=false touchMode=true ime=false
+11-14 21:47:47.005  9015  9015 I YidDiag : t=1759321 windowFocus=true touchMode=true ime=false
+11-14 21:47:52.644  9015  9015 I YidDiag : t=1764960 windowFocus=false touchMode=true ime=false
+11-14 21:48:10.693  9015  9015 I YidDiag : t=1783010 windowFocus=true touchMode=true ime=false
+11-14 21:48:49.956  9015  9015 I YidDiag : t=1822272 windowFocus=false touchMode=true ime=false
+11-14 21:48:54.582  9015  9015 I YidDiag : t=1826898 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:48:54.639  9015  9015 I YidDiag : t=1826956 firstFocus effect k=true always=true got=false
+11-14 21:48:54.700  9015  9015 I YidDiag : t=1827016 firstFocus requestFocus try=0
+11-14 21:48:54.701  9015  9015 I YidDiag : t=1827017 firstFocus focusChanged isFocused=true hasFocus=true keypad=true
+11-14 21:48:54.987  9015  9015 I YidDiag : t=1827303 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=false mIsAnimationPending=false mRequestedVisible=false srcCtl=false mType=13 ] 
+11-14 21:48:54.987  9015  9015 I YidDiag : t=1827303 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:48:58.400  9015  9015 I YidDiag : t=1830716 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=false mIsAnimationPending=false mRequestedVisible=false srcCtl=false mType=13 ] 
+11-14 21:48:58.400  9015  9015 I YidDiag : t=1830716 imeVisibleChanged=false animScale=0.0 touchMode=true keypad=true
+11-14 21:48:58.455  9015  9015 I YidDiag : t=1830772 touchModeChanged inTouch=false keypadBefore=true ime=false
+11-14 21:48:58.487  9015  9015 I YidDiag : t=1830803 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=false mIsAnimationPending=false mRequestedVisible=false srcCtl=false mType=13 ] 
+11-14 21:48:58.504  9015  9015 I YidDiag : t=1830820 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=false mIsAnimationPending=false mRequestedVisible=false srcCtl=false mType=13 ] 
+11-14 21:48:58.512  9015  9015 I YidDiag : t=1830828 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=false mIsAnimationPending=false mRequestedVisible=false srcCtl=false mType=13 ] 
+11-14 21:48:58.552  9015  9015 I YidDiag : t=1830868 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=false mIsAnimationPending=false mRequestedVisible=false srcCtl=false mType=13 ] 
+11-14 21:48:58.652  9015  9015 I YidDiag : t=1830968 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=false mIsAnimationPending=false mRequestedVisible=false srcCtl=false mType=13 ] 
+11-14 21:49:02.224  9015  9015 I YidDiag : t=1834540 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:49:02.265  9015  9015 I YidDiag : t=1834581 touchModeChanged inTouch=true keypadBefore=true ime=false
+11-14 21:49:02.289  9015  9015 I YidDiag : t=1834606 windowFocus=true touchMode=true ime=false
+11-14 21:49:07.953  9015  9015 I YidDiag : t=1840269 windowFocus=false touchMode=true ime=false
+11-14 21:49:17.279  9015  9015 I YidDiag : t=1849595 windowFocus=true touchMode=true ime=false
+11-14 21:50:24.160  9015  9015 I YidDiag : t=1916477 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:50:24.169  9015  9015 I YidDiag : t=1916485 firstFocus effect k=true always=false got=false
+11-14 21:50:24.229  9015  9015 I YidDiag : t=1916546 firstFocus requestFocus try=0
+11-14 21:50:24.350  9015  9015 I YidDiag : t=1916666 firstFocus requestFocus try=1
+11-14 21:50:24.471  9015  9015 I YidDiag : t=1916787 firstFocus requestFocus try=2
+11-14 21:50:24.591  9015  9015 I YidDiag : t=1916907 firstFocus requestFocus try=3
+11-14 21:50:24.711  9015  9015 I YidDiag : t=1917028 firstFocus requestFocus try=4
+11-14 21:50:24.832  9015  9015 I YidDiag : t=1917148 firstFocus requestFocus try=5
+11-14 21:50:24.952  9015  9015 I YidDiag : t=1917268 firstFocus requestFocus try=6
+11-14 21:50:25.072  9015  9015 I YidDiag : t=1917389 firstFocus requestFocus try=7
+11-14 21:50:25.193  9015  9015 I YidDiag : t=1917509 firstFocus requestFocus try=8
+11-14 21:50:25.313  9015  9015 I YidDiag : t=1917629 firstFocus requestFocus try=9
+11-14 21:50:25.433  9015  9015 I YidDiag : t=1917749 firstFocus requestFocus try=10
+11-14 21:50:25.553  9015  9015 I YidDiag : t=1917870 firstFocus requestFocus try=11
+11-14 21:50:25.674  9015  9015 I YidDiag : t=1917990 firstFocus requestFocus try=12
+11-14 21:50:25.794  9015  9015 I YidDiag : t=1918110 firstFocus requestFocus try=13
+11-14 21:50:25.915  9015  9015 I YidDiag : t=1918231 firstFocus requestFocus try=14
+11-14 21:50:26.035  9015  9015 I YidDiag : t=1918351 firstFocus requestFocus try=15
+11-14 21:50:41.142  9015  9015 I YidDiag : t=1933458 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:50:41.142  9015  9015 I YidDiag : t=1933459 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:50:41.142  9015  9015 I YidDiag : t=1933459 AppRoot BackHandler fired stack=4
+11-14 21:51:16.422  9015  9015 I YidDiag : t=1968739 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:16.423  9015  9015 I YidDiag : t=1968739 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:16.423  9015  9015 I YidDiag : t=1968740 AppRoot BackHandler fired stack=4
+11-14 21:51:31.603  9015  9015 I YidDiag : t=1983919 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:31.603  9015  9015 I YidDiag : t=1983920 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:31.603  9015  9015 I YidDiag : t=1983920 AppRoot BackHandler fired stack=3
+11-14 21:51:34.023  9015  9015 I YidDiag : t=1986340 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:34.024  9015  9015 I YidDiag : t=1986340 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:34.024  9015  9015 I YidDiag : t=1986340 AppRoot BackHandler fired stack=2
+11-14 21:51:34.049  9015  9015 I YidDiag : t=1986366 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:51:34.065  9015  9015 I YidDiag : t=1986381 firstFocus effect k=true always=false got=false
+11-14 21:51:34.127  9015  9015 I YidDiag : t=1986443 firstFocus requestFocus try=0
+11-14 21:51:34.247  9015  9015 I YidDiag : t=1986564 firstFocus requestFocus try=1
+11-14 21:51:34.368  9015  9015 I YidDiag : t=1986684 firstFocus requestFocus try=2
+11-14 21:51:34.488  9015  9015 I YidDiag : t=1986804 firstFocus requestFocus try=3
+11-14 21:51:34.608  9015  9015 I YidDiag : t=1986925 firstFocus requestFocus try=4
+11-14 21:51:34.729  9015  9015 I YidDiag : t=1987045 firstFocus requestFocus try=5
+11-14 21:51:34.849  9015  9015 I YidDiag : t=1987165 firstFocus requestFocus try=6
+11-14 21:51:34.969  9015  9015 I YidDiag : t=1987286 firstFocus requestFocus try=7
+11-14 21:51:35.090  9015  9015 I YidDiag : t=1987406 firstFocus requestFocus try=8
+11-14 21:51:35.210  9015  9015 I YidDiag : t=1987527 firstFocus requestFocus try=9
+11-14 21:51:35.331  9015  9015 I YidDiag : t=1987647 firstFocus requestFocus try=10
+11-14 21:51:35.451  9015  9015 I YidDiag : t=1987767 firstFocus requestFocus try=11
+11-14 21:51:35.571  9015  9015 I YidDiag : t=1987887 firstFocus requestFocus try=12
+11-14 21:51:35.692  9015  9015 I YidDiag : t=1988008 firstFocus requestFocus try=13
+11-14 21:51:35.812  9015  9015 I YidDiag : t=1988128 firstFocus requestFocus try=14
+11-14 21:51:35.932  9015  9015 I YidDiag : t=1988249 firstFocus requestFocus try=15
+11-14 21:51:36.349  9015  9015 I YidDiag : t=1988665 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:36.349  9015  9015 I YidDiag : t=1988666 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:51:36.349  9015  9015 I YidDiag : t=1988666 AppRoot BackHandler fired stack=1
+11-14 21:51:38.603  9015  9015 I YidDiag : t=1990919 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:51:38.636  9015  9015 I YidDiag : t=1990952 firstFocus effect k=true always=false got=false
+11-14 21:51:38.696  9015  9015 I YidDiag : t=1991013 firstFocus requestFocus try=0
+11-14 21:51:38.817  9015  9015 I YidDiag : t=1991134 firstFocus requestFocus try=1
+11-14 21:51:38.938  9015  9015 I YidDiag : t=1991254 firstFocus requestFocus try=2
+11-14 21:51:39.058  9015  9015 I YidDiag : t=1991375 firstFocus requestFocus try=3
+11-14 21:51:39.179  9015  9015 I YidDiag : t=1991495 firstFocus requestFocus try=4
+11-14 21:51:39.299  9015  9015 I YidDiag : t=1991615 firstFocus requestFocus try=5
+11-14 21:51:39.419  9015  9015 I YidDiag : t=1991735 firstFocus requestFocus try=6
+11-14 21:51:39.540  9015  9015 I YidDiag : t=1991856 firstFocus requestFocus try=7
+11-14 21:51:39.660  9015  9015 I YidDiag : t=1991976 firstFocus requestFocus try=8
+11-14 21:51:39.780  9015  9015 I YidDiag : t=1992097 firstFocus requestFocus try=9
+11-14 21:51:39.901  9015  9015 I YidDiag : t=1992217 firstFocus requestFocus try=10
+11-14 21:51:40.021  9015  9015 I YidDiag : t=1992337 firstFocus requestFocus try=11
+11-14 21:51:40.141  9015  9015 I YidDiag : t=1992458 firstFocus requestFocus try=12
+11-14 21:51:40.262  9015  9015 I YidDiag : t=1992578 firstFocus requestFocus try=13
+11-14 21:51:40.382  9015  9015 I YidDiag : t=1992698 firstFocus requestFocus try=14
+11-14 21:51:40.502  9015  9015 I YidDiag : t=1992819 firstFocus requestFocus try=15
+11-14 21:51:45.336  9015  9015 I YidDiag : t=1997652 windowFocus=false touchMode=true ime=false
+11-14 21:51:48.913  9015  9015 I YidDiag : t=2001230 windowFocus=true touchMode=true ime=false
+11-14 21:52:02.815  9015  9015 I YidDiag : t=2015131 windowFocus=false touchMode=true ime=false
+11-14 21:52:11.080  9015  9015 I YidDiag : t=2023397 windowFocus=true touchMode=true ime=false
+11-14 21:52:15.147  9015  9015 I YidDiag : t=2027463 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:52:15.147  9015  9015 I YidDiag : t=2027464 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:52:15.147  9015  9015 I YidDiag : t=2027464 AppRoot BackHandler fired stack=2
+11-14 21:52:15.165  9015  9015 I YidDiag : t=2027482 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:52:15.194  9015  9015 I YidDiag : t=2027510 firstFocus effect k=true always=false got=false
+11-14 21:52:15.254  9015  9015 I YidDiag : t=2027570 firstFocus requestFocus try=0
+11-14 21:52:15.375  9015  9015 I YidDiag : t=2027691 firstFocus requestFocus try=1
+11-14 21:52:15.496  9015  9015 I YidDiag : t=2027812 firstFocus requestFocus try=2
+11-14 21:52:15.616  9015  9015 I YidDiag : t=2027932 firstFocus requestFocus try=3
+11-14 21:52:15.736  9015  9015 I YidDiag : t=2028053 firstFocus requestFocus try=4
+11-14 21:52:15.857  9015  9015 I YidDiag : t=2028173 firstFocus requestFocus try=5
+11-14 21:52:15.977  9015  9015 I YidDiag : t=2028293 firstFocus requestFocus try=6
+11-14 21:52:16.098  9015  9015 I YidDiag : t=2028414 firstFocus requestFocus try=7
+11-14 21:52:16.218  9015  9015 I YidDiag : t=2028534 firstFocus requestFocus try=8
+11-14 21:52:16.339  9015  9015 I YidDiag : t=2028655 firstFocus requestFocus try=9
+11-14 21:52:16.459  9015  9015 I YidDiag : t=2028776 firstFocus requestFocus try=10
+11-14 21:52:16.580  9015  9015 I YidDiag : t=2028896 firstFocus requestFocus try=11
+11-14 21:52:16.700  9015  9015 I YidDiag : t=2029016 firstFocus requestFocus try=12
+11-14 21:52:16.821  9015  9015 I YidDiag : t=2029137 firstFocus requestFocus try=13
+11-14 21:52:16.941  9015  9015 I YidDiag : t=2029257 firstFocus requestFocus try=14
+11-14 21:52:17.061  9015  9015 I YidDiag : t=2029378 firstFocus requestFocus try=15
+11-14 21:52:17.475  9015  9015 I YidDiag : t=2029791 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=null
+11-14 21:52:17.476  9015  9015 I YidDiag : t=2029792 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=null
+11-14 21:52:17.476  9015  9015 I YidDiag : t=2029792 AppRoot BackHandler fired stack=1
+11-14 21:52:24.452  9015  9015 I YidDiag : t=2036768 windowFocus=false touchMode=true ime=false
+11-14 21:52:29.088  9015  9015 I YidDiag : t=2041404 windowFocus=true touchMode=true ime=false
+11-14 21:52:34.757  9015  9015 I YidDiag : t=2047073 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:52:34.757  9015  9015 I YidDiag : t=2047073 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:52:34.810  9015  9015 I YidDiag : t=2047126 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:52:34.812  9015  9015 I YidDiag : t=2047128 firstFocus effect k=true always=false got=false
+11-14 21:52:34.872  9015  9015 I YidDiag : t=2047189 firstFocus requestFocus try=0
+11-14 21:52:34.873  9015  9015 I YidDiag : t=2047189 firstFocus focusChanged isFocused=true hasFocus=true keypad=true
+11-14 21:52:36.686  9015  9015 I YidDiag : t=2049003 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=true keypad=true ime=true focusView=C
+11-14 21:52:36.687  9015  9015 I YidDiag : t=2049004 touchModeChanged inTouch=false keypadBefore=true ime=true
+11-14 21:52:36.688  9015  9015 I YidDiag : t=2049004 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:52:37.223  9015  9015 I YidDiag : t=2049539 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:37.223  9015  9015 I YidDiag : t=2049539 imeVisibleChanged=false animScale=0.0 touchMode=false keypad=true
+11-14 21:52:37.297  9015  9015 I YidDiag : t=2049613 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:37.299  9015  9015 I YidDiag : t=2049616 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:37.334  9015  9015 I YidDiag : t=2049650 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:37.375  9015  9015 I YidDiag : t=2049691 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:37.474  9015  9015 I YidDiag : t=2049791 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:40.119  9015  9015 I YidDiag : t=2052435 touchModeChanged inTouch=true keypadBefore=true ime=false
+11-14 21:52:52.533  9015  9015 I YidDiag : t=2064849 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:52:52.626  9015  9015 I YidDiag : t=2064943 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:52:52.626  9015  9015 I YidDiag : t=2064943 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:52:54.561  9015  9015 I YidDiag : t=2066877 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=true keypad=true ime=true focusView=C
+11-14 21:52:54.562  9015  9015 I YidDiag : t=2066878 touchModeChanged inTouch=false keypadBefore=true ime=true
+11-14 21:52:54.563  9015  9015 I YidDiag : t=2066880 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:52:54.564  9015  9015 I YidDiag : t=2066880 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=false keypad=true ime=true focusView=C
+11-14 21:52:54.565  9015  9015 I YidDiag : t=2066881 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:52:54.566  9015  9015 I YidDiag : t=2066882 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=false keypad=true ime=true focusView=C
+11-14 21:52:54.567  9015  9015 I YidDiag : t=2066883 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:52:55.139  9015  9015 I YidDiag : t=2067455 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:55.139  9015  9015 I YidDiag : t=2067455 imeVisibleChanged=false animScale=0.0 touchMode=false keypad=true
+11-14 21:52:55.203  9015  9015 I YidDiag : t=2067519 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:55.211  9015  9015 I YidDiag : t=2067527 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:55.250  9015  9015 I YidDiag : t=2067567 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:55.290  9015  9015 I YidDiag : t=2067606 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:55.391  9015  9015 I YidDiag : t=2067707 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=false mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:52:58.126  9015  9015 I YidDiag : t=2070442 touchModeChanged inTouch=true keypadBefore=true ime=false
+11-14 21:53:03.362  9015  9015 I YidDiag : t=2075678 dispatchKeyEvent animScale=0.0 code=4 action=0 touchMode=true keypad=true ime=false focusView=C
+11-14 21:53:03.363  9015  9015 I YidDiag : t=2075679 dispatchKeyEvent animScale=0.0 code=4 action=1 touchMode=true keypad=true ime=false focusView=C
+11-14 21:53:03.363  9015  9015 I YidDiag : t=2075679 AppRoot BackHandler fired stack=1
+11-14 21:53:10.348  9015  9015 I YidDiag : t=2082664 windowFocus=false touchMode=true ime=false
+11-14 21:53:14.909  9015  9015 I YidDiag : t=2087225 firstFocus focusChanged isFocused=false hasFocus=false keypad=true
+11-14 21:53:14.936  9015  9015 I YidDiag : t=2087252 join code effect start len=null
+11-14 21:53:14.936  9015  9015 I YidDiag : t=2087252 firstFocus effect k=true always=false got=false
+11-14 21:53:14.988  9015  9015 I YidDiag : t=2087304 windowFocus=true touchMode=true ime=false
+11-14 21:53:14.997  9015  9015 I YidDiag : t=2087313 firstFocus requestFocus try=0
+11-14 21:53:14.998  9015  9015 I YidDiag : t=2087314 firstFocus focusChanged isFocused=true hasFocus=true keypad=true
+11-14 21:53:15.090  9015  9015 I YidDiag : t=2087406 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:15.090  9015  9015 I YidDiag : t=2087406 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:53:19.001 16563 16563 I YidDiag : script: before typing the link
+11-14 21:53:19.124  9015  9015 I YidDiag : t=2091441 touchModeChanged inTouch=false keypadBefore=true ime=true
+11-14 21:53:19.125  9015  9015 I YidDiag : t=2091441 join field change len=1
+11-14 21:53:19.126  9015  9015 I YidDiag : t=2091442 join field change len=2
+11-14 21:53:19.127  9015  9015 I YidDiag : t=2091443 join field change len=3
+11-14 21:53:19.128  9015  9015 I YidDiag : t=2091444 join field change len=4
+11-14 21:53:19.128  9015  9015 I YidDiag : t=2091445 join field change len=5
+11-14 21:53:19.129  9015  9015 I YidDiag : t=2091445 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=false keypad=true ime=true focusView=C
+11-14 21:53:19.130  9015  9015 I YidDiag : t=2091446 join field change len=6
+11-14 21:53:19.130  9015  9015 I YidDiag : t=2091447 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:53:19.131  9015  9015 I YidDiag : t=2091447 join field change len=7
+11-14 21:53:19.131  9015  9015 I YidDiag : t=2091448 join field change len=8
+11-14 21:53:19.132  9015  9015 I YidDiag : t=2091449 join field change len=9
+11-14 21:53:19.133  9015  9015 I YidDiag : t=2091449 join field change len=10
+11-14 21:53:19.134  9015  9015 I YidDiag : t=2091450 join field change len=11
+11-14 21:53:19.134  9015  9015 I YidDiag : t=2091451 join field change len=12
+11-14 21:53:19.135  9015  9015 I YidDiag : t=2091451 join field change len=13
+11-14 21:53:19.136  9015  9015 I YidDiag : t=2091452 join field change len=14
+11-14 21:53:19.137  9015  9015 I YidDiag : t=2091453 join field change len=15
+11-14 21:53:19.142  9015  9015 I YidDiag : t=2091459 join field change len=16
+11-14 21:53:19.143  9015  9015 I YidDiag : t=2091459 join code effect start len=7
+11-14 21:53:19.148  9015  9015 I YidDiag : t=2091464 join field change len=17
+11-14 21:53:19.149  9015  9015 I YidDiag : t=2091465 join field change len=18
+11-14 21:53:19.150  9015  9015 I YidDiag : t=2091466 join field change len=19
+11-14 21:53:19.150  9015  9015 I YidDiag : t=2091466 join field change len=20
+11-14 21:53:19.151  9015  9015 I YidDiag : t=2091467 join field change len=21
+11-14 21:53:19.152  9015  9015 I YidDiag : t=2091468 join field change len=22
+11-14 21:53:19.152  9015  9015 I YidDiag : t=2091468 join field change len=23
+11-14 21:53:19.153  9015  9015 I YidDiag : t=2091469 join field change len=24
+11-14 21:53:19.153  9015  9015 I YidDiag : t=2091469 dispatchKeyEvent animScale=0.0 code=59 action=0 touchMode=false keypad=true ime=true focusView=C
+11-14 21:53:19.154  9015  9015 I YidDiag : t=2091470 join field change len=25
+11-14 21:53:19.164  9015  9015 I YidDiag : t=2091480 join code effect start len=null
+11-14 21:53:19.170  9015  9015 I YidDiag : t=2091487 dispatchKeyEvent animScale=0.0 code=59 action=1 touchMode=false keypad=true ime=true focusView=C
+11-14 21:53:19.187  9015  9015 I YidDiag : t=2091503 join field change len=26
+11-14 21:53:19.225  9015  9015 I YidDiag : t=2091541 join field change len=27
+11-14 21:53:19.228  9015  9015 I YidDiag : t=2091544 join field change len=28
+11-14 21:53:19.228  9015  9015 I YidDiag : t=2091545 join field change len=29
+11-14 21:53:19.229  9015  9015 I YidDiag : t=2091545 join field change len=30
+11-14 21:53:19.229  9015  9015 I YidDiag : t=2091546 join field change len=31
+11-14 21:53:19.230  9015  9015 I YidDiag : t=2091546 join field change len=32
+11-14 21:53:19.230  9015  9015 I YidDiag : t=2091547 join field change len=33
+11-14 21:53:19.231  9015  9015 I YidDiag : t=2091547 join field change len=34
+11-14 21:53:19.232  9015  9015 I YidDiag : t=2091548 join field change len=35
+11-14 21:53:19.232  9015  9015 I YidDiag : t=2091549 join field change len=36
+11-14 21:53:19.270  9015  9015 I YidDiag : t=2091586 join code effect start len=6
+11-14 21:53:19.570  9015  9015 I YidDiag : t=2091886 join inviteInfo call len=6
+11-14 21:53:19.571  9015  9015 I YidDiag : t=2091887 join inviteInfo result null=false
+11-14 21:53:19.702 16580 16580 I YidDiag : script: typed the link
+11-14 21:53:21.917 16613 16613 I YidDiag : script: sending Back (key 4)
+11-14 21:53:22.043  9015  9015 I YidDiag : t=2094359 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:22.043  9015  9015 I YidDiag : t=2094359 imeVisibleChanged=false animScale=0.0 touchMode=false keypad=true
+11-14 21:53:22.091  9015  9015 I YidDiag : t=2094408 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:22.116  9015  9015 I YidDiag : t=2094433 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:22.157  9015  9015 I YidDiag : t=2094473 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:22.157  9015  9015 I YidDiag : t=2094473 imeVisibleChanged=true animScale=0.0 touchMode=false keypad=true
+11-14 21:53:22.168  9015  9015 I YidDiag : t=2094484 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:22.210  9015  9015 I YidDiag : t=2094526 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:22.295  9015  9015 I YidDiag : t=2094611 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:23.261 16629 16629 I YidDiag : script: Back sent
+11-14 21:53:26.786 16664 16664 I YidDiag : script: before probe
+11-14 21:53:27.041  9015  9015 I YidDiag : t=2099357 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:27.041  9015  9015 I YidDiag : t=2099357 imeVisibleChanged=false animScale=0.0 touchMode=false keypad=true
+11-14 21:53:27.113  9015  9015 I YidDiag : t=2099429 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:27.137  9015  9015 I YidDiag : t=2099453 touchModeChanged inTouch=true keypadBefore=true ime=false
+11-14 21:53:27.150  9015  9015 I YidDiag : t=2099466 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:27.154  9015  9015 I YidDiag : t=2099470 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:27.185  9015  9015 I YidDiag : t=2099501 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:27.185  9015  9015 I YidDiag : t=2099501 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:53:27.201  9015  9015 I YidDiag : t=2099517 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:27.294  9015  9015 I YidDiag : t=2099610 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:31.858  9015  9015 I YidDiag : t=2104175 ins change imeVisible=false: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:31.858  9015  9015 I YidDiag : t=2104175 imeVisibleChanged=false animScale=0.0 touchMode=true keypad=true
+11-14 21:53:31.976  9015  9015 I YidDiag : t=2104293 ins +30ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:31.987  9015  9015 I YidDiag : t=2104303 ins +70ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:32.004  9015  9015 I YidDiag : t=2104321 ins +110ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:32.013  9015  9015 I YidDiag : t=2104329 ins +150ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=false srcCtl=true mType=13 ] 
+11-14 21:53:32.060  9015  9015 I YidDiag : t=2104376 ins change imeVisible=true: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=8 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:32.060  9015  9015 I YidDiag : t=2104376 imeVisibleChanged=true animScale=0.0 touchMode=true keypad=true
+11-14 21:53:32.114  9015  9015 I YidDiag : t=2104431 ins +250ms after hide: ic[mAnimCallbackScheduled=false mAnimationsDisabled=false mCaptionInsetsHeight=0 mDisabledUserAnimationInsetsTypes=0 mLastLegacySoftInputMode=16 mLastLegacySystemUiFlags=16 mLastLegacyWindowFlags=-2122252032 mLastStartedAnimTypes=0 mStartingAnimation=false mTypesBeingCancelled=0 ] ImeInsetsSourceConsumer[mIsRequestedVisibleAwaitingControl=true mShowOnNextImeRender=false mHasWindowFocus=true mIsAnimationPending=false mRequestedVisible=true srcCtl=true mType=13 ] 
+11-14 21:53:36.474 16769 16769 I YidDiag : script: after probe
