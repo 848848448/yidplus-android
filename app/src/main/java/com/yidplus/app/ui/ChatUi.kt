@@ -148,8 +148,8 @@ internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = n
 }
 
 @Composable
-internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, size: Dp = 44.dp) {
-    Box(Modifier.size(size).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, size: Dp = 44.dp, focus: androidx.compose.ui.focus.FocusRequester? = null) {
+    Box(Modifier.size(size).then(if (focus != null) Modifier.focusRequester(focus) else Modifier).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
     }
 }
@@ -427,9 +427,9 @@ internal fun HideStatusBarWhile(on: Boolean) {
 
 /** Message field for small screens: the stock TextField carries 16dp of padding above and below its text (about 84px on the F21), which left no room for the conversation with the keyboard up. */
 @Composable
-internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String) -> Unit, ime: Boolean, focus: androidx.compose.ui.focus.FocusRequester, onSend: () -> Unit) {
+internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String) -> Unit, ime: Boolean, focus: androidx.compose.ui.focus.FocusRequester, left: androidx.compose.ui.focus.FocusRequester? = null, right: androidx.compose.ui.focus.FocusRequester? = null, onSend: () -> Unit) {
     val ink = MaterialTheme.colorScheme.onSurface
-    androidx.compose.foundation.text.BasicTextField(text, onChange, modifier.focusRequester(focus).csComposerEscape(text), maxLines = 5,
+    androidx.compose.foundation.text.BasicTextField(text, onChange, modifier.focusRequester(focus).csComposerEscape(text, left, right), maxLines = 5,
         textStyle = TextStyle(fontSize = 17.sp, textDirection = TextDirection.Content, color = ink),
         cursorBrush = androidx.compose.ui.graphics.SolidColor(ink),
         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Send),
@@ -443,15 +443,19 @@ internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String)
         })
 }
 
-/** Keypad: an empty composer field must not hold the D-pad. LEFT/RIGHT leave it for Emoji / Attach / Camera / mic instead of moving a cursor that has nowhere to go (HYPOTHESIS from run 43516626433 base legs: focus stayed on the EditText for 6 RIGHT presses; untested). */
+/** Keypad: an empty composer field must not hold the D-pad. LEFT/RIGHT go straight to the Emoji / Attach buttons (explicit targets: the default focus search from the field went to a message row and the header, run 43530063480 default-base) and fall back to the normal focus search when a target is not on screen. Non-empty text keeps cursor movement. */
 @Composable
-internal fun Modifier.csComposerEscape(text: String): Modifier {
+internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.focus.FocusRequester? = null, right: androidx.compose.ui.focus.FocusRequester? = null): Modifier {
     val fm = androidx.compose.ui.platform.LocalFocusManager.current
+    fun go(t: androidx.compose.ui.focus.FocusRequester?, d: androidx.compose.ui.focus.FocusDirection): Boolean {
+        if (t != null && runCatching { t.requestFocus() }.isSuccess) return true
+        return fm.moveFocus(d)
+    }
     return this.onPreviewKeyEvent { e ->
         if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && text.isEmpty()) {
             when (e.key) {
-                androidx.compose.ui.input.key.Key.DirectionRight -> fm.moveFocus(androidx.compose.ui.focus.FocusDirection.Right)
-                androidx.compose.ui.input.key.Key.DirectionLeft -> fm.moveFocus(androidx.compose.ui.focus.FocusDirection.Left)
+                androidx.compose.ui.input.key.Key.DirectionRight -> go(right, androidx.compose.ui.focus.FocusDirection.Right)
+                androidx.compose.ui.input.key.Key.DirectionLeft -> go(left, androidx.compose.ui.focus.FocusDirection.Left)
                 else -> false
             }
         } else false
