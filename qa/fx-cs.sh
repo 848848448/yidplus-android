@@ -204,12 +204,24 @@ key 4; sleep 1; sysbars after-leaving-room; csroom 4; csfind "פלאפל"; shot 
 cstap "פלאפל"; sleep 2; csfx "/api/polls"; shot CS-05-poll-voted; csfindup "Close Poll" 3; shot CS-05b-quiz-close-poll; cshas "Close Poll"
 # 9: voice: play, speed, seek
 key 4; sleep 1; csroom 4; csfind "0:12" 6; cstap "Play"; sleep 4; shot CS-06-voice-playing; cstap "1x"; sleep 1; shot CS-06b-voice-1.5x; cstap "Pause"; sleep 1
+# WebM/Opus voice note (live voice media is audio/webm; the other fixtures are m4a): the 0:08 bubble is a generated 8 s Opus-in-WebM file. Exact-label find, structural bubble, then Pause must appear at the tapped Play bounds.
+if csfindexact "0:08" 12; then csplayat "0:08"; sleep 2; shot CS-06w-webm-playing; else log "CS MISSING: the WebM voice bubble 0:08 is not on screen"; fi
 # 1: voice note recording — tap = hands-free (pause, stop to listen, send)
 key 4; csroom 5; cstap "Record voice message"; sleep 3; shot CS-07-voice-locked
-# touch-start recording: focus state right after the touch start, then after ONE D-pad press (the keypad takes over from touch mode)
-f=$(csfocusnow CS-07x-touch-start-focus); log "CS touch-start recording: focus right after the touch start: [${f:-none}]"
-key 20; sleep 1.5; f=$(csfocusnow CS-07y-touch-start-after-dpad); shot CS-07y-touch-start-after-dpad; log "CS touch-start recording: focus after one D-pad DOWN: [${f:-none}]"
-case "$f" in *"Send voice message"*) log "CS ok: touch-start recording then D-pad reaches Send" ;; *) log "CS WRONG: touch-start recording then one D-pad press did not focus Send (focus: [${f:-none}])" ;; esac
+# touch-start recording: the decisive check is the ACTION, not the focus dump. After the touch start and ONE D-pad DOWN, OK must post a NEW fixture voice message and end the recording. The focus dumps are informational (uiautomator can fail to dump while the recording animates; run 43540218049 showed the gold ring on Send in the pixels while the dump said none), so each is retried and its XML kept.
+VT0=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice')
+f=$(csfocusnow CS-07x-touch-start-focus); log "CS touch-start recording: focus right after the touch start: [${f:-none}] (informational)"
+key 20; sleep 1.5; shot CS-07y-touch-start-after-dpad
+for n in 1 2 3; do f=$(csfocusnow CS-07y-touch-start-after-dpad); case "$f" in ""|ERR*) sleep 1 ;; *) break ;; esac; done
+log "CS touch-start recording: focus after one D-pad DOWN: [${f:-none}] (informational; pixels in CS-07y)"
+key 23; sleep 3; shot CS-07z-touch-start-after-ok
+VT1=$(timeout 20 adb logcat -d -s YidFx 2>/dev/null | grep -c 'type=voice')
+csdump CS-07z-touch-start-after-ok >/dev/null
+if [ "$VT1" -gt "$VT0" ]; then log "CS ok: touch-start recording then ONE D-pad DOWN then OK posted a new voice message ($VT0 -> $VT1 type=voice requests)"; else log "CS WRONG: touch-start recording then one D-pad DOWN then OK did not post a voice message ($VT0 -> $VT1; focus [${f:-none}])"; FAIL=1; fi
+if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-07z-touch-start-after-ok.xml"; then log "CS WRONG: the touch-start recording is still active after OK"; FAIL=1; else log "CS ok: the touch-start recording ended after OK"; fi
+# fresh touch-start recording for the pause/resume/listen/send checks below
+if grep -qE 'content-desc="(Pause recording|Resume recording|Stop and listen)"' "$OUT/CS-07z-touch-start-after-ok.xml"; then cstap "Delete recording"; sleep 2; fi
+cstap "Record voice message"; sleep 3
 cstap "Pause recording"; sleep 1; shot CS-07b-voice-paused
 cstap "Resume recording"; sleep 2; cstap "Stop and listen"; sleep 1; shot CS-07c-voice-listen; cstap "Send voice message"; sleep 3; csfx "type=voice"
 # duration check on its own straight recording (no pause), timed with the clock: T0 and T1 are both taken right after a cstap returns (each includes the same 1.5 s post-tap wait), so T1-T0 is the recording length within ~1 s
@@ -230,7 +242,11 @@ cslong "ווער קומט היינט ביינאכט?"; shot CS-09-long-press-bar
 cslong "ווער קומט היינט ביינאכט?"; cstap "יא, זייער גוט"; sleep 1; shot CS-10-select-2; cshas "2"
 cstap "Copy"; sleep 1; cslong "יא, זייער גוט"; cstap "זאל זיין מיט מזל"; sleep 1; cstap "Forward"; sleep 3; shot CS-11-forward-many; cstap "Yossi Klein"; sleep 3; csfx "forwarded"; key 4; sleep 1
 # 10: report with details (the site's modal)
-csroom 4; cslong "מיר טרעפן זיך 8:00"; cstap "More actions"; sleep 1; cstap "Report"; sleep 1; cstap "Harassment"; shot CS-12-report; cstap "Submit Report"; sleep 2; csfx "/api/reports"
+csroom 4; cslong "מיר טרעפן זיך 8:00"; cstap "More actions"; sleep 1
+# D-pad reachability of Report in the action sheet (keypad user, no touch scroll): DOWN until the focused row is Report
+RP=""; RF=""; for n in 1 2 3 4 5 6 7 8 9 10 11 12; do f=$(csfocusnow CS-12d-dpad-report); RP="$RP [$f]"; case "$f" in *Report*) RF=1; break ;; esac; key 20; sleep 0.4; done
+if [ -n "$RF" ]; then log "CS ok: D-pad reached 'Report' in the message action sheet (focus path:$RP)"; shot CS-12d-dpad-focus-report; else log "CS WRONG: D-pad could not reach 'Report' in the action sheet (focus path:$RP)"; FAIL=1; fi
+for n in 1 2 3 4; do [ -n "$(cspos "Report")" ] && break; adb shell input swipe 240 470 240 250 300; sleep 0.8; done; shot CS-12a-menu-scrolled-to-report; cstap "Report"; sleep 1; cstap "Harassment"; shot CS-12-report; cstap "Submit Report"; sleep 2; csfx "/api/reports"
 # 9: double-tap = ❤️; tap a name = person card
 csdbl "זאל זיין מיט מזל"; csfx "/api/chat/reactions"; shot CS-13-double-tap-heart
 cstap "Yanky"; sleep 1; shot CS-14-person-card; key 4; sleep 1
