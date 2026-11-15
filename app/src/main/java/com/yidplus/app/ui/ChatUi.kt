@@ -474,3 +474,24 @@ internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.f
 
 /** Stamped by MainActivity on every key press and touch: a delayed focus retry only runs when the user did nothing else meanwhile. */
 object CsIntent { @Volatile var stamp = 0L }
+
+
+/** A text box that stays readable when the keyboard leaves under ~50dp: the hint sits inside the box (no floating label), so nothing is cut at the top or bottom (runs 43705590699, 43720645388: AD-34 Broadcast, "Add a comment"). */
+@Composable
+internal fun SoCompactInput(value: String, onChange: (String) -> Unit, hint: String, modifier: Modifier = Modifier, maxLines: Int = 3, minHeight: androidx.compose.ui.unit.Dp = 44.dp, onSend: (() -> Unit)? = null) {
+    val ink = MaterialTheme.colorScheme.onSurface
+    val shape = RoundedCornerShape(20.dp)
+    val edge = MaterialTheme.colorScheme.outline
+    val fill = MaterialTheme.colorScheme.surface
+    androidx.compose.foundation.text.BasicTextField(value, onChange, modifier, maxLines = maxLines,
+        textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content, color = ink),
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(ink),
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = if (onSend != null) androidx.compose.ui.text.input.ImeAction.Send else androidx.compose.ui.text.input.ImeAction.Default),
+        keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSend = { onSend?.invoke() }),
+        decorationBox = { inner ->
+            Box(Modifier.fillMaxWidth().background(edge, shape).padding(1.dp).background(fill, shape).defaultMinSize(minHeight = minHeight).padding(horizontal = 14.dp, vertical = 9.dp), contentAlignment = Alignment.CenterStart) {
+                if (value.isEmpty()) Text(hint, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                inner()
+            }
+        })
+}
