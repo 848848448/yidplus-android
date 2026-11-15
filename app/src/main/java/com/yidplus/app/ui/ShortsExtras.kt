@@ -366,7 +366,7 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
                     Text("Sign in to comment", Modifier.weight(1f)); PrimaryButton("Sign in", { onDismiss(); Nav.go(Tab.Profile) })
                 }
             } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(text, { if (it.length <= 300) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
+                OutlinedTextField(text, { if (it.length <= 300) text = it }, Modifier.weight(1f).heightIn(min = 56.dp).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
                     textStyle = TextStyle(textDirection = TextDirection.Content), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { post() }))
                 IconBtn(Sym.Send, "Post", { post() }, tint = MaterialTheme.colorScheme.primary)
             }
