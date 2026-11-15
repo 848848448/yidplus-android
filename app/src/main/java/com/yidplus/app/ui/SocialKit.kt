@@ -272,8 +272,13 @@ fun SoChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modif
         val fits = options.size <= 5 && sum(need) <= room
         if (fits) Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             options.forEachIndexed { i, o -> Chip(i, o, Modifier.weight(need[i].value), tight) }
-        } else LazyRow(Modifier.fillMaxWidth(), contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        } else {
+          // The row scrolls: bring the selected chip into view so the active filter is never hidden off the edge.
+          val cs = androidx.compose.foundation.lazy.rememberLazyListState()
+          LaunchedEffect(selected) { cs.animateScrollToItem(selected.coerceIn(0, (options.size - 1).coerceAtLeast(0))) }
+          LazyRow(Modifier.fillMaxWidth(), state = cs, contentPadding = PaddingValues(start = 12.dp, end = 28.dp, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             itemsIndexed(options) { i, o -> Chip(i, o, Modifier.padding(horizontal = 2.dp)) }
+          }
         }
     }
 }
