@@ -183,8 +183,9 @@ jobs:
           OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V2-d$i 20 "V2 DOWN $i"; case "$(en_focus V2-d$i)" in *EditText*) OK=1; break ;; esac; done
           if [ $OK = 0 ]; then log "E4B MISSING: V2 the composer field never took focus by DOWN"; else
             log "E4B V2 field focused after $i DOWN | $(imeup)"; key 4; sleep 1.5; en_dump V2-hidden; log "E4B V2 after BACK: focus [$(en_focus V2-hidden)] | $(imeup)"; shot V2-hidden
+            case "$(en_focus V2-hidden)" in *EditText*) ;; *) log "E4B INFO: V2 the field does not hold focus after BACK (focus [$(en_focus V2-hidden)]); RIGHT from there is ordinary focus search, not the composer escape" ;; esac
             R=""; for j in 1 2 3; do cstep V2-r$j 22 "V2 RIGHT $j (IME hidden, key focus)"; R="$R [$(en_focus V2-r$j)]"; escape_ok "$R" && break; done
-            if escape_ok "$R"; then log "E4B ok: V2 RIGHT with the IME hidden reached a composer control: $R"; else log "E4B WRONG: V2 RIGHT with the IME hidden did not reach a composer control: $R"; FAIL=1; fi
+            if escape_ok "$R"; then log "E4B ok: V2 RIGHT with the IME hidden reached a composer control: $R"; elif ! case "$(en_focus V2-hidden)" in *EditText*) true ;; *) false ;; esac; then log "E4B N/A: V2 field not focused after BACK, not judged"; else log "E4B WRONG: V2 RIGHT with the IME hidden did not reach a composer control: $R"; FAIL=1; fi
           fi
           # V3: as E4 (key focus, IME stays up), RIGHT x3 with a shot after each key
           timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
@@ -192,6 +193,14 @@ jobs:
           if [ $OK = 0 ]; then log "E4B MISSING: V3 the composer field never took focus by DOWN"; else
             R=""; for j in 1 2 3; do cstep V3-r$j 22 "V3 RIGHT $j (IME up, key focus)"; R="$R [$(en_focus V3-r$j)]"; escape_ok "$R" && break; done
             if escape_ok "$R"; then log "E4B ok: V3 RIGHT with the IME up reached a composer control: $R"; else log "E4B WRONG: V3 RIGHT with the IME up did not reach a composer control: $R"; FAIL=1; fi
+          fi
+          # V4: key entry with the IME up, RIGHT then LEFT in quick succession (a stale retry must not take focus back), then wait and read
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V4-d$i 20 "V4 DOWN $i"; case "$(en_focus V4-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V4 the composer field never took focus by DOWN"; else
+            adb shell "input keyevent 22; input keyevent 21"; sleep 2; en_dump V4-final; log "E4B V4 RIGHT+LEFT then 2 s: focus [$(en_focus V4-final)] | $(imeup)"; shot V4-final
+            case "$(en_focus V4-final)" in *EditText*) log "E4B ok: V4 LEFT after RIGHT returned to the field and the retry did not take focus back" ;; *) log "E4B WRONG: V4 final focus is not the field: [$(en_focus V4-final)]"; FAIL=1 ;; esac
+            adb shell "input keyevent 22; input keyevent 20"; sleep 2; en_dump V4b; log "E4B V4b RIGHT+DOWN then 2 s: focus [$(en_focus V4b)]"; shot V4b
           fi
           # E3b: launcher start, tap an EXISTING list row (Yossi Klein), keys, Back, row focus restored
           restart 5
@@ -282,4 +291,4 @@ jobs:
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-diag-${{ matrix.target }}-${{ matrix.part }}
 # y32: rerun on the head with the top strip
 # y33
-# y36 re-request check
+# y37
