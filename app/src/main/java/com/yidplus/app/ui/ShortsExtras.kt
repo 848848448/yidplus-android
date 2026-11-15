@@ -290,6 +290,7 @@ fun SoShortsTopBar(tabs: List<ShortsTab>, tab: ShortsTab, who: String?, topic: S
                         }
                     }
                 }
+                if (tab == ShortsTab.Following) IconBtn(Sym.PersonAdd, "Follow more people", { Nav.open(SoFollowPeoplePage()) }, tint = Color.White, size = if (smallScreen) 34.dp else 40.dp)
                 IconBtn(Sym.AddCircle, "Upload a Short", { Nav.open(SoUploadShortPage()) }, tint = Color.White, size = if (smallScreen) 36.dp else 40.dp)
             }
             if (who != null) Row(Modifier.padding(start = 12.dp, bottom = 4.dp).tap(RoundedCornerShape(16.dp)) { Feeds.who = null }
