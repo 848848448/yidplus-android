@@ -313,7 +313,7 @@ jobs:
             key 4; sleep 4; vd i; shot FP-09-following-after-unfollow; if vhas i "Find people to follow"; then log "FP ok: after unfollow the Following tab is empty again"; else log "FP WRONG: Following still shows videos after unfollowing: $(vtexts i)"; fi
           fi
           # two followed people: both creators' videos show in Following, newest first, each video once
-          vtap "Following"; sleep 2; vtap "Follow more people" && { sleep 3; vd m1; vtap "Follow"; sleep 1; vd m2; vtap "Follow"; sleep 1; vd m3; log "FP multi list texts: $(vtexts m3)"; key 4; sleep 5
+          vtap "Following"; sleep 2; vtap "Follow more people" && { sleep 3; vd m1; for NM in "Glaser" "Osniel"; do vtap "Search people" && { sleep 1; adb shell input text "$NM"; sleep 2; vd s_$NM; log "FP follow-by-search '$NM': result texts: $(vtexts s_$NM)"; if vhas s_$NM "$NM" && ! vhas s_$NM "Ales UK" && ! vhas s_$NM "Expert News Status"; then log "FP ok: search '$NM' leaves only the named creator"; vtap "Follow"; sleep 1; vd f_$NM; vhas f_$NM "Following ✓" && log "FP ok: '$NM' now shows Following ✓ (identity confirmed by name)" || log "FP MISSING: '$NM' did not show Following ✓"; else log "FP MISSING: search '$NM' did not isolate the named creator; not following anyone else"; fi; vtap "Close search" || key 4; sleep 1; }; done; vd m3; log "FP multi list texts: $(vtexts m3)"; key 4; sleep 5
             ffoc() { grep 'focused="true"' "$OUT/vc-mm.txt" | grep -v 'class="android.widget.FrameLayout"' | head -1 | cut -c1-160; }
             cap1() { vd mm; grep -oE 'text="Sample video [0-9]+ from [^"]+"' "$OUT/vc-mm.txt" | head -1; }
             vd mm; log "FP multi pre-DOWN: focus [$(ffoc)] | $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1)"; shot FP-10-following-two
@@ -326,23 +326,24 @@ jobs:
               log "FP multi captions by swipe: $SC"; SEQ="$SC"; HOW="swipe (not keypad evidence)"
             else log "FP ok: D-pad DOWN pages Following"; fi
             SEQ=$(echo "$SEQ" | tr '|' '\n' | grep -v '^$' | awk '$0!=p{print} {p=$0}' | sed 's/^/|/' | tr -d '\n'); log "FP multi distinct-page sequence ($HOW): $SEQ"
-            EXP="|text=\"Sample video 2 from Chaimo\"|text=\"Sample video 1 from Chaimo\"|text=\"Sample video 4 from Expert News Status\"|text=\"Sample video 3 from Expert News Status\"|text=\"Sample video 2 from Expert News Status\"|text=\"Sample video 1 from Expert News Status\""
+            EXP="|text=\"Sample video 2 from Osniel Rozen\"|text=\"Sample video 1 from Osniel Rozen\"|text=\"Sample video 2 from R' Yom Tov Glaser\"|text=\"Sample video 1 from R' Yom Tov Glaser\"|text=\"QA negative B: same size and length as A, different video\"|text=\"QA negative A: same size and length as B, different video\""
             if [ "$SEQ" = "$EXP" ]; then log "FP ok: order newest first across two creators, 6 distinct pages, by $HOW"; else log "FP WRONG-OR-HARNESS: sequence by $HOW differs from expected newest-first. expected: $EXP"; fi
-            echo "$SEQ" | grep -q "Repost" && log "FP WRONG: the deliberate duplicate (Repost of sample 2) was shown" || log "FP ok: the deliberate duplicate was not shown"
+            echo "$SEQ" | grep -q "Repost" && log "FP WRONG: the identical-URL repost was shown as its own page" || log "FP ok: the identical-URL repost (of QA negative A) was not shown as an extra page"
+            echo "$SEQ" | grep -qF "QA negative A" && echo "$SEQ" | grep -qF "QA negative B" && log "FP ok: both equal-size/equal-length videos A and B are in Following" || log "FP MISSING-OR-WRONG: A and/or B not in Following paging"
             D=$(echo "$SEQ" | tr '|' '\n' | grep -v '^$' | sort | uniq -d | head -1); [ -z "$D" ] && log "FP ok: no video repeated across the distinct pages" || log "FP WRONG: repeated video: $D" ; }
-          # KEY-MODE-ONLY start: fresh process, NO touch input before the first key. Records where each key lands; reports honestly if Shorts cannot be reached by keys.
-          KP=${PKG:-com.yidplus.app}; adb shell am force-stop $KP; sleep 2; timeout 40 adb shell "am start -n $KP/.MainActivity" >/dev/null 2>&1; sleep 9
+          # KEY-MODE-ONLY start: fresh process, NO touch input. The app returns on the saved Shorts tab; every press below is a key event.
+          KP=${PKG:-com.yidplus.app}; adb shell am force-stop $KP; sleep 2; timeout 40 adb shell "am start -n $KP/.MainActivity" >/dev/null 2>&1; sleep 12
           tmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
-          kfoc() { vd kk; grep 'focused="true"' "$OUT/vc-kk.txt" | grep -v 'class="android.widget.FrameLayout"' | head -1 | grep -oE '(text|content-desc)="[^"]*"' | head -1; }
-          log "FP KEY-START cold start: $(tmode) focus [$(kfoc)]"; shot FP-20-key-start
-          REACHED=0; for n in 1 2 3 4 5 6 7 8 9 10 11 12; do key 20; sleep 1; F=$(kfoc); log "FP KEY-START DOWN $n: $(tmode) focus [$F]"; case "$F" in *Shorts*) REACHED=1; break ;; esac; done
-          if [ $REACHED = 0 ]; then for n in 1 2 3 4 5 6; do key 22; sleep 1; F=$(kfoc); log "FP KEY-START RIGHT $n: $(tmode) focus [$F]"; case "$F" in *Shorts*) REACHED=1; break ;; esac; done; fi
-          if [ $REACHED = 0 ]; then log "FP KEY-START MISSING: Shorts tab not reached by keys alone (12 DOWN, 6 RIGHT); key-mode-only Shorts paging NOT tested"; shot FP-21-key-start-end
-          else key 66; sleep 5; shot FP-22-key-shorts; log "FP KEY-START opened Shorts by key: $(tmode) texts: $(vtexts kk)"
-            for t in 1 2 3; do vd k1; if grep -qF 'content-desc="Follow more people"' "$OUT/vc-k1.txt" || grep -qE 'text="Sample video' "$OUT/vc-k1.txt"; then break; fi; key 18; sleep 3; done
-            KK=""; for n in 1 2 3 4 5 6 7 8 9 10; do KK="$KK|$(cap1)"; log "FP KEY-START page DOWN $n: $(tmode) focus [$(ffoc)]"; key 20; sleep 2; done
-            log "FP KEY-START captions per DOWN (key-mode only, nothing collapsed): $KK"; shot FP-23-key-end
-            for neg in "same size and length as" ; do :; done
+          capx() { vd kk; grep -oE 'text="(Sample video|QA negative|Repost)[^"]*"' "$OUT/vc-kk.txt" | head -1; }
+          vd kk0; log "FP KEY-START cold start: $(tmode) texts: $(vtexts kk0)"; shot FP-20-key-start
+          if ! grep -q 'text="For You"\|content-desc="For You"' "$OUT/vc-kk0.txt"; then log "FP KEY-START MISSING: cold start is not on the Shorts tabs; key-mode-only paging NOT tested"; else
+            KA=""; for n in $(seq 1 17); do KA="$KA|$(capx)"; log "FP KEY-START ForYou DOWN $n: $(tmode)"; key 20; sleep 2; done
+            log "FP KEY-START ForYou captions per key DOWN (nothing collapsed, key mode only): $KA"; shot FP-23-key-foryou-end
+            for w in "QA negative A" "QA negative B"; do echo "$KA" | grep -qF "$w" && log "FP ok: '$w' shown in For You (same size+length as its pair)" || log "FP MISSING-OR-WRONG: '$w' not seen in For You paging"; done
+            echo "$KA" | tr '|' '\n' | grep -c 'Repost' | xargs -I{} log "FP KEY-START ForYou: 'Repost of sample 2' shown {} time(s) (identical URL as sample 2: expected 0)"
+            key 18; sleep 3; KB=""; for n in $(seq 1 10); do KB="$KB|$(capx)"; log "FP KEY-START Following DOWN $n: $(tmode)"; key 20; sleep 2; done
+            log "FP KEY-START Following captions per key DOWN (nothing collapsed): $KB"; shot FP-24-key-following-end
+            for w in "QA negative A" "QA negative B"; do echo "$KB" | grep -qF "$w" && log "FP ok: '$w' shown in Following" || log "FP MISSING-OR-WRONG: '$w' not seen in Following paging"; done
           fi
           FPE
           bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
