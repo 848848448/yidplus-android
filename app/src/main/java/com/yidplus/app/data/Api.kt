@@ -144,6 +144,7 @@ object Fixture {
     }
     /** Messages sent while the fixture is on, appended to that room's history answers so reopen flows see them (the site would persist them). */
     private val sent = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
+    private val sentPosts = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
     private var voiceFile: String? = null
     private var webmFile: String? = null
     // Generated 8 s 440 Hz Opus-in-WebM tone (no private content), fixture mode only.
@@ -192,6 +193,10 @@ object Fixture {
             // A chat send is remembered (new messages only: edits/deletes carry the message id) so a reopened room shows it.
             if (r.method == "POST" && u.encodedPath == "/api/chat" && raw.isNotEmpty()) runCatching { JSONObject(raw).let {
                 if (it.optString("room_id").isNotEmpty() && it.optString("id").isEmpty()) noteSend(it.optString("room_id"), it.optString("type", "text"), it.optString("text"), "", null) } }
+            // QA only: a text post is remembered for this session so the owner's post list returns it on reopen (the fixture echoes it; the site is never written).
+            if (r.method == "POST" && u.encodedPath == "/api/posts" && raw.isNotEmpty()) runCatching { JSONObject(raw).let {
+                sentPosts.add(JSONObject().put("id", "fxnew-" + System.nanoTime()).put("username", "משה'לע").put("user_id", "demo-me").put("caption", it.optString("caption")).put("content", "")
+                    .put("likes", 0).put("comments", 0).put("created_at", java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date())).put("liked", false).put("_fxp", true)) } }
             return JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
         }
         var a = d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath)
@@ -199,6 +204,16 @@ object Fixture {
             // History variants (view=1 and friends): fall back to the room's canned history by room_id.
             val rid = q.substringAfter("room_id=").substringBefore('&')
             a = d.keys().asSequence().firstOrNull { it == "/api/chat?room_id=$rid" || it.startsWith("/api/chat?room_id=$rid&") }?.let { d.optJSONObject(it) }
+        }
+        if (a != null && u.encodedPath == "/api/posts" && q == "user_id=demo-me") {
+            val arr = a.optJSONArray("posts")
+            if (arr != null) {
+                var i = arr.length() - 1
+                while (i >= 0) { if (arr.optJSONObject(i)?.optBoolean("_fxp") == true) arr.remove(i); i-- }
+                val keep = (0 until arr.length()).map { arr.get(it) }
+                val out = org.json.JSONArray(); for (m in sentPosts.reversed()) out.put(m); for (m in keep) out.put(m)
+                a.put("posts", out)
+            }
         }
         if (a != null && u.encodedPath == "/api/chat" && q != null && q.contains("room_id=")) {
             // A reopened room sees what was sent this session (texts, the just-recorded voice note kept on disk).
