@@ -153,7 +153,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        if (ev.actionMasked == android.view.MotionEvent.ACTION_DOWN) com.yidplus.app.ui.CsIntent.stamp++
+        return super.dispatchTouchEvent(ev)
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) com.yidplus.app.ui.CsIntent.stamp++
         if (event.keyCode in DPAD && !Keys.keypad && Nav.tab == Tab.Shorts && Nav.stack.isEmpty()) Keys.keypad = true
         if (event.keyCode in DPAD && !Keys.keypad) {
             // First D-pad press: show the keypad focus on the screen's first item (that press only wakes the focus,
