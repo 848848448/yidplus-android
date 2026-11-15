@@ -560,14 +560,14 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     else {
                     ChIcon(if (emojiOpen) Sym.Keyboard else Sym.EmojiEmotions, if (emojiOpen) "Keyboard" else "Emoji", {
                         emojiOpen = !emojiOpen; attachOpen = false; if (emojiOpen) kb?.hide() else kb?.show()
-                    }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = emojiFocus)
+                    }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = emojiFocus, rightTo = inputFocus)
                     if (compact) CsCompactField(Modifier.weight(1f), text, { text = it }, (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0), inputFocus, emojiFocus, attachFocus) { sendText() }
                     else TextField(text, { text = it }, Modifier.weight(1f).heightIn(min = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) 40.dp else 52.dp).focusRequester(inputFocus).csComposerEscape(text, emojiFocus, attachFocus), placeholder = { Text("Message", fontSize = if (compact) 17.sp else 16.sp) }, maxLines = 5,
                         textStyle = TextStyle(fontSize = if (compact) 17.sp else 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { sendText() }))
-                    if (editing == null) ChIcon(Sym.AttachFile, "Attach", { attachOpen = !attachOpen; emojiOpen = false }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = attachFocus)
+                    if (editing == null) ChIcon(Sym.AttachFile, "Attach", { attachOpen = !attachOpen; emojiOpen = false }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = attachFocus, leftTo = inputFocus)
                     if (editing == null && text.isBlank()) ChIcon(Sym.PhotoCamera, "Camera", { shoot(false) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Spacer(Modifier.width(2.dp))
