@@ -36,8 +36,8 @@ nw_tap "Reply…" || true
 adb shell input text "Amazing"; key 66; sleep 2; shot NW-12-status-replied; check nw-status-reply
 nw_hidekb; key 4; sleep 2
 # 5. My status: views, viewers sheet
-nw_open status_me 5; shot NW-13-my-status
-nw_tap "14 views" || nw_tap "6 views" || true; sleep 2; shot NW-14-my-viewers
+nw_open status_me 1; shot NW-13-my-status
+adb shell input tap 258 523; sleep 2; shot NW-14-my-viewers
 nw_dump() { timeout 20 adb shell uiautomator dump /sdcard/nw.xml >/dev/null 2>&1; timeout 10 adb shell cat /sdcard/nw.xml 2>/dev/null | tr '>' '\n'; }
 VX=$(nw_dump)
 for w in "Viewed by 7" "Yanky" "DealPoint" "Shimel"; do if echo "$VX" | grep -qF "$w"; then log "NW viewers ok: '$w' on screen"; else log "NW viewers MISSING: '$w' not on screen"; fi; done
@@ -46,7 +46,7 @@ VX=$(nw_dump); if echo "$VX" | grep -qF "Avrohom"; then log "NW viewers ok: last
 key 4; sleep 1; shot NW-14c-viewers-closed
 VX=$(nw_dump); if echo "$VX" | grep -qF "Viewed by"; then log "NW viewers WRONG: the sheet is still open after Back"; else log "NW viewers ok: Back closed the sheet"; fi
 # the second slide has no viewers: the empty state
-nw_tap "6 views" || { key 22; sleep 1.5; nw_tap "6 views" || true; }; sleep 2; shot NW-14d-viewers-empty
+sleep 4; adb shell input tap 258 523; sleep 2; shot NW-14d-viewers-empty
 VX=$(nw_dump); if echo "$VX" | grep -qF "No views yet"; then log "NW viewers ok: empty state 'No views yet'"; else log "NW viewers MISSING: empty state not shown (the second slide may not be open)"; fi
 key 4; sleep 1
 key 4; sleep 2
