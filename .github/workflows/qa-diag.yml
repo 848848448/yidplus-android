@@ -82,10 +82,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx23a, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx23b, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx23c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx23d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx24a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cs.sh' }
+          - { target: default, part: fx24b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-nav.sh qa/fx-cs.sh' }
+          - { target: default, part: fx24c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-ad.sh qa/fx-cs.sh' }
+          - { target: default, part: fx24d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl.sh qa/fx-cs.sh' }
+          - { target: default, part: fx24e, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cs.sh' }
+          - { target: default, part: fx24f, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-nav.sh qa/fx-cs.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -110,6 +112,10 @@ jobs:
           open('qa/fx-cl.sh', 'w').write(s)
           PY
           bash -n qa/fx-cl.sh && echo patched-syntax-ok && grep -c "REAL reopen" qa/fx-cl.sh
+      - name: Pre-script for the nav-mode variant (only runs when listed in fx; enables the gestural nav overlay exactly as qa/fx-cl.sh:70 does)
+        run: |
+          printf '%s\n' 'timeout 20 adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural >/dev/null 2>&1; sleep 3; log "NAV pre-script: navigation_mode=$(timeout 10 adb shell settings get secure navigation_mode 2>&1)"' > qa/fx-nav.sh
+          cat qa/fx-nav.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
