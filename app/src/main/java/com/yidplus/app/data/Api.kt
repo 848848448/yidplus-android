@@ -112,6 +112,7 @@ object Api {
  *  signed-in screen can be photographed without a real password. Nothing is ever sent to the site while it is on:
  *  sign-in-only reads come from the file, every write is answered locally. Switched on by the QA script (adb intent). */
 object Fixture {
+    @Volatile var delayMs = 0L
     @Volatile var data: JSONObject? = null; private set
     /** QA only: own status list answers with just the zero-view slide (st-me-2), so its viewers pill and empty sheet can be opened directly. */
     @Volatile var onlyEmptyOwnStatus = false
@@ -205,6 +206,8 @@ object Fixture {
             if (r.method == "PUT" && u.encodedPath == "/api/statuses" && raw.contains("\"viewers\"")) runCatching { d.optJSONObject("PUT /api/statuses viewers:" + JSONObject(raw).optString("id")) }.getOrNull()?.let { return it }
             return JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
         }
+        // QA only (intent extra fxdelay): the second followed creator's videos answer late, to test list growth after a tab entry.
+        if (delayMs > 0 && full == "/api/src-shorts?cr=c5") Thread.sleep(delayMs)
         var a = d.optJSONObject(full) ?: d.optJSONObject(u.encodedPath)
         if (a == null && u.encodedPath == "/api/chat" && q != null && q.contains("room_id=")) {
             // History variants (view=1 and friends): fall back to the room's canned history by room_id.
