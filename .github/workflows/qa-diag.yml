@@ -82,12 +82,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx24a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cs.sh' }
-          - { target: default, part: fx24b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-nav.sh qa/fx-cs.sh' }
-          - { target: default, part: fx24c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-ad.sh qa/fx-cs.sh' }
-          - { target: default, part: fx24d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl.sh qa/fx-cs.sh' }
-          - { target: default, part: fx24e, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cs.sh' }
-          - { target: default, part: fx24f, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-nav.sh qa/fx-cs.sh' }
+          - { target: default, part: fx25a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-state.sh qa/fx-cs.sh' }
+          - { target: default, part: fx25b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl.sh qa/fx-state.sh qa/fx-cs.sh' }
+          - { target: default, part: fx25c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl86.sh qa/fx-state.sh qa/fx-cs.sh' }
+          - { target: default, part: fx25d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl165.sh qa/fx-state.sh qa/fx-cs.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -116,6 +114,18 @@ jobs:
         run: |
           printf '%s\n' 'timeout 20 adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural >/dev/null 2>&1; sleep 3; log "NAV pre-script: navigation_mode=$(timeout 10 adb shell settings get secure navigation_mode 2>&1)"' > qa/fx-nav.sh
           cat qa/fx-nav.sh
+      - name: Truncated copies of qa/fx-cl.sh (cut at a top-level line, must pass bash -n) and the state-logging pre-script (workspace only, not committed)
+        run: |
+          for N in 86 165; do head -n $N qa/fx-cl.sh > qa/fx-cl$N.sh; bash -n qa/fx-cl$N.sh && echo "fx-cl$N.sh syntax ok ($(wc -l < qa/fx-cl$N.sh) lines)"; done
+          cat > qa/fx-state.sh <<'ST'
+          log "STATE uimode night: $(timeout 10 adb shell cmd uimode night 2>&1 | tr '\n' ' ')"
+          log "STATE wm: $(timeout 10 adb shell wm size | tr '\n' ' ') $(timeout 10 adb shell wm density | tr '\n' ' ')"
+          log "STATE overlays enabled: $(timeout 20 adb shell cmd overlay list 2>/dev/null | grep -E '^\[x\]' | tr '\n' ' ')"
+          log "STATE nav mode: $(timeout 10 adb shell settings get secure navigation_mode 2>&1) | show_ime_with_hard_keyboard: $(timeout 10 adb shell settings get secure show_ime_with_hard_keyboard 2>&1) | accelerometer_rotation: $(timeout 10 adb shell settings get system accelerometer_rotation 2>&1) user_rotation: $(timeout 10 adb shell settings get system user_rotation 2>&1) font_scale: $(timeout 10 adb shell settings get system font_scale 2>&1)"
+          for t in system secure global; do timeout 30 adb shell settings list $t > "$OUT/state-$t-$(date +%H%M%S).txt" 2>&1; done
+          log "STATE config: $(timeout 30 adb shell dumpsys activity activities 2>/dev/null | grep -m2 -E 'mFullConfiguration|mMergedOverrideConfiguration' | cut -c1-400 | tr '\n' ' ')"
+          ST
+          bash -n qa/fx-state.sh && echo "fx-state.sh syntax ok"
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
