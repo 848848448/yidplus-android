@@ -278,7 +278,7 @@ jobs:
           bash -n qa/fx-live.sh && echo fx-live.sh syntax ok
           cat > qa/fx-live2.sh <<'L2E'
           vd() { timeout 30 adb shell uiautomator dump /sdcard/lv.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/lv.xml 2>/dev/null | tr '>' '\n' > "$OUT/lv-$1.txt"; }
-          fx false; adb logcat -c; restart 8; sleep 5
+          adb shell pm clear $PKG >/dev/null 2>&1; log "LV2 app data cleared: the Shorts keypad hint has not been seen on this install"; fx false; adb logcat -c; restart 8; sleep 5
           log "LV2 live mode (no fixture): $(timeout 20 adb shell dumpsys package $PKG | grep versionName | head -1)"
           tab Shorts; T0=$(date +%s); H=0; for n in 1 2 3 4 5 6 7 8 9 10; do vd hs; S=$(( $(date +%s) - T0 )); if grep -qF "Keypad keys" "$OUT/lv-hs.txt"; then H=$((H+1)); log "LV2 hint sample $n at ${S}s: overlay SHOWN"; shot LV2-hint-shown-$n; else log "LV2 hint sample $n at ${S}s: not shown; feed content on screen: $(grep -cE 'content-desc="(Like|Comment)' "$OUT/lv-hs.txt")"; fi; done
           shot LV2-02-shorts-after-samples
