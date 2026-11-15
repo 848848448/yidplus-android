@@ -36,7 +36,13 @@ chtap "New group"; sleep 3; chtap "Group name"; sleep 1; adb shell input text "Q
 restart 5; view "https://yidplus.com/chat"; sleep 4; chtap "Start new chat"; sleep 2; chtap "New chat"; sleep 4; key 111; sleep 1; shot CH-03c-new-chat; chtap "Dovid New"; sleep 3; chfx "other_user_id"; key 4; sleep 1; key 4; sleep 1
 # 10: search closes the keyboard
 restart 5; view "https://yidplus.com/chat"; sleep 3; chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; chkb "typing in search"; key 4; sleep 2; chkb "Back from search"; shot CH-04-search-closed
-restart 5; view "https://yidplus.com/chat"; sleep 3; chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; shot CH-04b-search-results; key 111; sleep 1; chtap "Yossi Klein"; sleep 3; shot CH-04c-result-opened; key 4; sleep 2; shot CH-04d-back-from-result; chkb "after Back from result"; key 4; sleep 2; shot CH-04e-back-again
+restart 5; view "https://yidplus.com/chat"; sleep 3; chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; shot CH-04b-search-results; chkb "results typed"
+key 4; sleep 2; shot CH-04b2-keyboard-dismissed; chkb "first Back (keyboard dismissal, still on the search page?)"; chhas "Search field"
+chtap "Yossi Klein"; sleep 3; shot CH-04c-result-opened; chhas "Message"
+key 4; sleep 2; shot CH-04d-back-from-result; chkb "Back from the opened chat"
+if timeout 20 adb shell uiautomator dump /sdcard/chl.xml >/dev/null 2>&1 && timeout 20 adb shell cat /sdcard/chl.xml | grep -q 'content-desc="Search field"'; then log "CH ok: ONE Back from an opened search result returned to the search page"; else log "CH WRONG: one Back from an opened search result did not land on the search page"; FAIL=1; fi
+if timeout 20 adb shell cat /sdcard/chl.xml | grep -qE 'text="Yo"'; then log "CH ok: the typed query 'Yo' is still in the search field"; else log "CH WRONG: the typed query is not in the search field after Back"; FAIL=1; fi
+key 4; sleep 2; shot CH-04e-back-again; if timeout 20 adb shell uiautomator dump /sdcard/chl.xml >/dev/null 2>&1 && timeout 20 adb shell cat /sdcard/chl.xml | grep -q 'content-desc="Search chats"'; then log "CH ok: second Back closed the search page to the chat list"; else log "CH WRONG: second Back did not reach the chat list"; FAIL=1; fi
 
 # 1: instant open (second open is from the cache), 4/24: every message type, call rows centred, date chips; 22: typing in the header
 chopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 6; shot CH-05-group-bottom; chhas "typing"; chfx "/api/chat/read"
