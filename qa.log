@@ -1,0 +1,161 @@
+[18:18:51] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[18:18:54] screen 480x640 @ 240 dpi
+[18:18:54] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[18:18:54] ---- Signed in (QA fixture account) ----
+[18:18:58] fixture true
+[18:19:07] shot F01-home-signedin
+[18:19:07] open https://yidplus.com/chat
+[18:19:12] shot F02-chats-list
+[18:19:14] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[18:19:21] shot F03-chat-dm
+[18:19:23] shot F03b-chat-dm-up
+[18:19:26] open https://yidplus.com/chat
+[18:19:41] shot F04-chat-group
+[18:19:43] shot F04b-group-up
+[18:19:45] shot F04c-group-top
+[18:19:48] shot F05-message-actions
+[18:19:58] shot F06-notifications
+[18:20:00] tab Home
+[18:20:04] shot F07-home-header
+[18:20:04] open https://yidplus.com/shorts
+[18:20:13] shot F08-shorts-signedin
+[18:20:13] tab Profile
+[18:20:16] shot F09-profile-signedin
+[18:20:28] shot F09b-profile-scrolled
+[18:20:41] open https://yidplus.com/chat
+[18:20:45] shot F10-chats-dark
+[18:20:52] shot F11-chat-dark
+[18:20:59] screen 1080x2400 @ 420 dpi
+[18:21:07] open https://yidplus.com/chat
+[18:21:11] shot F12-phone-chats
+[18:21:17] shot F13-phone-chat
+[18:21:21] screen 480x640 @ 240 dpi
+[18:21:21] ---- qa/fx-entry2.sh ----
+[18:21:28] STATE show_ime_with_hard_keyboard=1 | mInTouchMode=false
+[18:21:49] E4B V1 after tap: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:21:49] shot V1-tapped
+[18:21:53] E4B V1 RIGHT 1 (IME up, touch focus): focus [android.widget.Button|Attach|[264,491][330,563] ] | mInputShown=false
+[18:21:53] shot V1-r1
+[18:21:53] E4B ok: V1 RIGHT with the IME up reached a composer control:  [android.widget.Button|Attach|[264,491][330,563] ]
+[18:22:13] E4B V2 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[18:22:13] shot V2-d1
+[18:22:17] E4B V2 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[18:22:17] shot V2-d2
+[18:22:21] E4B V2 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[18:22:21] shot V2-d3
+[18:22:25] E4B V2 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[18:22:25] shot V2-d4
+[18:22:29] E4B V2 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:22:29] shot V2-d5
+[18:22:29] E4B V2 field focused after 5 DOWN | mInputShown=true
+[18:22:33] E4B V2 after BACK: focus [android.view.View||[66,129][362,239] ] | mInputShown=false
+[18:22:33] shot V2-hidden
+[18:22:33] E4B INFO: V2 the field does not hold focus after BACK (focus [android.view.View||[66,129][362,239] ]); RIGHT from there is ordinary focus search, not the composer escape
+[18:22:37] E4B V2 RIGHT 1 (IME hidden, key focus): focus [android.widget.Button|Call|[339,51][405,123] ] | mInputShown=false
+[18:22:37] shot V2-r1
+[18:22:41] E4B V2 RIGHT 2 (IME hidden, key focus): focus [android.widget.Button|More|[405,51][477,123] ] | mInputShown=false
+[18:22:41] shot V2-r2
+[18:22:45] E4B V2 RIGHT 3 (IME hidden, key focus): focus [android.widget.Button|More|[405,51][477,123] ] | mInputShown=false
+[18:22:45] shot V2-r3
+[18:22:45] E4B N/A: V2 field not focused after BACK, not judged
+[18:23:05] E4B V3 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[18:23:05] shot V3-d1
+[18:23:09] E4B V3 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[18:23:09] shot V3-d2
+[18:23:13] E4B V3 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[18:23:13] shot V3-d3
+[18:23:17] E4B V3 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[18:23:17] shot V3-d4
+[18:23:21] E4B V3 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:23:21] shot V3-d5
+[18:23:25] E4B V3 RIGHT 1 (IME up, key focus): focus [android.widget.Button|Attach|[264,491][330,563] ] | mInputShown=false
+[18:23:25] shot V3-r1
+[18:23:25] E4B ok: V3 RIGHT with the IME up reached a composer control:  [android.widget.Button|Attach|[264,491][330,563] ]
+[18:23:44] E4B V4 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[18:23:44] shot V4-d1
+[18:23:48] E4B V4 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[18:23:48] shot V4-d2
+[18:23:52] E4B V4 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[18:23:52] shot V4-d3
+[18:23:56] E4B V4 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[18:23:56] shot V4-d4
+[18:24:00] E4B V4 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:24:00] shot V4-d5
+[18:24:05] E4B V4 RIGHT+LEFT then 2 s: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:24:05] shot V4-final
+[18:24:05] E4B ok: V4 LEFT after RIGHT returned to the field and the retry did not take focus back
+[18:24:10] E4B V4b RIGHT+DOWN then 2 s: focus [android.widget.Button|Attach|[264,491][330,563] ]
+[18:24:10] shot V4b
+[18:24:29] E4B V5 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[18:24:29] shot V5-d1
+[18:24:33] E4B V5 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[18:24:33] shot V5-d2
+[18:24:37] E4B V5 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[18:24:37] shot V5-d3
+[18:24:41] E4B V5 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[18:24:41] shot V5-d4
+[18:24:45] E4B V5 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:24:45] shot V5-d5
+[18:24:50] E4B V5 RIGHT then touch on the field then 2 s: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:24:50] shot V5-final
+[18:24:50] E4B ok: V5 the field the user touched kept focus
+[18:25:10] E4B V5a DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[18:25:10] shot V5a-d1
+[18:25:14] E4B V5a DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[18:25:14] shot V5a-d2
+[18:25:18] E4B V5a DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[18:25:18] shot V5a-d3
+[18:25:22] E4B V5a DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[18:25:22] shot V5a-d4
+[18:25:26] E4B V5a DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:25:26] shot V5a-d5
+[18:25:29] E4B V5a RIGHT only +1 s: focus [android.widget.Button|Attach|[264,491][330,563] ] | mInputShown=false
+[18:25:29] shot V5a-right
+[18:25:48] E4B V7 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[18:25:48] shot V7-d1
+[18:25:52] E4B V7 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[18:25:52] shot V7-d2
+[18:25:56] E4B V7 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[18:25:56] shot V7-d3
+[18:26:00] E4B V7 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[18:26:00] shot V7-d4
+[18:26:04] E4B V7 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:26:04] shot V7-d5
+[18:26:05] shot V7-q1
+[18:26:05] shot V7-q2
+[18:26:06] shot V7-q3
+[18:26:06] shot V7-q4
+[18:26:06] shot V7-q5
+[18:26:07] shot V7-q6
+[18:26:09] E4B V7 RIGHT +~3 s: focus [android.widget.Button|Attach|[264,491][330,563] ] | mInputShown=false
+[18:26:13] E4B V7 RIGHT +~7 s: focus [android.widget.Button|Attach|[264,491][330,563] ] | mInputShown=false
+[18:26:13] E4B ok: V7 D-pad RIGHT reached Attach and stayed
+[18:26:33] E4B V6 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[18:26:33] shot V6-d1
+[18:26:37] E4B V6 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[18:26:37] shot V6-d2
+[18:26:41] E4B V6 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[18:26:41] shot V6-d3
+[18:26:45] E4B V6 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[18:26:45] shot V6-d4
+[18:26:49] E4B V6 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:26:49] shot V6-d5
+[18:26:53] E4B V6 RIGHT then BACK then 2 s: focus [android.widget.Button|Menu|[6,44][72,114] ] | mInputShown=false
+[18:26:53] shot V6-final
+[18:27:10] shot E3b-list
+[18:27:16] shot E3b-chat
+[18:27:16] ENTRY ok: E3b tapping the list row (at 258 209) opened a chat with the composer | mInTouchMode=true | focus []
+[18:27:21] ENTRY E3b after the first DOWN in the chat: focus [] | mInTouchMode=false
+[18:27:21] shot E3b-key
+[18:27:26] shot E3b-back
+[18:27:26] ENTRY ok: E3b Back returned to the chat list; focus after Back: [android.view.View||[0,177][480,276] ] (row Yossi Klein was at y 195-223)
+[18:27:40] shot J-port
+[18:27:40] J portrait: join title on screen: 1
+[18:27:45] shot J-land
+[18:27:45] J landscape (no keyboard): join title 1, field 1 | mInputShown=true
+[18:27:50] shot J-land-kb
+[18:27:50] J landscape keyboard up: mInputShown=true | field nodes 1 | field bounds [24,106][544,202]
+[18:27:52] fixture writes the app would have sent: 14
+[18:27:56] fixture false
