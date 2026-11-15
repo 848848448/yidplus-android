@@ -395,7 +395,7 @@ fun SoPostCommentsSheet(p: SoSitePost, onDismiss: () -> Unit, onCount: (Int) -> 
             if (Session.me == null) Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Sign in to comment", Modifier.weight(1f)); PrimaryButton("Sign in", { onDismiss(); Nav.go(Tab.Profile) })
             } else Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(text, { if (it.length <= 500) text = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
+                OutlinedTextField(text, { if (it.length <= 500) text = it }, Modifier.weight(1f).heightIn(min = 56.dp).firstFocus(), placeholder = { Text("Add a comment") }, maxLines = 3,
                     shape = RoundedCornerShape(22.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
                 IconBtn(Sym.Send, "Send", {
                     val t = text.trim(); if (t.isEmpty()) return@IconBtn
