@@ -214,6 +214,14 @@ jobs:
           timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
           OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V5a-d$i 20 "V5a DOWN $i"; case "$(en_focus V5a-d$i)" in *EditText*) OK=1; break ;; esac; done
           if [ $OK = 0 ]; then log "E4B MISSING: V5a field never took focus"; else adb shell input keyevent 22; sleep 1; en_dump V5a-right; log "E4B V5a RIGHT only +1 s: focus [$(en_focus V5a-right)] | $(imeup)"; shot V5a-right; fi
+          # V7: D-pad entry (same as V3), RIGHT, then rapid shots (0.3 s apart) and two dumps 3 s apart: is Attach reached promptly and does it stay
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V7-d$i 20 "V7 DOWN $i"; case "$(en_focus V7-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V7 field never took focus"; else
+            adb shell input keyevent 22; for k in 1 2 3 4 5 6; do shot V7-q$k; sleep 0.3; done
+            en_dump V7-a; log "E4B V7 RIGHT +~3 s: focus [$(en_focus V7-a)] | $(imeup)"; sleep 3; en_dump V7-b; log "E4B V7 RIGHT +~7 s: focus [$(en_focus V7-b)] | $(imeup)"
+            case "$(en_focus V7-a)$(en_focus V7-b)" in *Attach*Attach*) log "E4B ok: V7 D-pad RIGHT reached Attach and stayed" ;; *) log "E4B WRONG: V7 D-pad RIGHT did not settle on Attach: [$(en_focus V7-a)] [$(en_focus V7-b)]" ;; esac
+          fi
           # V6: RIGHT, then BACK within the retry window: read the focus after 2 s (a retry that fires after Back is a defect only if it takes focus on a hidden-IME screen)
           timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
           OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V6-d$i 20 "V6 DOWN $i"; case "$(en_focus V6-d$i)" in *EditText*) OK=1; break ;; esac; done
