@@ -46,7 +46,7 @@ VX=$(nw_dump); if echo "$VX" | grep -qF "Avrohom"; then log "NW viewers ok: last
 key 4; sleep 1; shot NW-14c-viewers-closed
 VX=$(nw_dump); if echo "$VX" | grep -qF "Viewed by"; then log "NW viewers WRONG: the sheet is still open after Back"; else log "NW viewers ok: Back closed the sheet"; fi
 # the second slide has no viewers: the empty state
-sleep 4; adb shell input tap 258 523; sleep 2; shot NW-14d-viewers-empty
+key 22; sleep 1.5; adb shell input tap 258 523; sleep 2; shot NW-14d-viewers-empty
 VX=$(nw_dump); if echo "$VX" | grep -qF "No views yet"; then log "NW viewers ok: empty state 'No views yet'"; else log "NW viewers MISSING: empty state not shown (the second slide may not be open)"; fi
 key 4; sleep 1
 key 4; sleep 2
