@@ -182,8 +182,7 @@ class AdminBroadcastPage : PageScreen() {
         AdminList("Broadcast", sub = "A message to every member", res = res, tick = tick, header = {
             SettingsCard("New broadcast") {
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().heightIn(min = 64.dp).firstFocus(), minLines = if (imeUp) 1 else 3, maxLines = 6, label = { Text("Message") },
-                        textStyle = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Content)))
+                    SoCompactInput(text, { text = it }, "Message", Modifier.fillMaxWidth().firstFocus(), maxLines = 6, minHeight = if (imeUp) 44.dp else 96.dp)
                 }
                 SettingRow(Sym.Group, "Send to", null, value = segments[seg].second) { ask = "seg" }
                 RowDivider(64.dp)
