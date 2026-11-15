@@ -82,9 +82,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx27a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx27b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx27c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx28a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx28b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx28c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
