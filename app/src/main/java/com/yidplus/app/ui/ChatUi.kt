@@ -451,10 +451,12 @@ internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.f
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     // Run y35 (fixture emulator): when the field was entered with the D-pad, the request below took, then the button lost focus about 200 ms later while the keyboard hid and the layout resized; the dump showed focus on a message row. One later request restores it (run y36). The retry is dropped when another key press takes the escape again, when the field itself regains focus, and when the screen leaves composition (the scope ends).
     val retry = androidx.compose.runtime.remember { arrayOfNulls<kotlinx.coroutines.Job>(1) }
+    val curText = androidx.compose.runtime.rememberUpdatedState(text)
     fun go(t: androidx.compose.ui.focus.FocusRequester?, d: androidx.compose.ui.focus.FocusDirection): Boolean {
         retry[0]?.cancel(); retry[0] = null
         if (t != null && runCatching { t.requestFocus() }.isSuccess) {
-            retry[0] = scope.launch { kotlinx.coroutines.delay(400); runCatching { t.requestFocus() } }
+            val st = CsIntent.stamp
+            retry[0] = scope.launch { kotlinx.coroutines.delay(400); if (CsIntent.stamp == st && curText.value.isEmpty()) runCatching { t.requestFocus() } }
             return true
         }
         return fm.moveFocus(d)
@@ -469,3 +471,6 @@ internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.f
         } else false
     }
 }
+
+/** Stamped by MainActivity on every key press and touch: a delayed focus retry only runs when the user did nothing else meanwhile. */
+object CsIntent { @Volatile var stamp = 0L }
