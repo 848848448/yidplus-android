@@ -82,10 +82,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx29a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx29b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx29c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry.sh' }
-          - { target: default, part: fx29d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cs.sh qa/fx-ds.sh' }
+          - { target: default, part: fx30a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-vc.sh' }
+          - { target: default, part: fx30b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry2.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -160,63 +158,75 @@ jobs:
           for v in "down 20 1" "center 23 1" "left 21 1" "ctrl 20 0"; do set -- $v; sed -e "s/@FIRST@/$2/" -e "s/@TOUCH@/$3/" /tmp/tf.tpl > qa/fx-tf$1.sh; bash -n qa/fx-tf$1.sh && echo "fx-tf$1.sh syntax ok"; done
       - name: Entry-path script (key entry, touch entry, launcher/chat-list tap entry, per-key mic reach, voice-reopen list dumps; workspace only, not committed)
         run: |
-          cat > qa/fx-entry.sh <<'ENT'
+          cat > qa/fx-entry2.sh <<'ENT'
           tfmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
+          imeup() { timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1; }
           en_dump() { timeout 30 adb shell uiautomator dump /sdcard/en.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/en.xml > "$OUT/$1.xml" 2>/dev/null; }
           en_focus() { tr '>' '\n' < "$OUT/$1.xml" | grep 'focused="true"' | grep -v 'class="android.widget.FrameLayout"' | sed -n 's/.*class="\([^"]*\)".*content-desc="\([^"]*\)".*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1|\2|\3/p' | head -2 | tr '\n' ' '; }
           en_has() { tr '>' '\n' < "$OUT/$1.xml" | grep -cF -- "$2"; }
           en_open() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-cs\",\"type\":\"group\",\"nick\":\"CS QA\",\"unread\":5,\"members\":3}'" >/dev/null 2>&1; sleep 7; }
-          en_assert_ring() { # $1 label $2 dump name $3 expect: ring|noring
-            F=$(en_focus "$2")
-            if [ "$3" = ring ]; then if [ -n "$F" ]; then log "ENTRY ok: $1: focus ring present [$F] ($(tfmode))"; else log "ENTRY WRONG: $1: no focus ring where one is required ($(tfmode))"; FAIL=1; fi
-            else if [ -z "$F" ]; then log "ENTRY ok: $1: no ring yet, as expected after touch entry ($(tfmode))"; else log "ENTRY note: $1: ring already present [$F] ($(tfmode))"; fi; fi
+          log "STATE show_ime_with_hard_keyboard=$(timeout 10 adb shell settings get secure show_ime_with_hard_keyboard 2>&1) | $(tfmode)"
+          cstep() { # $1 prefix $2 key $3 label: press, dump, log focus + IME state, shot
+            key $2; sleep 1; en_dump "$1"; log "E4B $3: focus [$(en_focus "$1")] | $(imeup)"; shot "$1"
           }
-          # E1 key entry: a D-pad key before the app starts, then open the chat by intent
-          timeout 10 adb shell input keyevent 20; sleep 1.5; restart 5
-          en_open; en_dump E1-open; log "ENTRY E1 key entry opened: $(tfmode)"; en_assert_ring "E1 key entry at open" E1-open ring; shot E1-open
-          # E2 touch entry: a tap before the app starts, then open by intent; the first D-pad key must bring the ring
-          adb shell input tap 240 8; sleep 1.5; restart 5
-          en_open; en_dump E2-open; log "ENTRY E2 touch entry opened: $(tfmode)"; en_assert_ring "E2 touch entry at open" E2-open noring; shot E2-open
-          key 20; sleep 1.5; en_dump E2-first; en_assert_ring "E2 after the first DOWN" E2-first ring; log "ENTRY E2 after first key: $(tfmode)"; shot E2-first
-          # E3 launcher/chat-list entry: start the app from the launcher, tap the CS QA row, then use the keys
+          escape_ok() { case "$1" in *Attach*|*Emoji*|*Camera*|*"Record voice message"*) return 0 ;; esac; return 1; }
+          edit_centre() { tr '>' '\n' < "$OUT/$1.xml" | grep 'class="android.widget.EditText"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
+          # V1: focus the empty composer field by TOUCH and leave the keyboard UP; RIGHT x3 (the preserved isolated pass hides the keyboard first)
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          en_dump V1-start; P=$(edit_centre V1-start)
+          if [ -z "$P" ]; then log "E4B MISSING: V1 composer EditText not found in the dump"; else set -- $P; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 2; en_dump V1-tapped; log "E4B V1 after tap: focus [$(en_focus V1-tapped)] | $(imeup)"; shot V1-tapped
+            R=""; for i in 1 2 3; do cstep V1-r$i 22 "V1 RIGHT $i (IME up, touch focus)"; R="$R [$(en_focus V1-r$i)]"; escape_ok "$R" && break; done
+            if escape_ok "$R"; then log "E4B ok: V1 RIGHT with the IME up reached a composer control: $R"; else log "E4B WRONG: V1 RIGHT with the IME up did not reach a composer control: $R"; FAIL=1; fi
+          fi
+          # V2: key entry, DOWN until the field holds focus, press BACK to hide the IME (focus kept), then RIGHT x3
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V2-d$i 20 "V2 DOWN $i"; case "$(en_focus V2-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V2 the composer field never took focus by DOWN"; else
+            log "E4B V2 field focused after $i DOWN | $(imeup)"; key 4; sleep 1.5; en_dump V2-hidden; log "E4B V2 after BACK: focus [$(en_focus V2-hidden)] | $(imeup)"; shot V2-hidden
+            R=""; for j in 1 2 3; do cstep V2-r$j 22 "V2 RIGHT $j (IME hidden, key focus)"; R="$R [$(en_focus V2-r$j)]"; escape_ok "$R" && break; done
+            if escape_ok "$R"; then log "E4B ok: V2 RIGHT with the IME hidden reached a composer control: $R"; else log "E4B WRONG: V2 RIGHT with the IME hidden did not reach a composer control: $R"; FAIL=1; fi
+          fi
+          # V3: as E4 (key focus, IME stays up), RIGHT x3 with a shot after each key
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V3-d$i 20 "V3 DOWN $i"; case "$(en_focus V3-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V3 the composer field never took focus by DOWN"; else
+            R=""; for j in 1 2 3; do cstep V3-r$j 22 "V3 RIGHT $j (IME up, key focus)"; R="$R [$(en_focus V3-r$j)]"; escape_ok "$R" && break; done
+            if escape_ok "$R"; then log "E4B ok: V3 RIGHT with the IME up reached a composer control: $R"; else log "E4B WRONG: V3 RIGHT with the IME up did not reach a composer control: $R"; FAIL=1; fi
+          fi
+          # E3b: launcher start, tap an EXISTING list row (Yossi Klein), keys, Back, row focus restored
           restart 5
           timeout 30 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 8
-          en_dump E3-list; shot E3-list
-          ROW=$(tr '>' '\n' < "$OUT/E3-list.xml" | grep -F 'text="CS QA"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | awk '{h=$4-$2; if (h>b) {b=h; r=$0}} END{print r}')
-          if [ -z "$ROW" ]; then log "ENTRY MISSING: E3 the row 'CS QA' is not on the chat list after a launcher start (list not reached or row not on screen); not a pass"
-          else set -- $ROW; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 4; en_dump E3-chat; shot E3-chat
-            if [ "$(en_has E3-chat 'text="Message"')" -ge 1 ]; then log "ENTRY ok: E3 tapping the list row opened the chat (composer 'Message' on screen) | touch mode: $(tfmode) | focus: $(en_focus E3-chat)"; else log "ENTRY WRONG: E3 tapped the row at $1 $2 but the chat composer is not on screen"; FAIL=1; fi
-            key 20; sleep 1.5; en_dump E3-key; en_assert_ring "E3 after the first DOWN (list entry)" E3-key ring; shot E3-key
-            key 4; sleep 1.5; en_dump E3-back; if [ "$(en_has E3-back 'text="CS QA"')" -ge 1 ]; then log "ENTRY ok: E3 Back returned to the chat list (CS QA row on screen)"; else log "ENTRY WRONG: E3 Back did not return to the chat list"; FAIL=1; fi
+          en_dump E3b-list; shot E3b-list
+          ROW=$(tr '>' '\n' < "$OUT/E3b-list.xml" | grep -F 'text="Yossi Klein"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1)
+          if [ -z "$ROW" ]; then log "ENTRY MISSING: E3b the list row 'Yossi Klein' is not on screen after a launcher start; not a pass"
+          else set -- $ROW; RX=$(( ($1 + $3) / 2 )); RY=$(( ($2 + $4) / 2 )); adb shell input tap $RX $RY; sleep 4; en_dump E3b-chat; shot E3b-chat
+            if [ "$(en_has E3b-chat 'text="Message"')" -ge 1 ]; then log "ENTRY ok: E3b tapping the list row (at $RX $RY) opened a chat with the composer | $(tfmode) | focus [$(en_focus E3b-chat)]"; else log "ENTRY WRONG: E3b tapped the row at $RX $RY but no composer is on screen"; FAIL=1; fi
+            key 20; sleep 1.5; en_dump E3b-key; log "ENTRY E3b after the first DOWN in the chat: focus [$(en_focus E3b-key)] | $(tfmode)"; shot E3b-key
+            key 4; sleep 2; en_dump E3b-back; shot E3b-back
+            if [ "$(en_has E3b-back 'text="Yossi Klein"')" -ge 1 ]; then log "ENTRY ok: E3b Back returned to the chat list; focus after Back: [$(en_focus E3b-back)] (row Yossi Klein was at y $2-$4)"; else log "ENTRY WRONG: E3b Back did not return to the chat list"; FAIL=1; fi
           fi
-          # E4 mic reach by keys: key entry, press DOWN one key at a time and log the focused node after each key
-          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
-          PATHM=""; REACHED=0
-          for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14; do
-            key 20; sleep 0.8; en_dump E4-k$i; F=$(en_focus E4-k$i); log "ENTRY E4 key $i DOWN: focus [$F]"; PATHM="$PATHM $i:[$F]"
-            case "$F" in *"Record voice message"*) REACHED=1; log "ENTRY ok: E4 the D-pad reached the mic after $i DOWN presses"; break ;; esac
-          done
-          if [ $REACHED = 0 ]; then for i in 1 2 3; do key 22; sleep 0.8; en_dump E4-r$i; F=$(en_focus E4-r$i); log "ENTRY E4 key RIGHT $i: focus [$F]"; case "$F" in *"Record voice message"*) REACHED=1; log "ENTRY ok: E4 the mic was reached with RIGHT $i after the DOWN presses"; break ;; esac; done; fi
-          [ $REACHED = 0 ] && { log "ENTRY WRONG: E4 the mic was not reached; path:$PATHM"; FAIL=1; }
-          shot E4-end
-          # E5 voice reopen classification: open, jump to Newest, dump the WHOLE list (and after scrolling), three cycles; Back to the list between them
-          vlist() { # $1 dump name: all voice-bubble evidence in the dump
-            P=$(tr '>' '\n' < "$OUT/$1.xml" | grep -cE 'content-desc="(Play|Pause)"'); L=$(tr '>' '\n' < "$OUT/$1.xml" | sed -n 's/.* text="\([0-9]*:[0-9][0-9]\)".*/\1/p' | tr '\n' ',')
-            log "ENTRY E5 $1: Play/Pause nodes=$P duration labels=[$L] newest-button=$(en_has $1 'Newest')"
-          }
-          for c in 1 2 3; do
-            en_open; en_dump E5-c$c-open; vlist E5-c$c-open
-            NW=$(tr '>' '\n' < "$OUT/E5-c$c-open.xml" | grep -F 'Newest' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1)
-            if [ -n "$NW" ]; then set -- $NW; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 3; else log "ENTRY E5 cycle $c: no Newest button on screen after open"; fi
-            en_dump E5-c$c-newest; vlist E5-c$c-newest; shot E5-c$c-newest
-            adb shell input swipe 240 440 240 260 300; sleep 1; en_dump E5-c$c-swipe1; vlist E5-c$c-swipe1
-            adb shell input swipe 240 440 240 260 300; sleep 1; en_dump E5-c$c-swipe2; vlist E5-c$c-swipe2; shot E5-c$c-swipe2
-            PP=$(tr '>' '\n' < "$OUT/E5-c$c-swipe2.xml" | grep -cE 'content-desc="(Play|Pause)"')
-            if [ "$PP" -ge 1 ]; then log "ENTRY ok: E5 cycle $c: a voice bubble Play node is on screen after Newest and two scroll-to-end swipes"; else log "ENTRY WRONG: E5 cycle $c: no Play/Pause node after Newest and two scroll-to-end swipes (see E5-c$c-swipe2.png)"; FAIL=1; fi
-            key 4; sleep 1.5
-          done
           ENT
-          bash -n qa/fx-entry.sh && echo fx-entry.sh syntax ok
+          cat > qa/fx-vc.sh <<'VCE'
+          vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
+          vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/vc-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
+          vtap() { vd t; P=$(vpos t "$1"); if [ -z "$P" ]; then log "VC MISSING: '$1' not on screen"; return 1; fi; set -- $P; adb shell input tap $1 $2; sleep 2; log "VC tapped '$1' at $1 $2"; }
+          vtexts() { grep -oE ' text="[^"]+"' "$OUT/vc-$1.txt" | head -40 | tr '\n' ' '; }
+          restart 5; sleep 4
+          vtap "Channels"; sleep 2; vd s0; shot VC-01-channels; log "VC channels texts: $(vtexts s0)"
+          if vtap "Videos"; then sleep 3; vd s1; shot VC-02-videos-list; log "VC list texts: $(vtexts s1)"
+            if grep -qF 'Expert News Status' "$OUT/vc-s1.txt"; then log "VC ok: video channel rows are on screen"; else log "VC WRONG: no video channel rows after tapping Videos"; fi
+            grep -qE 'text="[0-9]+ video channels' "$OUT/vc-s1.txt" && log "VC ok: count line shown" || log "VC MISSING: count line"
+            log "VC focus: $(tr '>' '\n' < $OUT/vc-s1.txt | grep 'focused="true"' | grep -v FrameLayout | head -2 | cut -c1-200 | tr '\n' ' ')"
+            key 20; sleep 1; shot VC-02b-first-key
+            if vtap "Expert News Status"; then sleep 3; vd s2; shot VC-03-creator; log "VC creator texts: $(vtexts s2)"
+              grep -qE 'text="[0-9]+ videos"' "$OUT/vc-s2.txt" && log "VC ok: creator page lists videos" || log "VC WRONG: creator page shows no video count"
+              key 20; sleep 1; shot VC-03b-creator-key
+              key 4; sleep 2; vd s3; shot VC-04-back; if grep -qF 'video channels' "$OUT/vc-s3.txt"; then log "VC ok: Back returns to the video channel list"; else log "VC WRONG: Back did not return to the list"; fi
+            fi
+          fi
+          VCE
+          bash -n qa/fx-vc.sh && echo fx-vc.sh syntax ok
+          bash -n qa/fx-entry2.sh && echo fx-entry2.sh syntax ok
       - name: Exact-identity selector for duplicate voice labels in qa/fx-cs.sh (workspace only; asserts each replacement matches once)
         run: |
           python3 - <<'PY'
