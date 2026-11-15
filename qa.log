@@ -1,0 +1,57 @@
+[17:44:09] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[17:44:12] screen 480x640 @ 240 dpi
+[17:44:12] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[17:44:12] ---- Signed in (QA fixture account) ----
+[17:44:16] fixture true
+[17:44:26] shot F01-home-signedin
+[17:44:26] open https://yidplus.com/chat
+[17:44:31] shot F02-chats-list
+[17:44:32] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[17:44:40] shot F03-chat-dm
+[17:44:42] shot F03b-chat-dm-up
+[17:44:45] open https://yidplus.com/chat
+[17:45:00] shot F04-chat-group
+[17:45:02] shot F04b-group-up
+[17:45:04] shot F04c-group-top
+[17:45:07] shot F05-message-actions
+[17:45:17] shot F06-notifications
+[17:45:19] tab Home
+[17:45:22] shot F07-home-header
+[17:45:22] open https://yidplus.com/shorts
+[17:45:31] shot F08-shorts-signedin
+[17:45:31] tab Profile
+[17:45:34] shot F09-profile-signedin
+[17:45:46] shot F09b-profile-scrolled
+[17:46:00] open https://yidplus.com/chat
+[17:46:04] shot F10-chats-dark
+[17:46:10] shot F11-chat-dark
+[17:46:17] screen 1080x2400 @ 420 dpi
+[17:46:26] open https://yidplus.com/chat
+[17:46:30] shot F12-phone-chats
+[17:46:37] shot F13-phone-chat
+[17:46:41] screen 480x640 @ 240 dpi
+[17:46:41] ---- qa/fx-vc.sh ----
+[17:47:03] VC tapped at 300 551
+[17:47:09] shot VC-01-channels
+[17:47:09] VC ok: Video channels block is at the top of Channels
+[17:47:09] VC channels texts:  text="Channels"  text="3"  text="מ"  text="Telegram"  text="Joined"  text="Members"  text="Recent"  text="Video channels"  text="8  See all"  text="AU"  text="Ales UK"  text="AS"  text="Abisel Status"  text="EN"  text="Expert News Status"  text="C"  text="Chaimo"  text="יי"  text="יידישע נייעס"  text="3d"  text="היינט: א נייע ווערסיע פון YID PLUS איז ארויס"  text="3"  text="18"  text="Chats"  text="Shorts"  text="3"  text="Channels"  text="Settings" 
+[17:47:13] VC tapped at 413 238
+[17:47:18] shot VC-02-videos-list
+[17:47:18] VC list texts:  text="Channels"  text="3"  text="מ"  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="8 video channels"  text="AU"  text="Ales UK"  text="Videos"  text="AS"  text="Abisel Status"  text="Videos"  text="Expert News Status"  text="18"  text="Chats"  text="Shorts"  text="3"  text="Channels"  text="Settings" 
+[17:47:18] VC ok: video channel rows are on screen
+[17:47:18] VC ok: count line shown
+[17:47:18] VC focus: 
+[17:47:20] shot VC-02b-first-key
+[17:47:24] VC tapped at 231 481
+[17:47:29] shot VC-03-creator
+[17:47:29] VC creator texts:  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="8 video channels"  text="Ales UK"  text="Expert News Status"  text="EN"  text="Expert News Status"  text="4 videos"  text="Follow"  text="0:20"  text="0:27"  text="0:34" 
+[17:47:29] VC ok: creator page lists videos
+[17:47:31] shot VC-03b-creator-key
+[17:47:36] shot VC-03L-creator-landscape
+[17:47:36] VC landscape creator texts:  text="Telegram"  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="8 video channels"  text="Ales UK"  text="Expert News Status"  text="EN"  text="Expert News Status"  text="4 videos"  text="Follow" 
+[17:47:44] shot VC-04-back
+[17:47:44] VC ok: Back returns to the video channel list
+[17:47:44] fixture writes the app would have sent: 5
+[17:47:48] fixture false
