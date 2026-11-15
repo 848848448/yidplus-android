@@ -405,15 +405,23 @@ fun ShortsScreen() {
 
     // Play the video on screen; warm up the next two.
     val itemsNow = rememberUpdatedState(items)
-    // A new tab/filter/creator entry starts on its first video. A list that is still empty at that moment (Following fills after the switch)
-    // is reset once, when its first items arrive; later list growth while watching never moves the page.
+    // A new tab/filter/creator entry starts on its first video.
+    // The pager keys pages by clip key, so when a list grows ahead of the shown clip (Following fills per creator) the pager follows that clip.
+    // Until the first key or touch after entry, a page other than the first is put back on the first video. Entry by startKey is not touched.
     var entryPending by remember { mutableStateOf(false) }
+    var entryStamp by remember { mutableStateOf(0L) }
     LaunchedEffect(tab, who, topic) {
         if (Feeds.startKey != null) { entryPending = false; return@LaunchedEffect }
-        if (pager.pageCount > 0) { pager.scrollToPage(0); entryPending = false } else entryPending = true
+        entryStamp = com.yidplus.app.ui.CsIntent.stamp
+        entryPending = true
+        if (pager.pageCount > 0) { pager.scrollToPage(0); android.util.Log.i("YidPager", "entry reset to 0 (tab=$tab, items=${itemsNow.value.size})") }
     }
-    LaunchedEffect(items.size) {
-        if (entryPending && items.isNotEmpty() && Feeds.startKey == null) { pager.scrollToPage(0); entryPending = false }
+    LaunchedEffect(Unit) {
+        snapshotFlow { pager.currentPage to itemsNow.value.size }.collect { (p, n) ->
+            if (!entryPending || Feeds.startKey != null || n == 0) return@collect
+            if (com.yidplus.app.ui.CsIntent.stamp != entryStamp) { entryPending = false; android.util.Log.i("YidPager", "entry ended by input"); return@collect }
+            if (p != 0) { android.util.Log.i("YidPager", "entry reset from page $p (items=$n, tab=$tab)"); pager.scrollToPage(0) }
+        }
     }
     LaunchedEffect(topic, items.size) { if (tab == ShortsTab.ForYou && topic != "All" && items.size < 4 && !feed.loading) feed.loadMore() }
     LaunchedEffect(Feeds.startKey, items.size) {
