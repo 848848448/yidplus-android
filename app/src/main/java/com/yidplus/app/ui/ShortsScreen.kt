@@ -76,6 +76,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.async
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -143,6 +146,12 @@ enum class ShortsTab(val label: String) { ForYou("For You"), Following("Followin
 object Feeds {
     var tab by mutableStateOf(ShortsTab.ForYou)
     var srcOff by mutableStateOf(false)
+    /** People whose own video list was fetched for the Following tab this session (so a person with no videos is not asked again and again). */
+    val followFetched = HashSet<String>()
+    /** Following's own repost check (poster fingerprint + length, as ShortFeed.vet does for For You): videos found to repeat an earlier one are hidden from Following. */
+    val followHidden = mutableStateListOf<String>()
+    val followVetted = HashSet<String>()
+    val followPrints = ArrayList<Pair<Long, Int>>()
     /** Only this creator's videos (opened from their page); null = everyone. */
     var who by mutableStateOf<String?>(null)
     var whoName by mutableStateOf("")
@@ -308,7 +317,11 @@ fun ShortsScreen() {
     val tab = Feeds.tab
     val feed = if (tab == ShortsTab.Uploads) Feeds.uploads else Feeds.forYou
     val base: List<Clip> = when (tab) {
-        ShortsTab.Following -> Feeds.forYou.items.filter { it.creatorId in Feeds.follows }
+        ShortsTab.Following -> { // newest first; the same video file or size is shown once, and reposts the player's poster check found are left out (like For You)
+            val seenU = HashSet<String>(); val seenZ = HashSet<Long>()
+            Feeds.forYou.items.filter { it.creatorId in Feeds.follows && it.key !in Feeds.followHidden }.sortedByDescending { it.at ?: "" }
+                .filter { seenU.add(it.video.substringBefore('?')) && (it.size <= 0 || seenZ.add(it.size)) }
+        }
         ShortsTab.Saved -> Feeds.saved
         else -> feed.items
     }
@@ -318,17 +331,31 @@ fun ShortsScreen() {
         else base.filter { (who == null || it.creatorId == who) && (tab != ShortsTab.ForYou || SoShortTopics.matches(it)) }
     val smallScreen = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 560
     LaunchedEffect(tab, Net.online) { if (feed.items.isEmpty() || feed.offline) feed.loadMore() }
-    // Following: load the videos of the people you follow (not only those in the newest feed), so the tab is never empty while you follow someone who has videos.
+    // Following: load the videos of EVERY person you follow (not only those in the newest feed, and no ceiling on how many you follow).
+    // Four creators at a time, the list fills as each one arrives, a person already fetched (even with no videos) is not asked again, and a failure is shown.
+    var followRetry by remember { mutableIntStateOf(0) }
     var followLoading by remember { mutableStateOf(false) }
+    var followFailed by remember { mutableIntStateOf(0) }
     val followDir = remember { com.yidplus.app.data.Store.res("/api/src-shorts?creators", ::soVideoChannels) }
-    LaunchedEffect(tab, Feeds.follows.size, Net.online) {
+    LaunchedEffect(tab, Feeds.follows.size, Net.online, followRetry) {
         if (tab != ShortsTab.Following || Feeds.follows.isEmpty()) return@LaunchedEffect
-        val missing = Feeds.follows.toList().filter { k -> Feeds.forYou.items.none { it.creatorId == k } }.take(40)
+        val missing = Feeds.follows.toList().filter { it !in Feeds.followFetched }
         if (missing.isEmpty()) return@LaunchedEffect
-        followLoading = true
+        followLoading = true; followFailed = 0
+        android.util.Log.i("YidFollow", "loading ${missing.size} followed people (follows=${Feeds.follows.size})")
         runCatching { followDir.load() }
         val dir = followDir.data.orEmpty().associateBy { it.key }
-        for (k in missing) { val ch = dir[k]; runCatching { soLoadCreatorVideos(k, ch?.name ?: "", ch?.avatar, ch?.verified == true) } }
+        for (grp in missing.chunked(4)) {
+            kotlinx.coroutines.coroutineScope {
+                grp.map { k -> async {
+                    val ch = dir[k]
+                    runCatching { soLoadCreatorVideos(k, ch?.name ?: "", ch?.avatar, ch?.verified == true) }
+                        .onSuccess { Feeds.followFetched.add(k); android.util.Log.i("YidFollow", "fetched $k: ${Feeds.forYou.items.count { it.creatorId == k }} videos") }
+                        .onFailure { followFailed++; android.util.Log.i("YidFollow", "failed $k: ${it.javaClass.simpleName} ${it.message}") }
+                } }.awaitAll()
+            }
+            followLoading = false   // the first group is on screen; the rest keep arriving
+        }
         followLoading = false
     }
     LaunchedEffect(Nav.shortsDeepLink) {
@@ -393,6 +420,16 @@ fun ShortsScreen() {
             player.setMediaItem(MediaItem.fromUri(s.video)); player.prepare(); player.playWhenReady = !paused
             player.setPlaybackParameters(PlaybackParameters(speed))
             if ((tab == ShortsTab.ForYou || tab == ShortsTab.Uploads) && feed.items === items) feed.vet(c, page, 4)
+            if (tab == ShortsTab.Following) for (j in page until minOf(items.size, page + 4)) {
+                val cl = items[j]
+                if (Feeds.followVetted.add(cl.key)) {
+                    val h = cl.poster?.let { posterPrint(c, it) }
+                    if (h != null) {
+                        val dup = Feeds.followPrints.any { (pp, dd) -> java.lang.Long.bitCount(pp xor h) <= 6 && kotlin.math.abs(dd - cl.duration) <= 1 }
+                        if (dup && j > page) Feeds.followHidden.add(cl.key) else Feeds.followPrints.add(h to cl.duration)
+                    }
+                }
+            }
             val itemsV = itemsNow.value
             Media.prefetch(c, itemsV.drop(page + 1).take(2).map { it.video })
             if (tab == ShortsTab.ForYou || tab == ShortsTab.Uploads) { if (page >= items.size - 4) feed.loadMore() }
@@ -480,8 +517,9 @@ fun ShortsScreen() {
                     Modifier.align(Alignment.Center).padding(32.dp), color = Color.White)
             items.isEmpty() && (feed.loading || (tab == ShortsTab.Following && followLoading) || (tab != ShortsTab.Saved && tab != ShortsTab.Following)) -> Loading()
             items.isEmpty() -> Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else "Follow creators to see their videos here.", color = Color.White, textAlign = TextAlign.Center)
-                if (tab == ShortsTab.Following) SoPill("Find people to follow", true, { Nav.open(SoFollowPeoplePage()) }, Modifier.padding(top = 16.dp).firstFocus(), icon = Sym.PersonAdd)
+                Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else if (tab == ShortsTab.Following && followFailed > 0 && Feeds.follows.isNotEmpty()) "Could not load the videos of $followFailed of the people you follow." else "Follow creators to see their videos here.", color = Color.White, textAlign = TextAlign.Center)
+                if (tab == ShortsTab.Following && followFailed > 0 && Feeds.follows.isNotEmpty()) SoPill("Try again", true, { Feeds.followFetched.clear(); followRetry++ }, Modifier.padding(top = 16.dp).firstFocus())
+                else if (tab == ShortsTab.Following) SoPill("Find people to follow", true, { Nav.open(SoFollowPeoplePage()) }, Modifier.padding(top = 16.dp).firstFocus(), icon = Sym.PersonAdd)
             }
             // A quick short flick moves to the next Short (like TikTok / WhatsApp), and it settles without a bounce.
             else -> VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { items.getOrNull(it)?.key ?: it },
