@@ -103,3 +103,4 @@ jobs:
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-inplace-evidence
       - name: Result
         run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT
+# rerun for the video-channels head cc4f594
