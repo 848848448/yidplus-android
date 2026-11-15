@@ -16,6 +16,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -424,9 +425,15 @@ fun ShortsScreen() {
     fun go(d: Int) { val t = (pager.currentPage + d).coerceIn(0, maxOf(0, items.size - 1)); scope.launch { pager.animateScrollToPage(t) } }
     val tabs = ShortsTab.values().filter { !(Feeds.srcOff && (it == ShortsTab.ForYou || it == ShortsTab.Following)) }
 
-    Box(Modifier.fillMaxSize().background(Color.Black).onKeyEvent { e ->
+    LaunchedEffect(showHint) { if (showHint) { delay(5000); showHint = false; Prefs.hintSeen() } }
+    Box(Modifier.fillMaxSize().background(Color.Black).pointerInput(Unit) {
+        androidx.compose.foundation.gestures.awaitEachGesture {
+            awaitFirstDown(requireUnconsumed = false, pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+            if (showHint) { showHint = false; Prefs.hintSeen() }
+        }
+    }.onKeyEvent { e ->
         if (e.type != KeyEventType.KeyDown) return@onKeyEvent false
-        if (showHint) { showHint = false; Prefs.hintSeen(); return@onKeyEvent true }
+        if (showHint) { showHint = false; Prefs.hintSeen() }
         val cur = items.getOrNull(pager.currentPage)
         when (e.key) {
             Key.DirectionUp -> { go(-1); true }
