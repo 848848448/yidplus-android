@@ -210,6 +210,10 @@ jobs:
             adb shell "input keyevent 22; input tap $TX $TY"; sleep 2; en_dump V5-final; log "E4B V5 RIGHT then touch on the field then 2 s: focus [$(en_focus V5-final)] | $(imeup)"; shot V5-final
             case "$(en_focus V5-final)" in *EditText*) log "E4B ok: V5 the field the user touched kept focus" ;; *) log "E4B WRONG: V5 after touching the field, focus is [$(en_focus V5-final)]"; FAIL=1 ;; esac
           fi
+          # V5a: same entry, RIGHT only, then dump+shot: what does RIGHT do to the IME and layout (explains V5)
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V5a-d$i 20 "V5a DOWN $i"; case "$(en_focus V5a-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V5a field never took focus"; else adb shell input keyevent 22; sleep 1; en_dump V5a-right; log "E4B V5a RIGHT only +1 s: focus [$(en_focus V5a-right)] | $(imeup)"; shot V5a-right; fi
           # V6: RIGHT, then BACK within the retry window: read the focus after 2 s (a retry that fires after Back is a defect only if it takes focus on a hidden-IME screen)
           timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
           OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V6-d$i 20 "V6 DOWN $i"; case "$(en_focus V6-d$i)" in *EditText*) OK=1; break ;; esac; done
@@ -250,7 +254,9 @@ jobs:
             if vtap "Expert News Status"; then sleep 3; vd s2; shot VC-03-creator; log "VC creator texts: $(vtexts s2)"
               grep -qE 'text="[0-9]+ videos"' "$OUT/vc-s2.txt" && log "VC ok: creator page lists videos" || log "VC WRONG: creator page shows no video count"
               key 20; sleep 1; shot VC-03b-creator-key
-              key 4; sleep 2; vd s3; shot VC-04-back; if grep -qF 'video channels' "$OUT/vc-s3.txt"; then log "VC ok: Back returns to the video channel list"; else log "VC WRONG: Back did not return to the list"; fi
+              adb shell settings put system accelerometer_rotation 0; adb shell settings put system user_rotation 1; sleep 3; vd sl; shot VC-03L-creator-landscape; log "VC landscape creator texts: $(vtexts sl)"
+              adb shell settings put system user_rotation 0; sleep 3
+              key 4; sleep 2; vd s3; shot VC-04-back; if grep -qE 'video channels|Videos' "$OUT/vc-s3.txt"; then log "VC ok: Back returns to the video channel list"; else log "VC WRONG: Back did not return to the list"; fi
             fi
           fi
           VCE
