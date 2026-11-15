@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx33f, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-fp.sh' }
+          - { target: default, part: fx32m, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-mu.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -291,7 +291,7 @@ jobs:
           if vtap "Find people to follow"; then sleep 3; vd b; shot FP-02-people-list; log "FP list texts: $(vtexts b)"
             for w in "Follow people" "Search people" "8 people" "Expert News Status" "Ales UK"; do vhas b "$w" && log "FP ok: '$w' on screen" || log "FP MISSING: '$w' not on screen"; done
             vtap "Follow" && { sleep 1; vd c; shot FP-03-followed; vhas c "Following ✓" && log "FP ok: a row now shows 'Following ✓'" || log "FP MISSING: no 'Following ✓' after tapping Follow"; log "FP followed texts: $(vtexts c)"; }
-            vtap "Search people" && { adb shell input text "Ales"; sleep 2; vd d; shot FP-04-search; vhas d "Ales UK" && log "FP ok: search keeps 'Ales UK'" || log "FP MISSING: 'Ales UK' not in results"; vhas d "Expert News Status" && log "FP WRONG: search still lists a non-matching person" || log "FP ok: non-matching people are filtered out"; vhas d "1 people" && log "FP ok: count line is 1 people" || log "FP MISSING: count line for the search"; }
+            vtap "Search people" && { adb shell input text "Ales"; sleep 1; vd d0; shot FP-04a-typed-keyboard-up; key 66; sleep 2; vd d; shot FP-04-search; vhas d "Ales UK" && log "FP ok: search keeps 'Ales UK'" || log "FP MISSING: 'Ales UK' not in results"; vhas d "Expert News Status" && log "FP WRONG: search still lists a non-matching person" || log "FP ok: non-matching people are filtered out"; vhas d "1 people" && log "FP ok: count line is 1 people" || log "FP MISSING: count line for the search"; }
             key 4; sleep 1; key 4; sleep 2; vd e; shot FP-05-back; log "FP after Back texts: $(vtexts e)"
             vhas e "Follow people" && log "FP WRONG: still on the people list after two Backs" || log "FP ok: left the people list"
           fi
