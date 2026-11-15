@@ -82,11 +82,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx25a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-state.sh qa/fx-cs.sh' }
-          - { target: default, part: fx25b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl.sh qa/fx-state.sh qa/fx-cs.sh' }
-          - { target: default, part: fx25c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl86.sh qa/fx-state.sh qa/fx-cs.sh' }
-          - { target: default, part: fx25d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl165.sh qa/fx-state.sh qa/fx-cs.sh' }
-          - { target: default, part: fx25e, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cl.sh qa/fx-keypre.sh qa/fx-state.sh qa/fx-cs.sh' }
+          - { target: default, part: fx26a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfdown.sh' }
+          - { target: default, part: fx26b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfcenter.sh' }
+          - { target: default, part: fx26c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfleft.sh' }
+          - { target: default, part: fx26d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfctrl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -128,11 +127,30 @@ jobs:
           log "STATE config: $(timeout 30 adb shell dumpsys activity activities 2>/dev/null | grep -m2 -E 'mFullConfiguration|mMergedOverrideConfiguration' | cut -c1-400 | tr '\n' ' ')"
           ST
           cat > qa/fx-keypre.sh <<'KP'
-          timeout 10 adb shell input keyevent 59; sleep 1.5
+          timeout 10 adb shell input keyevent 20; sleep 1.5
           log "KEYPRE: one SHIFT key event sent (no navigation); $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -2 | tr '\n' ' ')"
           KP
           bash -n qa/fx-keypre.sh && echo "fx-keypre.sh syntax ok"
           bash -n qa/fx-state.sh && echo "fx-state.sh syntax ok"
+      - name: First-key behaviour scripts (touch entry vs key entry; workspace only, not committed)
+        run: |
+          cat > /tmp/tf.tpl <<'TPL'
+          TF_FIRST=@FIRST@; TF_TOUCH=@TOUCH@
+          tfmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
+          tf_focus() { timeout 30 adb shell uiautomator dump /sdcard/tf.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/tf.xml 2>/dev/null | tr '>' '\n' | grep 'focused="true"' | grep -v 'class="android.widget.FrameLayout"' | sed -n 's/.*class="\([^"]*\)".*content-desc="\([^"]*\)".*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1|\2|\3/p' | head -3 | tr '\n' ' '; }
+          tf_sheet() { timeout 20 adb shell cat /sdcard/tf.xml 2>/dev/null | tr '>' '\n' | grep -cE 'text="(Forward|Copy|Reply)"|content-desc="(Forward|Copy|Reply)"'; }
+          if [ "$TF_TOUCH" = 1 ]; then adb shell input tap 240 8; else adb shell input keyevent 59; fi; sleep 1.5
+          restart 5
+          log "TF entry ($TF_TOUCH=touch): $(tfmode)"
+          timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-cs\",\"type\":\"group\",\"nick\":\"CS QA\",\"unread\":5,\"members\":3}'" >/dev/null 2>&1; sleep 7
+          log "TF opened: $(tfmode) | focus: $(tf_focus)"; shot TF-0-opened
+          key $TF_FIRST; sleep 1.5; log "TF after first press ($TF_FIRST): $(tfmode) | focus: $(tf_focus)"; shot TF-1-first
+          key 20; sleep 1; log "TF after DOWN: focus: $(tf_focus)"; shot TF-2-down
+          key 20; sleep 1; log "TF after DOWN 2: focus: $(tf_focus)"
+          key 23; sleep 2; F3=$(tf_focus); log "TF after OK: focus: $F3 | action-sheet words on screen: $(tf_sheet)"; shot TF-3-ok
+          key 4; sleep 1; log "TF after Back: focus: $(tf_focus)"
+          TPL
+          for v in "down 20 1" "center 23 1" "left 21 1" "ctrl 20 0"; do set -- $v; sed -e "s/@FIRST@/$2/" -e "s/@TOUCH@/$3/" /tmp/tf.tpl > qa/fx-tf$1.sh; bash -n qa/fx-tf$1.sh && echo "fx-tf$1.sh syntax ok"; done
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
