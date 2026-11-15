@@ -139,7 +139,7 @@ jobs:
           tfmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
           tf_focus() { timeout 30 adb shell uiautomator dump /sdcard/tf.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/tf.xml 2>/dev/null | tr '>' '\n' | grep 'focused="true"' | grep -v 'class="android.widget.FrameLayout"' | sed -n 's/.*class="\([^"]*\)".*content-desc="\([^"]*\)".*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1|\2|\3/p' | head -3 | tr '\n' ' '; }
           tf_sheet() { timeout 20 adb shell cat /sdcard/tf.xml 2>/dev/null | tr '>' '\n' | grep -cE 'text="(Forward|Copy|Reply)"|content-desc="(Forward|Copy|Reply)"'; }
-          if [ "$TF_TOUCH" = 1 ]; then adb shell input tap 240 8; else adb shell input keyevent 59; fi; sleep 1.5
+          if [ "$TF_TOUCH" = 1 ]; then adb shell input tap 240 8; else adb shell input keyevent 20; fi; sleep 1.5
           restart 5
           log "TF entry ($TF_TOUCH=touch): $(tfmode)"
           timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-cs\",\"type\":\"group\",\"nick\":\"CS QA\",\"unread\":5,\"members\":3}'" >/dev/null 2>&1; sleep 7
