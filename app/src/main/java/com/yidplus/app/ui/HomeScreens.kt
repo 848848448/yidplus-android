@@ -115,6 +115,9 @@ fun HomeScreen() {
                             .distinctBy { it.username }
                             .sortedWith(compareByDescending<TgChannel> { it.joined && it.unread > 0 }.thenByDescending { parseTime(it.lastAt) ?: 0L })
                         val state = rememberLazyListState()
+                        // The video strip loads after the list. A lazy list keeps the row you are on, so a strip inserted above it would sit out of sight: show the top when it appears (only if still at the top).
+                        val vres = remember(Session.me?.id) { Store.res("/api/src-shorts?creators", ::soVideoChannels) }
+                        LaunchedEffect(vres.data) { if (vres.data?.isNotEmpty() == true && state.firstVisibleItemIndex <= 1) state.scrollToItem(0) }
                         LazyColumn(Modifier.fillMaxSize(), state = state) {
                             if (!searching && view == 0) item { SoVideoStrip { view = 4; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", 4).apply() } } }
                             if (shown.isEmpty()) item { SoEmpty(if (view == 1) Sym.Campaign else Sym.Search,
