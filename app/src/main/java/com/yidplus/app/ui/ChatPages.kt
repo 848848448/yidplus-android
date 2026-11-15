@@ -155,8 +155,10 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
         LaunchedEffect(code) { preview = null; err = null; if (code != null) { delay(300); runCatching { ClApi.inviteInfo(code) }.onSuccess { preview = it; if (it == null) err = "Invalid invite link" }.onFailure { err = Api.friendly(it) } } }
         var pending by remember { mutableStateOf(false) }
         // Scrolls: at 480x640 the group preview + button sit below the fold (more so with the keyboard up).
-        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
+        // The header stays outside the scrolling area: with the keyboard up, bringing the field into view scrolled the whole page and pushed the bar off the top.
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
             ChBar("Join by invite link", onBack = { Nav.back() })
+            Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
             OutlinedTextField(link, { link = it }, Modifier.fillMaxWidth().padding(16.dp).joinFirstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
             val p = preview
             if (p != null) Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -176,6 +178,7 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
                 }, Modifier.fillMaxWidth().padding(top = 14.dp))
             } else if (err != null) Text(err!!, Modifier.padding(16.dp), color = MaterialTheme.colorScheme.error)
             else ChEmpty(Sym.Link, "Paste a group's invite link to see it and join")
+            }
         }
     }
 }
