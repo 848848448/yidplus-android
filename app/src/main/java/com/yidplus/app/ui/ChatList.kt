@@ -161,8 +161,9 @@ fun ChatsScreen() {
     // Gap 10: leaving search (✕ or Back) also closes the keyboard.
     fun closeSearch() { searching = false; q = ""; kb?.hide(); focusMgr.clearFocus(force = true) }
     fun setTab(t: String) { tab = t; folder = null; ClLocal.setTab(c, t) }
-    BackHandler(enabled = searching) { closeSearch() }
-    BackHandler(enabled = sel.isNotEmpty()) { sel.clear() }
+    // The tab stays composed under an opened chat (AppRoot): without the stack check these two took the first Back meant for the chat (the search closed beneath it, nothing visible happened).
+    BackHandler(enabled = searching && Nav.stack.isEmpty()) { closeSearch() }
+    BackHandler(enabled = sel.isNotEmpty() && Nav.stack.isEmpty()) { sel.clear() }
     // Gap 2: rows whose site preview is only "[system]" / "[call]" / "[voice]" get their real last line, fetched quietly once and cached.
     LaunchedEffect(list) { list?.take(24)?.filter { chBarePreview(it.rawPreview) }?.forEach { ri -> launch { ChatCache.prefetch(ri.room.id) } } }
     val pins = remember(ClLocal.pinVersion, me?.id) { ClLocal.pins(c) }
