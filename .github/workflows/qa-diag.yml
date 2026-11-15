@@ -84,6 +84,7 @@ jobs:
         include:
           - { target: default, part: fx31a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-vc.sh' }
           - { target: default, part: fx31b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry2.sh' }
+          - { target: default, part: fx31c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-sr.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -247,6 +248,16 @@ jobs:
           if [ -n "$JP" ]; then set -- $JP; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 3; en_dump J-land-kb; shot J-land-kb; log "J landscape keyboard up: $(imeup) | field nodes $(en_has J-land-kb 'class="android.widget.EditText"') | field bounds $(tr '>' '\n' < "$OUT/J-land-kb.xml" | grep 'class="android.widget.EditText"' | sed -n 's/.*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1/p' | head -1)"; else log "J MISSING: no EditText on the landscape join page"; fi
           adb shell settings put system user_rotation 0; sleep 2
           ENT
+          head -n 27 qa/fx-ch.sh > qa/fx-sr.sh
+          cat >> qa/fx-sr.sh <<'SRE'
+          restart 5; view "https://yidplus.com/chat"; sleep 4
+          chtap "Search chats"; sleep 1; adb shell input text "Yo"; sleep 2; shot SR-01-typed
+          key 4; sleep 2; shot SR-02-results-keyboard-hidden; chkb "after first Back"
+          chtap "Yossi Klein"; sleep 3; shot SR-03-result-opened
+          key 4; sleep 2; shot SR-04-back-from-result
+          key 4; sleep 2; shot SR-05-back-again
+          SRE
+          bash -n qa/fx-sr.sh && echo fx-sr.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
           vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
           vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/vc-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
