@@ -1,6 +1,6 @@
 name: QA live-data check (read-only, separate from the native workflow)
 
-# rerun: Back chain after Nav.goShortsFrom
+# rerun: dedupe, Shorts hint and gesture Back legs
 # Runs the signed-in fixture scripts for a chosen sequence on a fresh emulator, with qa/fx-cl.sh replaced by diag/fx-cl.sh
 # (the same script plus IME/focus logging). Triggers only on diag/** and this file, so it never starts or cancels the
 # native workflow; it has its own concurrency group and publishes only qa-diag-* log branches.
@@ -84,6 +84,8 @@ jobs:
       matrix:
         include:
           - { target: default, part: fx30c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-live.sh' }
+          - { target: default, part: fx30d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-live2.sh' }
+          - { target: default, part: fx30e, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-nav.sh qa/fx-live3.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -274,6 +276,37 @@ jobs:
           adb shell settings put system user_rotation 0; sleep 2
           LVE
           bash -n qa/fx-live.sh && echo fx-live.sh syntax ok
+          cat > qa/fx-live2.sh <<'L2E'
+          vd() { timeout 30 adb shell uiautomator dump /sdcard/lv.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/lv.xml 2>/dev/null | tr '>' '\n' > "$OUT/lv-$1.txt"; }
+          fx false; adb logcat -c; restart 8; sleep 5
+          log "LV2 live mode (no fixture): $(timeout 20 adb shell dumpsys package $PKG | grep versionName | head -1)"
+          tab Shorts; sleep 2; shot LV2-01-shorts-t2; vd h1; grep -qF "Keypad keys" "$OUT/lv-h1.txt" && log "LV2 hint: overlay shown at 2 s on first Shorts open" || log "LV2 hint: overlay not shown at 2 s on first Shorts open (MISSING if never seen)"
+          sleep 4; shot LV2-02-shorts-t6
+          adb shell input keyevent 20; sleep 1; shot LV2-03-shorts-first-dpad; vd h2; grep -qF "Keypad keys" "$OUT/lv-h2.txt" && log "LV2 hint: overlay shown after first D-pad" || log "LV2 hint: overlay not shown after first D-pad"
+          timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_DEDUPE >/dev/null 2>&1
+          DD=""; for i in $(seq 1 60); do DD=$(timeout 10 adb logcat -d -s YidDedupe:I 2>/dev/null | grep -o 'checked.*' | tail -1); [ -n "$DD" ] && break; sleep 3; done
+          log "LV2 dedupe (live feed): ${DD:-no answer in 180 s}"
+          if [ -z "$DD" ]; then log "LV2 dedupe MISSING: no answer"; elif echo "$DD" | grep -q "same id 0, same file 0, same picture+length 0" && echo "$DD" | grep -q "checked 200"; then log "LV2 DEDUPE PASS (checked 200, zero same id/file/picture)"; else log "LV2 DEDUPE FAIL or short list: $DD"; fi
+          tab Shorts; sleep 3; for i in 1 2 3; do adb shell input swipe 240 430 240 130 120; sleep 4; done; shot LV2-04-shorts-3-swipes
+          adb shell input keyevent 4; sleep 2; vd b1; shot LV2-05-shorts-back; log "LV2 after Shorts Back texts: $(grep -oE ' text="[^"]+"' "$OUT/lv-b1.txt" | head -20 | tr '\n' ' ')"
+          L2E
+          bash -n qa/fx-live2.sh && echo fx-live2.sh syntax ok
+          cat > qa/fx-live3.sh <<'L3E'
+          vd() { timeout 30 adb shell uiautomator dump /sdcard/lv.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/lv.xml 2>/dev/null | tr '>' '\n' > "$OUT/lv-$1.txt"; }
+          vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/lv-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
+          vtap() { vd t; P=$(vpos t "$1"); if [ -z "$P" ]; then log "LV3 MISSING: '$1' not on screen"; return 1; fi; set -- $P; adb shell input tap $1 $2; sleep 2; log "LV3 tapped at $1 $2"; }
+          gback() { adb shell input swipe 2 320 260 320 200; sleep 3; }
+          fx false; adb logcat -c; restart 8; sleep 5
+          log "LV3 gesture-nav live: navigation_mode=$(timeout 10 adb shell settings get secure navigation_mode 2>&1) | $(timeout 20 adb shell cmd overlay list 2>/dev/null | grep -E '^\[x\].*navbar' | tr '\n' ' ')"
+          vtap "Channels"; sleep 8; shot LV3-01-channels
+          if vtap "[0-9]+  See all"; then sleep 8; vd g1; shot LV3-02-list; adb shell input tap 240 300; sleep 8; vd g2; shot LV3-03-creator; adb shell input tap 100 400; sleep 6; shot LV3-04-player
+            gback; vd g3; shot LV3-05-gback1; grep -qE 'text="[0-9]+ videos?"' "$OUT/lv-g3.txt" && log "LV3 ok: gesture Back from the player returned to the creator page" || log "LV3 WRONG: gesture Back from the player did not land on the creator page: $(grep -oE ' text="[^"]+"' "$OUT/lv-g3.txt" | head -12 | tr '\n' ' ')"
+            gback; vd g4; shot LV3-06-gback2; grep -qE 'text="[0-9]+ video channels' "$OUT/lv-g4.txt" && log "LV3 ok: second gesture Back returned to the list" || log "LV3 WRONG: second gesture Back did not land on the list"
+            gback; vd g5; shot LV3-07-gback3; log "LV3 after third gesture Back: $(grep -oE ' text="[^"]+"' "$OUT/lv-g5.txt" | head -12 | tr '\n' ' ')"
+          fi
+          tab Home; sleep 3; vtap "Search" && { sleep 3; gback; shot LV3-08-search-gback; }
+          L3E
+          bash -n qa/fx-live3.sh && echo fx-live3.sh syntax ok
           bash -n qa/fx-entry2.sh && echo fx-entry2.sh syntax ok
       - name: Exact-identity selector for duplicate voice labels in qa/fx-cs.sh (workspace only; asserts each replacement matches once)
         run: |
