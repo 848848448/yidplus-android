@@ -274,6 +274,7 @@ fun qaOpenNew(page: String) {
         "ai_quick" -> Nav.open(AiChatPage("Give me an idea"))
         "status" -> Nav.open(StatusViewerPage())
         "status_me" -> Nav.open(StatusViewerPage(Session.me?.id))
+        "status_me_empty" -> { com.yidplus.app.data.Fixture.onlyEmptyOwnStatus = true; Statuses.scope.launch { Statuses.res.load(true); Nav.open(StatusViewerPage(Session.me?.id)) } }
         "post_status" -> Nav.open(PostStatusPage())
         "saved" -> Nav.open(SavedItemsPage())
         "history" -> Nav.open(HistoryPage())
