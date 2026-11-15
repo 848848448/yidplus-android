@@ -209,11 +209,11 @@ jobs:
           cat > qa/fx-vc.sh <<'VCE'
           vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
           vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/vc-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
-          vtap() { vd t; P=$(vpos t "$1"); if [ -z "$P" ]; then log "VC MISSING: '$1' not on screen"; return 1; fi; set -- $P; adb shell input tap $1 $2; sleep 2; log "VC tapped '$1' at $1 $2"; }
+          vtap() { vd t; P=$(vpos t "$1"); if [ -z "$P" ]; then log "VC MISSING: '$1' not on screen"; return 1; fi; set -- $P; adb shell input tap $1 $2; sleep 2; log "VC tapped at $1 $2"; }
           vtexts() { grep -oE ' text="[^"]+"' "$OUT/vc-$1.txt" | head -40 | tr '\n' ' '; }
           restart 5; sleep 4
-          vtap "Channels"; sleep 2; vd s0; shot VC-01-channels; log "VC channels texts: $(vtexts s0)"
-          if vtap "Videos"; then sleep 3; vd s1; shot VC-02-videos-list; log "VC list texts: $(vtexts s1)"
+          vtap "Channels"; sleep 4; vd s0; shot VC-01-channels; grep -qF "Video channels" "$OUT/vc-s0.txt" && log "VC ok: Video channels block is at the top of Channels" || log "VC WRONG: no Video channels block on the Channels top"; log "VC channels texts: $(vtexts s0)"
+          if vtap "[0-9]+  See all"; then sleep 3; vd s1; shot VC-02-videos-list; log "VC list texts: $(vtexts s1)"
             if grep -qF 'Expert News Status' "$OUT/vc-s1.txt"; then log "VC ok: video channel rows are on screen"; else log "VC WRONG: no video channel rows after tapping Videos"; fi
             grep -qE 'text="[0-9]+ video channels' "$OUT/vc-s1.txt" && log "VC ok: count line shown" || log "VC MISSING: count line"
             log "VC focus: $(tr '>' '\n' < $OUT/vc-s1.txt | grep 'focused="true"' | grep -v FrameLayout | head -2 | cut -c1-200 | tr '\n' ' ')"
@@ -281,3 +281,4 @@ jobs:
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "diag QA run ${{ github.run_id }}"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-diag-${{ matrix.target }}-${{ matrix.part }}
 # y32: rerun on the head with the top strip
+# y33
