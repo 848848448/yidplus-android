@@ -206,14 +206,14 @@ class ShortFeed(private val src: Boolean) {
     private fun fresh(s: Clip): Boolean {
         if (s.creatorId in Feeds.hidden) return false
         if (!seenKey.add(s.key)) return false
-        val u = s.video.substringBefore('?')
-        if (!seenUrl.add(u)) return false
-        if (s.size > 0 && !seenSize.add(s.size)) return false
+        // Only an identical file reference is the same video (query kept: it can select the content). Size, length, poster, name are never deletion rules.
+        if (!seenUrl.add(s.video)) return false
         return true
     }
 
     private val vetted = HashSet<String>()
     private val prints = ArrayList<Pair<Long, Int>>()
+    var similarKept = 0
     var removedDupes = 0
         private set
 
@@ -231,7 +231,7 @@ class ShortFeed(private val src: Boolean) {
                 val h = s.poster?.let { posterPrint(ctx, it) }
                 if (h != null) {
                     val dup = prints.any { (p, d) -> java.lang.Long.bitCount(p xor h) <= 6 && kotlin.math.abs(d - s.duration) <= 1 }
-                    if (dup && i > from && i < items.size && items[i].key == s.key) { items.removeAt(i); removedDupes++; continue }
+                    if (dup) similarKept++ // look-alike poster + length is not proof of the same video: kept, never removed
                     prints.add(h to s.duration)
                 }
             }
@@ -318,9 +318,9 @@ fun ShortsScreen() {
     val feed = if (tab == ShortsTab.Uploads) Feeds.uploads else Feeds.forYou
     val base: List<Clip> = when (tab) {
         ShortsTab.Following -> { // newest first; the same video file or size is shown once, and reposts the player's poster check found are left out (like For You)
-            val seenU = HashSet<String>(); val seenZ = HashSet<Long>()
+            val seenU = HashSet<String>()
             Feeds.forYou.items.filter { it.creatorId in Feeds.follows && it.key !in Feeds.followHidden }.sortedByDescending { it.at ?: "" }
-                .filter { seenU.add(it.video.substringBefore('?')) && (it.size <= 0 || seenZ.add(it.size)) }
+                .filter { seenU.add(it.video) }
         }
         ShortsTab.Saved -> Feeds.saved
         else -> feed.items
@@ -426,7 +426,7 @@ fun ShortsScreen() {
                     val h = cl.poster?.let { posterPrint(c, it) }
                     if (h != null) {
                         val dup = Feeds.followPrints.any { (pp, dd) -> java.lang.Long.bitCount(pp xor h) <= 6 && kotlin.math.abs(dd - cl.duration) <= 1 }
-                        if (dup && j > page) Feeds.followHidden.add(cl.key) else Feeds.followPrints.add(h to cl.duration)
+                        Feeds.followPrints.add(h to cl.duration)
                     }
                 }
             }
