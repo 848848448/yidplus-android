@@ -1,0 +1,314 @@
+name: QA live-data check (read-only, separate from the native workflow)
+
+# Runs the signed-in fixture scripts for a chosen sequence on a fresh emulator, with qa/fx-cl.sh replaced by diag/fx-cl.sh
+# (the same script plus IME/focus logging). Triggers only on diag/** and this file, so it never starts or cancels the
+# native workflow; it has its own concurrency group and publishes only qa-diag-* log branches.
+on:
+  push:
+    branches: ['feat-*']
+    paths: ['diag/**', '.github/workflows/qa-live.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: qa-live-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Production source as pushed (no diagnostic patch in this run)
+        run: git log -1 --format='building %h %s' && git status --short | head -3
+      - name: Signing key (from repository secrets only)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.p12"
+      - name: Build signed release
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          set -o pipefail
+          gradle :app:assembleRelease -PversionName=2.0.0 --no-daemon --stacktrace 2>&1 | tee build.log
+      - name: Check
+        run: |
+          APK=app/build/outputs/apk/release/app-release.apk
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs "$APK" | head -3
+          ls -la "$APK"
+          mkdir -p dist && cp "$APK" dist/YIDPLUS.apk
+          unzip -l "$APK" | grep -E "baseline.prof|classes" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diag-apk
+          path: dist/
+      - name: Resolved Compose versions (from this build's runtime classpath)
+        if: always()
+        run: |
+          mkdir -p /tmp/log
+          gradle :app:dependencies --configuration releaseRuntimeClasspath --no-daemon -q 2>&1 | grep -E "androidx\.compose\.(ui|foundation|material3|runtime)[a-z-]*:|compose-bom|androidx\.activity:activity-compose|coil" | sed 's/^[ |+\\-]*//' | sort -u > /tmp/log/compose-versions.txt || true
+          cat /tmp/log/compose-versions.txt
+      - name: Publish build log
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/log; (grep -E "^e: |error:|FAILED|BUILD|What went wrong" -A3 build.log | head -300 > /tmp/log/errors.txt || true)
+          tail -400 build.log > /tmp/log/build-tail.txt 2>/dev/null || true
+          ls -la dist/ > /tmp/log/dist.txt 2>/dev/null || true
+          cp app/build/outputs/mapping/release/mapping.txt /tmp/log/mapping.txt 2>/dev/null || true
+          cd /tmp/log && git init -q && git checkout -q -b ci-log-live-${{ github.ref_name }} && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native build log ${{ github.run_id }} ${{ job.status }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log-live-${{ github.ref_name }}
+
+  qa:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: default, part: fx30c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-live.sh' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: diag-apk
+          path: dist/
+      - name: Use diag/fx-cl18.sh plus the header and real-bounds tap additions (patched in the workspace only, not committed; asserts each replacement matches once)
+        if: matrix.diag == 'yes'
+        run: |
+          python3 - <<'PY'
+          s = open('diag/fx-cl18.sh').read()
+          a = "clfieldon() { [ -n \"$(clpos 'Paste the invite link')\" ]; }\n"
+          assert s.count(a) == 1
+          s = s.replace(a, a + "clhdr() { [ -n \"$(clpos 'Join by invite link')\" ] && echo header-present || echo header-ABSENT; }\n" + "cleditpos() { timeout 30 adb shell uiautomator dump /sdcard/cle.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/cle.xml 2>/dev/null | tr '>' '\\n' | grep 'class=\"android.widget.EditText\"' | head -1 | grep -oE 'bounds=\"\\[[0-9]+,[0-9]+\\]\\[[0-9]+,[0-9]+\\]\"' | grep -oE '[0-9]+' | tr '\\n' ' ' | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }\n")
+          x = 'log "CL S2 landscape: field present | kb $(clshown_now)"'
+          assert s.count(x) == 1
+          s = s.replace(x, x[:-1] + ' | $(clhdr)"')
+          old = 'if clfieldon; then log "CL S2 portrait again: field present | kb $(clshown_now)"; else log "CL S2 portrait again: field absent, see CL-S2-portrait-again"; fi; shot CL-S2-portrait-again;'
+          assert s.count(old) == 1
+          new = ' if clfieldon; then log "CL S2 portrait header: $(clhdr)"; if clshown_now | grep -q true; then key 4; sleep 1.5; fi; EP=$(cleditpos); log "CL S2 REAL tap target (EditText node centre): ${EP:-none} | kb before $(clshown_now)"; if [ -n "$EP" ]; then set -- $EP; adb shell input tap $1 $2; sleep 2; log "CL S2 REAL reopen by tap: $(clshown_now) | $(clhdr)"; shot CL-S2-real-reopen; else log "CL S2 REAL reopen INVALID: EditText not found"; fi; fi;'
+          s = s.replace(old, old + new)
+          helper = "hdrb() { timeout 30 adb shell uiautomator dump /sdcard/hb.xml >/dev/null 2>&1; local x; x=$(timeout 20 adb shell cat /sdcard/hb.xml 2>/dev/null | tr '>' '\\n'); log \"HDRB $1: title=$(echo \"$x\" | grep -E 'text=\\\"Join by invite link\\\"' | grep -oE 'bounds=\\\"[^\\\"]*\\\"' | head -1) field=$(echo \"$x\" | grep 'class=\\\"android.widget.EditText\\\"' | grep -oE 'bounds=\\\"[^\\\"]*\\\"' | head -1) kb=$(clshown_now)\"; }\n"
+          hook = 'clfieldon() {'
+          assert s.count(hook) == 1
+          s = s.replace(hook, helper + hook)
+          for tag, name in (('shot CL-S2-second-open', 'second-open'), ('shot CL-S2-after-home', 'after-home'), ('shot CL-S2-landscape', 'landscape'), ('shot CL-S2-portrait-again', 'portrait-again')):
+              assert s.count(tag) >= 1, tag
+              s = s.replace(tag, tag + '; hdrb ' + name)
+          open('qa/fx-cl.sh', 'w').write(s)
+          PY
+          bash -n qa/fx-cl.sh && echo patched-syntax-ok && grep -c "REAL reopen" qa/fx-cl.sh
+      - name: Pre-script for the nav-mode variant (only runs when listed in fx; enables the gestural nav overlay exactly as qa/fx-cl.sh:70 does)
+        run: |
+          printf '%s\n' 'timeout 20 adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural >/dev/null 2>&1; sleep 3; log "NAV pre-script: navigation_mode=$(timeout 10 adb shell settings get secure navigation_mode 2>&1)"' > qa/fx-nav.sh
+          cat qa/fx-nav.sh
+      - name: Truncated copies of qa/fx-cl.sh (cut at a top-level line, must pass bash -n) and the state-logging pre-script (workspace only, not committed)
+        run: |
+          for N in 86 165; do head -n $N qa/fx-cl.sh > qa/fx-cl$N.sh; bash -n qa/fx-cl$N.sh && echo "fx-cl$N.sh syntax ok ($(wc -l < qa/fx-cl$N.sh) lines)"; done
+          cat > qa/fx-state.sh <<'ST'
+          log "STATE uimode night: $(timeout 10 adb shell cmd uimode night 2>&1 | tr '\n' ' ')"
+          log "STATE wm: $(timeout 10 adb shell wm size | tr '\n' ' ') $(timeout 10 adb shell wm density | tr '\n' ' ')"
+          log "STATE overlays enabled: $(timeout 20 adb shell cmd overlay list 2>/dev/null | grep -E '^\[x\]' | tr '\n' ' ')"
+          log "STATE window touch mode: $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -2 | tr '\n' ' ')"
+          log "STATE nav mode: $(timeout 10 adb shell settings get secure navigation_mode 2>&1) | show_ime_with_hard_keyboard: $(timeout 10 adb shell settings get secure show_ime_with_hard_keyboard 2>&1) | accelerometer_rotation: $(timeout 10 adb shell settings get system accelerometer_rotation 2>&1) user_rotation: $(timeout 10 adb shell settings get system user_rotation 2>&1) font_scale: $(timeout 10 adb shell settings get system font_scale 2>&1)"
+          for t in system secure global; do timeout 30 adb shell settings list $t > "$OUT/state-$t-$(date +%H%M%S).txt" 2>&1; done
+          log "STATE config: $(timeout 30 adb shell dumpsys activity activities 2>/dev/null | grep -m2 -E 'mFullConfiguration|mMergedOverrideConfiguration' | cut -c1-400 | tr '\n' ' ')"
+          ST
+          cat > qa/fx-keypre.sh <<'KP'
+          timeout 10 adb shell input keyevent 20; sleep 1.5
+          log "KEYPRE: one SHIFT key event sent (no navigation); $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -2 | tr '\n' ' ')"
+          KP
+          bash -n qa/fx-keypre.sh && echo "fx-keypre.sh syntax ok"
+          bash -n qa/fx-state.sh && echo "fx-state.sh syntax ok"
+      - name: First-key behaviour scripts (touch entry vs key entry; workspace only, not committed)
+        run: |
+          cat > /tmp/tf.tpl <<'TPL'
+          TF_FIRST=@FIRST@; TF_TOUCH=@TOUCH@
+          tfmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
+          tf_focus() { timeout 30 adb shell uiautomator dump /sdcard/tf.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/tf.xml 2>/dev/null | tr '>' '\n' | grep 'focused="true"' | grep -v 'class="android.widget.FrameLayout"' | sed -n 's/.*class="\([^"]*\)".*content-desc="\([^"]*\)".*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1|\2|\3/p' | head -3 | tr '\n' ' '; }
+          tf_sheet() { timeout 20 adb shell cat /sdcard/tf.xml 2>/dev/null | tr '>' '\n' | grep -cE 'text="(Forward|Copy|Reply)"|content-desc="(Forward|Copy|Reply)"'; }
+          if [ "$TF_TOUCH" = 1 ]; then adb shell input tap 240 8; else adb shell input keyevent 20; fi; sleep 1.5
+          restart 5
+          log "TF entry ($TF_TOUCH=touch): $(tfmode)"
+          timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-cs\",\"type\":\"group\",\"nick\":\"CS QA\",\"unread\":5,\"members\":3}'" >/dev/null 2>&1; sleep 7
+          log "TF opened: $(tfmode) | focus: $(tf_focus)"; shot TF-0-opened
+          key $TF_FIRST; sleep 1.5; log "TF after first press ($TF_FIRST): $(tfmode) | focus: $(tf_focus)"; shot TF-1-first
+          key 20; sleep 1; log "TF after DOWN: focus: $(tf_focus)"; shot TF-2-down
+          key 20; sleep 1; log "TF after DOWN 2: focus: $(tf_focus)"
+          key 23; sleep 2; F3=$(tf_focus); log "TF after OK: focus: $F3 | action-sheet words on screen: $(tf_sheet)"; shot TF-3-ok
+          key 4; sleep 1; log "TF after Back: focus: $(tf_focus)"
+          TPL
+          for v in "down 20 1" "center 23 1" "left 21 1" "ctrl 20 0"; do set -- $v; sed -e "s/@FIRST@/$2/" -e "s/@TOUCH@/$3/" /tmp/tf.tpl > qa/fx-tf$1.sh; bash -n qa/fx-tf$1.sh && echo "fx-tf$1.sh syntax ok"; done
+      - name: Entry-path script (key entry, touch entry, launcher/chat-list tap entry, per-key mic reach, voice-reopen list dumps; workspace only, not committed)
+        run: |
+          cat > qa/fx-entry2.sh <<'ENT'
+          tfmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
+          imeup() { timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1; }
+          en_dump() { timeout 30 adb shell uiautomator dump /sdcard/en.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/en.xml > "$OUT/$1.xml" 2>/dev/null; }
+          en_focus() { tr '>' '\n' < "$OUT/$1.xml" | grep 'focused="true"' | grep -v 'class="android.widget.FrameLayout"' | sed -n 's/.*class="\([^"]*\)".*content-desc="\([^"]*\)".*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1|\2|\3/p' | head -2 | tr '\n' ' '; }
+          en_has() { tr '>' '\n' < "$OUT/$1.xml" | grep -cF -- "$2"; }
+          en_open() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-cs\",\"type\":\"group\",\"nick\":\"CS QA\",\"unread\":5,\"members\":3}'" >/dev/null 2>&1; sleep 7; }
+          log "STATE show_ime_with_hard_keyboard=$(timeout 10 adb shell settings get secure show_ime_with_hard_keyboard 2>&1) | $(tfmode)"
+          cstep() { # $1 prefix $2 key $3 label: press, dump, log focus + IME state, shot
+            key $2; sleep 1; en_dump "$1"; log "E4B $3: focus [$(en_focus "$1")] | $(imeup)"; shot "$1"
+          }
+          escape_ok() { case "$1" in *Attach*|*Emoji*|*Camera*|*"Record voice message"*) return 0 ;; esac; return 1; }
+          edit_centre() { tr '>' '\n' < "$OUT/$1.xml" | grep 'class="android.widget.EditText"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1; }
+          # V1: focus the empty composer field by TOUCH and leave the keyboard UP; RIGHT x3 (the preserved isolated pass hides the keyboard first)
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          en_dump V1-start; P=$(edit_centre V1-start)
+          if [ -z "$P" ]; then log "E4B MISSING: V1 composer EditText not found in the dump"; else set -- $P; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 2; en_dump V1-tapped; log "E4B V1 after tap: focus [$(en_focus V1-tapped)] | $(imeup)"; shot V1-tapped
+            R=""; for i in 1 2 3; do cstep V1-r$i 22 "V1 RIGHT $i (IME up, touch focus)"; R="$R [$(en_focus V1-r$i)]"; escape_ok "$R" && break; done
+            if escape_ok "$R"; then log "E4B ok: V1 RIGHT with the IME up reached a composer control: $R"; else log "E4B WRONG: V1 RIGHT with the IME up did not reach a composer control: $R"; FAIL=1; fi
+          fi
+          # V2: key entry, DOWN until the field holds focus, press BACK to hide the IME (focus kept), then RIGHT x3
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V2-d$i 20 "V2 DOWN $i"; case "$(en_focus V2-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V2 the composer field never took focus by DOWN"; else
+            log "E4B V2 field focused after $i DOWN | $(imeup)"; key 4; sleep 1.5; en_dump V2-hidden; log "E4B V2 after BACK: focus [$(en_focus V2-hidden)] | $(imeup)"; shot V2-hidden
+            case "$(en_focus V2-hidden)" in *EditText*) ;; *) log "E4B INFO: V2 the field does not hold focus after BACK (focus [$(en_focus V2-hidden)]); RIGHT from there is ordinary focus search, not the composer escape" ;; esac
+            R=""; for j in 1 2 3; do cstep V2-r$j 22 "V2 RIGHT $j (IME hidden, key focus)"; R="$R [$(en_focus V2-r$j)]"; escape_ok "$R" && break; done
+            if escape_ok "$R"; then log "E4B ok: V2 RIGHT with the IME hidden reached a composer control: $R"; elif ! case "$(en_focus V2-hidden)" in *EditText*) true ;; *) false ;; esac; then log "E4B N/A: V2 field not focused after BACK, not judged"; else log "E4B WRONG: V2 RIGHT with the IME hidden did not reach a composer control: $R"; FAIL=1; fi
+          fi
+          # V3: as E4 (key focus, IME stays up), RIGHT x3 with a shot after each key
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V3-d$i 20 "V3 DOWN $i"; case "$(en_focus V3-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V3 the composer field never took focus by DOWN"; else
+            R=""; for j in 1 2 3; do cstep V3-r$j 22 "V3 RIGHT $j (IME up, key focus)"; R="$R [$(en_focus V3-r$j)]"; escape_ok "$R" && break; done
+            if escape_ok "$R"; then log "E4B ok: V3 RIGHT with the IME up reached a composer control: $R"; else log "E4B WRONG: V3 RIGHT with the IME up did not reach a composer control: $R"; FAIL=1; fi
+          fi
+          # V4: key entry with the IME up, RIGHT then LEFT in quick succession (a stale retry must not take focus back), then wait and read
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V4-d$i 20 "V4 DOWN $i"; case "$(en_focus V4-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V4 the composer field never took focus by DOWN"; else
+            adb shell "input keyevent 22; input keyevent 21"; sleep 2; en_dump V4-final; log "E4B V4 RIGHT+LEFT then 2 s: focus [$(en_focus V4-final)] | $(imeup)"; shot V4-final
+            case "$(en_focus V4-final)" in *EditText*) log "E4B ok: V4 LEFT after RIGHT returned to the field and the retry did not take focus back" ;; *) log "E4B WRONG: V4 final focus is not the field: [$(en_focus V4-final)]"; FAIL=1 ;; esac
+            adb shell "input keyevent 22; input keyevent 20"; sleep 2; en_dump V4b; log "E4B V4b RIGHT+DOWN then 2 s: focus [$(en_focus V4b)]"; shot V4b
+          fi
+          # E3b: launcher start, tap an EXISTING list row (Yossi Klein), keys, Back, row focus restored
+          restart 5
+          timeout 30 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 8
+          en_dump E3b-list; shot E3b-list
+          ROW=$(tr '>' '\n' < "$OUT/E3b-list.xml" | grep -F 'text="Yossi Klein"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1)
+          if [ -z "$ROW" ]; then log "ENTRY MISSING: E3b the list row 'Yossi Klein' is not on screen after a launcher start; not a pass"
+          else set -- $ROW; RX=$(( ($1 + $3) / 2 )); RY=$(( ($2 + $4) / 2 )); adb shell input tap $RX $RY; sleep 4; en_dump E3b-chat; shot E3b-chat
+            if [ "$(en_has E3b-chat 'text="Message"')" -ge 1 ]; then log "ENTRY ok: E3b tapping the list row (at $RX $RY) opened a chat with the composer | $(tfmode) | focus [$(en_focus E3b-chat)]"; else log "ENTRY WRONG: E3b tapped the row at $RX $RY but no composer is on screen"; FAIL=1; fi
+            key 20; sleep 1.5; en_dump E3b-key; log "ENTRY E3b after the first DOWN in the chat: focus [$(en_focus E3b-key)] | $(tfmode)"; shot E3b-key
+            key 4; sleep 2; en_dump E3b-back; shot E3b-back
+            if [ "$(en_has E3b-back 'text="Yossi Klein"')" -ge 1 ]; then log "ENTRY ok: E3b Back returned to the chat list; focus after Back: [$(en_focus E3b-back)] (row Yossi Klein was at y $2-$4)"; else log "ENTRY WRONG: E3b Back did not return to the chat list"; FAIL=1; fi
+          fi
+          ENT
+          cat > qa/fx-vc.sh <<'VCE'
+          vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
+          vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/vc-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
+          vtap() { vd t; P=$(vpos t "$1"); if [ -z "$P" ]; then log "VC MISSING: '$1' not on screen"; return 1; fi; set -- $P; adb shell input tap $1 $2; sleep 2; log "VC tapped at $1 $2"; }
+          vtexts() { grep -oE ' text="[^"]+"' "$OUT/vc-$1.txt" | head -40 | tr '\n' ' '; }
+          restart 5; sleep 4
+          vtap "Channels"; sleep 4; vd s0; shot VC-01-channels; grep -qF "Video channels" "$OUT/vc-s0.txt" && log "VC ok: Video channels block is at the top of Channels" || log "VC WRONG: no Video channels block on the Channels top"; log "VC channels texts: $(vtexts s0)"
+          if vtap "[0-9]+  See all"; then sleep 3; vd s1; shot VC-02-videos-list; log "VC list texts: $(vtexts s1)"
+            if grep -qF 'Expert News Status' "$OUT/vc-s1.txt"; then log "VC ok: video channel rows are on screen"; else log "VC WRONG: no video channel rows after tapping Videos"; fi
+            grep -qE 'text="[0-9]+ video channels' "$OUT/vc-s1.txt" && log "VC ok: count line shown" || log "VC MISSING: count line"
+            log "VC focus: $(tr '>' '\n' < $OUT/vc-s1.txt | grep 'focused="true"' | grep -v FrameLayout | head -2 | cut -c1-200 | tr '\n' ' ')"
+            key 20; sleep 1; shot VC-02b-first-key
+            if vtap "Expert News Status"; then sleep 3; vd s2; shot VC-03-creator; log "VC creator texts: $(vtexts s2)"
+              grep -qE 'text="[0-9]+ videos"' "$OUT/vc-s2.txt" && log "VC ok: creator page lists videos" || log "VC WRONG: creator page shows no video count"
+              key 20; sleep 1; shot VC-03b-creator-key
+              key 4; sleep 2; vd s3; shot VC-04-back; if grep -qF 'video channels' "$OUT/vc-s3.txt"; then log "VC ok: Back returns to the video channel list"; else log "VC WRONG: Back did not return to the list"; fi
+            fi
+          fi
+          VCE
+          bash -n qa/fx-vc.sh && echo fx-vc.sh syntax ok
+          cat > qa/fx-live.sh <<'LVE'
+          vd() { timeout 30 adb shell uiautomator dump /sdcard/lv.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/lv.xml 2>/dev/null | tr '>' '\n' > "$OUT/lv-$1.txt"; }
+          vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/lv-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
+          vtap() { vd t; P=$(vpos t "$1"); if [ -z "$P" ]; then log "LV MISSING: '$1' not on screen"; return 1; fi; set -- $P; adb shell input tap $1 $2; sleep 2; log "LV tapped at $1 $2"; }
+          vtexts() { grep -oE ' text="[^"]+"' "$OUT/lv-$1.txt" | head -40 | tr '\n' ' '; }
+          fx false; adb logcat -c; restart 8; sleep 5
+          log "LV live mode (no fixture): $(timeout 20 adb shell dumpsys package $PKG | grep versionName | head -1)"
+          vtap "Channels"; sleep 8; vd s0; shot LV-01-channels; log "LV channels texts: $(vtexts s0)"
+          if grep -qF "Video channels" "$OUT/lv-s0.txt"; then log "LV ok: Video channels block on live data"; else log "LV MISSING: no Video channels block on live data (see LV-01)"; fi
+          if vtap "[0-9]+  See all"; then sleep 8; vd s1; shot LV-02-videos-list; log "LV list texts: $(vtexts s1)"
+            C=$(grep -oE 'text="[0-9]+ video channels' "$OUT/lv-s1.txt" | head -1); log "LV count line: ${C:-none}"
+            # first creator row: the first clickable row under the count line
+            adb shell input tap 240 300; sleep 8; vd s2; shot LV-03-creator; log "LV creator texts: $(vtexts s2)"
+            grep -qE 'text="[0-9]+ videos?"' "$OUT/lv-s2.txt" && log "LV ok: creator page lists videos on live data" || log "LV MISSING: creator page shows no video count"
+            adb shell input tap 100 400; sleep 4; shot LV-04-play-t4; sleep 5; shot LV-05-play-t9; vd s3; log "LV player texts: $(vtexts s3)"
+            timeout 30 adb logcat -d -t 3000 2>/dev/null | grep -iE "ExoPlayer|MediaCodec|PlaybackException|VideoPlayer|player error" | tail -8 | cut -c1-220 | while read -r l; do log "LV logcat: $l"; done
+            timeout 30 adb logcat -d -t 3000 2>/dev/null | grep -E "FATAL EXCEPTION" | tail -2 | while read -r l; do log "LV FATAL: $l"; done
+            adb shell input keyevent 4; sleep 2; shot LV-06-back; vd s4; log "LV after back texts: $(vtexts s4)"
+          fi
+          LVE
+          bash -n qa/fx-live.sh && echo fx-live.sh syntax ok
+          bash -n qa/fx-entry2.sh && echo fx-entry2.sh syntax ok
+      - name: Exact-identity selector for duplicate voice labels in qa/fx-cs.sh (workspace only; asserts each replacement matches once)
+        run: |
+          python3 - <<'PY'
+          import re
+          s = open('qa/fx-cs.sh').read()
+          def rep(a, b):
+              global s
+              assert s.count(a) == 1, a[:60]
+              s = s.replace(a, b)
+          rep('csplayat() {\n  local b tries=0\n', 'csplayat1() {\n  local b tries=0\n')
+          rep('b=$(python3 - "$OUT/csplayat.xml" "$1" <<\'PYEOF\'', 'b=$(python3 - "$OUT/csplayat.xml" "$1" "${2:-0}" <<\'PYEOF\'')
+          rep('if len(labels) != 1:\n    print("ERR labels=%d" % len(labels)); sys.exit(0)\nlb = bounds(labels[0])', 'labels.sort(key=lambda n: bounds(n)[1] if bounds(n) else 0)\nidx = int(sys.argv[3])\nif idx >= len(labels):\n    print("ERR labels=%d idx=%d" % (len(labels), idx)); sys.exit(0)\nlb = bounds(labels[idx])')
+          wrap = 'csplayat() { timeout 30 adb shell uiautomator dump /sdcard/pn.xml >/dev/null 2>&1; local n i=0; n=$(timeout 20 adb shell cat /sdcard/pn.xml 2>/dev/null | tr \'>\' \'\\n\' | grep -cF "text=\\"$1\\""); [ "$n" -lt 1 ] && n=1; while [ $i -lt $n ]; do [ $n -gt 1 ] && log "csplayat: $n bubbles carry the label \'$1\' (distinct messages); playing each in turn, bubble $((i+1)) of $n by position"; csplayat1 "$1" $i; i=$((i+1)); done; }\n'
+          rep('csfindexact() {', wrap + 'csfindexact() {')
+          open('qa/fx-cs.sh', 'w').write(s)
+          
+          PY
+          bash -n qa/fx-cs.sh && echo fx-cs.sh patched syntax ok && grep -c csplayat1 qa/fx-cs.sh
+      - name: Plain variant keeps the unmodified qa/fx-cl.sh
+        if: matrix.diag != 'yes'
+        run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Emulator test (Android 11, 480x640, D-pad)
+        timeout-minutes: 60
+        env:
+          QA_FX: ${{ matrix.fx }}
+          CL_JOIN_WAIT: ${{ matrix.wait }}
+          CL_JOIN_MODE: ${{ matrix.mode }}
+          CL_ANIM: ${{ matrix.anim }}
+          CL_FIX: ${{ matrix.fix }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: ${{ matrix.target }}
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 3072M
+          disk-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: adb wait-for-device && adb shell settings put global hidden_api_policy 1 && bash qa/native.sh dist/YIDPLUS.apk
+      - name: Publish QA evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          test -d qa/out || exit 0
+          cd qa/out && git init -q && git checkout -q -b qa-live-${{ matrix.target }}-${{ matrix.part }} && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "diag QA run ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-live-${{ matrix.target }}-${{ matrix.part }}
+# y32: rerun on the head with the top strip
+# y33
+# live1
