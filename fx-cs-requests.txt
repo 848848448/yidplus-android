@@ -1,0 +1,33 @@
+11-15 04:52:55.628  3557  3598 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:53:22.885  3557  3600 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:53:31.473  3557  3598 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:53:51.708  3557  3600 I YidFx   : POST /api/chat/typing {"room_id":"r-cs"}
+11-15 04:54:00.993  3557  3593 I YidFx   : POST /api/chat/typing {"room_id":"r-cs"}
+11-15 04:55:08.867  3557  3600 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:55:29.263  3557  3592 I YidFx   : PUT /api/polls {"id":"p-cs1","vote":["o2"]}
+11-15 04:55:45.520  3557  3592 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:56:49.824  3557  3600 I YidFx   : POST /api/chat/typing {"room_id":"r-cs"}
+11-15 04:57:20.708  3557  3591 I YidFx   : POST /api/chat/typing {"room_id":"r-cs"}
+11-15 04:57:58.714  3557  3591 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 138094 bytes> (fixture: kept local, not sent)
+11-15 04:57:58.730  3557  3591 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:58:27.498  3557  3600 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 149518 bytes> (fixture: kept local, not sent)
+11-15 04:58:27.499  3557  3600 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:58:33.788  3557  6519 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:58:53.523  3557  3591 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 118311 bytes> (fixture: kept local, not sent)
+11-15 04:58:53.524  3557  3591 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:59:02.359  3557  3591 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 04:59:29.652  3557  3591 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 41684 bytes> (fixture: kept local, not sent)
+11-15 04:59:29.670  3557  3591 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 05:00:43.934  3557  3591 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 05:02:26.690  3557  6520 I YidFx   : POST /api/reports {"reported_id":"u-yossi","room_id":"r-cs","message_id":"cs21","reason":"harassment","details":""}
+11-15 05:02:32.360  3557  8043 I YidFx   : POST /api/chat/reactions {"message_id":"cs20","emoji":"❤️"}
+11-15 05:02:39.550  3557  8043 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 05:03:03.456  3557  8651 I YidFx   : POST /api/chat/typing {"room_id":"r-cs"}
+11-15 05:03:06.456  3557  8650 I YidFx   : POST /api/chat {"room_id":"r-cs","type":"text","text":"QA disappear","disappear_seconds":3600}
+11-15 05:03:06.457  3557  8651 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 05:03:58.804  3557  8650 I YidFx   : POST /api/polls {"room_id":"r-cs","question":"QA poll","options":["A","B"],"show_who_voted":false,"allow_multiple":false,"allow_add_options":false,"allow_revote":true,"shuffle_options":false,"quiz_mode":true,"duration_minutes":null,"correct_indices":[]}
+11-15 05:03:58.858  3557  8650 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 05:04:06.133  3557  8651 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 05:04:59.243  3557  9363 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
+11-15 05:05:43.243  3557  9365 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 93511 bytes> (fixture: kept local, not sent)
+11-15 05:05:43.256  3557  9361 I YidFx   : POST /api/chat/read {"room_id":"r-cs","receipts":true}
