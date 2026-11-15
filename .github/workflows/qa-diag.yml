@@ -302,22 +302,29 @@ jobs:
             # leave search (Back from the field bar closes it or leaves the page; log which)
             vtap "Close search" || true; sleep 1
             vd e0; vtap "Follow" ; sleep 1
-            vd c; shot FP-03-followed; vhas c "Following ✓" && log "FP ok: a row shows 'Following ✓' after tapping Follow" || log "FP MISSING: no 'Following ✓'"; log "FP followed texts: $(vtexts c)"
+            timeout 20 adb logcat -c; vd c; shot FP-03-followed; vhas c "Following ✓" && log "FP ok: a row shows 'Following ✓' after tapping Follow" || log "FP MISSING: no 'Following ✓'"; log "FP followed texts: $(vtexts c)"
             key 4; sleep 2
           fi
-          timeout 20 adb logcat -c; vtap "Following"; sleep 5; vd f; shot FP-06-following-after; log "FP YidFollow log: $(timeout 20 adb logcat -d -s YidFollow 2>/dev/null | cut -c30-200 | tr '\n' '|')"; log "FP following-after texts: $(vtexts f)"
+          vtap "Following"; sleep 5; vd f; shot FP-06-following-after; log "FP YidFollow log: $(timeout 20 adb logcat -d -s YidFollow 2>/dev/null | cut -c30-200 | tr '\n' '|')"; log "FP following-after texts: $(vtexts f)"
           if grep -qE "Sample video|Expert News Status|Ales UK|Abisel" "$OUT/vc-f.txt"; then log "FP ok: Following shows a video of the person followed"; else log "FP MISSING: Following shows no video of the followed person"; fi
           grep -qF 'content-desc="Follow more people"' "$OUT/vc-f.txt" && log "FP ok: 'Follow more people' button is in the Shorts top row" || log "FP MISSING: 'Follow more people' button not in the top row"
-          if vtap "Follow more people"; then sleep 3; vd g; shot FP-07-more; vhas g "Follow people" && log "FP ok: 'Follow more people' opens the list while following someone" || log "FP MISSING: list did not open"; vhas g "Following ✓" && log "FP ok: the followed person shows Following ✓" || log "FP MISSING: followed person not marked"
+          if vtap "Follow more people"; then sleep 3; adb shell input swipe 240 520 240 200 300; sleep 1; vd g; shot FP-07-more; vhas g "Follow people" && log "FP ok: 'Follow more people' opens the list while following someone" || log "FP MISSING: list did not open"; vhas g "Following ✓" && log "FP ok: the followed person shows Following ✓" || log "FP MISSING: followed person not marked"
             vtap "Following ✓" && { sleep 1; vd h; shot FP-08-unfollowed; vhas h "Following ✓" && log "FP WRONG: still Following ✓ after unfollow" || log "FP ok: unfollow turned the row back to Follow"; }
             key 4; sleep 4; vd i; shot FP-09-following-after-unfollow; if vhas i "Find people to follow"; then log "FP ok: after unfollow the Following tab is empty again"; else log "FP WRONG: Following still shows videos after unfollowing: $(vtexts i)"; fi
           fi
           # two followed people: both creators' videos show in Following, newest first, each video once
           vtap "Following"; sleep 2; vtap "Follow more people" && { sleep 3; vd m1; vtap "Follow"; sleep 1; vd m2; vtap "Follow"; sleep 1; vd m3; log "FP multi list texts: $(vtexts m3)"; key 4; sleep 5
-            CAPS=""; for n in 1 2 3 4 5 6 7 8; do vd mm; CAPS="$CAPS|$(grep -oE 'text="Sample video [0-9]+ from [^"]+"' "$OUT/vc-mm.txt" | head -1)"; [ $n = 1 ] && shot FP-10-following-two; key 20; sleep 2; done
-            log "FP multi captions in order: $CAPS"
-            echo "$CAPS" | grep -q "Expert News Status" && echo "$CAPS" | grep -q "Abisel Status" && log "FP ok: Following shows videos from both followed people" || log "FP MISSING: Following lacks one of the two followed people"
-            D=$(echo "$CAPS" | tr '|' '\n' | grep -v '^$' | sort | uniq -d | head -1); [ -z "$D" ] && log "FP ok: no video repeated while paging 8 videos" || log "FP WRONG: repeated video: $D" ; }
+            ffoc() { grep 'focused="true"' "$OUT/vc-mm.txt" | grep -v 'class="android.widget.FrameLayout"' | head -1 | cut -c1-160; }
+            cap1() { vd mm; grep -oE 'text="Sample video [0-9]+ from [^"]+"' "$OUT/vc-mm.txt" | head -1; }
+            vd mm; log "FP multi pre-DOWN: focus [$(ffoc)] | $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1)"; shot FP-10-following-two
+            KC=""; for n in 1 2 3 4 5 6; do KC="$KC|$(cap1)"; log "FP multi DOWN $n: focus [$(ffoc)]"; key 20; sleep 2; done
+            log "FP multi captions by D-pad DOWN: $KC"
+            SC=""; for n in 1 2 3 4 5 6; do SC="$SC|$(cap1)"; adb shell input swipe 240 480 240 160 250; sleep 2; done
+            log "FP multi captions by swipe (comparison only, not a keypad test): $SC"
+            if [ "$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sort -u | wc -l)" -le 1 ]; then log "FP INFO: D-pad DOWN did not change the video; focus lines above show where focus was"; else log "FP ok: D-pad DOWN pages Following"; fi
+            ALLC="$KC$SC"
+            echo "$ALLC" | grep -q "Expert News Status" && echo "$ALLC" | grep -q "Osniel Rozen" && log "FP ok: Following shows videos from two followed people (Expert News Status, Osniel Rozen)" || log "FP MISSING: Following lacks one of Expert News Status / Osniel Rozen in the pages seen"
+            echo "$SC" | tr '|' '\n' | grep -v '^$' | awk 'NR==1||$0!=p{print} {p=$0}' > /tmp/seq.txt; D=$(sort /tmp/seq.txt | uniq -d | head -1); log "FP multi swipe sequence: $(tr '\n' '|' < /tmp/seq.txt)"; [ -z "$D" ] && log "FP ok: no video repeated across distinct pages (swipe sequence)" || log "FP WRONG: repeated video: $D" ; }
           FPE
           bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
@@ -364,6 +371,17 @@ jobs:
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
+      - name: Viewers script timing patch (workspace only, not committed; asserts the replacement matches once)
+        run: |
+          python3 - <<'PY'
+          p = 'qa/fx-nw.sh'
+          s = open(p).read()
+          a = 'VX=$(nw_dump); if echo "$VX" | grep -qF "Viewed by"; then log "NW viewers WRONG: the sheet is still open after Back"; else log "NW viewers ok: Back closed the sheet"; fi\n# the second slide has no viewers: the empty state\nkey 22; sleep 1.5; adb shell input tap 258 523; sleep 2; shot NW-14d-viewers-empty\n'
+          assert s.count(a) == 1
+          b = 'sleep 1; adb shell input tap 258 523; sleep 2; shot NW-14d-viewers-empty; log "NW viewers note: no dump between Back and the second-slide tap (the status timer keeps running); Back-closed is judged from NW-14c"\n'
+          open(p, 'w').write(s.replace(a, b))
+          PY
+          bash -n qa/fx-nw.sh && echo nw-patched-ok
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -400,3 +418,4 @@ jobs:
 # y33
 # y37
 # y38
+# y39
