@@ -98,6 +98,7 @@ object Music {
         title = m.title?.toString() ?: ""; artist = m.artist?.toString() ?: ""; art = m.artworkUri?.toString()
         playing = p.isPlaying || (p.playWhenReady && p.playbackState == Player.STATE_BUFFERING)
         hasItem = p.mediaItemCount > 0; currentId = p.currentMediaItem?.mediaId
+        android.util.Log.i("YidMusic", "state=${p.playbackState} playing=${p.isPlaying} pos=${p.currentPosition} dur=${p.duration} err=${p.playerError?.errorCodeName}")
     }
 
     fun connect(ctx: Context, then: ((MediaController) -> Unit)? = null) {
@@ -170,7 +171,7 @@ private fun TrackRow(t: Track, now: Boolean, modifier: Modifier, onClick: () -> 
         Cover(t.cover ?: t.ownerPhoto, 46)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Text(t.title, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Content))
-            Text(t.artist + if (t.plays > 0) "  ·  ${t.plays} plays" else "", maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Text("\u2068" + t.artist + "\u2069" + if (t.plays > 0) "  ·  ${t.plays} plays" else "", maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall.copy(textDirection = TextDirection.Content))
         }
         Icon(if (now && Music.playing) Sym.Pause else Sym.PlayArrow, null, tint = MaterialTheme.colorScheme.primary)
