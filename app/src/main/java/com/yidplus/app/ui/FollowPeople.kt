@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,17 +37,22 @@ data class SoFollowPeoplePage(val unused: Int = 0) : PageScreen() {
         val rec = remember(Session.me?.id) { Store.res("/api/src-shorts?n=60", ::soVideoRecent) }
         LaunchedEffect(res, rec, Net.online) { Feeds.loadPrefs(c); res.load(force = Net.online && res.offline); rec.load(); Perf.shown("FollowPeople") }
         var q by remember { mutableStateOf("") }
+        var searching by remember { mutableStateOf(false) }
+        val kb = LocalSoftwareKeyboardController.current
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            TopBar("Follow people", onBack = { Nav.back() })
+            // The title bar stays; Search swaps it for a one-row search bar (like Channels) so the results keep the room above the keyboard on a small screen.
+            if (searching) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    IconBtn(Sym.ArrowBack, "Close search", { kb?.hide(); searching = false; q = "" })
+                    TextField(q, { q = it.take(80) }, Modifier.weight(1f).firstFocus(always = true), singleLine = true,
+                        placeholder = { Text("Search people") }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { kb?.hide() }),
+                        colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent))
+                    if (q.isNotEmpty()) IconBtn(Sym.Close, "Clear", { q = "" })
+                }
+            } else TopBar("Follow people", onBack = { Nav.back() }) { IconBtn(Sym.Search, "Search people", { searching = true }) }
             val all = res.data
-            Surface(color = MaterialTheme.colorScheme.surface) {
-                TextField(q, { q = it.take(80) }, Modifier.fillMaxWidth().padding(horizontal = 8.dp), singleLine = true,
-                    placeholder = { Text("Search people") }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    trailingIcon = { if (q.isNotEmpty()) IconBtn(Sym.Close, "Clear", { q = "" }) },
-                    colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent))
-            }
             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
             when {
                 all == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
