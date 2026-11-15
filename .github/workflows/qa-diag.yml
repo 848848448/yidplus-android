@@ -82,9 +82,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx28a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx28b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx28c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx29a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx29b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx29c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry.sh' }
+          - { target: default, part: fx29d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-cs.sh qa/fx-ds.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -157,6 +158,83 @@ jobs:
           key 4; sleep 1; log "TF after Back: focus: $(tf_focus)"
           TPL
           for v in "down 20 1" "center 23 1" "left 21 1" "ctrl 20 0"; do set -- $v; sed -e "s/@FIRST@/$2/" -e "s/@TOUCH@/$3/" /tmp/tf.tpl > qa/fx-tf$1.sh; bash -n qa/fx-tf$1.sh && echo "fx-tf$1.sh syntax ok"; done
+      - name: Entry-path script (key entry, touch entry, launcher/chat-list tap entry, per-key mic reach, voice-reopen list dumps; workspace only, not committed)
+        run: |
+          cat > qa/fx-entry.sh <<'ENT'
+          tfmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
+          en_dump() { timeout 30 adb shell uiautomator dump /sdcard/en.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/en.xml > "$OUT/$1.xml" 2>/dev/null; }
+          en_focus() { tr '>' '\n' < "$OUT/$1.xml" | grep 'focused="true"' | grep -v 'class="android.widget.FrameLayout"' | sed -n 's/.*class="\([^"]*\)".*content-desc="\([^"]*\)".*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1|\2|\3/p' | head -2 | tr '\n' ' '; }
+          en_has() { tr '>' '\n' < "$OUT/$1.xml" | grep -cF -- "$2"; }
+          en_open() { timeout 40 adb shell "am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"r-cs\",\"type\":\"group\",\"nick\":\"CS QA\",\"unread\":5,\"members\":3}'" >/dev/null 2>&1; sleep 7; }
+          en_assert_ring() { # $1 label $2 dump name $3 expect: ring|noring
+            F=$(en_focus "$2")
+            if [ "$3" = ring ]; then if [ -n "$F" ]; then log "ENTRY ok: $1: focus ring present [$F] ($(tfmode))"; else log "ENTRY WRONG: $1: no focus ring where one is required ($(tfmode))"; FAIL=1; fi
+            else if [ -z "$F" ]; then log "ENTRY ok: $1: no ring yet, as expected after touch entry ($(tfmode))"; else log "ENTRY note: $1: ring already present [$F] ($(tfmode))"; fi; fi
+          }
+          # E1 key entry: a D-pad key before the app starts, then open the chat by intent
+          timeout 10 adb shell input keyevent 20; sleep 1.5; restart 5
+          en_open; en_dump E1-open; log "ENTRY E1 key entry opened: $(tfmode)"; en_assert_ring "E1 key entry at open" E1-open ring; shot E1-open
+          # E2 touch entry: a tap before the app starts, then open by intent; the first D-pad key must bring the ring
+          adb shell input tap 240 8; sleep 1.5; restart 5
+          en_open; en_dump E2-open; log "ENTRY E2 touch entry opened: $(tfmode)"; en_assert_ring "E2 touch entry at open" E2-open noring; shot E2-open
+          key 20; sleep 1.5; en_dump E2-first; en_assert_ring "E2 after the first DOWN" E2-first ring; log "ENTRY E2 after first key: $(tfmode)"; shot E2-first
+          # E3 launcher/chat-list entry: start the app from the launcher, tap the CS QA row, then use the keys
+          restart 5
+          timeout 30 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 8
+          en_dump E3-list; shot E3-list
+          ROW=$(tr '>' '\n' < "$OUT/E3-list.xml" | grep -F 'text="CS QA"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | awk '{h=$4-$2; if (h>b) {b=h; r=$0}} END{print r}')
+          if [ -z "$ROW" ]; then log "ENTRY MISSING: E3 the row 'CS QA' is not on the chat list after a launcher start (list not reached or row not on screen); not a pass"
+          else set -- $ROW; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 4; en_dump E3-chat; shot E3-chat
+            if [ "$(en_has E3-chat 'text="Message"')" -ge 1 ]; then log "ENTRY ok: E3 tapping the list row opened the chat (composer 'Message' on screen) | touch mode: $(tfmode) | focus: $(en_focus E3-chat)"; else log "ENTRY WRONG: E3 tapped the row at $1 $2 but the chat composer is not on screen"; FAIL=1; fi
+            key 20; sleep 1.5; en_dump E3-key; en_assert_ring "E3 after the first DOWN (list entry)" E3-key ring; shot E3-key
+            key 4; sleep 1.5; en_dump E3-back; if [ "$(en_has E3-back 'text="CS QA"')" -ge 1 ]; then log "ENTRY ok: E3 Back returned to the chat list (CS QA row on screen)"; else log "ENTRY WRONG: E3 Back did not return to the chat list"; FAIL=1; fi
+          fi
+          # E4 mic reach by keys: key entry, press DOWN one key at a time and log the focused node after each key
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          PATHM=""; REACHED=0
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14; do
+            key 20; sleep 0.8; en_dump E4-k$i; F=$(en_focus E4-k$i); log "ENTRY E4 key $i DOWN: focus [$F]"; PATHM="$PATHM $i:[$F]"
+            case "$F" in *"Record voice message"*) REACHED=1; log "ENTRY ok: E4 the D-pad reached the mic after $i DOWN presses"; break ;; esac
+          done
+          if [ $REACHED = 0 ]; then for i in 1 2 3; do key 22; sleep 0.8; en_dump E4-r$i; F=$(en_focus E4-r$i); log "ENTRY E4 key RIGHT $i: focus [$F]"; case "$F" in *"Record voice message"*) REACHED=1; log "ENTRY ok: E4 the mic was reached with RIGHT $i after the DOWN presses"; break ;; esac; done; fi
+          [ $REACHED = 0 ] && { log "ENTRY WRONG: E4 the mic was not reached; path:$PATHM"; FAIL=1; }
+          shot E4-end
+          # E5 voice reopen classification: open, jump to Newest, dump the WHOLE list (and after scrolling), three cycles; Back to the list between them
+          vlist() { # $1 dump name: all voice-bubble evidence in the dump
+            P=$(tr '>' '\n' < "$OUT/$1.xml" | grep -cE 'content-desc="(Play|Pause)"'); L=$(tr '>' '\n' < "$OUT/$1.xml" | sed -n 's/.* text="\([0-9]*:[0-9][0-9]\)".*/\1/p' | tr '\n' ',')
+            log "ENTRY E5 $1: Play/Pause nodes=$P duration labels=[$L] newest-button=$(en_has $1 'Newest')"
+          }
+          for c in 1 2 3; do
+            en_open; en_dump E5-c$c-open; vlist E5-c$c-open
+            NW=$(tr '>' '\n' < "$OUT/E5-c$c-open.xml" | grep -F 'Newest' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1)
+            if [ -n "$NW" ]; then set -- $NW; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 3; else log "ENTRY E5 cycle $c: no Newest button on screen after open"; fi
+            en_dump E5-c$c-newest; vlist E5-c$c-newest; shot E5-c$c-newest
+            adb shell input swipe 240 440 240 260 300; sleep 1; en_dump E5-c$c-swipe1; vlist E5-c$c-swipe1
+            adb shell input swipe 240 440 240 260 300; sleep 1; en_dump E5-c$c-swipe2; vlist E5-c$c-swipe2; shot E5-c$c-swipe2
+            PP=$(tr '>' '\n' < "$OUT/E5-c$c-swipe2.xml" | grep -cE 'content-desc="(Play|Pause)"')
+            if [ "$PP" -ge 1 ]; then log "ENTRY ok: E5 cycle $c: a voice bubble Play node is on screen after Newest and two scroll-to-end swipes"; else log "ENTRY WRONG: E5 cycle $c: no Play/Pause node after Newest and two scroll-to-end swipes (see E5-c$c-swipe2.png)"; FAIL=1; fi
+            key 4; sleep 1.5
+          done
+          ENT
+          bash -n qa/fx-entry.sh && echo fx-entry.sh syntax ok
+      - name: Exact-identity selector for duplicate voice labels in qa/fx-cs.sh (workspace only; asserts each replacement matches once)
+        run: |
+          python3 - <<'PY'
+          import re
+          s = open('qa/fx-cs.sh').read()
+          def rep(a, b):
+              global s
+              assert s.count(a) == 1, a[:60]
+              s = s.replace(a, b)
+          rep('csplayat() {\n  local b tries=0\n', 'csplayat1() {\n  local b tries=0\n')
+          rep('b=$(python3 - "$OUT/csplayat.xml" "$1" <<\'PYEOF\'', 'b=$(python3 - "$OUT/csplayat.xml" "$1" "${2:-0}" <<\'PYEOF\'')
+          rep('if len(labels) != 1:\n    print("ERR labels=%d" % len(labels)); sys.exit(0)\nlb = bounds(labels[0])', 'labels.sort(key=lambda n: bounds(n)[1] if bounds(n) else 0)\nidx = int(sys.argv[3])\nif idx >= len(labels):\n    print("ERR labels=%d idx=%d" % (len(labels), idx)); sys.exit(0)\nlb = bounds(labels[idx])')
+          wrap = 'csplayat() { timeout 30 adb shell uiautomator dump /sdcard/pn.xml >/dev/null 2>&1; local n i=0; n=$(timeout 20 adb shell cat /sdcard/pn.xml 2>/dev/null | tr \'>\' \'\\n\' | grep -cF "text=\\"$1\\""); [ "$n" -lt 1 ] && n=1; while [ $i -lt $n ]; do [ $n -gt 1 ] && log "csplayat: $n bubbles carry the label \'$1\' (distinct messages); playing each in turn, bubble $((i+1)) of $n by position"; csplayat1 "$1" $i; i=$((i+1)); done; }\n'
+          rep('csfindexact() {', wrap + 'csfindexact() {')
+          open('qa/fx-cs.sh', 'w').write(s)
+          
+          PY
+          bash -n qa/fx-cs.sh && echo fx-cs.sh patched syntax ok && grep -c csplayat1 qa/fx-cs.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
