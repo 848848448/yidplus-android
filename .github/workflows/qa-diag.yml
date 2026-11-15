@@ -85,6 +85,7 @@ jobs:
           - { target: default, part: fx31a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-vc.sh' }
           - { target: default, part: fx31b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry2.sh' }
           - { target: default, part: fx31c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-sr.sh' }
+          - { target: default, part: fx31d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-v4.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -257,6 +258,18 @@ jobs:
           key 4; sleep 2; shot SR-04-back-from-result
           key 4; sleep 2; shot SR-05-back-again
           SRE
+          sed -n '1,/^# V1:/p' qa/fx-entry2.sh | sed '$d' > qa/fx-v4.sh
+          cat >> qa/fx-v4.sh <<'V4E'
+          # V4 repeat: composer field focused by DOWN (IME up), then RIGHT and LEFT. a = back-to-back in one adb call (as fx-entry2), b = 0.8 s apart.
+          for MODE in a a a b b b; do
+            timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+            OK=0; for i in 1 2 3 4 5 6 7 8; do key 20; sleep 1; en_dump R-d; case "$(en_focus R-d)" in *EditText*) OK=1; break ;; esac; done
+            if [ $OK = 0 ]; then log "E4R MISSING: $MODE field never focused"; continue; fi
+            if [ $MODE = a ]; then adb shell "input keyevent 22; input keyevent 21"; else adb shell input keyevent 22; sleep 0.8; adb shell input keyevent 21; fi
+            sleep 2; en_dump R-f; log "E4R mode $MODE: after RIGHT,LEFT +2 s focus [$(en_focus R-f)] | $(imeup)"; shot R-$MODE-$(date +%S)
+          done
+          V4E
+          bash -n qa/fx-v4.sh && echo fx-v4.sh syntax ok
           bash -n qa/fx-sr.sh && echo fx-sr.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
           vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
