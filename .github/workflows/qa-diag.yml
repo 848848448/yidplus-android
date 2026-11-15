@@ -82,8 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx31b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry2.sh' }
-          - { target: default, part: fx31d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-v4.sh' }
+          - { target: default, part: fx32m, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-mu.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -269,6 +268,17 @@ jobs:
           V4E
           bash -n qa/fx-v4.sh && echo fx-v4.sh syntax ok
           bash -n qa/fx-sr.sh && echo fx-sr.sh syntax ok
+          head -n 27 qa/fx-ch.sh > qa/fx-mu.sh
+          cat >> qa/fx-mu.sh <<'MUE'
+          # Music tab with the QA switch (the site has Music off; the switch is QA-only and changes nothing on the site)
+          restart 5; view "https://yidplus.com/music"; sleep 4; shot MU-01-site-music-off; log "MU music off on the site: tabs/texts $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE 'content-desc="(Chats|Shorts|Channels|Music|Settings)"' | tr '\n' ' ')"
+          timeout 20 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_FEATURES --ez all true >/dev/null 2>&1; sleep 2
+          view "https://yidplus.com/music"; sleep 6; shot MU-02-music-tab; log "MU music tab texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text="[^"]+"' | head -14 | tr '\n' ' ')"
+          key 20; sleep 1; shot MU-03-down; key 23; sleep 6; shot MU-04-ok-play
+          timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_PLAYER >/dev/null; sleep 3; shot MU-05-player
+          key 4; sleep 2; shot MU-06-back
+          MUE
+          bash -n qa/fx-mu.sh && echo fx-mu.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
           vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
           vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/vc-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
