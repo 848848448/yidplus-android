@@ -319,12 +319,16 @@ jobs:
             vd mm; log "FP multi pre-DOWN: focus [$(ffoc)] | $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1)"; shot FP-10-following-two
             KC=""; for n in 1 2 3 4 5 6; do KC="$KC|$(cap1)"; log "FP multi DOWN $n: focus [$(ffoc)]"; key 20; sleep 2; done
             log "FP multi captions by D-pad DOWN: $KC"
-            SC=""; for n in 1 2 3 4 5 6; do SC="$SC|$(cap1)"; adb shell input swipe 240 480 240 160 250; sleep 2; done
-            log "FP multi captions by swipe (comparison only, not a keypad test): $SC"
-            if [ "$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sort -u | wc -l)" -le 1 ]; then log "FP INFO: D-pad DOWN did not change the video; focus lines above show where focus was"; else log "FP ok: D-pad DOWN pages Following"; fi
-            ALLC="$KC$SC"
-            echo "$ALLC" | grep -q "Expert News Status" && echo "$ALLC" | grep -q "Osniel Rozen" && log "FP ok: Following shows videos from two followed people (Expert News Status, Osniel Rozen)" || log "FP MISSING: Following lacks one of Expert News Status / Osniel Rozen in the pages seen"
-            echo "$SC" | tr '|' '\n' | grep -v '^$' | awk 'NR==1||$0!=p{print} {p=$0}' > /tmp/seq.txt; D=$(sort /tmp/seq.txt | uniq -d | head -1); log "FP multi swipe sequence: $(tr '\n' '|' < /tmp/seq.txt)"; [ -z "$D" ] && log "FP ok: no video repeated across distinct pages (swipe sequence)" || log "FP WRONG: repeated video: $D" ; }
+            SEQ="$KC"; HOW="D-pad DOWN"
+            if [ "$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sort -u | wc -l)" -le 1 ]; then
+              log "FP INFO: D-pad DOWN did not change the video; focus lines above show where focus was. Swipe comparison follows (not a keypad test)"
+              SC=""; for n in 1 2 3 4 5 6; do SC="$SC|$(cap1)"; adb shell input swipe 240 480 240 160 250; sleep 2; done
+              log "FP multi captions by swipe: $SC"; SEQ="$SC"; HOW="swipe (not keypad evidence)"
+            else log "FP ok: D-pad DOWN pages Following"; fi
+            EXP="|text=\"Sample video 2 from Chaimo\"|text=\"Sample video 1 from Chaimo\"|text=\"Sample video 4 from Expert News Status\"|text=\"Sample video 3 from Expert News Status\"|text=\"Sample video 2 from Expert News Status\"|text=\"Sample video 1 from Expert News Status\""
+            if [ "$SEQ" = "$EXP" ]; then log "FP ok: order newest first across two creators, 6 distinct videos, by $HOW"; else log "FP WRONG-OR-HARNESS: sequence by $HOW differs from expected newest-first. expected: $EXP"; fi
+            echo "$SEQ" | grep -q "Repost" && log "FP WRONG: the deliberate duplicate (Repost of sample 2) was shown" || log "FP ok: the deliberate duplicate was not shown"
+            D=$(echo "$SEQ" | tr '|' '\n' | grep -v '^$' | sort | uniq -d | head -1); [ -z "$D" ] && log "FP ok: no video repeated across the 6 pages" || log "FP WRONG: repeated video: $D" ; }
           FPE
           bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
@@ -371,15 +375,22 @@ jobs:
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
-      - name: Viewers script timing patch (workspace only, not committed; asserts the replacement matches once)
+      - name: Zero-view own status scenario for the viewers script (workspace only, not committed; replaces the timer-racing second-slide attempt, asserts it matches once)
         run: |
           python3 - <<'PY'
           p = 'qa/fx-nw.sh'
-          s = open(p).read()
-          a = 'VX=$(nw_dump); if echo "$VX" | grep -qF "Viewed by"; then log "NW viewers WRONG: the sheet is still open after Back"; else log "NW viewers ok: Back closed the sheet"; fi\n# the second slide has no viewers: the empty state\nkey 22; sleep 1.5; adb shell input tap 258 523; sleep 2; shot NW-14d-viewers-empty\n'
-          assert s.count(a) == 1
-          b = 'sleep 1; adb shell input tap 258 523; sleep 2; shot NW-14d-viewers-empty; log "NW viewers note: no dump between Back and the second-slide tap (the status timer keeps running); Back-closed is judged from NW-14c"\n'
-          open(p, 'w').write(s.replace(a, b))
+          L = open(p).read().split('\n')
+          i = [k for k, l in enumerate(L) if l.startswith('# the second slide has no viewers')]
+          assert len(i) == 1 and 'NW-14d' in L[i[0] + 1] and 'No views yet' in L[i[0] + 2]
+          del L[i[0]:i[0] + 3]
+          L += [
+            '# zero-view own status opened directly (the fixture lists only that slide): its pill, then the empty sheet. No timer race.',
+            'nw_open status_me_empty 2; adb shell input tap 258 523; sleep 1.5; shot NW-14f-empty-sheet',
+            'VX=$(nw_dump); log "NW own-empty texts: $(echo "$VX" | grep -oE \' text="[^"]+"\' | head -12 | tr \'\\n\' \' \')"',
+            'if echo "$VX" | grep -qF "No views yet"; then log "NW viewers ok: zero-view own status shows the empty sheet (No views yet)"; else log "NW viewers MISSING: no empty sheet for the zero-view own status, see NW-14f"; fi',
+            'key 4; sleep 1.5; shot NW-14g-sheet-closed; key 4; sleep 2',
+          ]
+          open(p, 'w').write('\n'.join(L) + '\n')
           PY
           bash -n qa/fx-nw.sh && echo nw-patched-ok
       - name: Enable KVM
@@ -419,3 +430,4 @@ jobs:
 # y37
 # y38
 # y39
+# y40
