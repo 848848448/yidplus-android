@@ -58,6 +58,9 @@ import coil.compose.AsyncImage
 import com.yidplus.app.data.Api
 import com.yidplus.app.data.Room
 import com.yidplus.app.data.Session
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -154,7 +157,7 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
         // Scrolls: at 480x640 the group preview + button sit below the fold (more so with the keyboard up).
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
             ChBar("Join by invite link", onBack = { Nav.back() })
-            OutlinedTextField(link, { link = it }, Modifier.fillMaxWidth().padding(16.dp).firstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
+            OutlinedTextField(link, { link = it }, Modifier.fillMaxWidth().padding(16.dp).joinFirstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
             val p = preview
             if (p != null) Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 ChAvatar(Api.abs(p.chStr("photo_url").ifBlank { null }), p.chStr("name"), p.chStr("id"), 80.dp)
@@ -333,4 +336,28 @@ data class ChCall(val room: Room, val kind: String) : PageScreen() {
             else ChEmpty(Sym.MicOff, "The microphone is needed for calls", action = "Allow") { perm.launch(Manifest.permission.RECORD_AUDIO) }
         }
     }
+}
+
+/**
+ * First focus for the "Join by invite link" field on keypad phones. Same behaviour as firstFocus() except that it
+ * asks for the focus only once Compose reports the window focused, plus three frames. Reason (QA emulator, Android 11):
+ * when the page opens from the "Start new chat" menu, the window regains focus a few ms before firstFocus() fires,
+ * the keyboard request then reaches the framework before it has delivered the IME control, and the keyboard
+ * reopens after Back. This is a mitigation, not a proven timing bound: no public API says the control has arrived.
+ * Roll back by putting firstFocus() back on the field in ChJoinLink.
+ */
+@Composable
+private fun Modifier.joinFirstFocus(): Modifier {
+    val info = androidx.compose.ui.platform.LocalWindowInfo.current
+    val fr = remember { androidx.compose.ui.focus.FocusRequester() }
+    var got by remember { mutableStateOf(false) }
+    val k = Keys.keypad
+    LaunchedEffect(k) {
+        if (k) {
+            snapshotFlow { info.isWindowFocused }.first { it }
+            repeat(3) { androidx.compose.runtime.withFrameNanos { } }
+            for (i in 0 until 16) { if (got) break; runCatching { fr.requestFocus() }; delay(120) }
+        }
+    }
+    return this.focusRequester(fr).onFocusChanged { if (it.isFocused || it.hasFocus) got = true }
 }
