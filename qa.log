@@ -1,0 +1,89 @@
+[08:13:35] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[08:13:38] screen 480x640 @ 240 dpi
+[08:13:38] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[08:13:38] ---- Signed in (QA fixture account) ----
+[08:13:42] fixture true
+[08:13:51] shot F01-home-signedin
+[08:13:51] open https://yidplus.com/chat
+[08:13:56] shot F02-chats-list
+[08:13:58] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[08:14:05] shot F03-chat-dm
+[08:14:07] shot F03b-chat-dm-up
+[08:14:11] open https://yidplus.com/chat
+[08:14:25] shot F04-chat-group
+[08:14:27] shot F04b-group-up
+[08:14:29] shot F04c-group-top
+[08:14:32] shot F05-message-actions
+[08:14:42] shot F06-notifications
+[08:14:44] tab Home
+[08:14:47] shot F07-home-header
+[08:14:47] open https://yidplus.com/shorts
+[08:14:56] shot F08-shorts-signedin
+[08:14:56] tab Profile
+[08:14:59] shot F09-profile-signedin
+[08:15:11] shot F09b-profile-scrolled
+[08:15:24] open https://yidplus.com/chat
+[08:15:28] shot F10-chats-dark
+[08:15:34] shot F11-chat-dark
+[08:15:41] screen 1080x2400 @ 420 dpi
+[08:15:49] open https://yidplus.com/chat
+[08:15:53] shot F12-phone-chats
+[08:16:00] shot F13-phone-chat
+[08:16:03] screen 480x640 @ 240 dpi
+[08:16:03] ---- qa/fx-entry.sh ----
+[08:16:28] ENTRY E1 key entry opened: mInTouchMode=false
+[08:16:28] ENTRY ok: E1 key entry at open: focus ring present [android.view.View||[66,211][362,321] ] (mInTouchMode=false)
+[08:16:28] shot E1-open
+[08:16:45] ENTRY E2 touch entry opened: mInTouchMode=true
+[08:16:45] ENTRY ok: E2 touch entry at open: no ring yet, as expected after touch entry (mInTouchMode=true)
+[08:16:45] shot E2-open
+[08:16:49] ENTRY ok: E2 after the first DOWN: focus ring present [android.view.View||[66,211][362,321] ] (mInTouchMode=false)
+[08:16:49] ENTRY E2 after first key: mInTouchMode=false
+[08:16:50] shot E2-first
+[08:17:06] shot E3-list
+[08:17:06] ENTRY MISSING: E3 the row 'CS QA' is not on the chat list after a launcher start (list not reached or row not on screen); not a pass
+[08:17:25] ENTRY E4 key 1 DOWN: focus [android.view.View||[66,370][337,480] ]
+[08:17:29] ENTRY E4 key 2 DOWN: focus [android.view.View||[66,370][220,480] ]
+[08:17:32] ENTRY E4 key 3 DOWN: focus [android.view.View||[66,370][257,480] ]
+[08:17:36] ENTRY E4 key 4 DOWN: focus [android.view.View||[66,370][293,480] ]
+[08:17:39] ENTRY E4 key 5 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:17:43] ENTRY E4 key 6 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:17:47] ENTRY E4 key 7 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:17:50] ENTRY E4 key 8 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:17:54] ENTRY E4 key 9 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:17:57] ENTRY E4 key 10 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:18:01] ENTRY E4 key 11 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:18:05] ENTRY E4 key 12 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:18:08] ENTRY E4 key 13 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:18:12] ENTRY E4 key 14 DOWN: focus [android.widget.EditText||[72,142][267,214] ]
+[08:18:15] ENTRY E4 key RIGHT 1: focus [android.view.View||[66,129][362,239] ]
+[08:18:19] ENTRY E4 key RIGHT 2: focus [android.widget.Button|Call|[339,51][405,123] ]
+[08:18:23] ENTRY E4 key RIGHT 3: focus [android.widget.Button|More|[405,51][477,123] ]
+[08:18:23] ENTRY WRONG: E4 the mic was not reached; path: 1:[android.view.View||[66,370][337,480] ] 2:[android.view.View||[66,370][220,480] ] 3:[android.view.View||[66,370][257,480] ] 4:[android.view.View||[66,370][293,480] ] 5:[android.widget.EditText||[72,142][267,214] ] 6:[android.widget.EditText||[72,142][267,214] ] 7:[android.widget.EditText||[72,142][267,214] ] 8:[android.widget.EditText||[72,142][267,214] ] 9:[android.widget.EditText||[72,142][267,214] ] 10:[android.widget.EditText||[72,142][267,214] ] 11:[android.widget.EditText||[72,142][267,214] ] 12:[android.widget.EditText||[72,142][267,214] ] 13:[android.widget.EditText||[72,142][267,214] ] 14:[android.widget.EditText||[72,142][267,214] ]
+[08:18:23] shot E4-end
+[08:18:31] ENTRY E5 E5-c1-open: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:18:31] ENTRY E5 cycle 1: no Newest button on screen after open
+[08:18:33] ENTRY E5 E5-c1-newest: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:18:33] shot E5-c1-newest
+[08:18:36] ENTRY E5 E5-c1-swipe1: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:18:39] ENTRY E5 E5-c1-swipe2: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:18:39] shot E5-c1-swipe2
+[08:18:39] ENTRY WRONG: E5 cycle 1: no Play/Pause node after Newest and two scroll-to-end swipes (see E5-c1-swipe2.png)
+[08:18:51] ENTRY E5 E5-c2-open: Play/Pause nodes=0 duration labels=[] newest-button=1
+[08:18:56] ENTRY E5 E5-c2-newest: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:18:56] shot E5-c2-newest
+[08:18:59] ENTRY E5 E5-c2-swipe1: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:19:03] ENTRY E5 E5-c2-swipe2: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:19:03] shot E5-c2-swipe2
+[08:19:03] ENTRY WRONG: E5 cycle 2: no Play/Pause node after Newest and two scroll-to-end swipes (see E5-c2-swipe2.png)
+[08:19:14] ENTRY E5 E5-c3-open: Play/Pause nodes=0 duration labels=[] newest-button=1
+[08:19:19] ENTRY E5 E5-c3-newest: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:19:19] shot E5-c3-newest
+[08:19:22] ENTRY E5 E5-c3-swipe1: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:19:26] ENTRY E5 E5-c3-swipe2: Play/Pause nodes=0 duration labels=[] newest-button=0
+[08:19:26] shot E5-c3-swipe2
+[08:19:26] ENTRY WRONG: E5 cycle 3: no Play/Pause node after Newest and two scroll-to-end swipes (see E5-c3-swipe2.png)
+[08:19:29] fixture writes the app would have sent: 10
+[08:19:33] fixture false
