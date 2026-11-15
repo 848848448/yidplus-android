@@ -116,12 +116,17 @@ fun SoSiteChannelsList(query: String, sort: Int, header: (@Composable () -> Unit
         all == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
         all == null -> SoSkeleton()
         shown.isEmpty() -> SoEmpty(Sym.Search, if (q.isNotEmpty()) "No channels for \u201c$q\u201d" else "No channels yet")
-        else -> LazyColumn(Modifier.fillMaxSize()) {
+        else -> {
+          val st = rememberLazyListState()
+          val vres = remember(Session.me?.id) { Store.res("/api/src-shorts?creators", ::soVideoChannels) }
+          LaunchedEffect(vres.data) { if (header != null && vres.data?.isNotEmpty() == true && st.firstVisibleItemIndex <= 1) st.scrollToItem(0) }
+          LazyColumn(Modifier.fillMaxSize(), state = st) {
             if (header != null && q.length < 2) item { header() }
             items(shown, key = { it.ownerId }) { ch ->
                 SoSiteChannelRow(ch, ch == shown.first())
                 SoDivider(80.dp)
             }
+          }
         }
     }
 }
