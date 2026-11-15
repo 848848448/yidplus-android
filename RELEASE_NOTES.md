@@ -1,3 +1,12 @@
+## New in 2.2.0 - TEST BUILD (not a finished release)
+- Video channels, like the website: a "Video channels" block at the top of Channels (newest creators, "See all"), a Videos list with search, and each creator's page with their videos
+- Join by invite link: in portrait the Back bar, label and field stay visible with the keyboard open
+- Known gaps in this test build:
+  - In an open chat with the keyboard up, the Right arrow key may not reach the Attach and mic buttons
+  - Join by invite link in landscape: the keyboard can cover the field
+  - Playing a creator's video and the full video channel list have not been tested on a real phone yet
+  - Voice message playback has not been checked with real audio
+
 ## New in 2.1.1
 - Join by invite link: the page scrolls, so "Request to join" is always reachable on a small screen
 - "Revoke link" sits with the invite dialog's buttons - never scrolled out of sight
