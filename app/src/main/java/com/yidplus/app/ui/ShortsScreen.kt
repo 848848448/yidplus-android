@@ -102,6 +102,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -465,8 +466,10 @@ fun ShortsScreen() {
                 Text(if (who != null) "No more videos from @${Feeds.whoName}. Tap ✕ on top to see everyone." else "No videos in this topic yet.",
                     Modifier.align(Alignment.Center).padding(32.dp), color = Color.White)
             items.isEmpty() && (feed.loading || (tab != ShortsTab.Saved && tab != ShortsTab.Following)) -> Loading()
-            items.isEmpty() -> Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else "Follow creators (tap + on their picture) to see them here.",
-                Modifier.align(Alignment.Center).padding(32.dp), color = Color.White)
+            items.isEmpty() -> Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else "Follow creators to see their videos here.", color = Color.White, textAlign = TextAlign.Center)
+                if (tab == ShortsTab.Following) SoPill("Find people to follow", true, { Nav.open(SoFollowPeoplePage()) }, Modifier.padding(top = 16.dp).firstFocus(), icon = Sym.PersonAdd)
+            }
             // A quick short flick moves to the next Short (like TikTok / WhatsApp), and it settles without a bounce.
             else -> VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { items.getOrNull(it)?.key ?: it },
                 flingBehavior = PagerDefaults.flingBehavior(state = pager, snapPositionalThreshold = 0.2f,
