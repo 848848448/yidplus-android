@@ -448,8 +448,12 @@ internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String)
 @Composable
 internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.focus.FocusRequester? = null, right: androidx.compose.ui.focus.FocusRequester? = null): Modifier {
     val fm = androidx.compose.ui.platform.LocalFocusManager.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     fun go(t: androidx.compose.ui.focus.FocusRequester?, d: androidx.compose.ui.focus.FocusDirection): Boolean {
-        if (t != null) { val ok = runCatching { t.requestFocus() }; android.util.Log.i("YidKey", "requestFocus ok=" + ok.getOrNull() + " err=" + ok.exceptionOrNull()?.javaClass?.simpleName); if (ok.isSuccess) return true }
+        if (t != null) { val ok = runCatching { t.requestFocus() }; android.util.Log.i("YidKey", "requestFocus ok=" + ok.getOrNull() + " err=" + ok.exceptionOrNull()?.javaClass?.simpleName); if (ok.isSuccess) {
+            // Run y35: after a D-pad entry the request took, then Attach lost focus about 200 ms later (the keyboard hiding and the layout resizing). Ask again once that settles.
+            scope.launch { kotlinx.coroutines.delay(400); runCatching { t.requestFocus() }; android.util.Log.i("YidKey", "re-requested") }
+            return true } }
         return fm.moveFocus(d)
     }
     return this.onPreviewKeyEvent { e ->
