@@ -317,18 +317,33 @@ jobs:
             ffoc() { grep 'focused="true"' "$OUT/vc-mm.txt" | grep -v 'class="android.widget.FrameLayout"' | head -1 | cut -c1-160; }
             cap1() { vd mm; grep -oE 'text="Sample video [0-9]+ from [^"]+"' "$OUT/vc-mm.txt" | head -1; }
             vd mm; log "FP multi pre-DOWN: focus [$(ffoc)] | $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1)"; shot FP-10-following-two
-            KC=""; for n in 1 2 3 4 5 6; do KC="$KC|$(cap1)"; log "FP multi DOWN $n: focus [$(ffoc)]"; key 20; sleep 2; done
+            KC=""; for n in 1 2 3 4 5 6 7 8 9; do KC="$KC|$(cap1)"; log "FP multi DOWN $n: focus [$(ffoc)]"; key 20; sleep 2; done
             log "FP multi captions by D-pad DOWN: $KC"
-            SEQ="$KC"; HOW="D-pad DOWN"
+            SEQ="$KC"; HOW="D-pad DOWN"; C1=$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sed -n 1p); C2=$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sed -n 2p); if [ "$C1" = "$C2" ]; then log "FP INFO: the FIRST D-pad DOWN after touch interaction (mInTouchMode=true) did not change the video; later presses did. A key-mode-only start is not tested here"; else log "FP ok: the first D-pad DOWN paged"; fi
             if [ "$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sort -u | wc -l)" -le 1 ]; then
               log "FP INFO: D-pad DOWN did not change the video; focus lines above show where focus was. Swipe comparison follows (not a keypad test)"
-              SC=""; for n in 1 2 3 4 5 6; do SC="$SC|$(cap1)"; adb shell input swipe 240 480 240 160 250; sleep 2; done
+              SC=""; for n in 1 2 3 4 5 6 7 8 9; do SC="$SC|$(cap1)"; adb shell input swipe 240 480 240 160 250; sleep 2; done
               log "FP multi captions by swipe: $SC"; SEQ="$SC"; HOW="swipe (not keypad evidence)"
             else log "FP ok: D-pad DOWN pages Following"; fi
+            SEQ=$(echo "$SEQ" | tr '|' '\n' | grep -v '^$' | awk '$0!=p{print} {p=$0}' | sed 's/^/|/' | tr -d '\n'); log "FP multi distinct-page sequence ($HOW): $SEQ"
             EXP="|text=\"Sample video 2 from Chaimo\"|text=\"Sample video 1 from Chaimo\"|text=\"Sample video 4 from Expert News Status\"|text=\"Sample video 3 from Expert News Status\"|text=\"Sample video 2 from Expert News Status\"|text=\"Sample video 1 from Expert News Status\""
-            if [ "$SEQ" = "$EXP" ]; then log "FP ok: order newest first across two creators, 6 distinct videos, by $HOW"; else log "FP WRONG-OR-HARNESS: sequence by $HOW differs from expected newest-first. expected: $EXP"; fi
+            if [ "$SEQ" = "$EXP" ]; then log "FP ok: order newest first across two creators, 6 distinct pages, by $HOW"; else log "FP WRONG-OR-HARNESS: sequence by $HOW differs from expected newest-first. expected: $EXP"; fi
             echo "$SEQ" | grep -q "Repost" && log "FP WRONG: the deliberate duplicate (Repost of sample 2) was shown" || log "FP ok: the deliberate duplicate was not shown"
-            D=$(echo "$SEQ" | tr '|' '\n' | grep -v '^$' | sort | uniq -d | head -1); [ -z "$D" ] && log "FP ok: no video repeated across the 6 pages" || log "FP WRONG: repeated video: $D" ; }
+            D=$(echo "$SEQ" | tr '|' '\n' | grep -v '^$' | sort | uniq -d | head -1); [ -z "$D" ] && log "FP ok: no video repeated across the distinct pages" || log "FP WRONG: repeated video: $D" ; }
+          # KEY-MODE-ONLY start: fresh process, NO touch input before the first key. Records where each key lands; reports honestly if Shorts cannot be reached by keys.
+          KP=${PKG:-com.yidplus.app}; adb shell am force-stop $KP; sleep 2; timeout 40 adb shell "am start -n $KP/.MainActivity" >/dev/null 2>&1; sleep 9
+          tmode() { timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1; }
+          kfoc() { vd kk; grep 'focused="true"' "$OUT/vc-kk.txt" | grep -v 'class="android.widget.FrameLayout"' | head -1 | grep -oE '(text|content-desc)="[^"]*"' | head -1; }
+          log "FP KEY-START cold start: $(tmode) focus [$(kfoc)]"; shot FP-20-key-start
+          REACHED=0; for n in 1 2 3 4 5 6 7 8 9 10 11 12; do key 20; sleep 1; F=$(kfoc); log "FP KEY-START DOWN $n: $(tmode) focus [$F]"; case "$F" in *Shorts*) REACHED=1; break ;; esac; done
+          if [ $REACHED = 0 ]; then for n in 1 2 3 4 5 6; do key 22; sleep 1; F=$(kfoc); log "FP KEY-START RIGHT $n: $(tmode) focus [$F]"; case "$F" in *Shorts*) REACHED=1; break ;; esac; done; fi
+          if [ $REACHED = 0 ]; then log "FP KEY-START MISSING: Shorts tab not reached by keys alone (12 DOWN, 6 RIGHT); key-mode-only Shorts paging NOT tested"; shot FP-21-key-start-end
+          else key 66; sleep 5; shot FP-22-key-shorts; log "FP KEY-START opened Shorts by key: $(tmode) texts: $(vtexts kk)"
+            for t in 1 2 3; do vd k1; if grep -qF 'content-desc="Follow more people"' "$OUT/vc-k1.txt" || grep -qE 'text="Sample video' "$OUT/vc-k1.txt"; then break; fi; key 18; sleep 3; done
+            KK=""; for n in 1 2 3 4 5 6 7 8 9 10; do KK="$KK|$(cap1)"; log "FP KEY-START page DOWN $n: $(tmode) focus [$(ffoc)]"; key 20; sleep 2; done
+            log "FP KEY-START captions per DOWN (key-mode only, nothing collapsed): $KK"; shot FP-23-key-end
+            for neg in "same size and length as" ; do :; done
+          fi
           FPE
           bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
@@ -431,3 +446,4 @@ jobs:
 # y38
 # y39
 # y40
+# y41
