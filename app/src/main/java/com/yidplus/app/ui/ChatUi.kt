@@ -150,7 +150,7 @@ internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = n
 
 @Composable
 internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, size: Dp = 44.dp, focus: androidx.compose.ui.focus.FocusRequester? = null) {
-    Box(Modifier.size(size).then(if (focus != null) Modifier.onFocusChanged { android.util.Log.i("YidKey", "icon " + label + " focused=" + it.isFocused) }.focusRequester(focus) else Modifier).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+    Box(Modifier.size(size).then(if (focus != null) Modifier.focusRequester(focus) else Modifier).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
     }
 }
@@ -449,16 +449,17 @@ internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String)
 internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.focus.FocusRequester? = null, right: androidx.compose.ui.focus.FocusRequester? = null): Modifier {
     val fm = androidx.compose.ui.platform.LocalFocusManager.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
+    // Run y35 (fixture emulator): when the field was entered with the D-pad, the request below took, then the button lost focus about 200 ms later while the keyboard hid and the layout resized; the dump showed focus on a message row. One later request restores it (run y36). The retry is dropped when another key press takes the escape again, when the field itself regains focus, and when the screen leaves composition (the scope ends).
+    val retry = androidx.compose.runtime.remember { arrayOfNulls<kotlinx.coroutines.Job>(1) }
     fun go(t: androidx.compose.ui.focus.FocusRequester?, d: androidx.compose.ui.focus.FocusDirection): Boolean {
-        if (t != null) { val ok = runCatching { t.requestFocus() }; android.util.Log.i("YidKey", "requestFocus ok=" + ok.getOrNull() + " err=" + ok.exceptionOrNull()?.javaClass?.simpleName); if (ok.isSuccess) {
-            // Run y35: after a D-pad entry the request took, then Attach lost focus about 200 ms later (the keyboard hiding and the layout resizing). Ask again once that settles.
-            scope.launch { kotlinx.coroutines.delay(400); runCatching { t.requestFocus() }; android.util.Log.i("YidKey", "re-requested") }
-            return true } }
+        retry[0]?.cancel(); retry[0] = null
+        if (t != null && runCatching { t.requestFocus() }.isSuccess) {
+            retry[0] = scope.launch { kotlinx.coroutines.delay(400); runCatching { t.requestFocus() } }
+            return true
+        }
         return fm.moveFocus(d)
     }
-    return this.onPreviewKeyEvent { e ->
-        if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && (e.key == androidx.compose.ui.input.key.Key.DirectionRight || e.key == androidx.compose.ui.input.key.Key.DirectionLeft))
-            android.util.Log.i("YidKey", "composer " + e.key + " textLen=" + text.length + " target=" + (if (e.key == androidx.compose.ui.input.key.Key.DirectionRight) right else left)?.let { "set" })
+    return this.onFocusChanged { if (it.isFocused) { retry[0]?.cancel(); retry[0] = null } }.onPreviewKeyEvent { e ->
         if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && text.isEmpty()) {
             when (e.key) {
                 androidx.compose.ui.input.key.Key.DirectionRight -> go(right, androidx.compose.ui.focus.FocusDirection.Right)
