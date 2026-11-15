@@ -425,6 +425,8 @@ fun ShortsScreen() {
     fun go(d: Int) { val t = (pager.currentPage + d).coerceIn(0, maxOf(0, items.size - 1)); scope.launch { pager.animateScrollToPage(t) } }
     val tabs = ShortsTab.values().filter { !(Feeds.srcOff && (it == ShortsTab.ForYou || it == ShortsTab.Following)) }
 
+    // The keypad mode can switch on after this screen opened (touch first, then the first D-pad press): show the hint then too, once.
+    LaunchedEffect(Keys.keypad) { if (Keys.keypad && !Prefs.keypadHintSeen) showHint = true }
     LaunchedEffect(showHint) { if (showHint) { delay(5000); showHint = false; Prefs.hintSeen() } }
     Box(Modifier.fillMaxSize().background(Color.Black).pointerInput(Unit) {
         awaitPointerEventScope {
