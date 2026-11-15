@@ -111,6 +111,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun qaLook(i: Intent) {
+        i.getStringExtra("fxdelay")?.toLongOrNull()?.let { com.yidplus.app.data.Fixture.delayMs = it }
         i.getStringExtra("color")?.toIntOrNull()?.let { LookPrefs.putColor(it) }
         i.getStringExtra("text")?.toIntOrNull()?.let { UiPrefs.setText(it) }
         i.getStringExtra("contrast")?.let { LookPrefs.putHighContrast(it == "1") }
