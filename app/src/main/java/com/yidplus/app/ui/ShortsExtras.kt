@@ -145,7 +145,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                 SoThumb(avatar, name, 72.dp)
                 Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text((if (fromSrc) "" else "@") + name.ifBlank { "yidplus" }, fontSize = 18.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                        Text((if (fromSrc) "" else "@") + name.ifBlank { "yidplus" }, fontSize = if (fromSrc) 16.sp else 18.sp, fontWeight = FontWeight.Bold, maxLines = if (fromSrc) 3 else 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                         if (verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
                     }
                     Text("${clips.size} videos", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
