@@ -1,0 +1,48 @@
+[05:50:13] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[05:50:16] screen 480x640 @ 240 dpi
+[05:50:16] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[05:50:16] ---- Signed in (QA fixture account) ----
+[05:50:20] fixture true
+[05:50:29] shot F01-home-signedin
+[05:50:29] open https://yidplus.com/chat
+[05:50:34] shot F02-chats-list
+[05:50:36] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[05:50:43] shot F03-chat-dm
+[05:50:45] shot F03b-chat-dm-up
+[05:50:49] open https://yidplus.com/chat
+[05:51:03] shot F04-chat-group
+[05:51:05] shot F04b-group-up
+[05:51:07] shot F04c-group-top
+[05:51:10] shot F05-message-actions
+[05:51:20] shot F06-notifications
+[05:51:23] tab Home
+[05:51:26] shot F07-home-header
+[05:51:26] open https://yidplus.com/shorts
+[05:51:35] shot F08-shorts-signedin
+[05:51:35] tab Profile
+[05:51:38] shot F09-profile-signedin
+[05:51:50] shot F09b-profile-scrolled
+[05:52:03] open https://yidplus.com/chat
+[05:52:07] shot F10-chats-dark
+[05:52:14] shot F11-chat-dark
+[05:52:21] screen 1080x2400 @ 420 dpi
+[05:52:29] open https://yidplus.com/chat
+[05:52:33] shot F12-phone-chats
+[05:52:40] shot F13-phone-chat
+[05:52:44] screen 480x640 @ 240 dpi
+[05:52:44] ---- qa/fx-tfdown.sh ----
+[05:53:00] TF entry (1=touch): mInTouchMode=true
+[05:53:09] TF opened: mInTouchMode=true | focus: 
+[05:53:09] shot TF-0-opened
+[05:53:13] TF after first press (20): mInTouchMode=false | focus: android.view.View||[66,211][362,321] 
+[05:53:13] shot TF-1-first
+[05:53:17] TF after DOWN: focus: android.view.View||[66,370][337,480] 
+[05:53:17] shot TF-2-down
+[05:53:21] TF after DOWN 2: focus: android.view.View||[66,370][220,480] 
+[05:53:26] TF after OK: focus: android.view.View||[108,297][262,407]  | action-sheet words on screen: 3
+[05:53:26] shot TF-3-ok
+[05:53:30] TF after Back: focus: android.view.View||[66,129][362,239] 
+[05:53:30] fixture writes the app would have sent: 6
+[05:53:34] fixture false
