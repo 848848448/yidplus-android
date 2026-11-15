@@ -1,5 +1,6 @@
 package com.yidplus.app.ui
 
+import androidx.compose.ui.focus.onFocusChanged
 import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -149,7 +150,7 @@ internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = n
 
 @Composable
 internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, size: Dp = 44.dp, focus: androidx.compose.ui.focus.FocusRequester? = null) {
-    Box(Modifier.size(size).then(if (focus != null) Modifier.focusRequester(focus) else Modifier).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+    Box(Modifier.size(size).then(if (focus != null) Modifier.onFocusChanged { android.util.Log.i("YidKey", "icon " + label + " focused=" + it.isFocused) }.focusRequester(focus) else Modifier).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
     }
 }
@@ -448,7 +449,7 @@ internal fun CsCompactField(modifier: Modifier, text: String, onChange: (String)
 internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.focus.FocusRequester? = null, right: androidx.compose.ui.focus.FocusRequester? = null): Modifier {
     val fm = androidx.compose.ui.platform.LocalFocusManager.current
     fun go(t: androidx.compose.ui.focus.FocusRequester?, d: androidx.compose.ui.focus.FocusDirection): Boolean {
-        if (t != null && runCatching { t.requestFocus() }.isSuccess) return true
+        if (t != null) { val ok = runCatching { t.requestFocus() }; android.util.Log.i("YidKey", "requestFocus ok=" + ok.getOrNull() + " err=" + ok.exceptionOrNull()?.javaClass?.simpleName); if (ok.isSuccess) return true }
         return fm.moveFocus(d)
     }
     return this.onPreviewKeyEvent { e ->
