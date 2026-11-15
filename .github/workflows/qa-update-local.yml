@@ -1,0 +1,110 @@
+name: QA in-app update, local test feed (no release, no published APK)
+
+# TEST SEAM, not production. Builds the head twice in this one job (workspace-only patch, never committed):
+# an "installed" build 9.1.0 and a higher "candidate" 9.1.1, both signed by the CI key. The patch points the
+# updater's feed at http://10.0.2.2:8765 (the runner, seen from the emulator) and allows cleartext for 10.0.2.2 only.
+# Everything else in Updater.kt runs as shipped: version check, prompt, download, sha256, signer check,
+# PackageInstaller, Android's install prompt. The APKs stay inside this job (no artifact upload, no release);
+# the evidence branch gets screenshots and logs only.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feat-*']
+    paths: ['.github/workflows/qa-update-local.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: qa-update-local-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  update-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Signing key (from repository secrets only)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.p12"
+      - name: Test-seam patch (workspace only; each replacement must match once)
+        run: |
+          git log -1 --format='head %h %s'
+          python3 - <<'PY'
+          p = 'app/src/main/java/com/yidplus/app/Updater.kt'
+          s = open(p).read()
+          a = 'val FEED = "https://github.com/${BuildConfig.UPDATE_REPO}/releases/latest/download/version.json"'
+          assert s.count(a) == 1
+          open(p, 'w').write(s.replace(a, 'val FEED = "http://10.0.2.2:8765/version.json"'))
+          p = 'app/src/main/res/xml/network_security_config.xml'
+          s = open(p).read()
+          a = '</network-security-config>'
+          assert s.count(a) == 1
+          open(p, 'w').write(s.replace(a, '    <domain-config cleartextTrafficPermitted="true"><domain includeSubdomains="false">10.0.2.2</domain></domain-config>\n' + a))
+          PY
+          git diff --stat
+      - name: Build the installed build (9.1.0) and the candidate (9.1.1)
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          set -o pipefail
+          mkdir -p dist/serve
+          gradle :app:assembleRelease -PversionName=9.1.0 --no-daemon 2>&1 | tail -5
+          cp app/build/outputs/apk/release/app-release.apk dist/old.apk
+          gradle :app:assembleRelease -PversionName=9.1.1 --no-daemon 2>&1 | tail -5
+          cp app/build/outputs/apk/release/app-release.apk dist/serve/new.apk
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs dist/old.apk | grep -i "SHA-256" | head -1
+          "$BT/apksigner" verify --print-certs dist/serve/new.apk | grep -i "SHA-256" | head -1
+          SHA=$(sha256sum dist/serve/new.apk | cut -d' ' -f1); SIZE=$(stat -c %s dist/serve/new.apk)
+          printf '{"versionCode":90101,"versionName":"9.1.1","apkUrl":"http://10.0.2.2:8765/new.apk","sha256":"%s","size":%s,"notes":"Test candidate"}\n' "$SHA" "$SIZE" > dist/serve/version.json
+          cat dist/serve/version.json
+      - name: Local-feed driver (workspace only, not committed)
+        run: |
+          cat > /tmp/update-local.sh <<'DRV'
+          set -u
+          cd "$GITHUB_WORKSPACE"
+          (cd dist/serve && python3 -m http.server 8765 --bind 0.0.0.0 >/tmp/feed-server.log 2>&1 &) ; sleep 2
+          echo "feed from the runner: $(curl -s http://127.0.0.1:8765/version.json | head -c 200)"
+          bash qa/update.sh dist/old.apk 9.1.1
+          DRV
+          echo ok
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Emulator update test against the local feed
+        timeout-minutes: 25
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 3072M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash /tmp/update-local.sh
+      - name: Publish evidence (screenshots and logs only)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          test -d qa/out || exit 0
+          find qa/out -name '*.apk' -delete
+          cd qa/out && git init -q && git checkout -q -b qa-update-local-evidence && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "local feed update test ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-update-local-evidence
+      - name: Result
+        run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT
