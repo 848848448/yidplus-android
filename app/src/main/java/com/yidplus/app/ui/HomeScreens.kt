@@ -78,7 +78,7 @@ fun HomeScreen() {
     BackHandler(enabled = searching) { kb?.hide(); searching = false; q = "" }
     val list = res.data
     LaunchedEffect(list) { if (list != null) { Perf.shown("Home"); Badges.channels = list.filter { it.joined }.sumOf { it.unread } } }
-    val views = listOf("Telegram", "Joined", "Members", "Recent")
+    val views = listOf("Telegram", "Joined", "Members", "Recent", "Videos")
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (searching) Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
@@ -102,7 +102,8 @@ fun HomeScreen() {
             Text("Search all of YID PLUS", Modifier.padding(start = 12.dp), color = MaterialTheme.colorScheme.primary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
         }
         Box(Modifier.weight(1f)) {
-            if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
+            if (view == 4) SoVideoChannelsList(if (searching) q else "")
+            else if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
             else PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
                 when {
                     list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
