@@ -99,7 +99,7 @@ fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
 
 /** The members' channels directory: most followed first, or the most recently active. */
 @Composable
-fun SoSiteChannelsList(query: String, sort: Int) {
+fun SoSiteChannelsList(query: String, sort: Int, header: (@Composable () -> Unit)? = null) {
     val scope = rememberCoroutineScope()
     val res = remember(Session.me?.id) { Store.res("/api/channels?limit=400", SoSiteChannel::list) }
     LaunchedEffect(res, SoRefresh.tick) { res.load(force = SoRefresh.tick > 0) }
@@ -117,6 +117,7 @@ fun SoSiteChannelsList(query: String, sort: Int) {
         all == null -> SoSkeleton()
         shown.isEmpty() -> SoEmpty(Sym.Search, if (q.isNotEmpty()) "No channels for \u201c$q\u201d" else "No channels yet")
         else -> LazyColumn(Modifier.fillMaxSize()) {
+            if (header != null && q.length < 2) item { header() }
             items(shown, key = { it.ownerId }) { ch ->
                 SoSiteChannelRow(ch, ch == shown.first())
                 SoDivider(80.dp)
