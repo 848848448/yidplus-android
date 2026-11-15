@@ -44,6 +44,9 @@ jobs:
           s = open(p).read()
           a = 'val FEED = "https://github.com/${BuildConfig.UPDATE_REPO}/releases/latest/download/version.json"'
           assert s.count(a) == 1
+          b = 'require(apk.startsWith("https://github.com/${BuildConfig.UPDATE_REPO}/releases/download/"))'
+          assert s.count(b) == 1
+          s = s.replace(b, 'require(apk.startsWith("http://10.0.2.2:8765/"))')
           open(p, 'w').write(s.replace(a, 'val FEED = "http://10.0.2.2:8765/version.json"'))
           p = 'app/src/main/res/xml/network_security_config.xml'
           s = open(p).read()
