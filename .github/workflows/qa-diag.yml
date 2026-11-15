@@ -315,8 +315,8 @@ jobs:
           # two followed people: both creators' videos show in Following, newest first, each video once
           vtap "Following"; sleep 2; vtap "Follow more people" && { sleep 3; vd m1; for NM in "Glaser" "Osniel"; do vtap "Search people" && { sleep 1; adb shell input text "$NM"; sleep 2; vd s_$NM; log "FP follow-by-search '$NM': result texts: $(vtexts s_$NM)"; if vhas s_$NM "$NM" && ! vhas s_$NM "Ales UK" && ! vhas s_$NM "Expert News Status"; then log "FP ok: search '$NM' leaves only the named creator"; vtap "Follow"; sleep 1; vd f_$NM; vhas f_$NM "Following ✓" && log "FP ok: '$NM' now shows Following ✓ (identity confirmed by name)" || log "FP MISSING: '$NM' did not show Following ✓"; else log "FP MISSING: search '$NM' did not isolate the named creator; not following anyone else"; fi; vtap "Close search" || key 4; sleep 1; }; done; vd m3; log "FP multi list texts: $(vtexts m3)"; key 4; sleep 5
             ffoc() { grep 'focused="true"' "$OUT/vc-mm.txt" | grep -v 'class="android.widget.FrameLayout"' | head -1 | cut -c1-160; }
-            onscr() { sed -nE 's/.*text="((Sample video|QA negative|Repost)[^"]*)".*bounds="\[[0-9]+,([0-9-]+)\]\[[0-9]+,[0-9]+\]".*/\3 \1/p' "$1" | awk '$1>=100{ $1=""; sub(/^ /,""); print "text=\""$0"\""; exit }'; }
-cap1() { vd mm; onscr "$OUT/vc-mm.txt"; }
+          onscr() { sed -nE 's/.*text="((Sample video|QA negative|Repost)[^"]*)".*bounds="\[[0-9]+,([0-9-]+)\]\[[0-9]+,[0-9]+\]".*/\3 \1/p' "$1" | awk '$1>=100 && $1<=480{ $1=""; sub(/^ /,""); print "text=\""$0"\""; exit }'; }
+          cap1() { vd mm; onscr "$OUT/vc-mm.txt"; }
             vd mm; log "FP multi pre-DOWN: focus [$(ffoc)] | $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1)"; shot FP-10-following-two
             KC=""; for n in 1 2 3 4 5 6 7 8 9; do KC="$KC|$(cap1)"; log "FP multi DOWN $n: focus [$(ffoc)]"; key 20; sleep 2; done
             log "FP multi captions by D-pad DOWN: $KC"
