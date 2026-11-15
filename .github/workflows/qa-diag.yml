@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx32m, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-mu.sh' }
+          - { target: default, part: fx33f, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-fp.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -279,6 +279,27 @@ jobs:
           key 4; sleep 2; shot MU-06-back
           MUE
           bash -n qa/fx-mu.sh && echo fx-mu.sh syntax ok
+          cat > qa/fx-fp.sh <<'FPE'
+          vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
+          vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/vc-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
+          vtap() { vd t; P=$(vpos t "$1"); if [ -z "$P" ]; then log "FP MISSING: '$1' not on screen"; return 1; fi; set -- $P; adb shell input tap $1 $2; sleep 2; log "FP tapped '$1' at $1 $2"; }
+          vhas() { grep -qF "$2" "$OUT/vc-$1.txt"; }
+          vtexts() { grep -oE ' text="[^"]+"' "$OUT/vc-$1.txt" | head -40 | tr '\n' ' '; }
+          restart 5; sleep 4
+          vtap "Shorts"; sleep 4; vtap "Following"; sleep 2; vd a; shot FP-01-following-empty; log "FP following texts: $(vtexts a)"
+          vhas a "Find people to follow" && log "FP ok: empty Following offers 'Find people to follow'" || log "FP MISSING: no 'Find people to follow' button on the empty Following tab"
+          if vtap "Find people to follow"; then sleep 3; vd b; shot FP-02-people-list; log "FP list texts: $(vtexts b)"
+            for w in "Follow people" "Search people" "8 people" "Expert News Status" "Ales UK"; do vhas b "$w" && log "FP ok: '$w' on screen" || log "FP MISSING: '$w' not on screen"; done
+            vtap "Follow" && { sleep 1; vd c; shot FP-03-followed; vhas c "Following ✓" && log "FP ok: a row now shows 'Following ✓'" || log "FP MISSING: no 'Following ✓' after tapping Follow"; log "FP followed texts: $(vtexts c)"; }
+            vtap "Search people" && { adb shell input text "Ales"; sleep 2; vd d; shot FP-04-search; vhas d "Ales UK" && log "FP ok: search keeps 'Ales UK'" || log "FP MISSING: 'Ales UK' not in results"; vhas d "Expert News Status" && log "FP WRONG: search still lists a non-matching person" || log "FP ok: non-matching people are filtered out"; vhas d "1 people" && log "FP ok: count line is 1 people" || log "FP MISSING: count line for the search"; }
+            key 4; sleep 1; key 4; sleep 2; vd e; shot FP-05-back; log "FP after Back texts: $(vtexts e)"
+            vhas e "Follow people" && log "FP WRONG: still on the people list after two Backs" || log "FP ok: left the people list"
+          fi
+          vtap "Following"; sleep 2; vd f; shot FP-06-following-after; log "FP following-after texts: $(vtexts f)"
+          grep -qF 'content-desc="Follow more people"' "$OUT/vc-f.txt" && log "FP ok: 'Follow more people' button is in the Shorts top row" || log "FP MISSING: 'Follow more people' button not in the top row"
+          if vtap "Follow more people"; then sleep 3; vd g; shot FP-07-more; vhas g "Follow people" && log "FP ok: 'Follow more people' opens the list while following someone" || log "FP MISSING: list did not open from 'Follow more people'"; vhas g "Following ✓" && log "FP ok: the followed person shows Following ✓ in the list" || log "FP MISSING: followed person not marked"; fi
+          FPE
+          bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
           vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
           vpos() { grep -E "(text|content-desc)=\"$2\"" "$OUT/vc-$1.txt" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | tail -1 | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }
