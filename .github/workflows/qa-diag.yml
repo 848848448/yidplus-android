@@ -82,8 +82,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx30a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-vc.sh' }
-          - { target: default, part: fx30b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry2.sh' }
+          - { target: default, part: fx31a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-vc.sh' }
+          - { target: default, part: fx31b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-entry2.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -202,6 +202,20 @@ jobs:
             case "$(en_focus V4-final)" in *EditText*) log "E4B ok: V4 LEFT after RIGHT returned to the field and the retry did not take focus back" ;; *) log "E4B WRONG: V4 final focus is not the field: [$(en_focus V4-final)]"; FAIL=1 ;; esac
             adb shell "input keyevent 22; input keyevent 20"; sleep 2; en_dump V4b; log "E4B V4b RIGHT+DOWN then 2 s: focus [$(en_focus V4b)]"; shot V4b
           fi
+          # V5: RIGHT (retry pending), then a TOUCH on the field within the retry window: the retry must not take focus away from the touched field
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V5-d$i 20 "V5 DOWN $i"; case "$(en_focus V5-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V5 the composer field never took focus by DOWN"; else
+            P5=$(edit_centre V5-d$i); set -- $P5; TX=$(( ($1 + $3) / 2 )); TY=$(( ($2 + $4) / 2 ))
+            adb shell "input keyevent 22; input tap $TX $TY"; sleep 2; en_dump V5-final; log "E4B V5 RIGHT then touch on the field then 2 s: focus [$(en_focus V5-final)] | $(imeup)"; shot V5-final
+            case "$(en_focus V5-final)" in *EditText*) log "E4B ok: V5 the field the user touched kept focus" ;; *) log "E4B WRONG: V5 after touching the field, focus is [$(en_focus V5-final)]"; FAIL=1 ;; esac
+          fi
+          # V6: RIGHT, then BACK within the retry window: read the focus after 2 s (a retry that fires after Back is a defect only if it takes focus on a hidden-IME screen)
+          timeout 10 adb shell input keyevent 20; sleep 1; restart 5; en_open
+          OK=0; for i in 1 2 3 4 5 6 7 8; do cstep V6-d$i 20 "V6 DOWN $i"; case "$(en_focus V6-d$i)" in *EditText*) OK=1; break ;; esac; done
+          if [ $OK = 0 ]; then log "E4B MISSING: V6 the composer field never took focus by DOWN"; else
+            adb shell "input keyevent 22; input keyevent 4"; sleep 2; en_dump V6-final; log "E4B V6 RIGHT then BACK then 2 s: focus [$(en_focus V6-final)] | $(imeup)"; shot V6-final
+          fi
           # E3b: launcher start, tap an EXISTING list row (Yossi Klein), keys, Back, row focus restored
           restart 5
           timeout 30 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 8
@@ -214,6 +228,12 @@ jobs:
             key 4; sleep 2; en_dump E3b-back; shot E3b-back
             if [ "$(en_has E3b-back 'text="Yossi Klein"')" -ge 1 ]; then log "ENTRY ok: E3b Back returned to the chat list; focus after Back: [$(en_focus E3b-back)] (row Yossi Klein was at y $2-$4)"; else log "ENTRY WRONG: E3b Back did not return to the chat list"; FAIL=1; fi
           fi
+          # J: landscape Join by invite link with the keyboard up (480x640 emulator rotated), then portrait again. Shots J-*.
+          restart 5; timeout 40 adb shell am start -a android.intent.action.VIEW -d "https://yidplus.com/chat?join=clpriv" $PKG >/dev/null 2>&1; sleep 6; en_dump J-port; shot J-port; log "J portrait: join title on screen: $(en_has J-port 'Join by invite link')"
+          adb shell settings put system accelerometer_rotation 0; adb shell settings put system user_rotation 1; sleep 3; en_dump J-land; shot J-land; log "J landscape (no keyboard): join title $(en_has J-land 'Join by invite link'), field $(en_has J-land 'Paste the invite link') | $(imeup)"
+          JP=$(tr '>' '\n' < "$OUT/J-land.xml" | grep 'class="android.widget.EditText"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -1)
+          if [ -n "$JP" ]; then set -- $JP; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); sleep 3; en_dump J-land-kb; shot J-land-kb; log "J landscape keyboard up: $(imeup) | field nodes $(en_has J-land-kb 'class="android.widget.EditText"') | field bounds $(tr '>' '\n' < "$OUT/J-land-kb.xml" | grep 'class="android.widget.EditText"' | sed -n 's/.*bounds="\(\[[0-9,]*\]\[[0-9,]*\]\)".*/\1/p' | head -1)"; else log "J MISSING: no EditText on the landscape join page"; fi
+          adb shell settings put system user_rotation 0; sleep 2
           ENT
           cat > qa/fx-vc.sh <<'VCE'
           vd() { timeout 30 adb shell uiautomator dump /sdcard/vc.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/vc.xml 2>/dev/null | tr '>' '\n' > "$OUT/vc-$1.txt"; }
