@@ -3,6 +3,7 @@ package com.yidplus.app.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -106,5 +107,35 @@ suspend fun soLoadCreatorVideos(key: String, name: String, avatar: String?, veri
         if (!have.add(id)) continue
         Feeds.forYou.items.add(Clip(id, true, u, it.optString("p", "").ifBlank { null }, it.optString("c", ""), name, key, avatar, verified,
             it.optInt("d"), it.optLong("z"), 0, 0, false, it.optString("v", "").ifBlank { id }, it.optString("t", "").ifBlank { null }))
+    }
+}
+
+/** The top of the Channels tab, like the site: "Video channels" with the newest creators as a row of photos; "See all" opens the full list. */
+@Composable
+fun SoVideoStrip(onAll: () -> Unit) {
+    val res = remember(Session.me?.id) { Store.res("/api/src-shorts?creators", ::soVideoChannels) }
+    val rec = remember(Session.me?.id) { Store.res("/api/src-shorts?n=60", ::soVideoRecent) }
+    LaunchedEffect(res, rec, Net.online) { res.load(force = Net.online && res.offline); rec.load() }
+    val all = res.data ?: return
+    if (all.isEmpty()) return
+    val recent = rec.data.orEmpty()
+    val top = remember(all, recent) { all.sortedWith(compareByDescending<SoVideoCh> { recent[it.key] ?: "" }.thenBy { it.name.lowercase() }).take(12) }
+    Column(Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(0.dp)) { onAll() }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Sym.Movie, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+            Text("Video channels", Modifier.padding(start = 10.dp).weight(1f), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("${all.size}  See all", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        }
+        LazyRow(Modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 10.dp)) {
+            items(top, key = { it.key }) { ch ->
+                Column(Modifier.width(76.dp).tap(RoundedCornerShape(10.dp)) { Nav.open(SoCreatorPage(ch.key, ch.name, ch.avatar, ch.verified, true)) }.padding(horizontal = 4.dp, vertical = 6.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    SoThumb(ch.avatar, ch.name, 52.dp)
+                    Text(ch.name, Modifier.padding(top = 4.dp), fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
+                        style = LocalTextStyle.current.copy(textDirection = TextDirection.Content))
+                }
+            }
+        }
+        HorizontalDivider(Modifier.padding(top = 4.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
