@@ -248,11 +248,26 @@ jobs:
             # first creator row: the first clickable row under the count line
             adb shell input tap 240 300; sleep 8; vd s2; shot LV-03-creator; log "LV creator texts: $(vtexts s2)"
             grep -qE 'text="[0-9]+ videos?"' "$OUT/lv-s2.txt" && log "LV ok: creator page lists videos on live data" || log "LV MISSING: creator page shows no video count"
-            adb shell input tap 100 400; sleep 4; shot LV-04-play-t4; sleep 5; shot LV-05-play-t9; vd s3; log "LV player texts: $(vtexts s3)"
-            timeout 30 adb logcat -d -t 3000 2>/dev/null | grep -iE "ExoPlayer|MediaCodec|PlaybackException|VideoPlayer|player error" | tail -8 | cut -c1-220 | while read -r l; do log "LV logcat: $l"; done
+            adb shell input tap 100 400; sleep 3; shot LV-04-play-t3; vd s3; grep -qF "Keypad keys" "$OUT/lv-s3.txt" && log "LV hint: help overlay shown at 3 s" || log "LV hint: help overlay not shown at 3 s"
+            sleep 4; vd s3b; grep -qF "Keypad keys" "$OUT/lv-s3b.txt" && log "LV hint: help overlay STILL shown at 7 s (auto close expected at 5 s)" || log "LV hint: help overlay gone by 7 s"; shot LV-05-play-t7
+            log "LV player texts: $(vtexts s3b)"
+            timeout 30 adb logcat -d -t 3000 2>/dev/null | grep -iE "ExoPlayer|MediaCodec|PlaybackException|VideoPlayer|player error" | tail -6 | cut -c1-220 | while read -r l; do log "LV logcat: $l"; done
             timeout 30 adb logcat -d -t 3000 2>/dev/null | grep -E "FATAL EXCEPTION" | tail -2 | while read -r l; do log "LV FATAL: $l"; done
-            adb shell input keyevent 4; sleep 2; shot LV-06-back; vd s4; log "LV after back texts: $(vtexts s4)"
+            adb shell input keyevent 4; sleep 3; vd s4; shot LV-06-back1; log "LV back1 texts: $(vtexts s4)"
+            grep -qE 'text="[0-9]+ videos?"' "$OUT/lv-s4.txt" && log "LV ok: Back from the player returned to the creator page" || log "LV WRONG: Back from the player did not land on the creator page"
+            adb shell input keyevent 4; sleep 3; vd s5; shot LV-07-back2; log "LV back2 texts: $(vtexts s5)"
+            grep -qE 'text="[0-9]+ video channels' "$OUT/lv-s5.txt" && log "LV ok: second Back returned to the video channel list" || log "LV WRONG: second Back did not land on the list"
+            adb shell input keyevent 4; sleep 3; vd s6; shot LV-08-back3; log "LV back3 texts: $(vtexts s6)"
           fi
+          # tab pixel pass (live, read only): Music, Settings, Chats, search
+          for T in Music Profile Chats Home; do tab $T; sleep 5; shot LV-tab-$T; vd tb; log "LV tab $T texts: $(vtexts tb)"; done
+          tab Home; sleep 3; vtap "Search" && { sleep 3; shot LV-search; vd sr; log "LV search texts: $(vtexts sr)"; adb shell input keyevent 4; sleep 1; } || log "LV MISSING: Search control not found"
+          # landscape (live): Channels, Settings, video list, creator
+          adb shell settings put system accelerometer_rotation 0; adb shell settings put system user_rotation 1; sleep 3
+          tab Home; sleep 4; shot LV-land-channels; tab Profile; sleep 4; shot LV-land-settings; tab Home; sleep 3
+          if vtap "[0-9]+  See all"; then sleep 6; shot LV-land-list; adb shell input tap 320 190; sleep 6; shot LV-land-creator; vd lc; log "LV land creator texts: $(vtexts lc)"; fi
+          tab Shorts; sleep 8; shot LV-land-shorts
+          adb shell settings put system user_rotation 0; sleep 2
           LVE
           bash -n qa/fx-live.sh && echo fx-live.sh syntax ok
           bash -n qa/fx-entry2.sh && echo fx-entry2.sh syntax ok
