@@ -1,0 +1,460 @@
+Current Input Method Manager state:
+  Input Methods: mMethodMapUpdateCount=4
+  InputMethod #0:
+    mId=com.android.inputmethod.latin/.LatinIME mSettingsActivityName=com.android.inputmethod.latin.settings.SettingsActivity mIsVrOnly=false mSupportsSwitchingToNextInputMethod=true mInlineSuggestionsEnabled=false
+    mIsDefaultResId=0x7f040012
+    Service:
+      priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+      ServiceInfo:
+        name=com.android.inputmethod.latin.LatinIME
+        packageName=com.android.inputmethod.latin
+        labelRes=0x7f0e004b nonLocalizedLabel=null icon=0x0 banner=0x0
+        enabled=true exported=true directBootAware=true
+        permission=android.permission.BIND_INPUT_METHOD
+        flags=0x0
+        ApplicationInfo:
+          packageName=com.android.inputmethod.latin
+          labelRes=0x7f0e004b nonLocalizedLabel=null icon=0x7f070098 banner=0x0
+          processName=com.android.inputmethod.latin
+          taskAffinity=com.android.inputmethod.latin
+          uid=10104 flags=0x30c8be45 privateFlags=0xa4081060 theme=0x0
+          requiresSmallestWidthDp=0 compatibleWidthLimitDp=0 largestWidthLimitDp=0
+          sourceDir=/product/app/LatinIME/LatinIME.apk
+          seinfo=default:targetSdkVersion=28
+          seinfoUser=:complete
+          dataDir=/data/user_de/0/com.android.inputmethod.latin
+          deviceProtectedDataDir=/data/user_de/0/com.android.inputmethod.latin
+          credentialProtectedDataDir=/data/user/0/com.android.inputmethod.latin
+          sharedLibraryFiles=[/system/framework/android.test.base.jar, /system/framework/android.hidl.manager-V1.0-java.jar, /system/framework/android.hidl.base-V1.0-java.jar]
+          enabled=true minSdkVersion=21 targetSdkVersion=28 versionCode=28 targetSandboxVersion=1
+          supportsRtl=true
+          fullBackupContent=true
+          crossProfile=false
+          HiddenApiEnforcementPolicy=2
+          usesNonSdkApi=false
+          allowsPlaybackCapture=false
+  Clients:
+  Client ClientState{91f8ba3 uid=10121 pid=711 displayId=0}:
+    client=com.android.internal.view.IInputMethodClient$Stub$Proxy@20c4ea0
+    inputContext=com.android.internal.view.IInputContext$Stub$Proxy@ef26a59
+    sessionRequested=false
+    curSession=null
+  Client ClientState{374961e uid=1000 pid=502 displayId=0}:
+    client=android.view.inputmethod.InputMethodManager$1@17f1596
+    inputContext=ControlledInputConnectionWrapper{connection=android.view.inputmethod.BaseInputConnection@7953eff finished=false mParentInputMethodManager.mActive=false mServedView=null}
+    sessionRequested=false
+    curSession=null
+  Client ClientState{95151b8 uid=10104 pid=1325 displayId=0}:
+    client=com.android.internal.view.IInputMethodClient$Stub$Proxy@ad60b91
+    inputContext=com.android.internal.view.IInputContext$Stub$Proxy@7cf4af6
+    sessionRequested=false
+    curSession=null
+  Client ClientState{3c4739a uid=10076 pid=8784 displayId=0}:
+    client=com.android.internal.view.IInputMethodClient$Stub$Proxy@f16dc8d
+    inputContext=com.android.internal.view.IInputContext$Stub$Proxy@5fd0e42
+    sessionRequested=false
+    curSession=SessionState{uid 10076 pid 8784 method 4ff62a session 235e53 channel ClientState{3c4739a uid=10076 pid=8784 displayId=0} (server)}
+  Client ClientState{981aebe uid=10117 pid=917 displayId=0}:
+    client=com.android.internal.view.IInputMethodClient$Stub$Proxy@71d2082
+    inputContext=com.android.internal.view.IInputContext$Stub$Proxy@ddaa393
+    sessionRequested=false
+    curSession=SessionState{uid 10117 pid 917 method 4ff62a session aa09fd0 channel ClientState{981aebe uid=10117 pid=917 displayId=0} (server)}
+  Client ClientState{d42c56 uid=10130 pid=9019 displayId=0}:
+    client=com.android.internal.view.IInputMethodClient$Stub$Proxy@cfea390
+    inputContext=com.android.internal.view.IInputContext$Stub$Proxy@fa1b489
+    sessionRequested=false
+    curSession=SessionState{uid 10130 pid 9019 method 4ff62a session 7d1cc8e channel ClientState{d42c56 uid=10130 pid=9019 displayId=0} (server)}
+  Client ClientState{1f59bc9 uid=10065 pid=1773 displayId=0}:
+    client=com.android.internal.view.IInputMethodClient$Stub$Proxy@180c2ce
+    inputContext=com.android.internal.view.IInputContext$Stub$Proxy@881e5ef
+    sessionRequested=false
+    curSession=null
+  mCurMethodId=com.android.inputmethod.latin/.LatinIME
+  mCurClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0} mCurSeq=125
+  mCurPerceptible=false
+  mCurFocusedWindow=android.os.BinderProxy@8f08dfa softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION client=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+  mCurId=com.android.inputmethod.latin/.LatinIME mHaveConnection=true mBoundToMethod=true mVisibleBound=false
+  mCurToken=android.os.Binder@b68f50a
+  mCurTokenDisplayId=0
+  mCurHostInputToken=null
+  mCurIntent=Intent { act=android.view.InputMethod cmp=com.android.inputmethod.latin/.LatinIME (has extras) }
+  mCurMethod=com.android.internal.view.IInputMethod$Stub$Proxy@4ff62a
+  mEnabledSession=SessionState{uid 10130 pid 9019 method 4ff62a session 7d1cc8e channel ClientState{d42c56 uid=10130 pid=9019 displayId=0} (server)}
+  mShowRequested=false mShowExplicitlyRequested=false mShowForced=false mInputShown=false
+  mInFullscreenMode=false
+  mSystemReady=true mInteractive=true
+  mSettingsObserver=SettingsObserver{mUserId=0 mRegistered=true mLastEnabled=com.android.inputmethod.latin/.LatinIME}
+  mSwitchingController:
+    mSwitchingAwareRotationList:
+      rank=0 item=ImeSubtypeListItem{mImeName=Android Keyboard (AOSP) mSubtypeName=English (US) mSubtypeId=0 mIsSystemLocale=true mIsSystemLanguage=true}
+    mSwitchingUnawareRotationList:
+  mSettings:
+    mCurrentUserId=0
+    mCurrentProfileIds=[0]
+    mCopyOnWrite=false
+    mEnabledInputMethodsStrCache=com.android.inputmethod.latin/.LatinIME
+  mStartInputHistory:
+   StartInput #109:
+    time=2026-11-15 06:35:52.975 (timestamp=1827368) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=110
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE
+    inputType=0x0 imeOptions=0x0 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #110:
+    time=2026-11-15 06:38:18.798 (timestamp=1973191) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@d2ef737 [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=111
+    softInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+    inputType=0x0 imeOptions=0x0 fieldId=0x1020002 fieldName=null actionId=0 actionLabel=null
+   StartInput #111:
+    time=2026-11-15 06:38:22.317 (timestamp=1976710) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=112
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x0 imeOptions=0x0 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #112:
+    time=2026-11-15 06:38:36.054 (timestamp=1990447) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@4aea2a [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=113
+    softInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+    inputType=0x0 imeOptions=0x0 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #113:
+    time=2026-11-15 06:38:44.145 (timestamp=1998538) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=114
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE
+    inputType=0x0 imeOptions=0x0 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #114:
+    time=2026-11-15 06:38:57.399 (timestamp=2011792) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@4746db5 [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=115
+    softInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+    inputType=0x0 imeOptions=0x0 fieldId=0x1020002 fieldName=null actionId=0 actionLabel=null
+   StartInput #115:
+    time=2026-11-15 06:39:01.926 (timestamp=2016320) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=116
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x0 imeOptions=0x0 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #116:
+    time=2026-11-15 06:39:07.458 (timestamp=2021852) reason=CHECK_FOCUS restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=117
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x8001 imeOptions=0x2000006 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #117:
+    time=2026-11-15 06:39:07.458 (timestamp=2021852) reason=APP_CALLED_RESTART_INPUT_API restarting=true
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=118
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x8001 imeOptions=0x2000006 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #118:
+    time=2026-11-15 06:39:07.690 (timestamp=2022084) reason=APP_CALLED_RESTART_INPUT_API restarting=true
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=119
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x8001 imeOptions=0x2000006 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #119:
+    time=2026-11-15 06:39:24.790 (timestamp=2039184) reason=APP_CALLED_RESTART_INPUT_API restarting=true
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=120
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x8001 imeOptions=0x2000006 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #120:
+    time=2026-11-15 06:39:35.339 (timestamp=2049733) reason=APP_CALLED_RESTART_INPUT_API restarting=true
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=121
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x0 imeOptions=0x0 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #121:
+    time=2026-11-15 06:39:45.344 (timestamp=2059738) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@1e31acd [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=122
+    softInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+    inputType=0x0 imeOptions=0x0 fieldId=0x1020002 fieldName=null actionId=0 actionLabel=null
+   StartInput #122:
+    time=2026-11-15 06:39:49.856 (timestamp=2064250) reason=WINDOW_FOCUS_GAIN restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=123
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x0 imeOptions=0x0 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #123:
+    time=2026-11-15 06:39:49.923 (timestamp=2064316) reason=CHECK_FOCUS restarting=false
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=124
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x8001 imeOptions=0x2000006 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+   StartInput #124:
+    time=2026-11-15 06:39:49.923 (timestamp=2064317) reason=APP_CALLED_RESTART_INPUT_API restarting=true
+    imeToken=android.os.Binder@b68f50a [com.android.inputmethod.latin/.LatinIME] imeUserId=0 imeDisplayId=0
+    targetWin=android.os.BinderProxy@8f08dfa [com.yidplus.app] targetUserId=0 targetDisplayId=0 clientBindSeq=125
+    softInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+    inputType=0x8001 imeOptions=0x2000006 fieldId=0xffffffff fieldName=null actionId=0 actionLabel=null
+  mSoftInputShowHideHistory:
+   SoftInputShowHideHistory #52:
+    time=2026-11-15 06:35:34.354 (timestamp=1808747)
+    reason=HIDE_MY_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+   SoftInputShowHideHistory #53:
+    time=2026-11-15 06:35:34.413 (timestamp=1808807)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+   SoftInputShowHideHistory #54:
+    time=2026-11-15 06:35:34.696 (timestamp=1809089)
+    reason=HIDE_MY_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+   SoftInputShowHideHistory #55:
+    time=2026-11-15 06:35:34.862 (timestamp=1809256)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=777420a com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_PAN
+   SoftInputShowHideHistory #56:
+    time=2026-11-15 06:35:38.204 (timestamp=1812597)
+    reason=HIDE_UNSPECIFIED_WINDOW inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=com.android.server.wm.DisplayContent$RemoteInsetsControlTarget@e6b1d5
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE
+   SoftInputShowHideHistory #57:
+    time=2026-11-15 06:39:07.459 (timestamp=2021852)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #58:
+    time=2026-11-15 06:39:07.461 (timestamp=2021855)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #59:
+    time=2026-11-15 06:39:07.690 (timestamp=2022084)
+    reason=ATTACH_NEW_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #60:
+    time=2026-11-15 06:39:07.694 (timestamp=2022088)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #61:
+    time=2026-11-15 06:39:09.952 (timestamp=2024346)
+    reason=HIDE_MY_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #62:
+    time=2026-11-15 06:39:24.790 (timestamp=2039184)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #63:
+    time=2026-11-15 06:39:24.794 (timestamp=2039188)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #64:
+    time=2026-11-15 06:39:27.286 (timestamp=2041680)
+    reason=HIDE_MY_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #65:
+    time=2026-11-15 06:39:49.923 (timestamp=2064317)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #66:
+    time=2026-11-15 06:39:49.926 (timestamp=2064319)
+    reason=SHOW_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+   SoftInputShowHideHistory #67:
+    time=2026-11-15 06:39:56.746 (timestamp=2071140)
+    reason=HIDE_MY_SOFT_INPUT inFullscreenMode=false
+    requestClient=ClientState{d42c56 uid=10130 pid=9019 displayId=0}
+    focusedWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    requestWindowName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeControlTargetName=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    imeTargetNameFromWm=30acfab com.yidplus.app/com.yidplus.app.MainActivity
+    editorInfo:  inputType=32769 privateImeOptions=null fieldId (viewId)=-1
+    focusedWindowSoftInputMode=STATE_UNSPECIFIED|ADJUST_RESIZE|IS_FORWARD_NAVIGATION
+ 
+Input method client state for android.view.inputmethod.InputMethodManager@8b94b5a:
+  mService=com.android.internal.view.IInputMethodManager$Stub$Proxy@d76b18b
+  mMainLooper=Looper (main, tid 2) {2242268}
+  mIInputContext=ControlledInputConnectionWrapper{connection=android.view.inputmethod.BaseInputConnection@4e8681 finished=false mParentInputMethodManager.mActive=true mServedView=null}
+  mActive=true mRestartOnNextWindowFocus=false mBindSequence=125 mCurId=com.android.inputmethod.latin/.LatinIME
+  mFullscreenMode=false
+  mCurMethod=com.android.internal.view.IInputMethodSession$Stub$Proxy@730c326
+  mCurRootView=android.view.ViewRootImpl@20309fd
+  mServedView=D0.C{2823cbb VFED..... .F...... 0,0-480,640 aid=1073741824}
+  mNextServedView=D0.C{2823cbb VFED..... .F...... 0,0-480,640 aid=1073741824}
+  mServedConnecting=false
+  mCurrentTextBoxAttribute:
+    inputType=0x8001 imeOptions=0x2000006 privateImeOptions=null
+    actionLabel=null actionId=0
+    initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0
+    hintText=null label=null
+    packageName=com.yidplus.app autofillId=1073741824 fieldId=-1 fieldName=null
+    extras=Bundle[{androidx.core.view.inputmethod.EditorInfoCompat.STYLUS_HANDWRITING_ENABLED=false}]
+    hintLocales=null
+    contentMimeTypes=null
+  mServedInputConnectionWrapper=ControlledInputConnectionWrapper{connection=R0.p@9cdb67 finished=false mParentInputMethodManager.mActive=true mServedView=D0.C{2823cbb VFED..... .F...... 0,0-480,640 aid=1073741824}}
+  mCompletions=null
+  mCursorRect=Rect(0, 0 - 0, 0)
+  mCursorSelStart=36 mCursorSelEnd=36 mCursorCandStart=-1 mCursorCandEnd=-1
+ 
+Input method service state for com.android.inputmethod.latin.LatinIME@403eb6f:
+  mViewsCreated=true
+  mDecorViewVisible=false mDecorViewWasVisible=false mWindowVisible=false mInShowWindow=false
+  Configuration={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h380dp 240dpi smll port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 480, 640) mAppBounds=Rect(0, 0 - 480, 616) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.2 s.616}
+  mToken=android.os.BinderProxy@b87d967
+  mInputBinding=InputBinding{android.os.BinderProxy@25c5cab / uid 10130 / pid 9019}
+  mInputConnection=InputConnectionWrapper{idHash=#cd1bf08 mMissingMethods=}
+  mStartedInputConnection=InputConnectionWrapper{idHash=#5b2f6a1 mMissingMethods=}
+  mInputStarted=true mInputViewStarted=false mCandidatesViewStarted=false
+  mInputEditorInfo:
+    inputType=0x8001 imeOptions=0x2000006 privateImeOptions=null
+    actionLabel=null actionId=0
+    initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0
+    hintText=null label=null
+    packageName=com.yidplus.app autofillId=1073741824 fieldId=-1 fieldName=null
+    extras=Bundle[mParcelledData.dataSize=168]
+    hintLocales=null
+    contentMimeTypes=null
+  mShowInputRequested=false mLastShowInputRequested=false mCanPreRender=false mIsPreRendered=false mShowInputFlags=0x0
+  mCandidatesVisibility=4 mFullscreenApplied=true mIsFullscreen=false mExtractViewHidden=false
+  mExtractedText: null
+  mExtractedToken=0
+  mIsInputViewShown=true mStatusIcon=0
+Last computed insets:
+  contentTopInsets=166 visibleTopInsets=166 touchableInsets=2 touchableRegion=SkRegion()
+ mSettingsObserver=SettingsObserver{mShowImeWithHardKeyboard=2}
+LatinIME state :
+  VersionCode = 28
+  VersionName = 11
+  Keyboard mode = 0
+Current settings :
+   mSpacingAndPunctuations = mSortedSymbolsPrecededBySpace = [38, 40, 91, 123]
+   mSortedSymbolsFollowedBySpace = [33, 38, 41, 44, 46, 58, 59, 63, 93, 125]
+   mSortedWordConnectors = [39, 45]
+   mSortedWordSeparators = [9, 10, 32, 33, 34, 38, 40, 41, 42, 43, 44, 46, 47, 58, 59, 60, 61, 62, 63, 91, 93, 95, 123, 124, 125, 160]
+   mSuggestPuncList = PunctuationSuggestions:  words=[!, ?, \,, :, ;, ", (, ), ', -, /, @, _]
+   mSentenceSeparator = 46
+   mSentenceSeparatorAndSpace = . 
+   mCurrentLanguageHasSpaces = true
+   mUsesAmericanTypography = true
+   mUsesGermanRules = false
+   mDelayInMillisecondsToUpdateOldSuggestions = 300
+   mAutoCap = true
+   mVibrateOn = true
+   mSoundOn = false
+   mKeyPreviewPopupOn = true
+   mShowsVoiceInputKey = true
+   mIncludesOtherImesInLanguageSwitchList = true
+   mShowsLanguageSwitchKey = true
+   mUseContactsDict = true
+   mUsePersonalizedDicts = true
+   mUseDoubleSpacePeriod = true
+   mBlockPotentiallyOffensive = true
+   mBigramPredictionEnabled = true
+   mGestureInputEnabled = false
+   mGestureTrailEnabled = true
+   mGestureFloatingPreviewTextEnabled = true
+   mSlidingKeyInputPreviewEnabled = true
+   mKeyLongpressTimeout = 300
+   mLocale = en_US
+   mInputAttributes = InputAttributes: inputType=0x00008001 shouldShowSuggestions insertSpaces targetApp=com.yidplus.app
+
+   mKeypressVibrationDuration = -1
+   mKeypressSoundVolume = -1.0
+   mKeyPreviewPopupDismissDelay = 70
+   mAutoCorrectEnabled = true
+   mAutoCorrectionThreshold = 0.185
+   mAutoCorrectionEnabledPerUserSettings = true
+   mSuggestionsEnabledPerUserSettings = true
+   mDisplayOrientation = 1
+   mAppWorkarounds = Target application : com.yidplus.app.App
+Package : com.yidplus.app
+Target app sdk version : 34
+   mIsInternal = false
+   mKeyPreviewShowUpDuration = 17
+   mKeyPreviewDismissDuration = 53
+   mKeyPreviewShowUpStartScaleX = 0.98
+   mKeyPreviewShowUpStartScaleY = 0.98
+   mKeyPreviewDismissEndScaleX = 0.94000006
+   mKeyPreviewDismissEndScaleY = 0.94000006
+
