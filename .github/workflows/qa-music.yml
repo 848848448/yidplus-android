@@ -38,7 +38,7 @@ jobs:
           s = open(p).read()
           a = "    private fun localMedia(u: String): String {\n"
           assert s.count(a) == 1
-          s = s.replace(a, a + "        if (u.contains(\"music%2Fqa\") || u.contains(\"music/qa\")) return \"http://10.0.2.2:8765/tone.mp3\"\n")
+          s = s.replace(a, a + "        if (u.contains(\"music%2Fqa\") || u.contains(\"music/qa\")) return \"http://10.0.2.2:8765/tone.wav\"\n")
           open(p, 'w').write(s)
           p = 'app/src/main/res/xml/network_security_config.xml'
           s = open(p).read()
@@ -379,11 +379,11 @@ jobs:
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
-      - name: Serve a generated 8 s 440 Hz mp3 over http on the runner (no private content)
+      - name: Serve a generated 8 s 440 Hz wav over http on the runner (no private content)
         run: |
-          mkdir -p /tmp/serve && ffmpeg -loglevel error -f lavfi -i "sine=frequency=440:duration=8" -c:a libmp3lame /tmp/serve/tone.mp3
+          mkdir -p /tmp/serve && python3 -c "import wave,math,struct; w=wave.open('/tmp/serve/tone.wav','wb'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(22050); w.writeframes(b''.join(struct.pack('<h', int(8000*math.sin(2*math.pi*440*i/22050))) for i in range(22050*8))); w.close()"
           ls -la /tmp/serve; (cd /tmp/serve && nohup python3 -m http.server 8765 --bind 0.0.0.0 >/tmp/serve.log 2>&1 &); sleep 2
-          curl -sI http://127.0.0.1:8765/tone.mp3 | head -3
+          curl -sI http://127.0.0.1:8765/tone.wav | head -3
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -419,3 +419,4 @@ jobs:
 # y32: rerun on the head with the top strip
 # y33
 # y37
+# y38
