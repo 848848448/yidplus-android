@@ -98,7 +98,7 @@ object Music {
         title = m.title?.toString() ?: ""; artist = m.artist?.toString() ?: ""; art = m.artworkUri?.toString()
         playing = p.isPlaying || (p.playWhenReady && p.playbackState == Player.STATE_BUFFERING)
         hasItem = p.mediaItemCount > 0; currentId = p.currentMediaItem?.mediaId
-        android.util.Log.i("YidMusic", "state=${p.playbackState} playing=${p.isPlaying} pos=${p.currentPosition} dur=${p.duration} err=${p.playerError?.errorCodeName}")
+        android.util.Log.i("YidMusic", "state=${p.playbackState} playing=${p.isPlaying} pos=${p.currentPosition} dur=${p.duration} err=${p.playerError?.errorCodeName} msg=${p.playerError?.message} cause=${p.playerError?.cause}")
     }
 
     fun connect(ctx: Context, then: ((MediaController) -> Unit)? = null) {
