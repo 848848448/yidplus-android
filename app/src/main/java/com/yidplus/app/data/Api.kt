@@ -113,6 +113,8 @@ object Api {
  *  sign-in-only reads come from the file, every write is answered locally. Switched on by the QA script (adb intent). */
 object Fixture {
     @Volatile var data: JSONObject? = null; private set
+    /** QA only: own status list answers with just the zero-view slide (st-me-2), so its viewers pill and empty sheet can be opened directly. */
+    @Volatile var onlyEmptyOwnStatus = false
     val on get() = data != null
     private fun prefs(c: Context) = c.getSharedPreferences("qa", Context.MODE_PRIVATE)
     fun init(c: Context) { if (prefs(c).getBoolean("fixture", false)) load(c) }
@@ -168,6 +170,8 @@ object Fixture {
     private fun localMedia(u: String): String {
         val a = u.substringAfterLast('.', "").substringBefore('?').lowercase()
         if (a == "webm") return webmFile ?: u
+        // Fixture videos keep their own name as a #fragment so each stays a distinct video (the feeds dedupe by file URL); the file itself is the same placeholder.
+        if (a == "mp4" || a == "m4v" || a == "mov") return (imgFile ?: u) + "#" + u.substringAfterLast('/').substringBefore('?')
         return (if (a in setOf("m4a", "mp3", "ogg", "opus", "wav", "aac", "amr")) voiceFile else imgFile) ?: u
     }
     // Site media, plus the QA sample files the fixtures used to point at on raw.githubusercontent.com: both go to the bundled local copies so fixture mode opens no network connection from the player.
@@ -206,6 +210,13 @@ object Fixture {
             // History variants (view=1 and friends): fall back to the room's canned history by room_id.
             val rid = q.substringAfter("room_id=").substringBefore('&')
             a = d.keys().asSequence().firstOrNull { it == "/api/chat?room_id=$rid" || it.startsWith("/api/chat?room_id=$rid&") }?.let { d.optJSONObject(it) }
+        }
+        if (a != null && onlyEmptyOwnStatus && u.encodedPath == "/api/statuses") {
+            val cp = JSONObject(a.toString()); val sts = cp.optJSONArray("statuses")
+            if (sts != null) for (i in 0 until sts.length()) { val st = sts.optJSONObject(i) ?: continue
+                if (st.optString("user_id") == "demo-me") { val sl = st.optJSONArray("slides") ?: continue; val keep = org.json.JSONArray()
+                    for (k in 0 until sl.length()) if (sl.optJSONObject(k)?.optString("id") == "st-me-2") keep.put(sl.get(k)); st.put("slides", keep) } }
+            a = cp
         }
         if (a != null && u.encodedPath == "/api/posts" && q == "user_id=demo-me") {
             val arr = a.optJSONArray("posts")
