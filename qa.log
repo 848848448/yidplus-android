@@ -1,0 +1,50 @@
+[18:19:07] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[18:19:10] screen 480x640 @ 240 dpi
+[18:19:10] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[18:19:10] ---- Signed in (QA fixture account) ----
+[18:19:14] fixture true
+[18:19:23] shot F01-home-signedin
+[18:19:23] open https://yidplus.com/chat
+[18:19:29] shot F02-chats-list
+[18:19:30] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[18:19:38] shot F03-chat-dm
+[18:19:39] shot F03b-chat-dm-up
+[18:19:43] open https://yidplus.com/chat
+[18:19:57] shot F04-chat-group
+[18:19:59] shot F04b-group-up
+[18:20:01] shot F04c-group-top
+[18:20:04] shot F05-message-actions
+[18:20:14] shot F06-notifications
+[18:20:16] tab Home
+[18:20:20] shot F07-home-header
+[18:20:20] open https://yidplus.com/shorts
+[18:20:29] shot F08-shorts-signedin
+[18:20:29] tab Profile
+[18:20:32] shot F09-profile-signedin
+[18:20:43] shot F09b-profile-scrolled
+[18:20:57] open https://yidplus.com/chat
+[18:21:01] shot F10-chats-dark
+[18:21:07] shot F11-chat-dark
+[18:21:14] screen 1080x2400 @ 420 dpi
+[18:21:22] open https://yidplus.com/chat
+[18:21:26] shot F12-phone-chats
+[18:21:33] shot F13-phone-chat
+[18:21:36] screen 480x640 @ 240 dpi
+[18:21:36] ---- qa/fx-v4.sh ----
+[18:21:43] STATE show_ime_with_hard_keyboard=1 | mInTouchMode=false
+[18:22:22] E4R mode a: after RIGHT,LEFT +2 s focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:22:22] shot R-a-22
+[18:23:02] E4R mode a: after RIGHT,LEFT +2 s focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:23:02] shot R-a-02
+[18:23:41] E4R mode a: after RIGHT,LEFT +2 s focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:23:41] shot R-a-41
+[18:24:21] E4R mode b: after RIGHT,LEFT +2 s focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:24:21] shot R-b-21
+[18:25:01] E4R mode b: after RIGHT,LEFT +2 s focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:25:01] shot R-b-01
+[18:25:41] E4R mode b: after RIGHT,LEFT +2 s focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[18:25:41] shot R-b-41
+[18:25:41] fixture writes the app would have sent: 11
+[18:25:45] fixture false
