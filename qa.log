@@ -1,0 +1,308 @@
+[04:03:37] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[04:03:40] screen 480x640 @ 240 dpi
+[04:03:40] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[04:03:40] ---- Signed in (QA fixture account) ----
+[04:03:44] fixture true
+[04:03:53] shot F01-home-signedin
+[04:03:53] open https://yidplus.com/chat
+[04:03:58] shot F02-chats-list
+[04:04:00] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[04:04:07] shot F03-chat-dm
+[04:04:09] shot F03b-chat-dm-up
+[04:04:12] open https://yidplus.com/chat
+[04:04:26] shot F04-chat-group
+[04:04:29] shot F04b-group-up
+[04:04:30] shot F04c-group-top
+[04:04:34] shot F05-message-actions
+[04:04:44] shot F06-notifications
+[04:04:46] tab Home
+[04:04:49] shot F07-home-header
+[04:04:49] open https://yidplus.com/shorts
+[04:04:58] shot F08-shorts-signedin
+[04:04:58] tab Profile
+[04:05:01] shot F09-profile-signedin
+[04:05:13] shot F09b-profile-scrolled
+[04:05:26] open https://yidplus.com/chat
+[04:05:31] shot F10-chats-dark
+[04:05:37] shot F11-chat-dark
+[04:05:44] screen 1080x2400 @ 420 dpi
+[04:05:52] open https://yidplus.com/chat
+[04:05:56] shot F12-phone-chats
+[04:06:03] shot F13-phone-chat
+[04:06:06] screen 480x640 @ 240 dpi
+[04:06:06] ---- qa/fx-nav.sh ----
+[04:06:16] NAV pre-script: navigation_mode=2
+[04:06:16] ---- qa/fx-cs.sh ----
+[04:06:25] screenrecord CS-flow-touch started
+[04:06:32] open chat r-cs
+[04:06:32] shot CS-01-open-unread-line
+  node: text="5 unread messages" class="android.widget.TextView" content-desc="" bounds="[153,388][327,421]" 
+[04:06:33] CS ok: '5 unread messages' on screen
+  node: text="5 unread messages" class="android.widget.TextView" content-desc="" bounds="[153,388][327,421]" 
+[04:06:36] CS ok: focused row fully readable after opening (unread open bounds 66 259 362 369, height 110px)
+[04:06:44] CS ok: D-pad UP moved the focus (66 259 362 369 -> 66 129 468 489)
+[04:06:44] CS ok: D-pad DOWN moved the focus again (66 129 468 489 -> 66 418 362 528)
+[04:06:48] shot CS-01e-dpad-ok-bubble
+[04:06:48] CS ok: D-pad OK on the focused bubble opened the message action sheet (Forward/Save message on screen, focused row was 66 418 362 528)
+[04:06:52] CS ok: BACK closed the action sheet
+[04:06:59] open chat r-cs
+[04:06:59] shot CS-01d-open-no-unread
+[04:07:01] CS ok: no-unread open shows the newest message fully above the composer (bottom y=472, composer top y=556)
+[04:07:01] CS ok: focused row fully readable after opening (no-unread open bounds 66 404 293 514, height 110px)
+[04:07:07] open chat r-cs
+  node: text="" class="android.view.View" content-desc="Newest" bounds="[413,461][449,497]" 
+  node: text="" class="android.view.View" content-desc="Newest" bounds="[413,461][449,497]" 
+[04:07:12] cstap 431 479
+[04:07:14] CS jumped to newest before the keyboard check
+[04:07:15] CS newest message body chosen from the dump: מיר טרעפן זיך 8:00
+  node: text="Message" class="android.widget.TextView" content-desc="" bounds="[96,556][201,589]" 
+[04:07:19] cstap 148 572
+[04:07:20] keyboard shown after composer tap: mInputShown=true
+[04:07:20] shot CS-24-keyboard-up
+[04:07:21] CS24 pane top y=0
+[04:07:21] CS ok: composer keeps 'Attach' with the keyboard up
+[04:07:21] CS ok: composer keeps 'Record voice message' with the keyboard up
+[04:07:21] CS ok: composer text height 33px with the keyboard up
+[04:07:21] CS ok: last message body fully inside the viewport with the keyboard up (197x34px vs 197x34px unclipped; y 43-77, pane top 0, composer top 162)
+[04:07:24] CS ok: typed text is in the field with the keyboard up
+[04:07:24] CS ok: 'Send' present while typing
+[04:07:24] CS ok: 'Attach' present while typing
+[04:07:24] CS ok: 'Emoji' present while typing
+[04:07:25] shot CS-24b-typed
+  node: text="hello" class="android.widget.EditText" content-desc="" bounds="[72,142][333,214]" 
+  node: text="hello" class="android.widget.EditText" content-desc="" bounds="[72,142][333,214]" 
+[04:07:30] cstap 202 178
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,154][456,190]" 
+[04:07:41] CS cleared the typed draft (verified: no 'hello' node and the mic is back in the composer, try 1)
+[04:07:50] CS ok: status bar back (after-keyboard; first text at y=54)
+[04:08:11] csfind: 'Niggun' not found
+[04:08:11] shot CS-02-formatting-voice-music
+  node: text="גוט מארגן! זעט דא די נייע אלטע פלאן: yidplus.com/chat און code @Yanky" class="android.widget.TextView" content-desc="" bounds="[81,129][453,169]" 
+[04:08:23] shot CS-02b-formatting-album
+[04:08:33] shot CS-03-older-page-loaded
+  node: text="עלטערע מעסעדזש 1" class="android.widget.TextView" content-desc="" bounds="[81,249][298,283]" 
+  node: text="עלטערע מעסעדזש 1" class="android.widget.TextView" content-desc="" bounds="[81,249][298,283]" 
+[04:08:36] CS ok: 'עלטערע מעסעדזש 1' on screen
+[04:08:40] CS ok: status bar back (after-leaving-room; first text at y=63)
+[04:08:44] open chat r-cs
+  node: text="  פלאפל" class="android.widget.TextView" content-desc="" bounds="[114,129][447,131]" 
+[04:08:52] shot CS-04-polls
+  node: text="+ Suggest an option" class="android.widget.TextView" content-desc="" bounds="[99,233][291,263]" 
+  node: text="+ Suggest an option" class="android.widget.TextView" content-desc="" bounds="[99,233][291,263]" 
+[04:08:56] CS ok: '+ Suggest an option' on screen
+  node: text="  פלאפל" class="android.widget.TextView" content-desc="" bounds="[114,129][447,131]" 
+[04:08:59] cstap 280 130
+  YidFx: 11-15 04:08:57.227  3556  3593 I YidFx   : PUT /api/polls {"id":"p-cs1","vote":["o2"]}
+[04:09:01] shot CS-05-poll-voted
+  node: text="Close Poll" class="android.widget.TextView" content-desc="" bounds="[339,386][453,458]" 
+[04:09:06] shot CS-05b-quiz-close-poll
+  node: text="Close Poll" class="android.widget.TextView" content-desc="" bounds="[339,386][453,458]" 
+[04:09:08] CS ok: 'Close Poll' on screen
+[04:09:14] open chat r-cs
+  node: text="&#127908; Voice message 0:12" class="android.widget.TextView" content-desc="" bounds="[337,533][396,539]" 
+[04:09:17] cstap: 'Play' not on screen
+[04:09:21] shot CS-06-voice-playing
+[04:09:23] cstap: '1x' not on screen
+[04:09:24] shot CS-06b-voice-1.5x
+[04:09:26] cstap: 'Pause' not on screen
+[04:09:47] csplayat: target bubble bounds [66,268][465,397] fully inside the list area, exactly one Play inside it
+[04:09:49] csplayat tapped the Play button inside the bubble that contains the label, at 111 316
+[04:09:51] CS ok: that exact bubble entered playing state (Pause at the tapped bounds)
+[04:09:53] shot CS-06w-webm-playing
+[04:09:58] open chat r-cs
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,554][456,590]" 
+[04:10:01] CS clean-state: mic present, no draft (try 1)
+[04:10:07] CS escape check start (empty draft): focus [EditText|Message|[72,536][267,608]]
+[04:10:10] CS ok: RIGHT from the empty composer field reached a composer control (focus path: [Button|Attach|[264,539][330,611]])
+[04:10:10] shot CS-24e-escape-empty
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[420,554][456,590]" 
+[04:10:25] CS ok: with a typed draft, LEFT then RIGHT kept the focus in the field (caret editing preserved: [EditText|ab|[72,536][333,608]] -> [EditText|ab|[72,536][333,608]])
+[04:10:38] CS NOTE (not scored): RIGHT presses from the end of a typed draft did not leave the field (focus path: [EditText|ab|[72,536][333,608]] [EditText|ab|[72,536][333,608]] [EditText|ab|[72,536][333,608]] [EditText|ab|[72,536][333,608]]); caret editing vs keypad escape intended behaviour is not grounded
+[04:10:38] shot CS-24f-escape-draft
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,154][456,190]" 
+[04:11:04] CS clean-state: mic present, no draft (try 2)
+[04:11:04] CS ok: composer cleaned again after the escape check (no draft, mic present)
+[04:11:11] open chat r-cs
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,554][456,590]" 
+[04:11:14] cstap 438 572
+[04:11:17] shot CS-07-voice-locked
+[04:11:19] CS touch-start recording: focus right after the touch start: [none] (informational)
+[04:11:22] shot CS-07y-touch-start-after-dpad
+[04:11:24] CS touch-start recording: focus after one D-pad DOWN: [View|Send voice message|[399,535][471,607]] (informational; pixels in CS-07y)
+[04:11:28] shot CS-07z-touch-start-after-ok
+[04:11:30] CS ok: touch-start recording then ONE D-pad DOWN then OK posted a new voice message (0 -> 1 type=voice requests)
+[04:11:30] CS ok: the touch-start recording ended after OK
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,554][456,590]" 
+[04:11:33] cstap 438 572
+  node: text="" class="android.widget.Button" content-desc="Pause recording" bounds="[264,535][330,607]" 
+[04:11:40] cstap 297 571
+[04:11:41] shot CS-07b-voice-paused
+  node: text="" class="android.widget.Button" content-desc="Resume recording" bounds="[264,535][330,607]" 
+[04:11:45] cstap 297 571
+  node: text="" class="android.widget.Button" content-desc="Stop and listen" bounds="[330,535][399,607]" 
+[04:11:51] cstap 364 571
+[04:11:52] shot CS-07c-voice-listen
+  node: text="" class="android.view.View" content-desc="Send voice message" bounds="[417,553][453,589]" 
+[04:11:56] cstap 435 571
+  YidFx: 11-15 04:11:53.585  3556  3593 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 152862 bytes> (fixture: kept local, not sent)
+[04:12:05] open chat r-cs
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,554][456,590]" 
+[04:12:08] cstap 438 572
+  node: text="" class="android.widget.Button" content-desc="Stop and listen" bounds="[330,535][399,607]" 
+[04:12:18] cstap 364 571
+  node: text="" class="android.view.View" content-desc="Send voice message" bounds="[417,553][453,589]" 
+[04:12:22] cstap 435 571
+[04:12:26] CS ok: newest voice bubble shows 0:09 for a recording timed at 10s by the clock (expected 8-12 s)
+[04:12:26] shot CS-07a-voice-sent-duration
+[04:12:34] open chat r-cs
+[04:12:34] shot CS-07d-voice-after-reopen
+  node: text="" class="android.view.View" content-desc="Newest" bounds="[413,461][449,497]" 
+  node: text="" class="android.view.View" content-desc="Newest" bounds="[413,461][449,497]" 
+[04:12:39] cstap 431 479
+[04:12:43] csplaylast 114 433
+[04:12:45] csplaylast verified playing at 114 433
+[04:12:49] shot CS-07e-voice-reopen-playing
+[04:12:51] video qa/out/CS-flow-touch.mp4 280626 bytes
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,554][456,590]" 
+[04:12:55] shot CS-08-voice-holding
+  YidFx: 11-15 04:12:56.383  3556  6434 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 41684 bytes> (fixture: kept local, not sent)
+  node: text="" class="android.widget.ImageView" content-desc="Record voice message (hold, or tap for hands-free)" bounds="[420,554][456,590]" 
+[04:13:05] shot CS-08b-voice-slid-cancel
+  node: text="ווער קומט היינט ביינאכט?" class="android.widget.TextView" content-desc="" bounds="[81,181][347,215]" 
+[04:13:21] cslong: 'ווער קומט היינט ביינאכט?' found after 4 swipe(s) (last direction: older)
+[04:13:24] long-press 214 198
+[04:13:24] shot CS-09-long-press-bar
+  node: text="" class="android.widget.Button" content-desc="More actions" bounds="[405,51][477,123]" 
+[04:13:26] CS ok: 'More actions' on screen
+  node: text="" class="android.widget.Button" content-desc="More actions" bounds="[405,51][477,123]" 
+[04:13:30] cstap 441 87
+[04:13:31] shot CS-09b-long-press-all-actions
+  node: text="ווער קומט היינט ביינאכט?" class="android.widget.TextView" content-desc="" bounds="[81,181][347,215]" 
+[04:13:39] long-press 214 198
+  node: text="יא, זייער גוט" class="android.widget.TextView" content-desc="" bounds="[123,488][247,522]" 
+[04:13:43] cstap 185 505
+[04:13:44] shot CS-10-select-2
+  node: text="2" class="android.widget.TextView" content-desc="" bounds="[84,71][273,104]" 
+[04:13:45] CS ok: '2' on screen
+  node: text="" class="android.widget.Button" content-desc="Copy" bounds="[273,51][339,93]" 
+[04:13:49] cstap 306 72
+  node: text="יא, זייער גוט" class="android.widget.TextView" content-desc="" bounds="[81,488][205,522]" 
+[04:13:56] long-press 143 505
+[04:13:57] cstap: 'זאל זיין מיט מזל' not on screen
+  node: text="" class="android.widget.Button" content-desc="Forward" bounds="[273,51][339,123]" 
+[04:14:02] cstap 306 87
+[04:14:05] shot CS-11-forward-many
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[108,263][456,296]" 
+[04:14:08] cstap 282 279
+  YidFx: 11-15 04:14:06.488  3556  6434 I YidFx   : POST /api/chat {"room_id":"r-dm1","type":"text","text":"יא, זייער גוט","forwarded":true}
+[04:14:18] open chat r-cs
+  node: text="מיר טרעפן זיך 8:00" class="android.widget.TextView" content-desc="" bounds="[81,344][278,378]" 
+[04:15:09] cslong: 'מיר טרעפן זיך 8:00' found after 14 swipe(s) (last direction: newer)
+[04:15:12] long-press 179 361
+  node: text="" class="android.widget.Button" content-desc="More actions" bounds="[405,51][477,123]" 
+[04:15:16] cstap 441 87
+[04:15:44] CS ok: D-pad reached 'Report' in the message action sheet (focus path: [] [View|❤️|[8,103][74,175]] [View|Reply|[0,189][480,261]] [View|Copy|[0,261][480,333]] [View|Forward|[0,333][480,405]] [View|Save message|[0,405][480,477]] [View|Share to apps|[0,477][480,549]] [View|Select|[0,531][480,603]] [View|Report|[0,531][480,603]])
+[04:15:44] shot CS-12d-dpad-focus-report
+  node: text="Report" class="android.widget.TextView" content-desc="" bounds="[87,551][161,584]" 
+[04:15:46] shot CS-12a-menu-scrolled-to-report
+  node: text="Report" class="android.widget.TextView" content-desc="" bounds="[87,551][161,584]" 
+[04:15:50] cstap 124 567
+  node: text="Harassment" class="android.widget.TextView" content-desc="" bounds="[108,248][241,280]" 
+[04:15:54] cstap 174 264
+[04:15:54] shot CS-12-report
+  node: text="Submit Report" class="android.widget.TextView" content-desc="" bounds="[288,528][426,558]" 
+[04:15:58] cstap 357 543
+  YidFx: 11-15 04:15:55.878  3556  3597 I YidFx   : POST /api/reports {"reported_id":"u-yossi","room_id":"r-cs","message_id":"cs21","reason":"harassment","details":""}
+  node: text="זאל זיין מיט מזל" class="android.widget.TextView" content-desc="" bounds="[81,224][242,258]" 
+[04:16:04] double-tap 161 241
+  YidFx: 11-15 04:16:01.609  3556  6434 I YidFx   : POST /api/chat/reactions {"message_id":"cs20","emoji":"❤️"}
+[04:16:04] shot CS-13-double-tap-heart
+  node: text="Yanky" class="android.widget.TextView" content-desc="" bounds="[74,138][146,203]" 
+[04:16:08] cstap 110 170
+[04:16:09] shot CS-14-person-card
+  node: text="" class="android.widget.Button" content-desc="More" bounds="[405,51][477,123]" 
+[04:16:15] cstap 441 87
+  node: text="Message options" class="android.widget.TextView" content-desc="" bounds="[267,307][456,337]" 
+[04:16:19] cstap 361 322
+  node: text="1 hour" class="android.widget.TextView" content-desc="" bounds="[259,358][321,388]" 
+[04:16:24] cstap 290 373
+[04:16:24] shot CS-15-message-options
+  node: text="Done" class="android.widget.TextView" content-desc="" bounds="[375,466][426,496]" 
+[04:16:27] cstap 400 481
+[04:16:29] shot CS-15b-options-badge
+  node: text="Message" class="android.widget.TextView" content-desc="" bounds="[96,556][201,589]" 
+[04:16:32] cstap 148 572
+  node: text="" class="android.widget.ImageView" content-desc="Send" bounds="[420,154][456,190]" 
+[04:16:38] cstap 438 172
+  YidFx: 11-15 04:16:36.360  3556  3597 I YidFx   : POST /api/chat {"room_id":"r-cs","type":"text","text":"QA disappear","disappear_seconds":3600}
+[04:16:48] open chat r-cs
+  node: text="" class="android.widget.Button" content-desc="Attach" bounds="[264,539][330,611]" 
+[04:16:51] cstap 297 575
+[04:16:52] shot CS-16-attach-sheet
+  node: text="Poll" class="android.widget.TextView" content-desc="" bounds="[396,478][427,511]" 
+[04:16:56] cstap 411 494
+[04:16:59] shot CS-17-poll-new
+  node: text="Ask a question" class="android.widget.TextView" content-desc="" bounds="[48,129][180,143]" 
+[04:17:03] cstap 114 136
+  node: text="Option 1" class="android.widget.TextView" content-desc="" bounds="[48,422][141,455]" 
+[04:17:09] cstap 94 438
+  node: text="Option 2" class="android.widget.TextView" content-desc="" bounds="[48,260][141,293]" 
+[04:17:15] cstap 94 276
+  node: text="Quiz Mode" class="android.widget.TextView" content-desc="" bounds="[24,458][144,491]" 
+  node: text="Quiz Mode" class="android.widget.TextView" content-desc="" bounds="[24,458][144,491]" 
+[04:17:27] cstap 84 474
+[04:17:28] shot CS-17b-poll-settings
+  node: text="" class="android.widget.Button" content-desc="Create Poll" bounds="[405,51][477,123]" 
+[04:17:31] cstap 441 87
+  YidFx: 11-15 04:17:29.567  3556  8778 I YidFx   : POST /api/polls {"room_id":"r-cs","question":"QA poll","options":["A","B"],"show_who_voted":false,"allow_multiple":false,"allow_add_options":false,"allow_revote":true,"shuffle_options":false,"quiz_mode":true,"duration_minutes":null,"correct_indices":[]}
+[04:17:41] open chat r-cs
+  node: text="" class="android.widget.Button" content-desc="Emoji" bounds="[3,539][75,611]" 
+[04:17:44] cstap 39 575
+[04:17:47] shot CS-18-emoji-recent
+  node: text="Stickers" class="android.widget.TextView" content-desc="" bounds="[75,273][154,306]" 
+[04:17:50] cstap 114 289
+[04:17:53] shot CS-18b-stickers
+[04:18:04] open chat r-g1
+[04:18:04] shot CS-19-group-call-banner
+  node: text="  Call in progress · 2 on the call" class="android.widget.TextView" content-desc="" bounds="[51,144][379,177]" 
+[04:18:05] CS ok: 'Call in progress' on screen
+  node: text="" class="android.widget.Button" content-desc="More" bounds="[405,51][477,123]" 
+[04:18:09] cstap 441 87
+[04:18:10] shot CS-20-menu
+  node: text="Pinned messages" class="android.widget.TextView" content-desc="" bounds="[257,510][451,540]" 
+[04:18:14] cstap 354 525
+[04:18:17] shot CS-21-pinned-list
+  node: text="" class="android.widget.Button" content-desc="More" bounds="[405,51][477,123]" 
+[04:18:23] cstap 441 87
+  node: text="Copy invite link" class="android.widget.TextView" content-desc="" bounds="[257,438][425,468]" 
+[04:18:27] cstap 341 453
+[04:18:36] open chat r-cs
+[04:18:37] screenrecord CS-flow-dpad started
+[04:18:49] shot CS-22-dpad-focus
+[04:19:07] CS D-pad reached the mic (focus path: [] [View|Yossi Klein|[66,259][362,369]] [View|Yanky|[66,418][337,528]] [View|Yossi Klein|[66,418][220,528]] [View|Yanky|[66,418][257,528]] [View|Newest|[395,443][467,515]] [View|Record voice message (hold, or tap for hands-free)|[402,536][474,608]])
+[04:19:13] CS focus right after the recording started: [View|Send voice message|[399,535][471,607]]
+[04:19:14] shot CS-22c-recording-pixels
+[04:19:15] CS D-pad reached 'Send voice message' (focus path: [View|Send voice message|[399,535][471,607]])
+[04:19:20] shot CS-23-dpad-voice-sent
+[04:19:20] CS ok: D-pad OK on Send posted a new voice message (4 -> 5 type=voice requests); newest request: 11-15 04:19:15.546  3556  9267 I YidFx   : POST /api/chat?room_id=r-cs type=voice <audio/mp4 95741 bytes> (fixture: kept local, not sent)
+[04:19:22] CS ok: no recording active after the D-pad send step (test state clean)
+[04:19:38] video qa/out/CS-flow-dpad.mp4 176995 bytes
+[04:19:38] CS offline-check: initial state wifi_on=1 mobile_data=1
+[04:19:38] CS offline-check: HTTP probe with the network on: [HTTP/1.1 301 Moved Permanently done ]
+[04:19:38] CS offline-check: routes before: 10.0.2.0/24 dev radio0 proto kernel scope link src 10.0.2.15  10.0.2.0/24 dev wlan0 proto kernel scope link src 10.0.2.16  
+[04:19:43] CS offline-check: HTTP probe after disabling wifi+data: [nc: connect: Network is unreachable done ]; routes after: 
+[04:19:43] CS offline-check: the HTTP probe fails with wifi+data off (path removed for this probe)
+[04:19:49] open chat r-cs
+[04:20:02] csplayat: target bubble bounds [69,210][468,339] fully inside the list area, exactly one Play inside it
+[04:20:04] csplayat tapped the Play button inside the bubble that contains the label, at 114 258
+[04:20:06] CS ok: that exact bubble entered playing state (Pause at the tapped bounds)
+[04:20:06] shot CS-30-network-off-voice
+  node: text="Message" class="android.widget.TextView" content-desc="" bounds="[96,556][201,589]" 
+[04:20:07] CS ok: 'Message' on screen
+[04:20:07] CS offline-check: no connection-failure lines in the log while offline (this alone does not prove nothing was attempted)
+[04:20:13] CS offline-check: restored; HTTP probe now: [HTTP/1.1 301 Moved Permanently done ] wifi_on=1 mobile_data=1
+[04:20:13] CS done
+[04:20:13] fixture writes the app would have sent: 0
+[04:20:17] fixture false
