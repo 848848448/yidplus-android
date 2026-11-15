@@ -75,6 +75,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
@@ -149,8 +150,9 @@ internal fun ChBar(title: String, sub: String? = null, onBack: (() -> Unit)? = n
 }
 
 @Composable
-internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, size: Dp = 44.dp, focus: androidx.compose.ui.focus.FocusRequester? = null) {
-    Box(Modifier.size(size).then(if (focus != null) Modifier.focusRequester(focus) else Modifier).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint: Color = LocalContentColor.current, size: Dp = 44.dp, focus: androidx.compose.ui.focus.FocusRequester? = null, leftTo: androidx.compose.ui.focus.FocusRequester? = null, rightTo: androidx.compose.ui.focus.FocusRequester? = null) {
+    // leftTo / rightTo: an explicit D-pad target, so the neighbour does not depend on the layout at the moment of the key press (the keyboard hiding resizes the row).
+    Box(Modifier.size(size).then(if (leftTo != null || rightTo != null) Modifier.focusProperties { leftTo?.let { left = it }; rightTo?.let { right = it } } else Modifier).then(if (focus != null) Modifier.focusRequester(focus) else Modifier).tap(CircleShape, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
     }
 }
