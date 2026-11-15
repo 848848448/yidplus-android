@@ -100,7 +100,7 @@ fun soOpenUploadShort(id: String) {
 /** Opens a For You video found by search. */
 fun soOpenFeedClip(s: Clip) {
     Feeds.forYou.items.removeAll { it.key == s.key }; Feeds.forYou.items.add(0, s)
-    Feeds.who = null; SoShortTopics.topic = "All"; Feeds.startKey = s.key; Feeds.tab = ShortsTab.ForYou; Nav.go(Tab.Shorts)
+    Feeds.who = null; SoShortTopics.topic = "All"; Feeds.startKey = s.key; Feeds.tab = ShortsTab.ForYou; Nav.goShortsFrom()
 }
 
 /** A creator's page: picture, name, Follow, and every video of theirs the app has (tap one to watch from there). */
@@ -170,7 +170,7 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
                         Box(Modifier.aspectRatio(9f / 14f).tap(RoundedCornerShape(2.dp)) {
                             if (!fromSrc) { Feeds.uploads.items.removeAll { it.key == s.key }; Feeds.uploads.items.add(0, s) }
                             Feeds.who = creatorId; Feeds.whoName = name; Feeds.startKey = s.key
-                            Feeds.tab = if (fromSrc) ShortsTab.ForYou else ShortsTab.Uploads; Nav.go(Tab.Shorts)
+                            Feeds.tab = if (fromSrc) ShortsTab.ForYou else ShortsTab.Uploads; Nav.goShortsFrom()
                         }) {
                             SoVideoPoster(s.poster, "", s.duration, Modifier.fillMaxSize(), fit = ContentScale.Crop)
                             if (s.likes > 0) Row(Modifier.align(Alignment.BottomEnd).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
