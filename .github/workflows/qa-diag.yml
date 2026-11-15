@@ -282,4 +282,4 @@ jobs:
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-diag-${{ matrix.target }}-${{ matrix.part }}
 # y32: rerun on the head with the top strip
 # y33
-# y34 on head with chips/creator/composer-key log
+# y35 focus logging
