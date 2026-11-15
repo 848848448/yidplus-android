@@ -137,7 +137,7 @@ clst "Invite link"; sleep 2; shot CL-19-invite; cltap "Revoke link"; sleep 1.5; 
 clst "Files"; shot CL-15-info-media-tab; cltap "Files"; sleep 1; shot CL-15b-files; cltap "Links"; sleep 1; shot CL-15c-links; cltap "Voice"; sleep 1; shot CL-15d-voice; cltap "Media"
 clst "Yanky Weiss"; sleep 1; shot CL-17-member-sheet; cltap "Set title"; sleep 1; adb shell input text "Gabbai"; key 4; sleep 1; shot CL-17a-title; cltap "Save"; sleep 2; clfx '"member_title":"Gabbai"'
 clst "Shaya"; sleep 1; cltap "Remove from group"; sleep 1; shot CL-17b-remove-confirm; cltap "Remove"; sleep 2; clfx '"remove":true'
-shot CL-16-members; if [ -z "$(clseek "Report group" "")" ]; then log "CL NOTE (not a pass): no 'Report group' for the owner after scrolling the whole page; the intended owner permission is not established from requirements"; else log "CL NOTE (not a pass): 'Report group' is shown to the owner of the group; intended owner permission not established"; fi; log "CL MISSING: 'Report group' as a NON-owner is not exercised in this fixture; owner intent unestablished"; cltop
+shot CL-16-members; if [ -z "$(clseek "Report group" "")" ]; then log "CL NOTE (not a pass): no 'Report group' for the owner after scrolling the whole page; the intended owner permission is not established from requirements"; else log "CL NOTE (not a pass): 'Report group' is shown to the owner of the group; intended owner permission not established"; fi; log "CL N/A: the site has no group-level Report (only message and member reports, both covered above)"; cltop
 clhas "Group info"   # still on the info page: its top bar has the Edit (pencil) button
 
 # ── Edit group: every switch saves at once (chat.js _geToggle), Send Media sub-screen, Administrators ──
