@@ -54,7 +54,18 @@ object Nav {
      */
     val reselect = androidx.compose.runtime.mutableStateMapOf<Tab, Int>()
 
+    /** Where Back returns from the Shorts tab when a video was opened from a page (creator page, search): that tab and its stack. */
+    private var shortsTab: Tab? = null
+    private var shortsStack: List<Screen> = emptyList()
+    /** Open a video in Shorts from a page; Back then returns to that page (the stack is kept, not cleared). */
+    fun goShortsFrom() {
+        val t = tab; val st = stack.toList()
+        go(Tab.Shorts)
+        if (t != Tab.Shorts) { shortsTab = t; shortsStack = st }
+    }
+
     fun go(t: Tab) {
+        shortsTab = null
         val ok = if (com.yidplus.app.data.SiteConfig.visible(t)) t else start
         stack.clear(); tab = ok; Perf.start(ok.name); com.yidplus.app.data.Prefs.lastTab = ok.name
     }
@@ -68,6 +79,10 @@ object Nav {
 
     /** true when it went back; false when the app is at its start (Back then leaves the app). */
     fun back(): Boolean {
+        if (tab == Tab.Shorts && stack.isEmpty()) shortsTab?.let { t ->
+            val st = shortsStack; shortsTab = null; shortsStack = emptyList()
+            tab = t; com.yidplus.app.data.Prefs.lastTab = t.name; stack.clear(); stack.addAll(st); return true
+        }
         if (stack.isNotEmpty()) { stack.removeAt(stack.lastIndex); return true }
         if (tab == Tab.Home && homeDetail != null) { homeDetail = null; return true }
         if (tab == Tab.Chats && chatDetail != null) { chatDetail = null; return true }
