@@ -456,7 +456,7 @@ internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.f
         retry[0]?.cancel(); retry[0] = null
         if (t != null && runCatching { t.requestFocus() }.isSuccess) {
             val st = CsIntent.stamp
-            retry[0] = scope.launch { kotlinx.coroutines.delay(400); if (CsIntent.stamp == st && curText.value.isEmpty()) runCatching { t.requestFocus() } }
+            retry[0] = scope.launch { repeat(8) { kotlinx.coroutines.delay(200); if (CsIntent.stamp != st || curText.value.isNotEmpty()) return@launch; runCatching { t.requestFocus() } } }
             return true
         }
         return fm.moveFocus(d)
