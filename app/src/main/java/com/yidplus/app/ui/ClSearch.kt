@@ -104,7 +104,7 @@ internal fun ClSearchScreen(rooms: List<ChatRoomInfo>, onClose: () -> Unit) {
     val kb = LocalSoftwareKeyboardController.current
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { delay(80); runCatching { focus.requestFocus() }; kb?.show() }
-    BackHandler { onClose() }
+    BackHandler(enabled = Nav.stack.isEmpty()) { onClose() }
     val t = q.trim()
     LaunchedEffect(t) {
         msgs = emptyList(); groups = emptyList(); people = emptyList()
