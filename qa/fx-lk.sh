@@ -93,7 +93,9 @@ key 4; sleep 2; key 4; sleep 2
 lk_mine 4
 lk_mark new-post; lk_tapui "New post"; sleep 3; adb shell input text "Test%spost%sfrom%sthe%sapp"; sleep 1; shot LK-10-new-post
 lk_tapui "Post"; sleep 3; shot LK-11-new-post-sent
+adb shell input swipe 240 520 240 200 250; sleep 1; shot LK-11e-new-post-in-list
 key 4; sleep 2; lk_mine 4
+adb shell input swipe 240 520 240 200 250; sleep 1; shot LK-11f-reopen-list
 lk_mark new-photo-post; lk_tapui "New post"; sleep 3; adb shell input text "Photo%spost"; sleep 1; key 111; sleep 1; lk_tapui "Photo"; sleep 4; shot LK-11b-photo-picker
 lk_tapui "lkqa.png"; sleep 3
 if [ "$LK_OK" != 1 ]; then lk_inpicker && { log "picker open, file row not found: back"; key 4; sleep 2; }; lk_qapick image; fi
