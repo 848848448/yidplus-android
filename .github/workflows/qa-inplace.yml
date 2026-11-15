@@ -104,3 +104,4 @@ jobs:
       - name: Result
         run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT
 # rerun for the video-channels head cc4f594
+# rerun on head 978796d
