@@ -64,16 +64,16 @@ data class SoFollowPeoplePage(val unused: Int = 0) : PageScreen() {
                     val list = if (t.isEmpty()) sorted else sorted.filter { it.name.contains(t, true) }
                     if (list.isEmpty()) SoEmpty(Sym.Search, "No people for \u201c$t\u201d")
                     else LazyColumn(Modifier.fillMaxSize()) {
-                        item {
+                        if (t.isEmpty()) item {
                             val n = all.count { it.key in Feeds.follows }
-                            Text("${list.size} people" + (if (n > 0) " \u00b7 following $n" else "") + (if (res.fromCache) " \u00b7 saved copy" else ""),
+                            Text((if (list.size == 1) "1 person" else "${list.size} people") + (if (n > 0) " \u00b7 following $n" else "") + (if (res.fromCache) " \u00b7 saved copy" else ""),
                                 Modifier.padding(horizontal = 16.dp, vertical = 8.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         items(list, key = { it.key }) { ch ->
                             val following = ch.key in Feeds.follows
-                            Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(start = 16.dp, end = 12.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Row(Modifier.fillMaxWidth().heightIn(min = if (t.isEmpty()) 64.dp else 44.dp).padding(start = 16.dp, end = 12.dp, top = if (t.isEmpty()) 6.dp else 2.dp, bottom = if (t.isEmpty()) 6.dp else 2.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Row(Modifier.weight(1f).tap(RoundedCornerShape(8.dp)) { Nav.open(SoCreatorPage(ch.key, ch.name, ch.avatar, ch.verified, true)) }, verticalAlignment = Alignment.CenterVertically) {
-                                    SoThumb(ch.avatar, ch.name, 46.dp)
+                                    SoThumb(ch.avatar, ch.name, if (t.isEmpty()) 46.dp else 34.dp)
                                     Row(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                         Text(ch.name, Modifier.weight(1f, fill = false), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
                                             maxLines = 1, overflow = TextOverflow.Ellipsis)
