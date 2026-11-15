@@ -1,0 +1,99 @@
+[10:23:04] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[10:23:07] screen 480x640 @ 240 dpi
+[10:23:07] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[10:23:07] ---- Signed in (QA fixture account) ----
+[10:23:11] fixture true
+[10:23:21] shot F01-home-signedin
+[10:23:21] open https://yidplus.com/chat
+[10:23:26] shot F02-chats-list
+[10:23:27] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[10:23:35] shot F03-chat-dm
+[10:23:37] shot F03b-chat-dm-up
+[10:23:40] open https://yidplus.com/chat
+[10:23:54] shot F04-chat-group
+[10:23:56] shot F04b-group-up
+[10:23:58] shot F04c-group-top
+[10:24:02] shot F05-message-actions
+[10:24:12] shot F06-notifications
+[10:24:14] tab Home
+[10:24:17] shot F07-home-header
+[10:24:17] open https://yidplus.com/shorts
+[10:24:26] shot F08-shorts-signedin
+[10:24:26] tab Profile
+[10:24:29] shot F09-profile-signedin
+[10:24:41] shot F09b-profile-scrolled
+[10:24:54] open https://yidplus.com/chat
+[10:24:59] shot F10-chats-dark
+[10:25:05] shot F11-chat-dark
+[10:25:12] screen 1080x2400 @ 420 dpi
+[10:25:20] open https://yidplus.com/chat
+[10:25:24] shot F12-phone-chats
+[10:25:31] shot F13-phone-chat
+[10:25:35] screen 480x640 @ 240 dpi
+[10:25:35] ---- qa/fx-entry2.sh ----
+[10:25:42] STATE show_ime_with_hard_keyboard=1 | mInTouchMode=false
+[10:26:03] E4B V1 after tap: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[10:26:04] shot V1-tapped
+[10:26:07] E4B V1 RIGHT 1 (IME up, touch focus): focus [android.widget.Button|Attach|[264,491][330,563] ] | mInputShown=false
+[10:26:08] shot V1-r1
+[10:26:08] E4B ok: V1 RIGHT with the IME up reached a composer control:  [android.widget.Button|Attach|[264,491][330,563] ]
+[10:26:27] E4B V2 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[10:26:27] shot V2-d1
+[10:26:31] E4B V2 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[10:26:31] shot V2-d2
+[10:26:35] E4B V2 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[10:26:35] shot V2-d3
+[10:26:39] E4B V2 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[10:26:39] shot V2-d4
+[10:26:43] E4B V2 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[10:26:43] shot V2-d5
+[10:26:43] E4B V2 field focused after 5 DOWN | mInputShown=true
+[10:26:48] E4B V2 after BACK: focus [android.view.View||[66,129][362,239] ] | mInputShown=false
+[10:26:48] shot V2-hidden
+[10:26:48] E4B INFO: V2 the field does not hold focus after BACK (focus [android.view.View||[66,129][362,239] ]); RIGHT from there is ordinary focus search, not the composer escape
+[10:26:52] E4B V2 RIGHT 1 (IME hidden, key focus): focus [android.widget.Button|Call|[339,51][405,123] ] | mInputShown=false
+[10:26:52] shot V2-r1
+[10:26:56] E4B V2 RIGHT 2 (IME hidden, key focus): focus [android.widget.Button|More|[405,51][477,123] ] | mInputShown=false
+[10:26:56] shot V2-r2
+[10:27:00] E4B V2 RIGHT 3 (IME hidden, key focus): focus [android.widget.Button|More|[405,51][477,123] ] | mInputShown=false
+[10:27:00] shot V2-r3
+[10:27:00] E4B N/A: V2 field not focused after BACK, not judged
+[10:27:19] E4B V3 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[10:27:19] shot V3-d1
+[10:27:23] E4B V3 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[10:27:23] shot V3-d2
+[10:27:27] E4B V3 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[10:27:27] shot V3-d3
+[10:27:31] E4B V3 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[10:27:31] shot V3-d4
+[10:27:35] E4B V3 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[10:27:35] shot V3-d5
+[10:27:39] E4B V3 RIGHT 1 (IME up, key focus): focus [android.widget.Button|Attach|[264,491][330,563] ] | mInputShown=false
+[10:27:39] shot V3-r1
+[10:27:39] E4B ok: V3 RIGHT with the IME up reached a composer control:  [android.widget.Button|Attach|[264,491][330,563] ]
+[10:27:59] E4B V4 DOWN 1: focus [android.view.View||[66,370][337,480] ] | mInputShown=false
+[10:27:59] shot V4-d1
+[10:28:03] E4B V4 DOWN 2: focus [android.view.View||[66,370][220,480] ] | mInputShown=false
+[10:28:03] shot V4-d2
+[10:28:07] E4B V4 DOWN 3: focus [android.view.View||[66,370][257,480] ] | mInputShown=false
+[10:28:07] shot V4-d3
+[10:28:11] E4B V4 DOWN 4: focus [android.view.View||[66,370][293,480] ] | mInputShown=false
+[10:28:11] shot V4-d4
+[10:28:15] E4B V4 DOWN 5: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[10:28:15] shot V4-d5
+[10:28:19] E4B V4 RIGHT+LEFT then 2 s: focus [android.widget.EditText||[72,142][267,214] ] | mInputShown=true
+[10:28:19] shot V4-final
+[10:28:20] E4B ok: V4 LEFT after RIGHT returned to the field and the retry did not take focus back
+[10:28:24] E4B V4b RIGHT+DOWN then 2 s: focus [android.widget.Button|Attach|[264,491][330,563] ]
+[10:28:24] shot V4b
+[10:28:41] shot E3b-list
+[10:28:47] shot E3b-chat
+[10:28:47] ENTRY ok: E3b tapping the list row (at 258 209) opened a chat with the composer | mInTouchMode=true | focus []
+[10:28:52] ENTRY E3b after the first DOWN in the chat: focus [] | mInTouchMode=false
+[10:28:52] shot E3b-key
+[10:28:57] shot E3b-back
+[10:28:57] ENTRY ok: E3b Back returned to the chat list; focus after Back: [android.view.View||[0,177][480,276] ] (row Yossi Klein was at y 195-223)
+[10:28:57] fixture writes the app would have sent: 10
+[10:29:01] fixture false
