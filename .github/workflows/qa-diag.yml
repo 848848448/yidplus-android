@@ -342,7 +342,7 @@ jobs:
             log "FP KEY-START ForYou captions per key DOWN (nothing collapsed, key mode only): $KA"; shot FP-23-key-foryou-end
             for w in "QA negative A" "QA negative B"; do echo "$KA" | grep -qF "$w" && log "FP ok: '$w' shown in For You (same size+length as its pair)" || log "FP MISSING-OR-WRONG: '$w' not seen in For You paging"; done
             echo "$KA" | tr '|' '\n' | grep -c 'Repost' | xargs -I{} log "FP KEY-START ForYou: 'Repost of sample 2' shown {} time(s) (identical URL as sample 2: expected 0)"
-            key 18; sleep 3; log "FP KEY-START Following on switch (page index carried over?): $(capx)"; for u in 1 2 3 4 5 6 7 8 9 10; do key 19; sleep 1; done; log "FP KEY-START Following after 10x UP: $(capx)"; KB=""; for n in $(seq 1 10); do KB="$KB|$(capx)"; log "FP KEY-START Following DOWN $n: $(tmode)"; key 20; sleep 2; done
+            key 18; sleep 3; SW=$(capx); log "FP KEY-START Following on switch: $SW"; case "$SW" in *"Osniel Rozen"*) log "FP ok: Following entry starts on its first (newest) video";; *) log "FP WRONG: Following entry did not start on its first video: $SW";; esac; for u in 1 2 3 4 5 6 7 8 9 10; do key 19; sleep 1; done; log "FP KEY-START Following after 10x UP: $(capx)"; KB=""; for n in $(seq 1 10); do KB="$KB|$(capx)"; log "FP KEY-START Following DOWN $n: $(tmode)"; key 20; sleep 2; done
             log "FP KEY-START Following captions per key DOWN (nothing collapsed): $KB"; shot FP-24-key-following-end
             for w in "QA negative A" "QA negative B"; do echo "$KB" | grep -qF "$w" && log "FP ok: '$w' shown in Following" || log "FP MISSING-OR-WRONG: '$w' not seen in Following paging"; done
           fi
