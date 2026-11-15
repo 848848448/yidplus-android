@@ -156,8 +156,11 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
         var pending by remember { mutableStateOf(false) }
         // Scrolls: at 480x640 the group preview + button sit below the fold (more so with the keyboard up).
         // The header stays outside the scrolling area: with the keyboard up, bringing the field into view scrolled the whole page and pushed the bar off the top.
-        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-            ChBar("Join by invite link", onBack = { Nav.back() })
+        // With the keyboard up on a 480x640 screen only ~80px are left under the bar, less than the field itself, so the bar is dropped while the page is that short (it returns with the keyboard down).
+        androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+        val compact = maxHeight < 240.dp
+        Column(Modifier.fillMaxSize()) {
+            if (!compact) ChBar("Join by invite link", onBack = { Nav.back() })
             Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
             OutlinedTextField(link, { link = it }, Modifier.fillMaxWidth().padding(16.dp).joinFirstFocus(), singleLine = true, label = { Text("Paste the invite link") }, placeholder = { Text("${Api.BASE}/chat?join=…") })
             val p = preview
@@ -179,6 +182,7 @@ class ChJoinLink(val initial: String = "") : PageScreen() {
             } else if (err != null) Text(err!!, Modifier.padding(16.dp), color = MaterialTheme.colorScheme.error)
             else ChEmpty(Sym.Link, "Paste a group's invite link to see it and join")
             }
+        }
         }
     }
 }
