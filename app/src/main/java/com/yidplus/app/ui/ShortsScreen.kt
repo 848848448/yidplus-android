@@ -318,6 +318,19 @@ fun ShortsScreen() {
         else base.filter { (who == null || it.creatorId == who) && (tab != ShortsTab.ForYou || SoShortTopics.matches(it)) }
     val smallScreen = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 560
     LaunchedEffect(tab, Net.online) { if (feed.items.isEmpty() || feed.offline) feed.loadMore() }
+    // Following: load the videos of the people you follow (not only those in the newest feed), so the tab is never empty while you follow someone who has videos.
+    var followLoading by remember { mutableStateOf(false) }
+    val followDir = remember { com.yidplus.app.data.Store.res("/api/src-shorts?creators", ::soVideoChannels) }
+    LaunchedEffect(tab, Feeds.follows.size, Net.online) {
+        if (tab != ShortsTab.Following || Feeds.follows.isEmpty()) return@LaunchedEffect
+        val missing = Feeds.follows.toList().filter { k -> Feeds.forYou.items.none { it.creatorId == k } }.take(40)
+        if (missing.isEmpty()) return@LaunchedEffect
+        followLoading = true
+        runCatching { followDir.load() }
+        val dir = followDir.data.orEmpty().associateBy { it.key }
+        for (k in missing) { val ch = dir[k]; runCatching { soLoadCreatorVideos(k, ch?.name ?: "", ch?.avatar, ch?.verified == true) } }
+        followLoading = false
+    }
     LaunchedEffect(Nav.shortsDeepLink) {
         val v = Nav.shortsDeepLink ?: return@LaunchedEffect
         Nav.shortsDeepLink = null
@@ -465,7 +478,7 @@ fun ShortsScreen() {
             items.isEmpty() && (who != null || (topic != "All" && tab == ShortsTab.ForYou)) && !feed.loading ->
                 Text(if (who != null) "No more videos from @${Feeds.whoName}. Tap ✕ on top to see everyone." else "No videos in this topic yet.",
                     Modifier.align(Alignment.Center).padding(32.dp), color = Color.White)
-            items.isEmpty() && (feed.loading || (tab != ShortsTab.Saved && tab != ShortsTab.Following)) -> Loading()
+            items.isEmpty() && (feed.loading || (tab == ShortsTab.Following && followLoading) || (tab != ShortsTab.Saved && tab != ShortsTab.Following)) -> Loading()
             items.isEmpty() -> Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else "Follow creators to see their videos here.", color = Color.White, textAlign = TextAlign.Center)
                 if (tab == ShortsTab.Following) SoPill("Find people to follow", true, { Nav.open(SoFollowPeoplePage()) }, Modifier.padding(top = 16.dp).firstFocus(), icon = Sym.PersonAdd)
