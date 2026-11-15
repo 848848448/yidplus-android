@@ -19,7 +19,8 @@ lk_inpicker() { timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mCurr
 # QA_PICK: the app makes a small file itself and hands it to the open New post / Upload page (see SoQaPick in SocialKit.kt).
 lk_qapick() { timeout 10 adb shell am broadcast -a com.yidplus.app.QA_PICK --es kind "$1" >/dev/null 2>&1; sleep 2; log "qa pick $1"; }
 # My own channel: first row of Members (fixtures-lk.json puts it first).
-lk_mine() { tab Home; sleep 3; lk_tapui "Members"; sleep 4; lk_tap 240 262 "${1:-5}"; }
+# The Video channels strip now sits above the list, so the first row is no longer at y 262: tap the row by its name (the demo channel's nickname).
+lk_mine() { tab Home; sleep 3; lk_tapui "Members"; sleep 4; lk_tapui "משה'לע"; [ "$LK_OK" = 1 ] || log "LK MISSING: my channel row not on screen"; sleep "${1:-5}"; }
 lk_tap() { timeout 10 adb shell input tap "$1" "$2"; sleep "${3:-2}"; }
 lk_dev() { timeout 10 adb shell getevent -pl 2>/dev/null | tr -d '\r' | awk '/add device/{d=$4} /ABS_MT_POSITION_X/{print d; exit}'; }
 lk_max() { timeout 10 adb shell getevent -pl "$1" 2>/dev/null | tr -d '\r' | grep "$2" | grep -oE 'max [0-9]+' | head -1 | awk '{print $2}'; }
@@ -61,12 +62,12 @@ lk_tapui "Members"; sleep 5; shot LK-02-channels-members
 lk_tapui "Joined"; sleep 3; shot LK-03-channels-joined
 lk_tapui "Telegram"; sleep 3
 # 2. A Telegram channel (cached copy first, no spinner)
-lk_tap 240 262 7; shot LK-04-tg-channel
+lk_tapui "יידישע נייעס"; sleep 7; shot LK-04-tg-channel
 adb shell input swipe 240 520 240 260 300; sleep 2; shot LK-05-tg-channel-scrolled
 lk_mark react-tg; lk_tapui "React"; sleep 1; lk_tapui "Quick reaction 1"; sleep 2; shot LK-05c-tg-reacted
 lk_mark share-tg; lk_tapui "Share post"; sleep 3; shot LK-05d-tg-share-sheet; key 4; sleep 1
 lk_mark join-tg; lk_tapui "Join channel"; sleep 3; shot LK-05e-tg-joined
-key 4; sleep 2; lk_tap 240 262 3; shot LK-05b-tg-channel-reopen-cached; key 4; sleep 2
+key 4; sleep 2; lk_tapui "יידישע נייעס"; sleep 3; shot LK-05b-tg-channel-reopen-cached; key 4; sleep 2
 # 3. My own channel: like, comment, new post, photo -> gallery (pinch, double-tap, swipe)
 lk_mine 6; shot LK-06-my-channel
 adb shell input swipe 240 520 240 250 400; sleep 2
