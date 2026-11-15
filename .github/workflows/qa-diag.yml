@@ -318,7 +318,7 @@ jobs:
           onscr() { sed -nE 's/.*text="((Sample video|QA negative|Repost)[^"]*)".*bounds="\[[0-9]+,([0-9-]+)\]\[[0-9]+,[0-9]+\]".*/\3 \1/p' "$1" | awk '$1>=100 && $1<=480{ $1=""; sub(/^ /,""); print "text=\""$0"\""; exit }'; }
           cap1() { vd mm; onscr "$OUT/vc-mm.txt"; }
             vd mm; log "FP multi pre-DOWN: focus [$(ffoc)] | $(timeout 20 adb shell dumpsys window 2>/dev/null | grep -o 'mInTouchMode=[a-z]*' | head -1)"; shot FP-10-following-two
-            KC=""; for n in 1 2 3 4 5 6 7 8 9; do KC="$KC|$(cap1)"; log "FP multi DOWN $n: focus [$(ffoc)]"; key 20; sleep 2; done
+            for u in 1 2 3 4 5 6 7 8; do key 19; sleep 1; done; log "FP multi after 8x UP (to the first page): $(cap1)"; KC=""; for n in 1 2 3 4 5 6 7 8 9; do KC="$KC|$(cap1)"; log "FP multi DOWN $n: focus [$(ffoc)]"; key 20; sleep 2; done
             log "FP multi captions by D-pad DOWN: $KC"
             SEQ="$KC"; HOW="D-pad DOWN"; C1=$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sed -n 1p); C2=$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sed -n 2p); if [ "$C1" = "$C2" ]; then log "FP INFO: the FIRST D-pad DOWN after touch interaction (mInTouchMode=true) did not change the video; later presses did. A key-mode-only start is not tested here"; else log "FP ok: the first D-pad DOWN paged"; fi
             if [ "$(echo "$KC" | tr '|' '\n' | grep -v '^$' | sort -u | wc -l)" -le 1 ]; then
@@ -342,7 +342,7 @@ jobs:
             log "FP KEY-START ForYou captions per key DOWN (nothing collapsed, key mode only): $KA"; shot FP-23-key-foryou-end
             for w in "QA negative A" "QA negative B"; do echo "$KA" | grep -qF "$w" && log "FP ok: '$w' shown in For You (same size+length as its pair)" || log "FP MISSING-OR-WRONG: '$w' not seen in For You paging"; done
             echo "$KA" | tr '|' '\n' | grep -c 'Repost' | xargs -I{} log "FP KEY-START ForYou: 'Repost of sample 2' shown {} time(s) (identical URL as sample 2: expected 0)"
-            key 18; sleep 3; KB=""; for n in $(seq 1 10); do KB="$KB|$(capx)"; log "FP KEY-START Following DOWN $n: $(tmode)"; key 20; sleep 2; done
+            key 18; sleep 3; log "FP KEY-START Following on switch (page index carried over?): $(capx)"; for u in 1 2 3 4 5 6 7 8 9 10; do key 19; sleep 1; done; log "FP KEY-START Following after 10x UP: $(capx)"; KB=""; for n in $(seq 1 10); do KB="$KB|$(capx)"; log "FP KEY-START Following DOWN $n: $(tmode)"; key 20; sleep 2; done
             log "FP KEY-START Following captions per key DOWN (nothing collapsed): $KB"; shot FP-24-key-following-end
             for w in "QA negative A" "QA negative B"; do echo "$KB" | grep -qF "$w" && log "FP ok: '$w' shown in Following" || log "FP MISSING-OR-WRONG: '$w' not seen in Following paging"; done
           fi
