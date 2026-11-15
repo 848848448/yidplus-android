@@ -1,5 +1,6 @@
 name: QA live-data check (read-only, separate from the native workflow)
 
+# rerun after the ShortsScreen compile fix
 # Runs the signed-in fixture scripts for a chosen sequence on a fresh emulator, with qa/fx-cl.sh replaced by diag/fx-cl.sh
 # (the same script plus IME/focus logging). Triggers only on diag/** and this file, so it never starts or cancels the
 # native workflow; it has its own concurrency group and publishes only qa-diag-* log branches.
