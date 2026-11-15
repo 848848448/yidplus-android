@@ -109,10 +109,11 @@ data class SoCreatorPage(val creatorId: String, val name: String, val avatar: St
     @Composable override fun Content() {
         val c = ctx()
         val own = remember { mutableStateListOf<Clip>() }
-        var loading by remember { mutableStateOf(!fromSrc) }
+        var loading by remember { mutableStateOf(!fromSrc || Feeds.forYou.items.none { it.creatorId == creatorId }) }
         LaunchedEffect(creatorId) {
             if (!fromSrc) runCatching { Api.get("/api/shorts?owner_id=" + soEnc(creatorId)).optJSONArray("shorts").objects().map(Clip::upload) }
                 .onSuccess { own.clear(); own.addAll(it.distinctBy { s -> s.key }) }
+            else runCatching { soLoadCreatorVideos(creatorId, name, avatar, verified) }
             loading = false; Perf.shown("Creator")
         }
         val clips = if (fromSrc) Feeds.forYou.items.filter { it.creatorId == creatorId } else own
