@@ -82,21 +82,34 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx22a, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx22b, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx22c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx22d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx22e, wait: '2', mode: 'load', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
-          - { target: default, part: fx22f, wait: '2', mode: 'load', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx23a, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx23b, wait: '2', mode: 'ctrl', anim: 'off', fix: '0', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx23c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx23d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: diag-apk
           path: dist/
-      - name: Use the diagnostic copy of fx-cl.sh when the variant asks (workspace only, not committed)
+      - name: Use diag/fx-cl18.sh plus the header and real-bounds tap additions (patched in the workspace only, not committed; asserts each replacement matches once)
         if: matrix.diag == 'yes'
-        run: cp diag/fx-cl18.sh qa/fx-cl.sh
+        run: |
+          python3 - <<'PY'
+          s = open('diag/fx-cl18.sh').read()
+          a = "clfieldon() { [ -n \"$(clpos 'Paste the invite link')\" ]; }\n"
+          assert s.count(a) == 1
+          s = s.replace(a, a + "clhdr() { [ -n \"$(clpos 'Join by invite link')\" ] && echo header-present || echo header-ABSENT; }\n" + "cleditpos() { timeout 30 adb shell uiautomator dump /sdcard/cle.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/cle.xml 2>/dev/null | tr '>' '\\n' | grep 'class=\"android.widget.EditText\"' | head -1 | grep -oE 'bounds=\"\\[[0-9]+,[0-9]+\\]\\[[0-9]+,[0-9]+\\]\"' | grep -oE '[0-9]+' | tr '\\n' ' ' | awk '{print int(($1+$3)/2), int(($2+$4)/2)}'; }\n")
+          x = 'log "CL S2 landscape: field present | kb $(clshown_now)"'
+          assert s.count(x) == 1
+          s = s.replace(x, x[:-1] + ' | $(clhdr)"')
+          old = 'if clfieldon; then log "CL S2 portrait again: field present | kb $(clshown_now)"; else log "CL S2 portrait again: field absent, see CL-S2-portrait-again"; fi; shot CL-S2-portrait-again;'
+          assert s.count(old) == 1
+          new = ' if clfieldon; then log "CL S2 portrait header: $(clhdr)"; if clshown_now | grep -q true; then key 4; sleep 1.5; fi; EP=$(cleditpos); log "CL S2 REAL tap target (EditText node centre): ${EP:-none} | kb before $(clshown_now)"; if [ -n "$EP" ]; then set -- $EP; adb shell input tap $1 $2; sleep 2; log "CL S2 REAL reopen by tap: $(clshown_now) | $(clhdr)"; shot CL-S2-real-reopen; else log "CL S2 REAL reopen INVALID: EditText not found"; fi; fi;'
+          s = s.replace(old, old + new)
+          open('qa/fx-cl.sh', 'w').write(s)
+          PY
+          bash -n qa/fx-cl.sh && echo patched-syntax-ok && grep -c "REAL reopen" qa/fx-cl.sh
       - name: Plain variant keeps the unmodified qa/fx-cl.sh
         if: matrix.diag != 'yes'
         run: cmp qa/fx-cl.sh qa/fx-cl.sh && git log -1 --format='plain fx-cl.sh at %h' && sha256sum qa/fx-cl.sh
