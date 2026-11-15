@@ -1,6 +1,6 @@
 name: QA live-data check (read-only, separate from the native workflow)
 
-# rerun after the ShortsScreen compile fix
+# rerun: Back chain after Nav.goShortsFrom
 # Runs the signed-in fixture scripts for a chosen sequence on a fresh emulator, with qa/fx-cl.sh replaced by diag/fx-cl.sh
 # (the same script plus IME/focus logging). Triggers only on diag/** and this file, so it never starts or cancels the
 # native workflow; it has its own concurrency group and publishes only qa-diag-* log branches.
@@ -249,7 +249,7 @@ jobs:
             # first creator row: the first clickable row under the count line
             adb shell input tap 240 300; sleep 8; vd s2; shot LV-03-creator; log "LV creator texts: $(vtexts s2)"
             grep -qE 'text="[0-9]+ videos?"' "$OUT/lv-s2.txt" && log "LV ok: creator page lists videos on live data" || log "LV MISSING: creator page shows no video count"
-            adb shell input tap 100 400; sleep 3; shot LV-04-play-t3; vd s3; grep -qF "Keypad keys" "$OUT/lv-s3.txt" && log "LV hint: help overlay shown at 3 s" || log "LV hint: help overlay not shown at 3 s"
+            adb shell input tap 100 400; sleep 1; shot LV-04-play-t1; vd s3; grep -qF "Keypad keys" "$OUT/lv-s3.txt" && log "LV hint: help overlay shown at 1 s" || log "LV hint: help overlay not shown at 1 s"
             sleep 4; vd s3b; grep -qF "Keypad keys" "$OUT/lv-s3b.txt" && log "LV hint: help overlay STILL shown at 7 s (auto close expected at 5 s)" || log "LV hint: help overlay gone by 7 s"; shot LV-05-play-t7
             log "LV player texts: $(vtexts s3b)"
             timeout 30 adb logcat -d -t 3000 2>/dev/null | grep -iE "ExoPlayer|MediaCodec|PlaybackException|VideoPlayer|player error" | tail -6 | cut -c1-220 | while read -r l; do log "LV logcat: $l"; done
@@ -262,8 +262,9 @@ jobs:
           fi
           # tab pixel pass (live, read only): Music, Settings, Chats, search
           for T in Music Profile Chats Home; do tab $T; sleep 5; shot LV-tab-$T; vd tb; log "LV tab $T texts: $(vtexts tb)"; done
-          tab Home; sleep 3; vtap "Search" && { sleep 3; shot LV-search; vd sr; log "LV search texts: $(vtexts sr)"; adb shell input keyevent 4; sleep 1; } || log "LV MISSING: Search control not found"
+          tab Home; sleep 3; vtap "Search" && { sleep 3; shot LV-search; vd sr; log "LV search texts: $(vtexts sr)"; adb shell input keyevent 4; sleep 1; adb shell input keyevent 4; sleep 1; } || log "LV MISSING: Search control not found"
           # landscape (live): Channels, Settings, video list, creator
+          restart 6
           adb shell settings put system accelerometer_rotation 0; adb shell settings put system user_rotation 1; sleep 3
           tab Home; sleep 4; shot LV-land-channels; tab Profile; sleep 4; shot LV-land-settings; tab Home; sleep 3
           if vtap "[0-9]+  See all"; then sleep 6; shot LV-land-list; adb shell input tap 320 190; sleep 6; shot LV-land-creator; vd lc; log "LV land creator texts: $(vtexts lc)"; fi
