@@ -83,6 +83,7 @@ jobs:
       matrix:
         include:
           - { target: default, part: fx33f, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-fp.sh' }
+          - { target: default, part: fx34n, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-nw.sh' }
           - { target: default, part: fx32m, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-mu.sh' }
     steps:
       - uses: actions/checkout@v4
@@ -276,7 +277,7 @@ jobs:
           timeout 20 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_FEATURES --ez all true >/dev/null 2>&1; sleep 2
           view "https://yidplus.com/music"; sleep 6; shot MU-02-music-tab; log "MU music tab texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text="[^"]+"' | head -14 | tr '\n' ' ')"
           for w in "4 songs" "Niggun for Shabbos" "Hora"; do timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -qF "$w" && log "MU ok: '$w' on screen" || log "MU MISSING: '$w' not on screen"; done
-          key 20; sleep 1; shot MU-03-down; key 23; sleep 6; shot MU-04-ok-play; log "MU after OK texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text=\"[^\"]+\"' | head -14 | tr '\n' ' ')"
+          timeout 20 adb logcat -c; key 20; sleep 1; shot MU-03-down; key 23; sleep 2; log "MU playback sample 1: $(timeout 20 adb logcat -d -s YidMusic 2>/dev/null | tail -1 | cut -c1-200)"; sleep 3; log "MU playback sample 2: $(timeout 20 adb logcat -d -s YidMusic 2>/dev/null | tail -1 | cut -c1-200)"; timeout 20 adb logcat -d -s YidMusic 2>/dev/null | grep -c "playing=true" | sed "s/^/MU playing=true events: /" >> "$OUT/qa.log"; shot MU-04-ok-play; log "MU after OK texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text=\"[^\"]+\"' | head -14 | tr '\n' ' ')"
           timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_PLAYER >/dev/null; sleep 3; shot MU-05-player; log "MU player texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text=\"[^\"]+\"' | head -14 | tr '\n' ' ')"
           key 4; sleep 2; shot MU-06-back
           MUE
@@ -304,13 +305,19 @@ jobs:
             vd c; shot FP-03-followed; vhas c "Following ✓" && log "FP ok: a row shows 'Following ✓' after tapping Follow" || log "FP MISSING: no 'Following ✓'"; log "FP followed texts: $(vtexts c)"
             key 4; sleep 2
           fi
-          vtap "Following"; sleep 5; vd f; shot FP-06-following-after; log "FP following-after texts: $(vtexts f)"
+          timeout 20 adb logcat -c; vtap "Following"; sleep 5; vd f; shot FP-06-following-after; log "FP YidFollow log: $(timeout 20 adb logcat -d -s YidFollow 2>/dev/null | cut -c30-200 | tr '\n' '|')"; log "FP following-after texts: $(vtexts f)"
           if grep -qE "Sample video|Expert News Status|Ales UK|Abisel" "$OUT/vc-f.txt"; then log "FP ok: Following shows a video of the person followed"; else log "FP MISSING: Following shows no video of the followed person"; fi
           grep -qF 'content-desc="Follow more people"' "$OUT/vc-f.txt" && log "FP ok: 'Follow more people' button is in the Shorts top row" || log "FP MISSING: 'Follow more people' button not in the top row"
           if vtap "Follow more people"; then sleep 3; vd g; shot FP-07-more; vhas g "Follow people" && log "FP ok: 'Follow more people' opens the list while following someone" || log "FP MISSING: list did not open"; vhas g "Following ✓" && log "FP ok: the followed person shows Following ✓" || log "FP MISSING: followed person not marked"
             vtap "Following ✓" && { sleep 1; vd h; shot FP-08-unfollowed; vhas h "Following ✓" && log "FP WRONG: still Following ✓ after unfollow" || log "FP ok: unfollow turned the row back to Follow"; }
             key 4; sleep 4; vd i; shot FP-09-following-after-unfollow; if vhas i "Find people to follow"; then log "FP ok: after unfollow the Following tab is empty again"; else log "FP WRONG: Following still shows videos after unfollowing: $(vtexts i)"; fi
           fi
+          # two followed people: both creators' videos show in Following, newest first, each video once
+          vtap "Following"; sleep 2; vtap "Follow more people" && { sleep 3; vd m1; vtap "Follow"; sleep 1; vd m2; vtap "Follow"; sleep 1; vd m3; log "FP multi list texts: $(vtexts m3)"; key 4; sleep 5
+            CAPS=""; for n in 1 2 3 4 5 6 7 8; do vd mm; CAPS="$CAPS|$(grep -oE 'text="Sample video [0-9]+ from [^"]+"' "$OUT/vc-mm.txt" | head -1)"; [ $n = 1 ] && shot FP-10-following-two; key 20; sleep 2; done
+            log "FP multi captions in order: $CAPS"
+            echo "$CAPS" | grep -q "Expert News Status" && echo "$CAPS" | grep -q "Abisel Status" && log "FP ok: Following shows videos from both followed people" || log "FP MISSING: Following lacks one of the two followed people"
+            D=$(echo "$CAPS" | tr '|' '\n' | grep -v '^$' | sort | uniq -d | head -1); [ -z "$D" ] && log "FP ok: no video repeated while paging 8 videos" || log "FP WRONG: repeated video: $D" ; }
           FPE
           bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
