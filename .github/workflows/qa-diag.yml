@@ -29,8 +29,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Apply the diagnostic logging patch (workspace only, never committed; QA logging, no behaviour change)
-        run: git apply --check diag/app-diag13.patch && git apply diag/app-diag13.patch && git diff --stat
+      - name: Production source as pushed (no diagnostic patch in this run)
+        run: git log -1 --format='building %h %s' && git status --short | head -3
       - name: Signing key (from repository secrets only)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -82,10 +82,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx26a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfdown.sh' }
-          - { target: default, part: fx26b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfcenter.sh' }
-          - { target: default, part: fx26c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfleft.sh' }
-          - { target: default, part: fx26d, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-tfctrl.sh' }
+          - { target: default, part: fx27a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx27b, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
+          - { target: default, part: fx27c, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'yes', fx: 'qa/fx-ad.sh qa/fx-ch.sh qa/fx-cl.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -107,6 +106,13 @@ jobs:
           assert s.count(old) == 1
           new = ' if clfieldon; then log "CL S2 portrait header: $(clhdr)"; if clshown_now | grep -q true; then key 4; sleep 1.5; fi; EP=$(cleditpos); log "CL S2 REAL tap target (EditText node centre): ${EP:-none} | kb before $(clshown_now)"; if [ -n "$EP" ]; then set -- $EP; adb shell input tap $1 $2; sleep 2; log "CL S2 REAL reopen by tap: $(clshown_now) | $(clhdr)"; shot CL-S2-real-reopen; else log "CL S2 REAL reopen INVALID: EditText not found"; fi; fi;'
           s = s.replace(old, old + new)
+          helper = "hdrb() { timeout 30 adb shell uiautomator dump /sdcard/hb.xml >/dev/null 2>&1; local x; x=$(timeout 20 adb shell cat /sdcard/hb.xml 2>/dev/null | tr '>' '\\n'); log \"HDRB $1: title=$(echo \"$x\" | grep -E 'text=\\\"Join by invite link\\\"' | grep -oE 'bounds=\\\"[^\\\"]*\\\"' | head -1) field=$(echo \"$x\" | grep 'class=\\\"android.widget.EditText\\\"' | grep -oE 'bounds=\\\"[^\\\"]*\\\"' | head -1) kb=$(clshown_now)\"; }\n"
+          hook = 'clfieldon() {'
+          assert s.count(hook) == 1
+          s = s.replace(hook, helper + hook)
+          for tag, name in (('shot CL-S2-second-open', 'second-open'), ('shot CL-S2-after-home', 'after-home'), ('shot CL-S2-landscape', 'landscape'), ('shot CL-S2-portrait-again', 'portrait-again')):
+              assert s.count(tag) >= 1, tag
+              s = s.replace(tag, tag + '; hdrb ' + name)
           open('qa/fx-cl.sh', 'w').write(s)
           PY
           bash -n qa/fx-cl.sh && echo patched-syntax-ok && grep -c "REAL reopen" qa/fx-cl.sh
