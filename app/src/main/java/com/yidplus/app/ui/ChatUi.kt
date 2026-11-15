@@ -452,6 +452,8 @@ internal fun Modifier.csComposerEscape(text: String, left: androidx.compose.ui.f
         return fm.moveFocus(d)
     }
     return this.onPreviewKeyEvent { e ->
+        if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && (e.key == androidx.compose.ui.input.key.Key.DirectionRight || e.key == androidx.compose.ui.input.key.Key.DirectionLeft))
+            android.util.Log.i("YidKey", "composer " + e.key + " textLen=" + text.length + " target=" + (if (e.key == androidx.compose.ui.input.key.Key.DirectionRight) right else left)?.let { "set" })
         if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && text.isEmpty()) {
             when (e.key) {
                 androidx.compose.ui.input.key.Key.DirectionRight -> go(right, androidx.compose.ui.focus.FocusDirection.Right)
