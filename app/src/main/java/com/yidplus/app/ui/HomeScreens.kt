@@ -103,7 +103,7 @@ fun HomeScreen() {
         }
         Box(Modifier.weight(1f)) {
             if (view == 4) SoVideoChannelsList(if (searching) q else "")
-            else if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0)
+            else if (view >= 2) SoSiteChannelsList(if (searching) q else "", if (view == 3) 1 else 0, header = { SoVideoStrip { view = 4; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", 4).apply() } } })
             else PullToRefreshBox(isRefreshing = pulling, onRefresh = { scope.launch { pulling = true; res.load(force = true); pulling = false } }, modifier = Modifier.fillMaxSize()) {
                 when {
                     list == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
@@ -116,6 +116,7 @@ fun HomeScreen() {
                             .sortedWith(compareByDescending<TgChannel> { it.joined && it.unread > 0 }.thenByDescending { parseTime(it.lastAt) ?: 0L })
                         val state = rememberLazyListState()
                         LazyColumn(Modifier.fillMaxSize(), state = state) {
+                            if (!searching && view == 0) item { SoVideoStrip { view = 4; runCatching { Api.app.getSharedPreferences("social", 0).edit().putInt("chView", 4).apply() } } }
                             if (shown.isEmpty()) item { SoEmpty(if (view == 1) Sym.Campaign else Sym.Search,
                                 if (view == 1) "You haven't joined a channel yet. Open one and tap Join." else "No channels found") }
                             items(shown, key = { it.username }) { ch ->
