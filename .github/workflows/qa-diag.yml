@@ -342,10 +342,29 @@ jobs:
             log "FP KEY-START ForYou captions per key DOWN (nothing collapsed, key mode only): $KA"; shot FP-23-key-foryou-end
             for w in "QA negative A" "QA negative B"; do echo "$KA" | grep -qF "$w" && log "FP ok: '$w' shown in For You (same size+length as its pair)" || log "FP MISSING-OR-WRONG: '$w' not seen in For You paging"; done
             echo "$KA" | tr '|' '\n' | grep -c 'Repost' | xargs -I{} log "FP KEY-START ForYou: 'Repost of sample 2' shown {} time(s) (identical URL as sample 2: expected 0)"
-            key 18; sleep 3; SW=$(capx); log "FP KEY-START Following on switch: $SW"; case "$SW" in *"Osniel Rozen"*) log "FP ok: Following entry starts on its first (newest) video";; *) log "FP WRONG: Following entry did not start on its first video: $SW";; esac; log "FP pager log: $(timeout 10 adb logcat -d -s YidPager:I 2>/dev/null | tail -14 | tr '\n' '|')"; for u in 1 2 3 4 5 6 7 8 9 10; do key 19; sleep 1; done; log "FP KEY-START Following after 10x UP: $(capx)"; KB=""; for n in $(seq 1 10); do KB="$KB|$(capx)"; log "FP KEY-START Following DOWN $n: $(tmode)"; key 20; sleep 2; done
+            key 18; sleep 3; SW=$(capx); shot FP-21-following-entry; log "FP KEY-START Following on switch: $SW"; case "$SW" in *"Osniel Rozen"*) log "FP ok: Following entry starts on its first (newest) video";; *) log "FP WRONG: Following entry did not start on its first video: $SW";; esac; log "FP pager log: $(timeout 10 adb logcat -d -s YidPager:I 2>/dev/null | tail -14 | tr '\n' '|')"; for u in 1 2 3 4 5 6 7 8 9 10; do key 19; sleep 1; done; log "FP KEY-START Following after 10x UP: $(capx)"; KB=""; for n in $(seq 1 10); do KB="$KB|$(capx)"; log "FP KEY-START Following DOWN $n: $(tmode)"; key 20; sleep 2; done
             log "FP KEY-START Following captions per key DOWN (nothing collapsed): $KB"; shot FP-24-key-following-end
             for w in "QA negative A" "QA negative B"; do echo "$KB" | grep -qF "$w" && log "FP ok: '$w' shown in Following" || log "FP MISSING-OR-WRONG: '$w' not seen in Following paging"; done
           fi
+          # DELAYED-ENTRY cases (fixture seam: intent extra fxdelay makes Osniel's list answer 8 s late). Cold start each, no For You paging.
+          dstart() { adb shell am force-stop $KP; sleep 2; timeout 40 adb shell "am start -n $KP/.MainActivity --es fxdelay 8000" >/dev/null 2>&1; sleep 12; adb logcat -c; }
+          dcase() { N=$1; ACT=$2; dstart; vd d0
+            if ! grep -q 'text="For You"\|content-desc="For You"' "$OUT/vc-d0.txt"; then log "FPD $N MISSING: not on the Shorts tabs after start; case not run"; return; fi
+            key 18; sleep 3; E1=$(capx); shot FPD-$N-1-first-loaded; log "FPD $N first loaded page: $E1"
+            case "$ACT" in
+              nav) key 20; sleep 2; E2=$(capx); shot FPD-$N-2-after-nav; log "FPD $N after D-pad DOWN (navigates): $E2";;
+              tap) adb shell input tap 240 300; sleep 2; E2=$(capx); shot FPD-$N-2-after-tap; log "FPD $N after an unrelated tap on the video (no paging): $E2";;
+              *) E2="$E1";;
+            esac
+            sleep 12; E3=$(capx); shot FPD-$N-3-after-delayed; log "FPD $N after the delayed creator arrived: $E3"
+            PL=$(timeout 10 adb logcat -d -s YidPager:I 2>/dev/null | grep YidPager | cut -c19-); log "FPD $N pager log: $(echo "$PL" | tr '\n' '|')"
+            case "$ACT" in
+              none) case "$E3" in *"Sample video 2 from Osniel Rozen"*) log "FPD $N ok: no input, list grew, page is the first (newest) video";; *) log "FPD $N WRONG: no input but the page is not the first video: $E3";; esac;;
+              nav) if [ "$E3" = "$E2" ]; then log "FPD $N ok: after navigating, list growth did not move the page"; else log "FPD $N WRONG: page changed after the delayed list arrived: $E2 -> $E3"; fi
+                   echo "$PL" | awk '/entry ended by input/{e=1} e&&/entry reset from page/{bad=1} END{exit bad}' && log "FPD $N ok: no entry reset logged after the input" || log "FPD $N WRONG: an entry reset was logged after the input";;
+              tap) log "FPD $N INFO: unrelated tap before the list filled; page before=$E1 after growth=$E3";;
+            esac; }
+          dcase A none; dcase B nav; dcase C tap
           FPE
           bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
