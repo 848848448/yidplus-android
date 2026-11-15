@@ -1,4 +1,5 @@
 name: In-place update check (artifact only, nothing is published)
+# rerun on head b29dc82
 # Run for the final candidate source (feat-212look app source ff1d9af); same workflow, no change in behaviour.
 
 # Builds a signed candidate with the repository signing secrets (same secrets as native.yml and release.yml),
