@@ -280,3 +280,4 @@ jobs:
           cd qa/out && git init -q && git checkout -q -b qa-diag-${{ matrix.target }}-${{ matrix.part }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "diag QA run ${{ github.run_id }}"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-diag-${{ matrix.target }}-${{ matrix.part }}
+# y32: rerun on the head with the top strip
