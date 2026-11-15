@@ -82,6 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - { target: default, part: fx33f, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-fp.sh' }
           - { target: default, part: fx32m, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-mu.sh' }
     steps:
       - uses: actions/checkout@v4
@@ -274,8 +275,9 @@ jobs:
           restart 5; view "https://yidplus.com/music"; sleep 4; shot MU-01-site-music-off; log "MU music off on the site: tabs/texts $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE 'content-desc="(Chats|Shorts|Channels|Music|Settings)"' | tr '\n' ' ')"
           timeout 20 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.QA_FEATURES --ez all true >/dev/null 2>&1; sleep 2
           view "https://yidplus.com/music"; sleep 6; shot MU-02-music-tab; log "MU music tab texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text="[^"]+"' | head -14 | tr '\n' ' ')"
-          key 20; sleep 1; shot MU-03-down; key 23; sleep 6; shot MU-04-ok-play
-          timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_PLAYER >/dev/null; sleep 3; shot MU-05-player
+          for w in "4 songs" "Niggun for Shabbos" "Hora"; do timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -qF "$w" && log "MU ok: '$w' on screen" || log "MU MISSING: '$w' not on screen"; done
+          key 20; sleep 1; shot MU-03-down; key 23; sleep 6; shot MU-04-ok-play; log "MU after OK texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text=\"[^\"]+\"' | head -14 | tr '\n' ' ')"
+          timeout 30 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_PLAYER >/dev/null; sleep 3; shot MU-05-player; log "MU player texts: $(timeout 20 adb shell uiautomator dump /sdcard/mu.xml >/dev/null 2>&1; timeout 20 adb shell cat /sdcard/mu.xml 2>/dev/null | grep -oE ' text=\"[^\"]+\"' | head -14 | tr '\n' ' ')"
           key 4; sleep 2; shot MU-06-back
           MUE
           bash -n qa/fx-mu.sh && echo fx-mu.sh syntax ok
@@ -289,15 +291,26 @@ jobs:
           vtap "Shorts"; sleep 4; vtap "Following"; sleep 2; vd a; shot FP-01-following-empty; log "FP following texts: $(vtexts a)"
           vhas a "Find people to follow" && log "FP ok: empty Following offers 'Find people to follow'" || log "FP MISSING: no 'Find people to follow' button on the empty Following tab"
           if vtap "Find people to follow"; then sleep 3; vd b; shot FP-02-people-list; log "FP list texts: $(vtexts b)"
-            for w in "Follow people" "Search people" "8 people" "Expert News Status" "Ales UK"; do vhas b "$w" && log "FP ok: '$w' on screen" || log "FP MISSING: '$w' not on screen"; done
-            vtap "Follow" && { sleep 1; vd c; shot FP-03-followed; vhas c "Following ✓" && log "FP ok: a row now shows 'Following ✓'" || log "FP MISSING: no 'Following ✓' after tapping Follow"; log "FP followed texts: $(vtexts c)"; }
-            vtap "Search people" && { adb shell input text "Ales"; sleep 1; vd d0; shot FP-04a-typed-keyboard-up; key 66; sleep 2; vd d; shot FP-04-search; vhas d "Ales UK" && log "FP ok: search keeps 'Ales UK'" || log "FP MISSING: 'Ales UK' not in results"; vhas d "Expert News Status" && log "FP WRONG: search still lists a non-matching person" || log "FP ok: non-matching people are filtered out"; vhas d "1 people" && log "FP ok: count line is 1 people" || log "FP MISSING: count line for the search"; }
-            key 4; sleep 1; key 4; sleep 2; vd e; shot FP-05-back; log "FP after Back texts: $(vtexts e)"
-            vhas e "Follow people" && log "FP WRONG: still on the people list after two Backs" || log "FP ok: left the people list"
+            for w in "Follow people" "8 people" "Expert News Status" "Ales UK"; do vhas b "$w" && log "FP ok: '$w' on screen" || log "FP MISSING: '$w' not on screen"; done
+            grep -qF 'content-desc="Search people"' "$OUT/vc-b.txt" && log "FP ok: Search icon in the title bar" || log "FP MISSING: Search icon"
+            # search with the keyboard UP: a result row must stay visible above it
+            vtap "Search people" && { sleep 1; adb shell input text "Ales"; sleep 2; vd d; shot FP-04a-search-keyboard-up; log "FP keyboard shown: $(timeout 10 adb shell dumpsys input_method 2>/dev/null | grep -o 'mInputShown=[a-z]*' | head -1)"; log "FP search texts (keyboard up): $(vtexts d)"
+              vhas d "Ales UK" && log "FP ok: 'Ales UK' result visible above the keyboard" || log "FP MISSING: result not visible with the keyboard up"
+              vhas d "Expert News Status" && log "FP WRONG: search still lists a non-matching person" || log "FP ok: non-matching people are filtered out"
+              key 4; sleep 2; vd d2; shot FP-04b-keyboard-dismissed; log "FP after keyboard Back: $(vtexts d2)"; vhas d2 "Ales UK" && vhas d2 "Follow people" || log "FP note: see FP-04b" ; }
+            # leave search (Back from the field bar closes it or leaves the page; log which)
+            vtap "Close search" || true; sleep 1
+            vd e0; vtap "Follow" ; sleep 1
+            vd c; shot FP-03-followed; vhas c "Following ✓" && log "FP ok: a row shows 'Following ✓' after tapping Follow" || log "FP MISSING: no 'Following ✓'"; log "FP followed texts: $(vtexts c)"
+            key 4; sleep 2
           fi
-          vtap "Following"; sleep 2; vd f; shot FP-06-following-after; log "FP following-after texts: $(vtexts f)"
+          vtap "Following"; sleep 5; vd f; shot FP-06-following-after; log "FP following-after texts: $(vtexts f)"
+          if grep -qE "Sample video|Expert News Status|Ales UK|Abisel" "$OUT/vc-f.txt"; then log "FP ok: Following shows a video of the person followed"; else log "FP MISSING: Following shows no video of the followed person"; fi
           grep -qF 'content-desc="Follow more people"' "$OUT/vc-f.txt" && log "FP ok: 'Follow more people' button is in the Shorts top row" || log "FP MISSING: 'Follow more people' button not in the top row"
-          if vtap "Follow more people"; then sleep 3; vd g; shot FP-07-more; vhas g "Follow people" && log "FP ok: 'Follow more people' opens the list while following someone" || log "FP MISSING: list did not open from 'Follow more people'"; vhas g "Following ✓" && log "FP ok: the followed person shows Following ✓ in the list" || log "FP MISSING: followed person not marked"; fi
+          if vtap "Follow more people"; then sleep 3; vd g; shot FP-07-more; vhas g "Follow people" && log "FP ok: 'Follow more people' opens the list while following someone" || log "FP MISSING: list did not open"; vhas g "Following ✓" && log "FP ok: the followed person shows Following ✓" || log "FP MISSING: followed person not marked"
+            vtap "Following ✓" && { sleep 1; vd h; shot FP-08-unfollowed; vhas h "Following ✓" && log "FP WRONG: still Following ✓ after unfollow" || log "FP ok: unfollow turned the row back to Follow"; }
+            key 4; sleep 4; vd i; shot FP-09-following-after-unfollow; if vhas i "Find people to follow"; then log "FP ok: after unfollow the Following tab is empty again"; else log "FP WRONG: Following still shows videos after unfollowing: $(vtexts i)"; fi
+          fi
           FPE
           bash -n qa/fx-fp.sh && echo fx-fp.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
