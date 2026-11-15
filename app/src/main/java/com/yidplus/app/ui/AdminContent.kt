@@ -166,6 +166,7 @@ class AdminBroadcastPage : PageScreen() {
     override val perfName = "AdminBroadcast"
     override fun equals(other: Any?) = other is AdminBroadcastPage
     override fun hashCode() = 313
+    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
     @Composable override fun Content() {
         val c = ctx()
         val scope = rememberCoroutineScope()
@@ -176,10 +177,12 @@ class AdminBroadcastPage : PageScreen() {
         var push by remember { mutableStateOf(false) }
         var ask by remember { mutableStateOf<String?>(null) }
         val kb = LocalSoftwareKeyboardController.current
+        // Keyboard up on a short screen leaves about 70dp under the bar: the 3-line field was taller than that and its label and top edge scrolled under the bar (run 43705590699, AD-34). One line while the keyboard is up; it still grows to 6.
+        val imeUp = androidx.compose.foundation.layout.WindowInsets.isImeVisible
         AdminList("Broadcast", sub = "A message to every member", res = res, tick = tick, header = {
             SettingsCard("New broadcast") {
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().firstFocus(), minLines = 3, label = { Text("Message") },
+                    OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().firstFocus(), minLines = if (imeUp) 1 else 3, maxLines = 6, label = { Text("Message") },
                         textStyle = MaterialTheme.typography.bodyLarge.merge(TextStyle(textDirection = TextDirection.Content)))
                 }
                 SettingRow(Sym.Group, "Send to", null, value = segments[seg].second) { ask = "seg" }
