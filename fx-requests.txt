@@ -1,0 +1,10 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of kernel
+11-15 17:45:04.303  2626  2661 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-15 17:45:09.327  2626  2661 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+--------- beginning of crash
+11-15 17:45:37.651  3982  4045 I YidFx   : GET-unfixtured /api/src-shorts?n=8
+11-15 17:46:20.353  3982  4045 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-15 17:46:46.605  4849  4892 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-15 17:47:27.448  5098  5133 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}

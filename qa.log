@@ -1,0 +1,48 @@
+[17:44:22] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[17:44:25] screen 480x640 @ 240 dpi
+[17:44:25] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[17:44:25] ---- Signed in (QA fixture account) ----
+[17:44:29] fixture true
+[17:44:38] shot F01-home-signedin
+[17:44:38] open https://yidplus.com/chat
+[17:44:43] shot F02-chats-list
+[17:44:45] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[17:44:52] shot F03-chat-dm
+[17:44:54] shot F03b-chat-dm-up
+[17:44:58] open https://yidplus.com/chat
+[17:45:12] shot F04-chat-group
+[17:45:15] shot F04b-group-up
+[17:45:17] shot F04c-group-top
+[17:45:20] shot F05-message-actions
+[17:45:31] shot F06-notifications
+[17:45:34] tab Home
+[17:45:38] shot F07-home-header
+[17:45:38] open https://yidplus.com/shorts
+[17:45:47] shot F08-shorts-signedin
+[17:45:47] tab Profile
+[17:45:51] shot F09-profile-signedin
+[17:46:03] shot F09b-profile-scrolled
+[17:46:17] open https://yidplus.com/chat
+[17:46:21] shot F10-chats-dark
+[17:46:27] shot F11-chat-dark
+[17:46:34] screen 1080x2400 @ 420 dpi
+[17:46:42] open https://yidplus.com/chat
+[17:46:47] shot F12-phone-chats
+[17:46:53] shot F13-phone-chat
+[17:46:57] screen 480x640 @ 240 dpi
+[17:46:57] ---- qa/fx-sr.sh ----
+[17:47:11] open https://yidplus.com/chat
+  node: text="" class="android.view.View" content-desc="Search chats" bounds="[72,53][408,106]" 
+[17:47:19] chtap 240 79
+[17:47:23] shot SR-01-typed
+[17:47:26] shot SR-02-results-keyboard-hidden
+[17:47:26] keyboard shown after after first Back: mInputShown=false
+  node: text="Yossi Klein" class="android.widget.TextView" content-desc="" bounds="[114,280][406,308]" 
+[17:47:30] chtap 260 294
+[17:47:33] shot SR-03-result-opened
+[17:47:36] shot SR-04-back-from-result
+[17:47:40] shot SR-05-back-again
+[17:47:40] fixture writes the app would have sent: 6
+[17:47:44] fixture false
