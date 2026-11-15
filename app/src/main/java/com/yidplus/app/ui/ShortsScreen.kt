@@ -427,9 +427,11 @@ fun ShortsScreen() {
 
     LaunchedEffect(showHint) { if (showHint) { delay(5000); showHint = false; Prefs.hintSeen() } }
     Box(Modifier.fillMaxSize().background(Color.Black).pointerInput(Unit) {
-        androidx.compose.foundation.gestures.awaitEachGesture {
-            awaitFirstDown(requireUnconsumed = false, pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial)
-            if (showHint) { showHint = false; Prefs.hintSeen() }
+        awaitPointerEventScope {
+            while (true) {
+                awaitFirstDown(requireUnconsumed = false, pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                if (showHint) { showHint = false; Prefs.hintSeen() }
+            }
         }
     }.onKeyEvent { e ->
         if (e.type != KeyEventType.KeyDown) return@onKeyEvent false
