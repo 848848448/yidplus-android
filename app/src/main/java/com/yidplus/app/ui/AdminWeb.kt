@@ -91,12 +91,13 @@ data class AdminWebPage(val section: String? = null) : PageScreen() {
     }
 }
 
+/** Older Android WebViews (83 on the Android 11 emulator image) lack replaceChildren, which the site's admin script calls. Defined only when missing (a no-op when the WebView has it); run at page start and again before the gate script. */
+private const val REPLACE_CHILDREN_POLY = "(function(){function rc(){while(this.firstChild)this.removeChild(this.firstChild);for(var i=0;i<arguments.length;i++){var a=arguments[i];this.appendChild(typeof a==='string'?document.createTextNode(a):a);}}var added=false;[window.Element,window.Document,window.DocumentFragment].forEach(function(C){if(C&&C.prototype&&!C.prototype.replaceChildren){C.prototype.replaceChildren=rc;added=true;}});if(added)console.log('yp replaceChildren polyfill added, readyState='+document.readyState);})();"
+
 /** The site's own door, filled in for you: waits for the gate, presses Continue on the email step, types the PIN, presses Unlock, then opens the section. */
 private fun gateJs(pin: String, section: String?): String {
     val sec = section?.filter { it.isLetterOrDigit() || it == '-' } ?: ""
-    // Older Android WebViews (83 on the Android 11 emulator image) lack replaceChildren, which the site's admin script calls; add it first.
-    val poly = "(function(){function rc(){while(this.firstChild)this.removeChild(this.firstChild);for(var i=0;i<arguments.length;i++){var a=arguments[i];this.appendChild(typeof a==='string'?document.createTextNode(a):a);}}[window.Element,window.Document,window.DocumentFragment].forEach(function(C){if(C&&C.prototype&&!C.prototype.replaceChildren)C.prototype.replaceChildren=rc;});})();"
-    return poly + """(function(){var pin='$pin',sec='$sec',n=0,asked=0,typed=0;function go(){n++;if(n>120)return;
+    return REPLACE_CHILDREN_POLY + """(function(){var pin='$pin',sec='$sec',n=0,asked=0,typed=0;function go(){n++;if(n>120)return;
 if(window.ADMIN_GATE_SESSION){if(sec&&window.navTo){setTimeout(function(){try{navTo(sec)}catch(e){console.log('yp navTo '+e)}},700);}return;}
 var g=document.getElementById('admin-gate');if(!g||!g.classList.contains('open'))return setTimeout(go,250);
 var ps=document.getElementById('gate-pin-step');if(ps&&ps.style.display==='block'){if(!typed){typed=1;for(var i=0;i<4;i++){var e=document.getElementById('p'+i);if(e)e.value=pin.charAt(i);}if(window.checkPin)checkPin();}return setTimeout(go,300);}
@@ -142,6 +143,9 @@ private fun AdminWebView(url: String, pin: String, section: String?, modifier: M
                         mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream("""{"error":"fixture: not implemented"}""".toByteArray()))
                     return WebResourceResponse("application/json", "utf-8", 200, "OK",
                         mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream(body.toByteArray()))
+                }
+                override fun onPageStarted(view: WebView, u: String, favicon: android.graphics.Bitmap?) {
+                    if (u.contains("admin")) view.evaluateJavascript(REPLACE_CHILDREN_POLY, null)
                 }
                 override fun onPageFinished(view: WebView, u: String) {
                     if (u.contains("admin")) view.evaluateJavascript(gateJs(pin, section), null)
