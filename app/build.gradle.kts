@@ -95,4 +95,7 @@ dependencies {
     implementation("com.google.guava:guava:33.3.1-android")
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-messaging")
+
+    // Native WebRTC for voice/video calls (repackaged libwebrtc, package org.webrtc).
+    implementation("io.getstream:stream-webrtc-android:1.3.9")
 }
