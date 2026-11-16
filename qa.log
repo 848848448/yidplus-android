@@ -1,0 +1,44 @@
+[03:10:58] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[03:11:00] screen 480x640 @ 240 dpi
+[03:11:00] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[03:11:00] ---- Signed in (QA fixture account) ----
+[03:11:04] fixture true
+[03:11:13] shot F01-home-signedin
+[03:11:13] open https://yidplus.com/chat
+[03:11:18] shot F02-chats-list
+[03:11:20] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[03:11:27] shot F03-chat-dm
+[03:11:29] shot F03b-chat-dm-up
+[03:11:33] open https://yidplus.com/chat
+[03:11:47] shot F04-chat-group
+[03:11:49] shot F04b-group-up
+[03:11:50] shot F04c-group-top
+[03:11:54] shot F05-message-actions
+[03:12:04] shot F06-notifications
+[03:12:06] tab Home
+[03:12:09] shot F07-home-header
+[03:12:09] open https://yidplus.com/shorts
+[03:12:18] shot F08-shorts-signedin
+[03:12:18] tab Profile
+[03:12:21] shot F09-profile-signedin
+[03:12:33] shot F09b-profile-scrolled
+[03:12:46] open https://yidplus.com/chat
+[03:12:50] shot F10-chats-dark
+[03:12:56] shot F11-chat-dark
+[03:13:03] screen 1080x2400 @ 420 dpi
+[03:13:11] open https://yidplus.com/chat
+[03:13:15] shot F12-phone-chats
+[03:13:21] shot F13-phone-chat
+[03:13:25] screen 480x640 @ 240 dpi
+[03:13:25] ---- qa/fx-jn.sh ----
+[03:13:32] STATE show_ime_with_hard_keyboard=1 | mInTouchMode=false
+[03:13:46] shot J-port
+[03:13:46] J portrait: join title on screen: 1
+[03:13:51] shot J-land
+[03:13:51] J landscape (no keyboard): join title 1, field 1 | mInputShown=true
+[03:13:56] shot J-land-kb
+[03:13:56] J landscape keyboard up: mInputShown=true | field nodes 1 | field bounds [24,106][544,202]
+[03:13:58] fixture writes the app would have sent: 5
+[03:14:02] fixture false
