@@ -96,5 +96,5 @@ tab Profile; sleep 3; shot AD-40-settings-dark
 adq Admin 5; shot AD-41-admin-dark; key 4
 timeout 40 adb shell am start -n $PKG/.MainActivity -a com.yidplus.app.OPEN_NOTIFS >/dev/null 2>&1; sleep 4; shot AD-42-notifications-dark; key 4
 adb shell cmd uimode night no; sleep 3
-timeout 20 adb logcat -d -s YidAdminWeb 2>/dev/null | tail -15 | sed 's/^/AdminWeb: /' >> "$OUT/qa.log"
+timeout 20 adb logcat -d -s YidAdminWeb 2>/dev/null | grep -vE "console-guard|font-size|developers|lazyloaded|^[^0-9-]" | tail -40 | sed 's/^/AdminWeb: /' >> "$OUT/qa.log"
 # ==== [/AD] ====
