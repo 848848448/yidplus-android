@@ -63,9 +63,9 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p dist/serve
-          gradle :app:assembleRelease -PversionName=9.1.0 --no-daemon 2>&1 | tail -5
+          gradle :app:assembleRelease -Pqa=true -PversionName=9.1.0 --no-daemon 2>&1 | tail -5
           cp app/build/outputs/apk/release/app-release.apk dist/old.apk
-          gradle :app:assembleRelease -PversionName=9.1.1 --no-daemon 2>&1 | tail -5
+          gradle :app:assembleRelease -Pqa=true -PversionName=9.1.1 --no-daemon 2>&1 | tail -5
           cp app/build/outputs/apk/release/app-release.apk dist/serve/new.apk
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           "$BT/apksigner" verify --print-certs dist/old.apk | grep -i "SHA-256" | head -1
