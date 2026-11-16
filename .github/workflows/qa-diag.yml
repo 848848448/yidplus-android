@@ -346,8 +346,8 @@ jobs:
             log "FP KEY-START Following captions per key DOWN (nothing collapsed): $KB"; shot FP-24-key-following-end
             for w in "QA negative A" "QA negative B"; do echo "$KB" | grep -qF "$w" && log "FP ok: '$w' shown in Following" || log "FP MISSING-OR-WRONG: '$w' not seen in Following paging"; done
           fi
-          # DELAYED-ENTRY cases (fixture seam: intent extra fxdelay makes Osniel's list answer 8 s late). Cold start each, no For You paging.
-          dstart() { adb shell am force-stop $KP; sleep 2; timeout 40 adb shell "am start -n $KP/.MainActivity --es fxdelay 8000" >/dev/null 2>&1; sleep 12; adb logcat -c; }
+          # DELAYED-ENTRY cases (fixture seam: intent action QA_DELAY makes Osniel's list answer 8 s late). Cold start each, no For You paging.
+          dstart() { adb shell am force-stop $KP; sleep 2; timeout 40 adb shell "am start -n $KP/.MainActivity" >/dev/null 2>&1; sleep 12; timeout 30 adb shell "am start -n $KP/.MainActivity -a com.yidplus.app.QA_DELAY --es ms 8000" >/dev/null 2>&1; sleep 2; adb logcat -c; }
           dcase() { N=$1; ACT=$2; dstart; vd d0
             if ! grep -q 'text="For You"\|content-desc="For You"' "$OUT/vc-d0.txt"; then log "FPD $N MISSING: not on the Shorts tabs after start; case not run"; return; fi
             key 18; sleep 3; E1=$(capx); shot FPD-$N-1-first-loaded; log "FPD $N first loaded page: $E1"
