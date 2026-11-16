@@ -111,7 +111,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun qaLook(i: Intent) {
-        i.getStringExtra("fxdelay")?.toLongOrNull()?.let { com.yidplus.app.data.Fixture.delayMs = it }
         i.getStringExtra("color")?.toIntOrNull()?.let { LookPrefs.putColor(it) }
         i.getStringExtra("text")?.toIntOrNull()?.let { UiPrefs.setText(it) }
         i.getStringExtra("contrast")?.let { LookPrefs.putHighContrast(it == "1") }
@@ -133,6 +132,7 @@ class MainActivity : ComponentActivity() {
             "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
             // QA (helper DS): set a look setting exactly as Settings does, to prove it changes the screens.
             "com.yidplus.app.QA_LOOK" -> qaLook(i)
+            "com.yidplus.app.QA_DELAY" -> com.yidplus.app.data.Fixture.delayMs = i.getStringExtra("ms")?.toLongOrNull() ?: 0L
             "com.yidplus.app.QA_FEATURES" -> com.yidplus.app.data.SiteConfig.qaShowAll = i.getBooleanExtra("all", false)
             "com.yidplus.app.QA_UPDATE_NOTIFY" -> UpdateWorker.now(this)
             "com.yidplus.app.QA_FIXTURE" -> { com.yidplus.app.data.Fixture.set(this, i.getBooleanExtra("on", true)); com.yidplus.app.data.Store.clear(); lifecycleScope.launch { Session.refresh() } }
