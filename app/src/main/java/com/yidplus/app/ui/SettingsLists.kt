@@ -285,5 +285,5 @@ suspend fun settingsExportData(c: Context): String = withContext(Dispatchers.IO)
 }
 
 /** Read a QA-only extra on the launch intent (emulator tests drive the screens with adb). */
-fun settingsQaExtra(c: Context, key: String): String? = (c as? Activity)?.intent?.getStringExtra(key)
+fun settingsQaExtra(c: Context, key: String): String? = if (!com.yidplus.app.BuildConfig.QA) null else (c as? Activity)?.intent?.getStringExtra(key)
 fun settingsQaClear(c: Context, key: String) { (c as? Activity)?.intent?.removeExtra(key) }
