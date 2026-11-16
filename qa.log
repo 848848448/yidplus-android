@@ -1,0 +1,38 @@
+[02:36:42] install QA APK: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[02:37:00] shot PN1-qa-fixture
+[02:37:02] PN1 texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:37:02] PN1 PASS: QA build reaches the fixture chat list
+[02:37:05] shot PN1b-qa-page
+[02:37:07] PN1b texts:  text="Settings"  text="YW"  text="Yanky Weiss"  text="Owner"  text="@Yanky Weiss"  text="yanky@example.com"  text="Edit Profile"  text="Saved Items"  text="Messages, posts and Shorts you saved"  text="History"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:37:07] PN1b PASS: QA build shows the qa_page demo settings (Edit profile)
+[02:37:11] PN1c records before: 0 after: 1
+[02:37:11] PN1c PASS: QA build broadcast changes the app's notification records (before/after content differs), so the PN6 comparison can detect the action
+[02:37:12] install PRODUCTION APK over it: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[02:37:27] shot PN2-prod-persisted
+[02:37:29] PN2 texts:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="M"  text="monroelens"  text="12 members"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:37:29] PN2 PASS: no fixture content after cold start with persisted fixture state
+[02:37:32] PN3 PASS: explicit QA_FIXTURE ignored (YidQaGate logged 1)
+[02:37:35] PN3 PASS: explicit QA_LOOK ignored (YidQaGate logged 1)
+[02:37:38] PN3 PASS: explicit QA_DELAY ignored (YidQaGate logged 1)
+[02:37:41] PN3 PASS: explicit QA_FEATURES ignored (YidQaGate logged 1)
+[02:37:44] PN3 PASS: explicit QA_OPEN ignored (YidQaGate logged 1)
+[02:37:47] PN3 PASS: explicit QA_DEDUPE ignored (YidQaGate logged 1)
+[02:37:50] PN3 PASS: explicit QA_UPDATE_NOTIFY ignored (YidQaGate logged 1)
+[02:37:53] PN3 PASS: explicit QA_PUSH_PROBE ignored (YidQaGate logged 1)
+[02:37:53] shot PN3-prod-after-intents
+[02:37:55] PN3 texts:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="M"  text="monroelens"  text="12 members"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:38:10] shot PN4-prod-restart
+[02:38:11] PN4 texts:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="M"  text="monroelens"  text="12 members"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:38:11] PN4 PASS: still no fixture after force-stop and cold start
+[02:38:14] shot PN5-prod-qa-page
+[02:38:16] PN5 texts:  text="Settings"  text="YID"  text=" PLUS"  text="Sign in with your yidplus.com account"  text="Sign in with email"  text="Sign in with Google"  text="Create an account"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[02:38:16] PN5 PASS: qa_page extra reported ignored (YidQaGate 5)
+[02:38:16] PN5 PASS: no demo settings text (positive control PN1b showed it in the QA build)
+[02:38:16] PN6 records present before the production broadcast (carried over from the QA run, provenance logged in nrec-prod-before.txt): 0
+[02:38:20] PN6 PASS: QA_CHAT_NOTIFY ignored (YidQaGate 1) and the app's notification records are byte-identical before and after
+[02:38:22] PN7 PASS (limited): QA_PICK and QA_GESTURE broadcasts delivered, app still running; these receivers only act when Fixture.on, which is false in production
+[02:38:22] prodneg done FAIL=0
