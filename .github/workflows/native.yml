@@ -119,7 +119,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           test -d qa/out || exit 0
-          cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }} && git add -A
+          bash qa/publish-gate.sh qa/out && cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native QA run ${{ github.run_id }}"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }}
 
@@ -156,6 +156,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           test -d qa/out || exit 0
-          cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-prodneg && git add -A
+          bash qa/publish-gate.sh qa/out && cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-prodneg && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "prodneg run ${{ github.run_id }}"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-prodneg
