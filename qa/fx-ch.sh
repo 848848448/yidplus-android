@@ -48,7 +48,7 @@ key 4; sleep 2; shot CH-04e-back-again; if timeout 20 adb shell uiautomator dump
 chopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 6; shot CH-05-group-bottom; chhas "typing"; chfx "/api/chat/read"
 adb shell input swipe 240 220 240 560 300; sleep 1; shot CH-05b-group-up; adb shell input swipe 240 220 240 560 300; sleep 1; shot CH-05c-group-top; key 4; sleep 1
 chopen r-g1 group "\u05d7\u05d1\u05e8\u05d9\u05dd \u05e4\u05d5\u05df \u05e9\u05d5\u05dc" "" 0; sleep 0.3; shot CH-06-group-reopen-instant; sleep 2; key 4; sleep 1
-chopen r-g2 group "Family" ",\"photo_url\":\"/api/media/user-avatars/392d8eda-e0dd-44ea-a51e-f55ead12fb0c_1785879385829.png\"" 6; shot CH-07-group-photo-header; chhas "Group voice call"; key 4; sleep 1
+chopen r-g2 group "Family" ",\"photo_url\":\"/api/media/user-avatars/aaf6ccf5-c46e-5267-99a0-0e08323e3221_1785879385829.png\"" 6; shot CH-07-group-photo-header; chhas "Group voice call"; key 4; sleep 1
 chopen r-dm4 private "Shaya" ",\"other_user_id\":\"u-shaya\"" 5; shot CH-07b-dm-missed-call; chhas "Missed voice call"; key 4; sleep 1
 chopen r-dm1 private "Yossi Klein" ",\"other_user_id\":\"u-yossi\"" 6; shot CH-08-dm-online-ticks-reacts; key 4; sleep 1
 chopen r-dm2 private "Yanky Weiss" ",\"other_user_id\":\"u-yanky\"" 6; shot CH-09-dm-last-seen-voice; key 4; sleep 1
