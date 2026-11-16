@@ -87,7 +87,7 @@ adq AdminTelegram 6; shot AD-33-admin-telegram; adtap "@channelusername" 240 190
 adq AdminBroadcast 5; shot AD-34-admin-broadcast; adtap "Message" 240 200; adtype "Shalom_everyone"; adhidekb; adt "Send now"; sleep 2; shot AD-35-broadcast-confirm; adt "Send"; sleep 3; proof "broadcast" "POST /api/broadcasts"; key 4
 adq AdminBadWords 5; shot AD-36-admin-word-filter; adtap "Add a word" 180 205; adtype "testbadword"; adhidekb; adt "Add"; sleep 2; proof "add bad word" "POST /api/admin/bad-words"
 adt "spamword"; sleep 2; proof "remove bad word" "DELETE /api/admin/bad-words"; key 4
-adq AdminWeb 5; shot AD-37-admin-web-pin; adtype "1234"; sleep 1; timeout 10 adb shell input keyevent 66; sleep 4; adt "Unlock"; sleep 1; sleep 6; proof "admin pin" "/api/admin/verify-pin"; shot AD-38-admin-web-after-pin; key 4
+adq AdminWeb 5; shot AD-37-admin-web-pin; adtype "1234"; sleep 1; timeout 10 adb shell input keyevent 66; sleep 4; adt "Unlock"; sleep 1; sleep 6; proof "admin pin" "/api/admin/verify-pin"; shot AD-38-admin-web-after-pin; sleep 12; shot AD-38b-admin-web-settled; key 4
 check "AD admin"
 
 log "---- AD: dark mode ----"
