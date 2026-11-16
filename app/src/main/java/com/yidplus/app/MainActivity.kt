@@ -125,6 +125,8 @@ class MainActivity : ComponentActivity() {
 
     private fun handle(i: Intent?) {
         i ?: return
+        // QA actions and extras are honoured only in a QA build (-Pqa=true); the shipped app ignores them, including from other apps.
+        if (!BuildConfig.QA && i.action?.startsWith("com.yidplus.app.QA_") == true) return
         when (i.action) {
             ACTION_CHECK_UPDATE -> UpdateUi.check(this, force = true, userAsked = true)
             ACTION_OPEN_PLAYER -> Nav.open(Screen.Player)
