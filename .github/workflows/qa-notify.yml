@@ -36,7 +36,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         run: |
-          gradle :app:assembleRelease -PversionName=${{ github.event.inputs.as_version }} --no-daemon -q
+          gradle :app:assembleRelease -Pqa=true -PversionName=${{ github.event.inputs.as_version }} --no-daemon -q
           mkdir -p dist && cp app/build/outputs/apk/release/app-release.apk dist/test.apk
           curl -fsSL -o dist/latest.json "https://github.com/${{ github.repository }}/releases/latest/download/version.json"
           cat dist/latest.json
