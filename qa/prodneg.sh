@@ -11,7 +11,8 @@ cold() { adb shell am force-stop $PKG; sleep 1; timeout 60 adb shell am start -W
 chat() { timeout 40 adb shell am start -a android.intent.action.VIEW -d "https://yidplus.com/chat" $PKG >/dev/null 2>&1; sleep 6; }
 act() { timeout 40 adb shell am start -n $PKG/.MainActivity -a "$@" >/dev/null 2>&1; sleep 3; }
 gate() { timeout 30 adb logcat -d -s YidQaGate:W 2>/dev/null | grep -c "$1"; }
-nrec() { timeout 30 adb shell dumpsys notification --noredact 2>/dev/null | awk -v p="pkg=$PKG" '/NotificationRecord\(/ {on=($0 ~ p)} on {print}'; }
+# Notification records for the app: raw dump kept per call (provenance), compared on stable identity/content/timing fields only (key, id, tag, channel, when, post/update times, title, text).
+nrec() { timeout 30 adb shell dumpsys notification --noredact 2>/dev/null > "$OUT/nraw-$1.txt"; awk -v p="pkg=$PKG" '/NotificationRecord\(/ {on=($0 ~ p); if (on) print "REC " $0} on {print}' "$OUT/nraw-$1.txt" | grep -E "^REC |^ *(id|tag|key|channel|when|mCreationTimeMs|mUpdateTimeMs|postTime)=|android\.(title|text|subText|bigText)|tickerText" | sed -E 's/@[0-9a-f]+//g'; }
 alive() { adb shell pidof $PKG >/dev/null 2>&1; }
 adb wait-for-device; adb shell input keyevent 82
 adb shell wm size 480x640; adb shell wm density 240; sleep 2
@@ -25,9 +26,9 @@ FXOK=0; echo "$T" | grep -q "Yossi Klein" && FXOK=1
 act com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page demo; shot PN1b-qa-page; T=$(texts pn1b); log "PN1b texts: $T"
 QPOK=0; echo "$T" | grep -qi "Edit profile" && QPOK=1
 [ $QPOK = 1 ] && log "PN1b PASS: QA build shows the qa_page demo settings (Edit profile)" || { log "PN1b INVALID: qa_page demo not visible in QA build, so the PN5 text check proves nothing"; FAIL=1; }
-nrec > "$OUT/nrec-qa-before.txt"; B=$(md5sum < "$OUT/nrec-qa-before.txt")
+nrec qa-before > "$OUT/nrec-qa-before.txt"; B=$(md5sum < "$OUT/nrec-qa-before.txt")
 adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n $PKG/.ChatQaReceiver >/dev/null 2>&1; sleep 4
-nrec > "$OUT/nrec-qa-after.txt"; A=$(md5sum < "$OUT/nrec-qa-after.txt")
+nrec qa-after > "$OUT/nrec-qa-after.txt"; A=$(md5sum < "$OUT/nrec-qa-after.txt")
 log "PN1c records before: $(grep -c 'NotificationRecord(' "$OUT/nrec-qa-before.txt") after: $(grep -c 'NotificationRecord(' "$OUT/nrec-qa-after.txt")"
 if [ "$A" != "$B" ]; then log "PN1c PASS: QA build broadcast changes the app's notification records (before/after content differs), so the PN6 comparison can detect the action"; else log "PN1c INVALID: QA broadcast left the notification records identical, so PN6 proves nothing"; FAIL=1; fi
 # --- PRODUCTION APK (data kept, same signature)
@@ -52,10 +53,10 @@ act com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page demo; shot PN5-prod-q
 N=$(gate "ignored extra qa_page")
 [ "${N:-0}" -ge 1 ] && log "PN5 PASS: qa_page extra reported ignored (YidQaGate $N)" || { log "PN5 WRONG: qa_page not reported ignored"; FAIL=1; }
 if echo "$T" | grep -qi "Edit profile"; then log "PN5 WRONG: demo settings (Edit profile) visible in production"; FAIL=1; else [ $QPOK = 1 ] && log "PN5 PASS: no demo settings text (positive control PN1b showed it in the QA build)"; fi
-nrec > "$OUT/nrec-prod-before.txt"; log "PN6 records present before the production broadcast (carried over from the QA run, provenance logged in nrec-prod-before.txt): $(grep -c 'NotificationRecord(' "$OUT/nrec-prod-before.txt")"
+nrec prod-before > "$OUT/nrec-prod-before.txt"; log "PN6 records present before the production broadcast (carried over from the QA run, provenance logged in nrec-prod-before.txt): $(grep -c 'NotificationRecord(' "$OUT/nrec-prod-before.txt")"
 adb logcat -c
 adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n $PKG/.ChatQaReceiver >/dev/null 2>&1; sleep 4
-nrec > "$OUT/nrec-prod-after.txt"; N=$(gate "ignored QA broadcast")
+nrec prod-after > "$OUT/nrec-prod-after.txt"; N=$(gate "ignored QA broadcast")
 if [ "${N:-0}" -ge 1 ] && cmp -s "$OUT/nrec-prod-before.txt" "$OUT/nrec-prod-after.txt"; then log "PN6 PASS: QA_CHAT_NOTIFY ignored (YidQaGate $N) and the app's notification records are byte-identical before and after"; else log "PN6 WRONG: gate lines=$N or records changed (diff in nrec-prod-*.txt)"; diff "$OUT/nrec-prod-before.txt" "$OUT/nrec-prod-after.txt" | head -20 | tee -a "$OUT/qa.log"; FAIL=1; fi
 adb shell am broadcast -a com.yidplus.app.QA_PICK -p $PKG >/dev/null 2>&1; adb shell am broadcast -a com.yidplus.app.QA_GESTURE -p $PKG >/dev/null 2>&1; sleep 2
 alive && log "PN7 PASS (limited): QA_PICK and QA_GESTURE broadcasts delivered, app still running; these receivers only act when Fixture.on, which is false in production" || { log "PN7 WRONG: app not running after QA_PICK/QA_GESTURE"; FAIL=1; }
