@@ -23,6 +23,8 @@ android {
         // Instant notifications through Firebase (yidplus.com's existing "shorts-e05cc" project) on phones that have
         // Google Play services. Off with -Pfcm=false. The 15-minute check keeps working with or without it.
         buildConfigField("boolean", "FCM", (project.findProperty("fcm") as String? ?: "true"))
+        // QA seams (fixture mode, QA_* actions, qa_page, QA receivers) exist only in builds made with -Pqa=true. Default is off, so the shipped app ignores them.
+        buildConfigField("boolean", "QA", (project.findProperty("qa") as String? ?: "false"))
     }
 
     signingConfigs {
