@@ -1,0 +1,179 @@
+[00:08:00] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[00:08:02] screen 480x640 @ 240 dpi
+[00:08:02] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[00:08:02] ---- Signed in (QA fixture account) ----
+[00:08:06] fixture true
+[00:08:15] shot F01-home-signedin
+[00:08:15] open https://yidplus.com/chat
+[00:08:21] shot F02-chats-list
+[00:08:22] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:08:30] shot F03-chat-dm
+[00:08:31] shot F03b-chat-dm-up
+[00:08:35] open https://yidplus.com/chat
+[00:08:49] shot F04-chat-group
+[00:08:51] shot F04b-group-up
+[00:08:53] shot F04c-group-top
+[00:08:57] shot F05-message-actions
+[00:09:06] shot F06-notifications
+[00:09:09] tab Home
+[00:09:12] shot F07-home-header
+[00:09:12] open https://yidplus.com/shorts
+[00:09:21] shot F08-shorts-signedin
+[00:09:21] tab Profile
+[00:09:24] shot F09-profile-signedin
+[00:09:36] shot F09b-profile-scrolled
+[00:09:49] open https://yidplus.com/chat
+[00:09:53] shot F10-chats-dark
+[00:10:00] shot F11-chat-dark
+[00:10:07] screen 1080x2400 @ 420 dpi
+[00:10:15] open https://yidplus.com/chat
+[00:10:19] shot F12-phone-chats
+[00:10:25] shot F13-phone-chat
+[00:10:29] screen 480x640 @ 240 dpi
+[00:10:29] ---- qa/fx-fp.sh ----
+[00:10:51] FP tapped '180' at 180 551
+[00:10:59] FP tapped '183' at 183 72
+[00:11:02] shot FP-01-following-empty
+[00:11:02] FP following texts:  text="Follow creators to see their videos here."  text="Find people to follow"  text="For You"  text="Following"  text="Uploads"  text="Saved"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:11:02] FP ok: empty Following offers 'Find people to follow'
+[00:11:06] FP tapped '256' at 256 312
+[00:11:11] shot FP-02-people-list
+[00:11:11] FP list texts:  text="Follow people"  text="8 people"  text="AU"  text="Ales UK"  text="Follow"  text="AS"  text="Abisel Status"  text="Follow"  text="EN"  text="Expert News Status"  text="Follow"  text="OR"  text="Osniel Rozen"  text="Follow" 
+[00:11:11] FP ok: 'Follow people' on screen
+[00:11:11] FP ok: '8 people' on screen
+[00:11:11] FP ok: 'Expert News Status' on screen
+[00:11:11] FP ok: 'Ales UK' on screen
+[00:11:11] FP ok: Search icon in the title bar
+[00:11:15] FP tapped '441' at 441 87
+[00:11:20] shot FP-04a-search-keyboard-up
+[00:11:20] FP keyboard shown: mInputShown=true
+[00:11:20] FP search texts (keyboard up):  text="Ales"  text="AU"  text="Ales UK"  text="Follow" 
+[00:11:20] FP ok: 'Ales UK' result visible above the keyboard
+[00:11:20] FP ok: non-matching people are filtered out
+[00:11:25] shot FP-04b-keyboard-dismissed
+[00:11:25] FP after keyboard Back:  text="Ales"  text="AU"  text="Ales UK"  text="Follow" 
+[00:11:25] FP note: see FP-04b
+[00:11:29] FP tapped '39' at 39 87
+[00:11:36] FP tapped '408' at 408 559
+[00:11:39] shot FP-03-followed
+[00:11:39] FP ok: a row shows 'Following ✓' after tapping Follow
+[00:11:39] FP followed texts:  text="Follow people"  text="AU"  text="Ales UK"  text="Follow"  text="AS"  text="Abisel Status"  text="Follow"  text="EN"  text="Expert News Status"  text="Follow"  text="OR"  text="Osniel Rozen"  text="Follow"  text="RY"  text="R' Yom Tov Glaser"  text="Following ✓" 
+[00:11:46] FP tapped '183' at 183 72
+[00:11:53] shot FP-06-following-after
+[00:11:53] FP YidFollow log: ||8 I YidFollow: loading 1 followed people (follows=1)|8 I YidFollow: fetched c4: 3 videos||
+[00:11:53] FP following-after texts:  text="Like"  text="Comment"  text="Share"  text="More"  text="RY"  text="@R' Yom Tov Glaser"  text="Following"  text="Sample video 2 from R' Yom Tov Glaser"  text="For You"  text="Following"  text="Uploads"  text="Saved"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:11:53] FP ok: Following shows a video of the person followed
+[00:11:53] FP ok: 'Follow more people' button is in the Shorts top row
+[00:11:57] FP tapped '400' at 400 75
+[00:12:03] shot FP-07-more
+[00:12:03] FP ok: 'Follow more people' opens the list while following someone
+[00:12:03] FP ok: the followed person shows Following ✓
+[00:12:07] FP tapped '382' at 382 228
+[00:12:10] shot FP-08-unfollowed
+[00:12:10] FP ok: unfollow turned the row back to Follow
+[00:12:17] shot FP-09-following-after-unfollow
+[00:12:17] FP ok: after unfollow the Following tab is empty again
+[00:12:21] FP tapped '183' at 183 72
+[00:12:27] FP tapped '400' at 400 75
+[00:12:36] FP tapped '441' at 441 87
+[00:12:41] FP follow-by-search 'Glaser': result texts:  text="Glaser"  text="RY"  text="R' Yom Tov Glaser"  text="Follow" 
+[00:12:41] FP ok: search 'Glaser' leaves only the named creator
+[00:12:45] FP tapped '408' at 408 163
+[00:12:47] FP ok: 'Glaser' now shows Following ✓ (identity confirmed by name)
+[00:12:51] FP tapped '39' at 39 87
+[00:12:56] FP tapped '441' at 441 82
+[00:13:02] FP follow-by-search 'Osniel': result texts:  text="Osniel"  text="OR"  text="Osniel Rozen"  text="Follow" 
+[00:13:02] FP ok: search 'Osniel' leaves only the named creator
+[00:13:06] FP tapped '408' at 408 163
+[00:13:08] FP ok: 'Osniel' now shows Following ✓ (identity confirmed by name)
+[00:13:12] FP tapped '39' at 39 87
+[00:13:15] FP multi list texts:  text="Follow people"  text="OR"  text="Osniel Rozen"  text="Following ✓"  text="RY"  text="R' Yom Tov Glaser"  text="Following ✓"  text="C"  text="Chaimo"  text="Follow"  text="וו"  text="ווקסלר תיירות WAXLER"  text="Follow"  text="ח"  text="חיים (הערשי) אורטנר"  text="Follow" 
+[00:13:23] FP multi pre-DOWN: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e] | mInTouchMode=true
+[00:13:23] shot FP-10-following-two
+[00:13:43] FP multi after 8x UP (to the first page): text="Sample video 2 from Osniel Rozen"
+[00:13:44] FP multi DOWN 1: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:13:49] FP multi DOWN 2: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:13:54] FP multi DOWN 3: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:13:59] FP multi DOWN 4: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:14:04] FP multi DOWN 5: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:14:09] FP multi DOWN 6: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:14:14] FP multi DOWN 7: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:14:19] FP multi DOWN 8: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:14:24] FP multi DOWN 9: focus [<node index="0" text="" resource-id="" class="android.view.View" package="com.yidplus.app" content-desc="" checkable="false" checked="false" clickable="false" e]
+[00:14:27] FP multi captions by D-pad DOWN: |text="Sample video 2 from Osniel Rozen"|text="Sample video 1 from Osniel Rozen"|text="Sample video 2 from R' Yom Tov Glaser"|text="Sample video 1 from R' Yom Tov Glaser"|text="QA negative B: same size and length as A, different video"|text="QA negative A: same size and length as B, different video"|text="QA negative A: same size and length as B, different video"|text="QA negative A: same size and length as B, different video"|text="QA negative A: same size and length as B, different video"
+[00:14:27] FP ok: the first D-pad DOWN paged
+[00:14:27] FP ok: D-pad DOWN pages Following
+[00:14:27] FP multi distinct-page sequence (D-pad DOWN): |text="Sample video 2 from Osniel Rozen"|text="Sample video 1 from Osniel Rozen"|text="Sample video 2 from R' Yom Tov Glaser"|text="Sample video 1 from R' Yom Tov Glaser"|text="QA negative B: same size and length as A, different video"|text="QA negative A: same size and length as B, different video"
+[00:14:27] FP ok: order newest first across two creators, 6 distinct pages, by D-pad DOWN
+[00:14:27] FP ok: the identical-URL repost (of QA negative A) was not shown as an extra page
+[00:14:27] FP ok: both equal-size/equal-length videos A and B are in Following
+[00:14:27] FP ok: no video repeated across the distinct pages
+[00:14:43] FP KEY-START cold start: mInTouchMode=false texts:  text="Like"  text="Comment"  text="Share"  text="More"  text="Y"  text="@yidplus"  text="+ Follow"  text="Sample video 1 from Expert News Status"  text="For You"  text="Following"  text="Uploads"  text="Saved"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:14:43] shot FP-20-key-start
+[00:14:44] FP KEY-START ForYou DOWN 1: mInTouchMode=false
+[00:14:49] FP KEY-START ForYou DOWN 2: mInTouchMode=false
+[00:14:54] FP KEY-START ForYou DOWN 3: mInTouchMode=false
+[00:14:59] FP KEY-START ForYou DOWN 4: mInTouchMode=false
+[00:15:04] FP KEY-START ForYou DOWN 5: mInTouchMode=false
+[00:15:09] FP KEY-START ForYou DOWN 6: mInTouchMode=false
+[00:15:14] FP KEY-START ForYou DOWN 7: mInTouchMode=false
+[00:15:19] FP KEY-START ForYou DOWN 8: mInTouchMode=false
+[00:15:23] FP KEY-START ForYou DOWN 9: mInTouchMode=false
+[00:15:28] FP KEY-START ForYou DOWN 10: mInTouchMode=false
+[00:15:33] FP KEY-START ForYou DOWN 11: mInTouchMode=false
+[00:15:38] FP KEY-START ForYou DOWN 12: mInTouchMode=false
+[00:15:43] FP KEY-START ForYou DOWN 13: mInTouchMode=false
+[00:15:48] FP KEY-START ForYou DOWN 14: mInTouchMode=false
+[00:15:53] FP KEY-START ForYou DOWN 15: mInTouchMode=false
+[00:15:58] FP KEY-START ForYou DOWN 16: mInTouchMode=false
+[00:16:03] FP KEY-START ForYou DOWN 17: mInTouchMode=false
+[00:16:06] FP KEY-START ForYou captions per key DOWN (nothing collapsed, key mode only): |text="Sample video 1 from Expert News Status"|text="Sample video 2 from Expert News Status"|text="Sample video 3 from Expert News Status"|text="Sample video 4 from Expert News Status"|text="Sample video 1 from Abisel Status"|text="Sample video 2 from Abisel Status"|text="Sample video 3 from Abisel Status"|text="Sample video 4 from Abisel Status"|text="Sample video 1 from Ales UK"|text="Sample video 2 from Ales UK"|text="Sample video 3 from Ales UK"|text="Sample video 4 from Ales UK"|text="QA negative A: same size and length as B, different video"|text="QA negative B: same size and length as A, different video"|text="QA negative B: same size and length as A, different video"|text="QA negative B: same size and length as A, different video"|text="QA negative B: same size and length as A, different video"
+[00:16:06] shot FP-23-key-foryou-end
+[00:16:06] FP ok: 'QA negative A' shown in For You (same size+length as its pair)
+[00:16:06] FP ok: 'QA negative B' shown in For You (same size+length as its pair)
+[00:16:12] shot FP-21-following-entry
+[00:16:12] FP KEY-START Following on switch: text="Sample video 2 from Osniel Rozen"
+[00:16:12] FP ok: Following entry starts on its first (newest) video
+[00:16:12] FP pager log: --------- beginning of main|--------- beginning of system|--------- beginning of kernel|11-16 00:13:14.217  3498  3498 I YidPager: entry reset to 0 (tab=Following, items=3)|11-16 00:13:14.232  3498  3498 I YidPager: entry reset from page 2 (items=6, tab=Following)|11-16 00:13:43.846  3498  3498 I YidPager: entry ended by input|11-16 00:14:43.631  4995  4995 I YidPager: entry ended by input|11-16 00:16:05.444  4995  4995 I YidPager: entry reset to 0 (tab=Following, items=2)|11-16 00:16:05.467  4995  4995 I YidPager: entry reset from page 4 (items=6, tab=ForYou)|
+[00:16:37] FP KEY-START Following after 10x UP: text="Sample video 2 from Osniel Rozen"
+[00:16:38] FP KEY-START Following DOWN 1: mInTouchMode=false
+[00:16:43] FP KEY-START Following DOWN 2: mInTouchMode=false
+[00:16:48] FP KEY-START Following DOWN 3: mInTouchMode=false
+[00:16:53] FP KEY-START Following DOWN 4: mInTouchMode=false
+[00:16:58] FP KEY-START Following DOWN 5: mInTouchMode=false
+[00:17:03] FP KEY-START Following DOWN 6: mInTouchMode=false
+[00:17:08] FP KEY-START Following DOWN 7: mInTouchMode=false
+[00:17:13] FP KEY-START Following DOWN 8: mInTouchMode=false
+[00:17:18] FP KEY-START Following DOWN 9: mInTouchMode=false
+[00:17:22] FP KEY-START Following DOWN 10: mInTouchMode=false
+[00:17:26] FP KEY-START Following captions per key DOWN (nothing collapsed): |text="Sample video 2 from Osniel Rozen"|text="Sample video 1 from Osniel Rozen"|text="Sample video 2 from R' Yom Tov Glaser"|text="Sample video 1 from R' Yom Tov Glaser"|text="QA negative B: same size and length as A, different video"|text="QA negative A: same size and length as B, different video"|text="QA negative A: same size and length as B, different video"|text="QA negative A: same size and length as B, different video"|text="QA negative A: same size and length as B, different video"|text="QA negative A: same size and length as B, different video"
+[00:17:26] shot FP-24-key-following-end
+[00:17:26] FP ok: 'QA negative A' shown in Following
+[00:17:26] FP ok: 'QA negative B' shown in Following
+[00:17:50] shot FPD-A-1-first-loaded
+[00:17:50] FPD A first loaded page: text="Sample video 2 from R' Yom Tov Glaser"
+[00:18:03] shot FPD-A-3-after-delayed
+[00:18:03] FPD A after the delayed creator arrived: text="Sample video 2 from Osniel Rozen"
+[00:18:03] FPD A pager log:   6239  6239 I YidPager: entry reset from page 2 (items=6, tab=ForYou)|
+[00:18:03] FPD A ok: no input, list grew, page is the first (newest) video
+[00:18:27] shot FPD-B-1-first-loaded
+[00:18:27] FPD B first loaded page: text="Sample video 2 from R' Yom Tov Glaser"
+[00:18:32] shot FPD-B-2-after-nav
+[00:18:32] FPD B after D-pad DOWN (navigates): text="Sample video 1 from R' Yom Tov Glaser"
+[00:18:45] shot FPD-B-3-after-delayed
+[00:18:45] FPD B after the delayed creator arrived: text="Sample video 1 from R' Yom Tov Glaser"
+[00:18:45] FPD B pager log:   6411  6411 I YidPager: entry ended by input|
+[00:18:45] FPD B ok: after navigating, list growth did not move the page
+[00:18:45] FPD B ok: no entry reset logged after the input
+[00:19:09] shot FPD-C-1-first-loaded
+[00:19:09] FPD C first loaded page: text="Sample video 2 from R' Yom Tov Glaser"
+[00:19:13] shot FPD-C-2-after-tap
+[00:19:13] FPD C after an unrelated tap on the video (no paging): text="Sample video 2 from R' Yom Tov Glaser"
+[00:19:27] shot FPD-C-3-after-delayed
+[00:19:27] FPD C after the delayed creator arrived: text="Sample video 2 from R' Yom Tov Glaser"
+[00:19:27] FPD C pager log:   6621  6621 I YidPager: entry ended by input|
+[00:19:27] FPD C INFO: unrelated tap before the list filled; page before=text="Sample video 2 from R' Yom Tov Glaser" after growth=text="Sample video 2 from R' Yom Tov Glaser"
+[00:19:27] fixture writes the app would have sent: 0
+[00:19:31] fixture false
