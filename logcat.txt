@@ -1,0 +1,931 @@
+--------- beginning of system
+11-16 02:53:15.021   496   526 I RoleManagerService: Granting default roles...
+--------- beginning of main
+11-16 02:53:15.023   496   590 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS | 
+11-16 02:53:15.023   691   691 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-16 02:53:15.023   691   691 D AvrcpMediaPlayerList: Name of package changed: com.android.carrierdefaultapp
+11-16 02:53:15.027  1038  1038 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 02:53:15.040   730   752 I PermissionControllerServiceImpl: Updating user sensitive for uid 10095
+11-16 02:53:15.043  1165 13750 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package:com.android.carrierdefaultapp flg=0x45000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-16 02:53:15.045  1165 13750 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+11-16 02:53:15.047   496   496 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AME
+11-16 02:53:15.099  1499  4443 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=AppsCorpus serviceId=36 [CONTEXT service_id=21 ]
+11-16 02:53:15.112  1499  2830 W Icing   : No valid account for uploading user actions [CONTEXT service_id=21 ]
+11-16 02:53:15.121  1499  4443 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30 [CONTEXT service_id=21 ]
+11-16 02:53:15.123  1499  2830 I Icing   : Usage reports ok 1, Failed Usage reports 0, indexed 0, rejected 0 [CONTEXT service_id=21 ]
+11-16 02:53:15.124  1499  2830 W Icing   : No valid account for uploading user actions [CONTEXT service_id=21 ]
+11-16 02:53:15.126  1499  2830 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0 [CONTEXT service_id=21 ]
+11-16 02:53:16.124  1499  2830 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms [CONTEXT service_id=21 ]
+11-16 02:53:16.126  1499  2830 I Icing   : Indexing done com.google.android.gms-apps [CONTEXT service_id=21 ]
+11-16 02:53:17.826   496  1126 D WifiNl80211Manager: Scan result ready event
+11-16 02:53:17.826   496  1126 D WifiNative: Scan result ready event
+11-16 02:53:19.007   496   529 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 02:53:19.008   496  1126 I ActivityTaskManager: START u0 {act=com.yidplus.app.OPEN_CHAT flg=0x10000000 cmp=com.yidplus.app/.MainActivity (has extras)} from uid 2000
+11-16 02:53:19.009 13874 13876 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:19.010   417   417 I perfetto: ing_service_impl.cc:758 Configured tracing session 26, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 02:53:19.010   416   416 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=26)
+11-16 02:53:19.012   496   529 D EventSequenceValidator: Transition from INTENT_STARTED to INTENT_FAILED
+11-16 02:53:19.015 13784 13805 I rrierdefaultap: Waiting for a blocking GC ProfileSaver
+11-16 02:53:19.029   416   416 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+--------- beginning of kernel
+11-16 02:53:19.231     0     0 W perfetto: enabled ftrace
+11-16 02:53:24.015   416   416 I perfetto: probes_producer.cc:329  Producer stop (id=26)
+11-16 02:53:24.016   417   417 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-16 02:53:24.016   417   417 I perfetto: ng_service_impl.cc:1948 Tracing session 26 ended, total sessions:0
+11-16 02:53:24.017   416   416 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 02:53:24.219     0     0 W perfetto: disabled ftrace
+11-16 02:53:24.070   496   642 D WifiConfigStore: Writing to stores completed in 2 ms.
+11-16 02:53:24.126  1165 13885 E WakeLock: GCM_HB_ALARM release without a matched acquire!
+11-16 02:53:24.126  1165 13885 W WakeLock: GCM_HB_ALARM counter does not exist
+11-16 02:53:25.063 13887 13887 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:25.064 13887 13887 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:25.064 13887 13887 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:25.064 13887 13887 I AndroidRuntime: Using default boot image
+11-16 02:53:25.064 13887 13887 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:25.064 13887 13887 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:25.065 13887 13887 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:25.066 13887 13887 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:25.060 13887 13887 W app_process: type=1400 audit(0.0:1706): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:25.060 13887 13887 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 02:53:25.060 13887 13887 W app_process: type=1400 audit(0.0:1709): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:25.109 13887 13887 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:25.109 13887 13887 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:25.112 13887 13887 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:25.113 13887 13887 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:25.113 13887 13887 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:25.118 13887 13887 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:25.120 13887 13887 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 02:53:25.125 13887 13901 V UiAutomation: Init UiAutomation@fa9c244[id=172, flags=0]
+11-16 02:53:26.140 13887 13887 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+11-16 02:53:26.141   496  2008 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@da246ee
+11-16 02:53:26.141 13887 13901 V UiAutomation: Init UiAutomation@fa9c244[id=-1, flags=0]
+11-16 02:53:26.143 13887 13887 D AndroidRuntime: Shutting down VM
+11-16 02:53:26.613 13905 13905 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:26.615 13905 13905 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:26.615 13905 13905 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:26.615 13905 13905 I AndroidRuntime: Using default boot image
+11-16 02:53:26.615 13905 13905 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:26.615 13905 13905 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:26.615 13905 13905 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:26.616 13905 13905 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:26.612 13905 13905 W app_process: type=1400 audit(0.0:1710): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:26.612 13905 13905 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 02:53:26.612 13905 13905 W app_process: type=1400 audit(0.0:1713): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:26.658 13905 13905 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:26.658 13905 13905 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:26.660 13905 13905 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:26.661 13905 13905 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:26.661 13905 13905 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:26.666 13905 13905 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:26.668 13905 13905 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 02:53:26.673 13905 13919 V UiAutomation: Init UiAutomation@24c5cad[id=173, flags=0]
+11-16 02:53:27.681 13905 13905 W AccessibilityNodeInfoDumper: Fetch time: 3ms
+11-16 02:53:27.681   496   566 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@92c3987
+11-16 02:53:27.682 13905 13919 V UiAutomation: Init UiAutomation@24c5cad[id=-1, flags=0]
+11-16 02:53:27.684 13905 13905 D AndroidRuntime: Shutting down VM
+11-16 02:53:28.152 13923 13923 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:28.154 13923 13923 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:28.154 13923 13923 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:28.154 13923 13923 I AndroidRuntime: Using default boot image
+11-16 02:53:28.154 13923 13923 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:28.154 13923 13923 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:28.154 13923 13923 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:28.148 13923 13923 W app_process: type=1400 audit(0.0:1714): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:28.155 13923 13923 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:28.148 13923 13923 W app_process: type=1400 audit(0.0:1715): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:28.148 13923 13923 I chatty  : uid=2000(shell) app_process identical 1 line
+11-16 02:53:28.148 13923 13923 W app_process: type=1400 audit(0.0:1717): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:28.193 13923 13923 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:28.193 13923 13923 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:28.196 13923 13923 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:28.196 13923 13923 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:28.197 13923 13923 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:28.202 13923 13923 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:28.204 13923 13923 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 02:53:28.208 13923 13937 V UiAutomation: Init UiAutomation@791917f[id=174, flags=0]
+11-16 02:53:29.217 13923 13923 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+11-16 02:53:29.217   496   523 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@4ce824c
+11-16 02:53:29.217 13923 13937 V UiAutomation: Init UiAutomation@791917f[id=-1, flags=0]
+11-16 02:53:29.220 13923 13923 D AndroidRuntime: Shutting down VM
+11-16 02:53:29.689 13940 13940 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:29.691 13940 13940 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:29.691 13940 13940 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:29.691 13940 13940 I AndroidRuntime: Using default boot image
+11-16 02:53:29.691 13940 13940 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:29.691 13940 13940 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:29.691 13940 13940 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:29.692 13940 13940 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:29.688 13940 13940 W app_process: type=1400 audit(0.0:1718): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:29.688 13940 13940 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 02:53:29.688 13940 13940 W app_process: type=1400 audit(0.0:1721): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:29.734 13940 13940 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:29.734 13940 13940 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:29.736 13940 13940 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:29.737 13940 13940 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:29.743 13940 13940 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:29.745 13940 13940 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 02:53:30.156 13940 13940 D AndroidRuntime: Shutting down VM
+11-16 02:53:31.620 13953 13953 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:31.621 13953 13953 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:31.621 13953 13953 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:31.621 13953 13953 I AndroidRuntime: Using default boot image
+11-16 02:53:31.621 13953 13953 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:31.621 13953 13953 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:31.621 13953 13953 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:31.623 13953 13953 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:31.616 13953 13953 W app_process: type=1400 audit(0.0:1722): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:31.616 13953 13953 W app_process: type=1400 audit(0.0:1723): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:31.648  7100  7100 I YidPerf : Chat content 12639 ms after open
+11-16 02:53:31.616 13953 13953 W app_process: type=1400 audit(0.0:1724): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:31.616 13953 13953 W app_process: type=1400 audit(0.0:1725): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:31.670 13953 13953 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:31.670 13953 13953 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:31.673 13953 13953 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:31.673 13953 13953 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:31.674 13953 13953 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:31.679 13953 13953 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:31.682 13953 13953 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 02:53:31.688 13953 13967 V UiAutomation: Init UiAutomation@f7960ba[id=175, flags=0]
+11-16 02:53:32.699 13953 13953 W AccessibilityNodeInfoDumper: Fetch time: 7ms
+11-16 02:53:32.699   496  2253 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@9b1bf4d
+11-16 02:53:32.700 13953 13967 V UiAutomation: Init UiAutomation@f7960ba[id=-1, flags=0]
+11-16 02:53:32.703 13953 13953 D AndroidRuntime: Shutting down VM
+11-16 02:53:33.168 13970 13970 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:33.169 13970 13970 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:33.169 13970 13970 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:33.169 13970 13970 I AndroidRuntime: Using default boot image
+11-16 02:53:33.169 13970 13970 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:33.169 13970 13970 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:33.169 13970 13970 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:33.164 13970 13970 W app_process: type=1400 audit(0.0:1726): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:33.171 13970 13970 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:33.164 13970 13970 W app_process: type=1400 audit(0.0:1727): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:33.164 13970 13970 I chatty  : uid=2000(shell) app_process identical 1 line
+11-16 02:53:33.164 13970 13970 W app_process: type=1400 audit(0.0:1729): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:33.213 13970 13970 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:33.213 13970 13970 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:33.216 13970 13970 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:33.217 13970 13970 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:33.217 13970 13970 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:33.222 13970 13970 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:33.224 13970 13970 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 02:53:33.229 13970 13984 V UiAutomation: Init UiAutomation@4be958c[id=176, flags=0]
+11-16 02:53:34.239 13970 13970 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+11-16 02:53:34.239   496   566 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@bc8e75a
+11-16 02:53:34.240 13970 13984 V UiAutomation: Init UiAutomation@4be958c[id=-1, flags=0]
+11-16 02:53:34.243 13970 13970 D AndroidRuntime: Shutting down VM
+11-16 02:53:34.730 13987 13987 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:34.732 13987 13987 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:34.732 13987 13987 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:34.732 13987 13987 I AndroidRuntime: Using default boot image
+11-16 02:53:34.732 13987 13987 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:34.732 13987 13987 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:34.732 13987 13987 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:34.728 13987 13987 W app_process: type=1400 audit(0.0:1730): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:34.733 13987 13987 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:34.728 13987 13987 W app_process: type=1400 audit(0.0:1731): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:34.728 13987 13987 I chatty  : uid=2000(shell) app_process identical 1 line
+11-16 02:53:34.728 13987 13987 W app_process: type=1400 audit(0.0:1733): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:34.770 13987 13987 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:34.770 13987 13987 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:34.772 13987 13987 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:34.773 13987 13987 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:34.777 13987 13987 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:34.779 13987 13987 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 02:53:34.783   432   432 D NuPlayerDriver: NuPlayerDriver(0xec4413c0) created, clientPid(7100)
+11-16 02:53:34.785 13987 13987 D AndroidRuntime: Shutting down VM
+11-16 02:53:34.797   432 14002 D GenericSource: FileSource remote
+11-16 02:53:34.808   432 14001 I GenericSource: start
+11-16 02:53:34.810   432 14006 D CCodec  : allocate(c2.android.aac.decoder)
+11-16 02:53:34.810   439   439 V C2Store : in init
+11-16 02:53:34.810   439   439 V C2Store : loading dll
+11-16 02:53:34.811   432 14006 I CCodec  : Created component [c2.android.aac.decoder]
+11-16 02:53:34.811   432 14006 D CCodecConfig: read media type: audio/mp4a-latm
+11-16 02:53:34.812   432 14006 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-16 02:53:34.813   432 14006 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-16 02:53:34.813   432 14006 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-16 02:53:34.813   432 14006 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-16 02:53:34.813   432 14006 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-16 02:53:34.813   432 14006 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-16 02:53:34.813   432 14006 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-16 02:53:34.814   432 14006 I CCodecConfig: query failed after returning 19 values (BAD_INDEX)
+11-16 02:53:34.814   432 14006 D CCodecConfig: c2 config diff is Dict {
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 coded.aac-packaging.value = 0
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 coded.pl.level = 0
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 coded.pl.profile = 8192
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::i32 coding.drc.album-mode.value = 0
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::float coding.drc.attenuation-factor.value = 1
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::float coding.drc.boost-factor.value = 1
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::i32 coding.drc.compression-mode.value = 3
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::i32 coding.drc.effect-type.value = 3
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::float coding.drc.encoded-level.value = 0.25
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::float coding.drc.reference-level.value = -16
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-16 02:53:34.814   432 14006 D CCodecConfig:   string input.media-type.value = "audio/mp4a-latm"
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 output.delay.value = 2
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::float output.drc.output-loudness.value = 0.25
+11-16 02:53:34.814   432 14006 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 raw.channel-count.value = 1
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 raw.max-channel-count.value = 8
+11-16 02:53:34.814   432 14006 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-16 02:53:34.814   432 14006 D CCodecConfig: }
+11-16 02:53:34.814   432 14006 D CCodec  : [c2.android.aac.decoder] buffers are bound to CCodec for this session
+11-16 02:53:34.814   432 14006 D CCodecConfig: no c2 equivalents for durationUs
+11-16 02:53:34.814   432 14006 D CCodecConfig: no c2 equivalents for track-id
+11-16 02:53:34.814   432 14006 D CCodecConfig: no c2 equivalents for language
+11-16 02:53:34.814   432 14006 D CCodecConfig: no c2 equivalents for aac-profile
+11-16 02:53:34.814   432 14006 D CCodecConfig: no c2 equivalents for flags
+11-16 02:53:34.815   432 14006 D CCodecConfig: config failed => CORRUPTED
+11-16 02:53:34.815   432 14006 W Codec2Client: query -- param skipped: index = 1107298332.
+11-16 02:53:34.815   432 14006 D CCodec  : client requested max input size 303, which is smaller than what component recommended (8192); overriding with component recommendation.
+11-16 02:53:34.815   432 14006 W CCodec  : This behavior is subject to change. It is recommended that app developers double check whether the requested max input size is in reasonable range.
+11-16 02:53:34.815   432 14006 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-album-mode = 0
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-boost-level = 127
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-cut-level = 127
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-effect-type = 3
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-heavy-compression = 3
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-encoded-target-level = -1
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-max-output-channel_count = 8
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-target-ref-level = 64
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t channel-count = 1
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t level = 0
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t max-input-size = 8192
+11-16 02:53:34.815   432 14006 D CCodec  :   string mime = "audio/mp4a-latm"
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t profile = 2
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t sample-rate = 44100
+11-16 02:53:34.815   432 14006 D CCodec  : } and output: AMessage(what = 0x00000000) = {
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-album-mode = 0
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-boost-level = 127
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-cut-level = 127
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-effect-type = 3
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-heavy-compression = 3
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-drc-output-loudness = -1
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-encoded-target-level = -1
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-max-output-channel_count = 8
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t aac-target-ref-level = 64
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t channel-count = 1
+11-16 02:53:34.815   432 14006 D CCodec  :   string mime = "audio/raw"
+11-16 02:53:34.815   432 14006 D CCodec  :   int32_t sample-rate = 44100
+11-16 02:53:34.815   432 14006 D CCodec  : }
+11-16 02:53:34.815   432 14006 I MediaCodec: MediaCodec will operate in async mode
+11-16 02:53:34.815   432 14006 W Codec2Client: query -- param skipped: index = 1342179345.
+11-16 02:53:34.815   432 14006 W Codec2Client: query -- param skipped: index = 2415921170.
+11-16 02:53:34.815   432 14006 W Codec2Client: query -- param skipped: index = 1610614798.
+11-16 02:53:34.815   432 14006 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.815   432 14006 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.816   439   439 D BufferPoolAccessor2.0: bufferpool2 0x714129f75cb8 : 0(0 size) total buffers - 0(0 size) used buffers - 323/324 (recycle/alloc) - 1/324 (fetch/transfer)
+11-16 02:53:34.816   439   439 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x714129f75cb8 cached: 0/0M, 0/0% in use; allocs: 324, 100% recycled; transfers: 324, 100% unfetched
+11-16 02:53:34.816   432 14006 D CCodecBufferChannel: [c2.android.aac.decoder#665] Created input block pool with allocatorID 16 => poolID 26 - OK (0)
+11-16 02:53:34.816   439   439 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.816   439   439 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.816   432 14006 I CCodecBufferChannel: [c2.android.aac.decoder#665] Created output block pool with allocatorID 16 => poolID 35 - OK
+11-16 02:53:34.816   432   737 D BufferPoolAccessor2.0: bufferpool2 0xe8986c88 : 0(0 size) total buffers - 0(0 size) used buffers - 648/654 (recycle/alloc) - 6/1298 (fetch/transfer)
+11-16 02:53:34.816   432   737 D BufferPoolAccessor2.0: Destruction - bufferpool2 0xe8986c88 cached: 0/0M, 0/0% in use; allocs: 654, 99% recycled; transfers: 1298, 100% unfetched
+11-16 02:53:34.816   432 14006 D CCodecBufferChannel: [c2.android.aac.decoder#665] Configured output block pool ids 35 => OK
+11-16 02:53:34.816   439 14007 D SimpleC2Component: Using output block pool with poolID 35 => got 35 - 0
+11-16 02:53:34.817   432 14006 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.817   439  1021 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.817   439 14007 I C2SoftAacDec: Reconfiguring decoder: 0->44100 Hz, 0->1 channels
+11-16 02:53:34.818   439 14007 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.818   432   740 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:34.818   432 14006 D CCodecConfig: c2 config diff is   c2::i32 coding.drc.compression-mode.value = 1
+11-16 02:53:34.818   432 14006 D CCodecBuffers: [c2.android.aac.decoder#665:Output[N]] popFromStashAndRegister: output format changed to AMessage(what = 0x00000000) = {
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-drc-album-mode = 0
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-drc-boost-level = 127
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-drc-cut-level = 127
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-drc-effect-type = 3
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-drc-heavy-compression = 1
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-drc-output-loudness = -1
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-encoded-target-level = -1
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-max-output-channel_count = 8
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t aac-target-ref-level = 64
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t channel-count = 1
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   string mime = "audio/raw"
+11-16 02:53:34.818   432 14006 D CCodecBuffers:   int32_t sample-rate = 44100
+11-16 02:53:34.818   432 14006 D CCodecBuffers: }
+11-16 02:53:34.819   374 10833 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+11-16 02:53:34.819   374 10833 D AudioFlinger: Client defaulted notificationFrames to 11224 for frameCount 22448
+11-16 02:53:34.820   374 10833 D AF::TrackHandle: OpPlayAudio: track:64 usage:1 not muted
+11-16 02:53:34.820   374 10833 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:34.820   374 10833 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:34.821   496   566 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:34.821   496   566 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:34.821   432  3350 D AudioTrack: getTimestamp_l(36): device stall time corrected using current time 1018158867228
+11-16 02:53:34.910   374   455 D AudioFlinger: mixer(0x7c85ba220040) throttle end: throttle time(34)
+11-16 02:53:36.753 14008 14008 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:36.752 14008 14008 W app_process: type=1400 audit(0.0:1734): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:36.755 14008 14008 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:36.755 14008 14008 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:36.755 14008 14008 I AndroidRuntime: Using default boot image
+11-16 02:53:36.755 14008 14008 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:36.755 14008 14008 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:36.755 14008 14008 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:36.756 14008 14008 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:36.752 14008 14008 W app_process: type=1400 audit(0.0:1735): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:36.752 14008 14008 I chatty  : uid=2000(shell) app_process identical 1 line
+11-16 02:53:36.752 14008 14008 W app_process: type=1400 audit(0.0:1737): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:36.796 14008 14008 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:36.796 14008 14008 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:36.798 14008 14008 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:36.799 14008 14008 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:36.799 14008 14008 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:36.804 14008 14008 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:36.806 14008 14008 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 02:53:36.811 14008 14022 V UiAutomation: Init UiAutomation@ca664c7[id=177, flags=0]
+11-16 02:53:37.826 14008 14008 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+11-16 02:53:37.826   496  1679 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@fbb50b9
+11-16 02:53:37.827 14008 14022 V UiAutomation: Init UiAutomation@ca664c7[id=-1, flags=0]
+11-16 02:53:37.830 14008 14008 D AndroidRuntime: Shutting down VM
+11-16 02:53:38.295   163   163 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 02:53:38.295 14027 14027 I Gralloc4: mapper 4.x is not supported
+11-16 02:53:38.298 14027 14027 D HostConnection: createUnique: call
+11-16 02:53:38.299 14027 14027 D HostConnection: HostConnection::get() New Host Connection established 0x7f5c1367eb50, tid 14027
+11-16 02:53:38.310 14027 14027 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 02:53:38.372 14029 14029 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 02:53:38.373 14029 14029 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 02:53:38.373 14029 14029 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 02:53:38.373 14029 14029 I AndroidRuntime: Using default boot image
+11-16 02:53:38.373 14029 14029 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 02:53:38.373 14029 14029 I AndroidRuntime: Leaving lock profiling enabled
+11-16 02:53:38.373 14029 14029 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 02:53:38.374 14029 14029 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 02:53:38.368 14029 14029 W app_process: type=1400 audit(0.0:1738): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:38.368 14029 14029 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 02:53:38.368 14029 14029 W app_process: type=1400 audit(0.0:1741): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8525 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 02:53:38.414 14029 14029 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 02:53:38.414 14029 14029 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 02:53:38.417 14029 14029 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:38.417 14029 14029 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:38.417 14029 14029 I app_process: The ClassLoaderContext is a special shared library.
+11-16 02:53:38.424 14029 14029 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 02:53:38.426 14029 14029 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 02:53:38.432 14029 14043 V UiAutomation: Init UiAutomation@1eb9999[id=178, flags=0]
+11-16 02:53:39.439 14029 14029 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+11-16 02:53:39.440   496  2253 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@884e82d
+11-16 02:53:39.440 14029 14043 V UiAutomation: Init UiAutomation@1eb9999[id=-1, flags=0]
+11-16 02:53:39.442 14029 14029 D AndroidRuntime: Shutting down VM
+11-16 02:53:39.816   439   912 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 0
+11-16 02:53:40.090     0     0 D logd    : logdr: UID=2000 GID=2000 PID=14046 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 02:53:39.907   496  2253 I WifiService: setWifiEnabled package=com.android.shell uid=2000 enable=true
+11-16 02:53:39.907   496   642 D WifiActiveModeWarden: Switching all client mode managers
+11-16 02:53:39.908   496   496 D WifiP2pService: Wifi enabled=false, P2P Interface availability=true
+11-16 02:53:39.909   496   642 I SupplicantStaIfaceHal: Starting supplicant using HIDL
+11-16 02:53:39.909 14049 14052 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:39.909   163   163 I hwservicemanager: Since android.hardware.wifi.supplicant@1.0::ISupplicant/default is not registered, trying to start it as a lazy HAL.
+11-16 02:53:39.909   496   642 D SupplicantStaIfaceHal: Successfully triggered start of supplicant using HIDL
+11-16 02:53:40.113     0     0 I init    : starting service 'wpa_supplicant'...
+11-16 02:53:40.115     0     0 I init    : Created socket '/dev/socket/wpa_wlan0', mode 660, user 1010, group 1010
+11-16 02:53:40.119     0     0 I init    : Control message: Processed ctl.interface_start for 'android.hardware.wifi.supplicant@1.0::ISupplicant/default' from pid: 163 (/system/bin/hwservicemanager)
+11-16 02:53:39.927 14055 14059 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:39.929  1708 14061 I PresencePolling: [PresencePublication] onMobileDataChanged, mDataEnabled=false value=true
+11-16 02:53:39.929  1708 14061 I PresencePolling: [PresencePublication] PRES_PUBLISH_TRIGGER_DATA_CHANGED
+11-16 02:53:39.930  1038  1038 D TelephonyProvider: subIdString = 1 subId = 1
+11-16 02:53:39.930  1708 14061 I PresencePolling: [PresencePublication] Didn't get trigger from stack yet, discard framework trigger.
+11-16 02:53:39.940  1038  1038 D TelephonyProvider: subIdString = 1 subId = 1
+11-16 02:53:39.944  1038  1038 D MultiSimSettingController: onUserDataEnabled
+11-16 02:53:39.944  1038  1038 D MultiSimSettingController: setUserDataEnabledForGroup subId 1 enable true
+11-16 02:53:39.953 14057 14057 I wpa_supplicant: Processing hidl events on FD 3
+11-16 02:53:39.954 14057 14057 I HidlServiceManagement: Registered android.hardware.wifi.supplicant@1.3::ISupplicant/default (start delay of 41ms)
+11-16 02:53:39.954 14057 14057 I wpa_supplicant: Successfully initialized wpa_supplicant
+11-16 02:53:39.956   496   523 D ConnectivityService: registerNetworkAgent NetworkAgentInfo{ ni{[type: MOBILE[], state: UNKNOWN/IDLE, reason: (unspecified), extra: epc.tmobile.com, failover: false, available: true, roaming: false]}  network{102}  nethandle{441492361229}  lp{{InterfaceName: eth0 LinkAddresses: [ 10.0.2.15/24,fe80::5054:ff:fe12:3456/64 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 1500 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ ::/0 -> fe80::2 eth0 mtu 1500,0.0.0.0/0 -> 10.0.2.2 eth0 mtu 1500,10.0.2.0/24 -> 0.0.0.0 eth0 mtu 0,fe80::/64 -> :: eth0 mtu 0 ]}}  nc{[ Transports: CELLULAR Capabilities: MMS&SUPL&DUN&FOTA&IMS&CBS&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=15000Kbps LinkDnBandwidth>=30000Kbps Specifier: <TelephonyNetworkSpecifier [mSubId = 1]> RequestorUid: -1 RequestorPackageName: null]}  Score{10}  everValidated{false}  lastValidated{false}  created{false} lingering{false} explicitlySelected{false} acceptUnvalidated{false} everCaptivePortalDetected{false} lastCaptivePortalDetected{false} partialConnectivity{false} acceptPartialConnectivity{false} clat{mBaseIface: null, mIface: null, mState: IDLE} }
+11-16 02:53:39.960 14057 14057 I wpa_supplicant: rfkill: Cannot open RFKILL control device
+11-16 02:53:39.961   496   646 D ConnectivityService: [102 CELLULAR] EVENT_NETWORK_INFO_CHANGED, going from UNKNOWN to UNKNOWN
+11-16 02:53:39.961   496   646 D ConnectivityService: [102 CELLULAR] EVENT_NETWORK_INFO_CHANGED, going from UNKNOWN to CONNECTED
+11-16 02:53:39.963   496   646 W DnsManager: updatePrivateDns(102, PrivateDnsConfig{true:/[]})
+11-16 02:53:39.963   496   646 D ConnectivityService: Setting DNS servers for network 102 to [/10.0.2.3]
+11-16 02:53:39.963   496   646 D DnsManager: sendDnsConfigurationForNetwork(102, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+11-16 02:53:39.964   284 14063 W resolv  : Validating DnsTlsServer on netId 102
+11-16 02:53:39.965   284 14063 W resolv  : Validation failed
+11-16 02:53:39.965   496   646 D ConnectivityService: Adding iface eth0 to network 102
+11-16 02:53:39.968   496   646 D ConnectivityService: Setting DNS servers for network 102 to [/10.0.2.3]
+11-16 02:53:39.968   496   646 D DnsManager: sendDnsConfigurationForNetwork(102, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+11-16 02:53:39.968   284 14064 W resolv  : Validating DnsTlsServer on netId 102
+11-16 02:53:39.970   432 14006 D BufferPoolAccessor2.0: bufferpool2 0xe8987618 : 12(98304 size) total buffers - 9(73728 size) used buffers - 236/248 (recycle/alloc) - 13/247 (fetch/transfer)
+11-16 02:53:39.970   284 14064 W resolv  : SSL_connect ssl error =5, mark 0xf0066: Connection refused
+11-16 02:53:39.970   284 14064 W resolv  : Validation failed
+11-16 02:53:39.970   439 14007 D BufferPoolAccessor2.0: bufferpool2 0x714129f75cb8 : 7(14336 size) total buffers - 1(2048 size) used buffers - 237/244 (recycle/alloc) - 9/243 (fetch/transfer)
+11-16 02:53:39.987   496   646 D ConnectivityService: NetReassign [10 : null → 102, 53 : null → 102, 2 : null → 102, 32 : null → 102, 13 : null → 102, 11 : null → 102, 27 : null → 102, 15 : null → 102, 51 : null → 102, 1 : null → 102, 12 : null → 102]
+11-16 02:53:39.988   496   646 D ConnectivityService: Switching to new default network: NetworkAgentInfo{ ni{[type: MOBILE[LTE], state: CONNECTED/CONNECTED, reason: (unspecified), extra: epc.tmobile.com, failover: false, available: true, roaming: false]}  network{102}  nethandle{441492361229}  lp{{InterfaceName: eth0 LinkAddresses: [ 10.0.2.15/24,fe80::5054:ff:fe12:3456/64 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 1500 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ ::/0 -> fe80::2 eth0 mtu 1500,0.0.0.0/0 -> 10.0.2.2 eth0 mtu 1500,10.0.2.0/24 -> 0.0.0.0 eth0 mtu 0,fe80::/64 -> :: eth0 mtu 0 ]}}  nc{[ Transports: CELLULAR Capabilities: MMS&SUPL&DUN&FOTA&IMS&CBS&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=15000Kbps LinkDnBandwidth>=30000Kbps Specifier: <TelephonyNetworkSpecifier [mSubId = 1]> RequestorUid: -1 RequestorPackageName: null]}  Score{10}  everValidated{false}  lastValidated{false}  created{true} lingering{false} explicitlySelected{false} acceptUnvalidated{false} everCaptivePortalDetected{false} lastCaptivePortalDetected{false} partialConnectivity{false} acceptPartialConnectivity{false} clat{mBaseIface: null, mIface: null, mState: IDLE} }
+11-16 02:53:39.991 14057 14057 I wpa_supplicant: rfkill: Cannot get wiphy information
+11-16 02:53:39.992   496   542 I android_os_HwBinder: HwBinder: Starting thread pool for getting: android.hardware.wifi.supplicant@1.0::ISupplicant/default
+11-16 02:53:39.992   496   542 I SupplicantStaIfaceHal: Completed initialization of ISupplicant.
+11-16 02:53:40.005   496   646 D ConnectivityService: Sending CONNECTED broadcast for type 0 [102 CELLULAR] isDefaultNetwork=true
+11-16 02:53:40.006   496   954 D NetworkTimeUpdateService: New default network 102; checking time.
+11-16 02:53:40.008  1462  1462 I DeviceStatusMonitor: DeviceStatusMonitor$1.onReceive():51 onReceive() : Action = android.net.conn.CONNECTIVITY_CHANGE
+11-16 02:53:40.010   496   642 E SupplicantStaIfaceHal: Can't call setupIface, ISupplicantStaIface is null
+11-16 02:53:40.010   496   642 I android_os_HwBinder: HwBinder: Starting thread pool for getting: android.hardware.wifi.supplicant@1.0::ISupplicant/default
+11-16 02:53:40.011  1462  1462 I DeviceStatusMonitor: DeviceStatusMonitor.notifyIfNetworkChanged():148 notifyIfNetworkChanged: newState = METERED, airplaneModeOn = false, notifyAnyway = false
+11-16 02:53:40.012  1462  1462 I NetworkInfoNotification: NetworkInfoNotification$Listener.onReceive():84 onNetworkAvailable: networkState = METERED, isAirplaneModeOn = false
+11-16 02:53:40.012   496   646 D ConnectivityService: [102 CELLULAR] EVENT_NETWORK_INFO_CHANGED, going from CONNECTED to CONNECTED
+11-16 02:53:40.016  1462 14069 I NetworkInfoNotification: NetworkInfoNotification$Listener.onReceive():84 onNetworkAvailable: networkState = METERED, isAirplaneModeOn = false
+11-16 02:53:40.023   496   642 D SupplicantStaIfaceHal: Newer HAL is found, skip V1_2 remaining init flow.
+11-16 02:53:40.023   496   642 D SupplicantStaIfaceHal: Newer HAL is found, skip V1_1 remaining init flow.
+11-16 02:53:40.023   496   642 D SupplicantStaIfaceHal: Newer HAL is found, skip V1_0 remaining init flow.
+11-16 02:53:40.027  3234  3301 I CarrierServices: [59] dji.a: FiST: Wifi connectivity status false
+11-16 02:53:40.027  3234  3539 I CarrierServices: [87] drv.a: (PEv2-SM): DisabledState: event Connectivity event
+11-16 02:53:40.028   955 14067 D NetworkMonitor/102: PROBE_DNS connectivitycheck.gstatic.com 39ms OK 142.251.150.120,2001:4860:4826:7800::
+11-16 02:53:40.031  3234  3301 I CarrierServices: [59] djm.d: Connected state: [1], networkType: [MOBILE]
+11-16 02:53:40.031  3234  3301 I CarrierServices: [59] dji.a: FiST: Wifi connectivity status false
+11-16 02:53:40.032  3234  3539 I CarrierServices: [87] drv.a: (PEv2-SM): DisabledState: event Connectivity event
+11-16 02:53:40.042  3234  3301 I CarrierServices: [59] djm.d: Connected state: [1], networkType: [MOBILE]
+11-16 02:53:40.042   496   642 I WifiNative: Successfully switched to connectivity mode on iface=Iface:{Name=wlan0,Id=0,Type=STA_CONNECTIVITY}
+11-16 02:53:40.043   496   642 D WakeupController: stop()
+11-16 02:53:40.043   496   642 D WifiClientModeManager: entering ConnectModeState
+11-16 02:53:40.044   496   642 D WifiScanRequestProxy: Sending scan available broadcast: true
+11-16 02:53:40.045   496   642 I WifiScanRequestProxy: Scanning is enabled
+11-16 02:53:40.045   496   642 I WifiScanRequestProxy: Scanning for hidden networks is enabled
+11-16 02:53:40.045   496   642 D WifiClientModeImpl: entering ConnectModeState: ifaceName = wlan0
+11-16 02:53:40.045   496   642 D WifiClientModeImpl: setupClientMode() ifacename = wlan0
+11-16 02:53:40.048   496   642 D WifiCountryCode: updateCountryCode to US
+11-16 02:53:40.048   496   642 D WifiCountryCode: Succeeded to set country code to: US
+11-16 02:53:40.049   496   645 I WifiScanningService: Received a request to enable scanning, UID = 1000
+11-16 02:53:40.049   496   645 I WifiScanningService: scanner impls already exists
+11-16 02:53:40.049   496   645 E WifiScanningService: wifi driver loaded received while already loaded
+11-16 02:53:40.049   496   496 D WifiP2pService: Wifi enabled=true, P2P Interface availability=true, Number of clients=0
+11-16 02:53:40.049   496   496 D WifiP2pService: Wifi enabled=true, P2P Interface availability=true
+11-16 02:53:40.050   496   642 D WifiDiags: startLogging() iface list is {wlan0} after adding wlan0
+11-16 02:53:40.051   496   642 D WakeupController: reset()
+11-16 02:53:40.051   496   642 D WakeupController: Setting active to false
+11-16 02:53:40.054   496   642 D WifiConnectivityHelper: Firmware supported feature set: c8b8000019
+11-16 02:53:40.054   496   642 D WifiConnectivityHelper: Firmware roaming is not supported
+11-16 02:53:40.055   496   642 I WifiClientModeImpl: disconnectedstate enter
+11-16 02:53:40.057   496   642 E WifiScoringParams: Invalid frequency(-1), using 5G as default rssi array
+11-16 02:53:40.063   955 14066 D NetworkMonitor/102: PROBE_DNS www.google.com 74ms OK 142.251.151.119,142.251.156.119,142.251.157.119,142.251.153.119,142.251.155.119,142.251.150.119,142.251.152.119,142.251.154.119,2001:4860:4828:7700::,2001:4860:482c:7700::,2001:4860:482a:7700::,2001:4860:4827:7700::,2001:4860:4826:7700::,2001:4860:482d:7700::,2001:4860:4829:7700::,2001:4860:482b:7700::
+11-16 02:53:40.077   955 14067 D NetworkMonitor/102: PROBE_HTTP http://connectivitycheck.gstatic.com/generate_204 time=48ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 02:53:40 GMT], X-Android-Received-Millis=[1794797620077], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794797620062]}
+11-16 02:53:40.139   955 14066 D NetworkMonitor/102: PROBE_HTTPS https://www.google.com/generate_204 time=75ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Alt-Svc=[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 02:53:40 GMT], X-Android-Received-Millis=[1794797620139], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794797620124]}
+11-16 02:53:40.012   496   646 D ConnectivityService: [102 CELLULAR] EVENT_NETWORK_INFO_CHANGED, going from CONNECTED to CONNECTED
+11-16 02:53:40.141   496   535 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.net.conn.NETWORK_CONDITIONS_MEASURED flg=0x10 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+11-16 02:53:40.141   955 14065 D NetworkMonitor/102: isCaptivePortal: isSuccessful()=true isPortal()=false RedirectUrl=null isPartialConnectivity()=false Time=151ms
+11-16 02:53:40.142   496   646 D ConnectivityService: [102 CELLULAR] validation passed
+11-16 02:53:40.142   496   646 D ConnectivityService: NetReassign [no changes]
+11-16 02:53:40.143   496   646 D ConnectivityService: Setting DNS servers for network 102 to [/10.0.2.3]
+11-16 02:53:40.143   496   646 D DnsManager: sendDnsConfigurationForNetwork(102, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+11-16 02:53:40.143   496   526 I GnssNetworkConnectivityHandler: updateNetworkState, state=CLOSED, connected=true, network=102, capabilities=[ Transports: CELLULAR Capabilities: MMS&SUPL&DUN&FOTA&IMS&CBS&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=15000Kbps LinkDnBandwidth>=30000Kbps Specifier: <TelephonyNetworkSpecifier [mSubId = 1]> AdministratorUids: [] RequestorUid: -1 RequestorPackageName: null], apn: epc.tmobile.com, availableNetworkCount: 1
+11-16 02:53:40.145  3234  3301 I CarrierServices: [59] dji.a: FiST: Wifi connectivity status false
+11-16 02:53:40.146  3234  3539 I CarrierServices: [87] drv.a: (PEv2-SM): DisabledState: event Connectivity event
+11-16 02:53:40.146  3234  3301 I CarrierServices: [59] djm.d: Connected state: [1], networkType: [MOBILE]
+11-16 02:53:40.149   284 14077 W resolv  : Validating DnsTlsServer on netId 102
+11-16 02:53:40.151   284 14077 W resolv  : SSL_connect ssl error =5, mark 0xf0066: Connection refused
+11-16 02:53:40.151   284 14077 W resolv  : Validation failed
+11-16 02:53:40.816   432  9069 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 0
+11-16 02:53:41.173     0     0 E ICMPv6  : RA: ndisc_router_discovery failed to add default route
+11-16 02:53:43.806   496  2252 D WifiNl80211Manager: Scan result ready event
+11-16 02:53:43.806   496  2252 D WifiNative: Scan result ready event
+11-16 02:53:43.811   496   642 D WifiClientModeImpl: CMD_START_CONNECT  my state DisconnectedState nid=0 roam=false
+11-16 02:53:43.811   496   642 W LastMileLogger: Failed to open free_buffer pseudo-file: /sys/kernel/debug/tracing/instances/wifi/free_buffer: open failed: ENOENT (No such file or directory)
+11-16 02:53:43.811   496   642 W LastMileLogger: Failed to arm fail-safe.
+11-16 02:53:43.812   496   642 I WifiClientModeImpl: Connecting with 02:15:b2:00:00:00 as the mac address
+11-16 02:53:43.812   435   435 W wificond: Scan is not started. Ignore abort request
+11-16 02:53:43.812   496   642 D SupplicantStaIfaceHal: connectToNetwork "AndroidWifi"NONE
+11-16 02:53:43.812   496   642 I SupplicantStaIfaceHal: addSupplicantStaNetwork via HIDL
+11-16 02:53:43.815 14057 14057 I wpa_supplicant: wlan0: SME: Trying to authenticate with 02:15:b2:00:00:01 (SSID='AndroidWifi' freq=2437 MHz)
+11-16 02:53:44.018     0     0 I wlan0   : authenticate with 02:15:b2:00:00:01
+11-16 02:53:44.020     0     0 I wlan0   : No basic rates, using min rate instead
+11-16 02:53:44.022     0     0 I wlan0   : send auth to 02:15:b2:00:00:01 (try 1/3)
+11-16 02:53:44.026     0     0 I wlan0   : authenticated
+11-16 02:53:43.824 14057 14057 I wpa_supplicant: wlan0: Trying to associate with 02:15:b2:00:00:01 (SSID='AndroidWifi' freq=2437 MHz)
+11-16 02:53:44.029     0     0 I wlan0   : associate with 02:15:b2:00:00:01 (try 1/3)
+11-16 02:53:44.032     0     0 I wlan0   : RX AssocResp from 02:15:b2:00:00:01 (capab=0x1 status=0 aid=1)
+11-16 02:53:43.836 14057 14057 I wpa_supplicant: wlan0: Associated with 02:15:b2:00:00:01
+11-16 02:53:43.836 14057 14057 I wpa_supplicant: wlan0: CTRL-EVENT-CONNECTED - Connection to 02:15:b2:00:00:01 completed [id=0 id_str=%7B%22configKey%22%3A%22%5C%22AndroidWifi%5C%22NONE%22%2C%22creatorUid%22%3A%221000%22%7D]
+11-16 02:53:43.837 14057 14057 I wpa_supplicant: wlan0: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0
+11-16 02:53:44.038     0     0 I wlan0   : associated
+11-16 02:53:43.839   496   642 D ConnectivityService: registerNetworkAgent NetworkAgentInfo{ ni{[type: WIFI[], state: UNKNOWN/IDLE, reason: (unspecified), extra: , failover: false, available: true, roaming: false]}  network{103}  nethandle{445787328525}  lp{{InterfaceName: wlan0 LinkAddresses: [ ] DnsAddresses: [ ] Domains: null MTU: 0 Routes: [ ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=54000Kbps LinkDnBandwidth>=54000Kbps OwnerUid: 1000 SSID: "AndroidWifi" RequestorUid: -1 RequestorPackageName: null]}  Score{20}  everValidated{false}  lastValidated{false}  created{false} lingering{false} explicitlySelected{false} acceptUnvalidated{false} everCaptivePortalDetected{false} lastCaptivePortalDetected{false} partialConnectivity{false} acceptPartialConnectivity{false} clat{mBaseIface: null, mIface: null, mState: IDLE} }
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: stopIpClient IpClientWithPreConnection: false
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: java.lang.Throwable
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.server.wifi.ClientModeImpl.stopIpClient(ClientModeImpl.java:1070)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.server.wifi.ClientModeImpl.stopDhcpSetup(ClientModeImpl.java:1085)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.server.wifi.ClientModeImpl.startIpClient(ClientModeImpl.java:6533)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.server.wifi.ClientModeImpl.access$6800(ClientModeImpl.java:163)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.server.wifi.ClientModeImpl$ObtainingIpState.enter(ClientModeImpl.java:5131)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.wifi.x.com.android.internal.util.StateMachine$SmHandler.invokeEnterMethods(StateMachine.java:1037)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.wifi.x.com.android.internal.util.StateMachine$SmHandler.performTransitions(StateMachine.java:879)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at com.android.wifi.x.com.android.internal.util.StateMachine$SmHandler.handleMessage(StateMachine.java:819)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at android.os.Looper.loop(Looper.java:223)
+11-16 02:53:43.842   496   642 V WifiClientModeImpl: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-16 02:53:43.842   496   646 D ConnectivityService: [103 WIFI] EVENT_NETWORK_INFO_CHANGED, going from UNKNOWN to UNKNOWN
+11-16 02:53:43.847   496   646 D ConnectivityService: NetReassign [no changes]
+11-16 02:53:43.849   284   314 E Netd    : no such netId 103
+11-16 02:53:43.858   955 14075 D DhcpClient: l2key: W86d8f04453ffab39 lease address: /10.0.2.16 lease expiry: 1794883023525 current time: 1794797623858
+11-16 02:53:43.859   955 14075 D DhcpClient: Broadcasting DHCPREQUEST ciaddr=0.0.0.0 request=10.0.2.16 serverid=null
+11-16 02:53:43.862   955 14075 D DhcpClient: Received packet: 02:15:b2:00:00:00 ACK: your new IP /10.0.2.16, netmask /255.255.255.0, gateways [/10.0.2.2] DNS servers: /10.0.2.3 , lease time 86400
+11-16 02:53:43.863   955 14075 D DhcpClient: Confirmed lease: android.net.networkstack.DhcpResults@77c273b DHCP server /10.0.2.2 Vendor info null lease 86400 seconds Servername 
+11-16 02:53:43.878   284   877 E Netd    : no such netId 103
+11-16 02:53:43.879   496   646 E ConnectivityService: Exception in networkAddRouteParcel for non-gateway: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+11-16 02:53:43.879   496   646 E ConnectivityService: Exception in networkAddRouteParcel for gateway: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+11-16 02:53:43.879   284   877 E Netd    : no such netId 103
+11-16 02:53:43.881   955 14075 D DhcpClient: Scheduling renewal in 43199s
+11-16 02:53:43.881   955 14075 D DhcpClient: Scheduling rebind in 75599s
+11-16 02:53:43.881   955 14075 D DhcpClient: Scheduling expiry in 86399s
+11-16 02:53:43.883  1165  1165 I GeofencerStateMachine: sendWifiConnectivityChanged: connectivity=true
+11-16 02:53:43.884   496  1679 D WifiMemoryStoreImpl: Set cluster Gd26c8e03e8a4cd7e for W86d8f04453ffab39: SUCCESS
+11-16 02:53:43.887   496   642 W WifiScoreReport: Cannot start external scoring netId=103 currentNetId=103 sessionId=1035
+11-16 02:53:43.891   496  2252 D WifiMemoryStoreImpl: Set cluster Gd26c8e03e8a4cd7e for Wd26c8e03e8a4cd7e: SUCCESS
+11-16 02:53:43.904   496   646 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 02:53:43.926   496   646 D ConnectivityService: [103 WIFI] EVENT_NETWORK_INFO_CHANGED, going from UNKNOWN to CONNECTED
+11-16 02:53:43.927   496   646 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [])
+11-16 02:53:43.927   496   646 W DnsManager: updatePrivateDns(103, PrivateDnsConfig{true:/[]})
+11-16 02:53:43.927   496   646 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 02:53:43.927   496   646 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+11-16 02:53:43.928   284 14081 W resolv  : Validating DnsTlsServer on netId 103
+11-16 02:53:43.929   496   646 D ConnectivityService: Adding iface wlan0 to network 103
+11-16 02:53:43.929   284 14081 W resolv  : Validation failed
+11-16 02:53:43.931   496   646 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 02:53:43.931   496   646 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+11-16 02:53:43.932   284 14082 W resolv  : Validating DnsTlsServer on netId 103
+11-16 02:53:43.946   496   642 D WifiClientModeImpl: Received signal strength thresholds: []
+11-16 02:53:43.946   496   642 E WifiVendorHal: stopRssiMonitoring(l.2078) failed {.code = ERROR_NOT_AVAILABLE, .description = }
+11-16 02:53:43.947   496   646 D ConnectivityService: NetReassign [no changes]
+11-16 02:53:43.954   955 14085 D NetworkMonitor/103: PROBE_DNS connectivitycheck.gstatic.com 6ms OK 142.251.150.120
+11-16 02:53:43.966   955 14084 D NetworkMonitor/103: PROBE_DNS www.google.com 10ms OK 142.251.156.119,142.251.157.119,142.251.151.119,142.251.154.119,142.251.155.119,142.251.152.119,142.251.150.119,142.251.153.119
+11-16 02:53:43.989   955 14085 D NetworkMonitor/103: PROBE_HTTP http://connectivitycheck.gstatic.com/generate_204 time=34ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 02:53:44 GMT], X-Android-Received-Millis=[1794797623989], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794797623973]}
+11-16 02:53:44.018   955 14084 D NetworkMonitor/103: PROBE_HTTPS https://www.google.com/generate_204 time=51ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Alt-Svc=[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 02:53:44 GMT], X-Android-Received-Millis=[1794797624017], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794797624007]}
+11-16 02:53:44.021   496   535 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.net.conn.NETWORK_CONDITIONS_MEASURED flg=0x10 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+11-16 02:53:44.021   955 14083 D NetworkMonitor/103: isCaptivePortal: isSuccessful()=true isPortal()=false RedirectUrl=null isPartialConnectivity()=false Time=73ms
+11-16 02:53:44.022   496   646 D ConnectivityService: [103 WIFI] validation passed
+11-16 02:53:44.022   496   646 D ConnectivityService: NetReassign [10 : 102 → 103, 53 : 102 → 103, 32 : 102 → 103, 13 : 102 → 103, 11 : 102 → 103, 27 : 102 → 103, 15 : 102 → 103, 51 : 102 → 103, 1 : 102 → 103, 12 : 102 → 103]
+11-16 02:53:44.023   496   646 D ConnectivityService: Switching to new default network: NetworkAgentInfo{ ni{[type: WIFI[], state: CONNECTED/CONNECTED, reason: (unspecified), extra: , failover: false, available: true, roaming: false]}  network{103}  nethandle{445787328525}  lp{{InterfaceName: wlan0 LinkAddresses: [ fe80::e906:bd26:9316:dc19/64,10.0.2.16/24 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 0 ServerAddress: /10.0.2.2 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ fe80::/64 -> :: wlan0 mtu 0,10.0.2.0/24 -> 0.0.0.0 wlan0 mtu 0,0.0.0.0/0 -> 10.0.2.2 wlan0 mtu 0 ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=37000Kbps LinkDnBandwidth>=37000Kbps SignalStrength: -50 OwnerUid: 1000 SSID: "AndroidWifi" RequestorUid: -1 RequestorPackageName: null]}  Score{60}  everValidated{true}  lastValidated{true}  created{true} lingering{false} explicitlySelected{false} acceptUnvalidated{false} everCaptivePortalDetected{false} lastCaptivePortalDetected{false} partialConnectivity{false} acceptPartialConnectivity{false} clat{mBaseIface: null, mIface: null, mState: IDLE} }
+11-16 02:53:44.045   496   954 D NetworkTimeUpdateService: New default network 103; checking time.
+11-16 02:53:44.046   496   646 D ConnectivityService: Lingering [102 CELLULAR] for 30000ms
+11-16 02:53:44.046  3234  3301 I CarrierServices: [59] dji.a: FiST: Wifi connectivity status true
+11-16 02:53:44.047   496   646 D ConnectivityService: Sending DISCONNECTED broadcast for type 0 [102 CELLULAR] isDefaultNetwork=true
+11-16 02:53:44.047  3234  3539 I CarrierServices: [87] drv.a: (PEv2-SM): DisabledState: event Connectivity event
+11-16 02:53:44.047   496   646 D ConnectivityService: Sending CONNECTED broadcast for type 1 [103 WIFI] isDefaultNetwork=true
+11-16 02:53:44.049  1462  1462 I DeviceStatusMonitor: DeviceStatusMonitor$1.onReceive():51 onReceive() : Action = android.net.conn.CONNECTIVITY_CHANGE
+11-16 02:53:44.051   496   526 I GnssNetworkConnectivityHandler: updateNetworkState, state=CLOSED, connected=true, network=103, capabilities=[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=37000Kbps LinkDnBandwidth>=37000Kbps SignalStrength: -50 OwnerUid: 1000 AdministratorUids: [] SSID: "AndroidWifi" RequestorUid: -1 RequestorPackageName: null], apn: , availableNetworkCount: 2
+11-16 02:53:44.052  1462  1462 I DeviceStatusMonitor: DeviceStatusMonitor.notifyIfNetworkChanged():148 notifyIfNetworkChanged: newState = NON_METERED, airplaneModeOn = false, notifyAnyway = false
+11-16 02:53:44.052  1462  1462 I DeviceStatusMonitor: DeviceStatusMonitor$1.onReceive():51 onReceive() : Action = android.net.conn.CONNECTIVITY_CHANGE
+11-16 02:53:44.052  1462 13814 I NetworkInfoNotification: NetworkInfoNotification$Listener.onReceive():84 onNetworkAvailable: networkState = NON_METERED, isAirplaneModeOn = false
+11-16 02:53:44.055  1462  1462 I DeviceStatusMonitor: DeviceStatusMonitor.notifyIfNetworkChanged():148 notifyIfNetworkChanged: newState = NON_METERED, airplaneModeOn = false, notifyAnyway = false
+11-16 02:53:44.055  1462  1462 I NetworkInfoNotification: NetworkInfoNotification$Listener.onReceive():84 onNetworkAvailable: networkState = NON_METERED, isAirplaneModeOn = false
+11-16 02:53:44.056  3234  3301 I CarrierServices: [59] djm.d: Connected state: [1], networkType: [WIFI]
+11-16 02:53:44.059  3234  3301 I CarrierServices: [59] dji.a: FiST: Wifi connectivity status true
+11-16 02:53:44.060  3234  3539 I CarrierServices: [87] drv.a: (PEv2-SM): DisabledState: event Connectivity event
+11-16 02:53:44.060   708   708 W View    : requestLayout() improperly called by com.android.keyguard.AlphaOptimizedLinearLayout{ec1b21d V.E...... ......ID 4,0-27,33 #7f0a050b app:id/wifi_group} during layout: running second layout pass
+11-16 02:53:44.061   708   708 W View    : requestLayout() improperly called by com.android.keyguard.AlphaOptimizedLinearLayout{3dfd774 V.E...... ......ID 7,0-48,61 #7f0a050b app:id/wifi_group} during layout: running second layout pass
+11-16 02:53:44.062  3234  3301 I CarrierServices: [59] djm.d: Connected state: [1], networkType: [WIFI]
+11-16 02:53:44.063   708   708 W View    : requestLayout() improperly called by com.android.keyguard.AlphaOptimizedLinearLayout{977c9f6 V.E...... ......ID 4,0-27,33 #7f0a050b app:id/wifi_group} during layout: running second layout pass
+11-16 02:53:44.067  3234  3301 I CarrierServices: [59] dji.a: FiST: Wifi connectivity status true
+11-16 02:53:44.068  3234  3539 I CarrierServices: [87] drv.a: (PEv2-SM): DisabledState: event Connectivity event
+11-16 02:53:44.068   496   646 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 02:53:44.068   496   646 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+11-16 02:53:44.070  3234  3301 I CarrierServices: [59] djm.d: Connected state: [1], networkType: [WIFI]
+11-16 02:53:44.073   496   642 W LastMileLogger: Failed to stop event tracing: /sys/kernel/debug/tracing/instances/wifi/tracing_on: open failed: ENOENT (No such file or directory)
+11-16 02:53:44.078   496  2008 D WifiMemoryStoreImpl: Set cluster Gd26c8e03e8a4cd7e for W86d8f04453ffab39: SUCCESS
+11-16 02:53:44.079  1165 14092 I NetworkManagementSocketTagger: tagSocketFd(-1, 805307399, -1) failed with errno-9
+11-16 02:53:44.115   496   507 W JavaBinder: BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.AlarmManagerService$2
+11-16 02:53:44.115   496   507 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+11-16 02:53:44.115   496   507 W JavaBinder: BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.AlarmManagerService$2
+11-16 02:53:44.115   496   507 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+11-16 02:53:44.626   284   314 E Netd    : Error adding route ::/0 -> fe80::2 wlan0 to table 1012: File exists
+11-16 02:53:45.123   432 14006 D BufferPoolAccessor2.0: bufferpool2 0xe8987618 : 12(98304 size) total buffers - 9(73728 size) used buffers - 460/472 (recycle/alloc) - 13/471 (fetch/transfer)
+11-16 02:53:45.123   439 14007 D BufferPoolAccessor2.0: bufferpool2 0x714129f75cb8 : 7(14336 size) total buffers - 1(2048 size) used buffers - 461/468 (recycle/alloc) - 10/467 (fetch/transfer)
+11-16 02:53:45.473 14103 14105 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:45.489 14108 14110 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:45.723     0     0 D logd    : logdr: UID=2000 GID=2000 PID=14113 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 02:53:45.542   496   529 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 02:53:45.542   496   523 I ActivityTaskManager: START u0 {act=com.yidplus.app.QA_FIXTURE flg=0x10000000 cmp=com.yidplus.app/.MainActivity (has extras)} from uid 2000
+11-16 02:53:45.544   417   417 I perfetto: ing_service_impl.cc:758 Configured tracing session 27, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 02:53:45.544   416   416 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=27)
+11-16 02:53:45.545   496   529 D EventSequenceValidator: Transition from INTENT_STARTED to INTENT_FAILED
+11-16 02:53:45.571   416   416 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 02:53:45.768     0     0 W perfetto: enabled ftrace
+11-16 02:53:45.875  7100  7100 I YidPerf : Chats content 26867 ms after open
+11-16 02:53:45.904  7100  7145 D HostConnection: HostConnection::get() New Host Connection established 0x7407f9d14b90, tid 7145
+11-16 02:53:45.909  7100  7145 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 02:53:45.910  7100  7145 D EGL_emulation: eglCreateContext: 0x7407e9d0e130: maj 3 min 0 rcv 3
+11-16 02:53:45.913  7100  7145 D EGL_emulation: eglMakeCurrent: 0x7407e9d0e130: ver 3 0 (tinfo 0x740789d4c4b0) (first time)
+11-16 02:53:45.915  7100 14127 D HostConnection: HostConnection::get() New Host Connection established 0x7407f9cf1b50, tid 14127
+11-16 02:53:45.920  7100 14127 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 02:53:46.409   432 14006 D CCodecBufferChannel: [c2.android.aac.decoder#665] buffers after EOS ignored (0 us)
+11-16 02:53:46.409   432 14006 I chatty  : uid=1013(media) /system/bin/mediaserver identical 1 line
+11-16 02:53:46.409   432 14006 D CCodecBufferChannel: [c2.android.aac.decoder#665] buffers after EOS ignored (0 us)
+11-16 02:53:46.664   432 14004 D AudioTrack: stop(36): called with 536576 frames delivered
+11-16 02:53:47.210  7100  7100 V MediaPlayer: resetDrmState:  mDrmInfo=null mDrmProvisioningThread=null mPrepareDrmInProgress=false mActiveDrmScheme=false
+11-16 02:53:47.210  7100  7100 V MediaPlayer: cleanDrmObj: mDrmObj=null mDrmSessionId=null
+11-16 02:53:47.210   432   432 D NuPlayerDriver: reset(0xec4413c0) at state 6
+11-16 02:53:47.211   432 14006 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-16 02:53:47.211   439  1021 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-16 02:53:47.212   439  1021 V C2Store : in ~ComponentModule
+11-16 02:53:47.212   439  1021 V C2Store : unloading dll
+11-16 02:53:47.212   432 14001 D NuPlayerDriver: notifyResetComplete(0xec4413c0)
+11-16 02:53:47.212   432   432 W AMessage: failed to post message as target looper for handler 0 is gone.
+11-16 02:53:47.214   432   432 D NuPlayerDriver: NuPlayerDriver(0xec4418d0) created, clientPid(7100)
+11-16 02:53:47.215  7100  7100 W MediaPlayer: mediaplayer went away with unhandled events
+11-16 02:53:47.215   374   447 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:47.215   374   447 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:47.215   496   523 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:47.218   432 14140 D GenericSource: FileSource remote
+11-16 02:53:47.246   432 14139 I GenericSource: start
+11-16 02:53:47.248   432 14144 D CCodec  : allocate(c2.android.aac.decoder)
+11-16 02:53:47.248   439  1021 V C2Store : in init
+11-16 02:53:47.248   439  1021 V C2Store : loading dll
+11-16 02:53:47.248   432 14144 I CCodec  : Created component [c2.android.aac.decoder]
+11-16 02:53:47.249   432 14144 D CCodecConfig: read media type: audio/mp4a-latm
+11-16 02:53:47.256   432 14144 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-16 02:53:47.256   432 14144 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-16 02:53:47.256   432 14144 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-16 02:53:47.256   432 14144 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-16 02:53:47.256   432 14144 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-16 02:53:47.256   432 14144 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-16 02:53:47.257   432 14144 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-16 02:53:47.258   432 14144 I CCodecConfig: query failed after returning 19 values (BAD_INDEX)
+11-16 02:53:47.258   432 14144 D CCodecConfig: c2 config diff is Dict {
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 coded.aac-packaging.value = 0
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 coded.pl.level = 0
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 coded.pl.profile = 8192
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::i32 coding.drc.album-mode.value = 0
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::float coding.drc.attenuation-factor.value = 1
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::float coding.drc.boost-factor.value = 1
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::i32 coding.drc.compression-mode.value = 3
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::i32 coding.drc.effect-type.value = 3
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::float coding.drc.encoded-level.value = 0.25
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::float coding.drc.reference-level.value = -16
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-16 02:53:47.258   432 14144 D CCodecConfig:   string input.media-type.value = "audio/mp4a-latm"
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 output.delay.value = 2
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::float output.drc.output-loudness.value = 0.25
+11-16 02:53:47.258   432 14144 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 raw.channel-count.value = 1
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 raw.max-channel-count.value = 8
+11-16 02:53:47.258   432 14144 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-16 02:53:47.258   432 14144 D CCodecConfig: }
+11-16 02:53:47.258   432 14144 D CCodec  : [c2.android.aac.decoder] buffers are bound to CCodec for this session
+11-16 02:53:47.258   432 14144 D CCodecConfig: no c2 equivalents for durationUs
+11-16 02:53:47.258   432 14144 D CCodecConfig: no c2 equivalents for track-id
+11-16 02:53:47.258   432 14144 D CCodecConfig: no c2 equivalents for language
+11-16 02:53:47.258   432 14144 D CCodecConfig: no c2 equivalents for aac-profile
+11-16 02:53:47.258   432 14144 D CCodecConfig: no c2 equivalents for flags
+11-16 02:53:47.259   432 14144 D CCodecConfig: config failed => CORRUPTED
+11-16 02:53:47.259   432 14144 W Codec2Client: query -- param skipped: index = 1107298332.
+11-16 02:53:47.259   432 14144 D CCodec  : client requested max input size 303, which is smaller than what component recommended (8192); overriding with component recommendation.
+11-16 02:53:47.259   432 14144 W CCodec  : This behavior is subject to change. It is recommended that app developers double check whether the requested max input size is in reasonable range.
+11-16 02:53:47.259   432 14144 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-album-mode = 0
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-boost-level = 127
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-cut-level = 127
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-effect-type = 3
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-heavy-compression = 3
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-encoded-target-level = -1
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-max-output-channel_count = 8
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-target-ref-level = 64
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t channel-count = 1
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t level = 0
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t max-input-size = 8192
+11-16 02:53:47.259   432 14144 D CCodec  :   string mime = "audio/mp4a-latm"
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t profile = 2
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t sample-rate = 44100
+11-16 02:53:47.259   432 14144 D CCodec  : } and output: AMessage(what = 0x00000000) = {
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-album-mode = 0
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-boost-level = 127
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-cut-level = 127
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-effect-type = 3
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-heavy-compression = 3
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-drc-output-loudness = -1
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-encoded-target-level = -1
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-max-output-channel_count = 8
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t aac-target-ref-level = 64
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t channel-count = 1
+11-16 02:53:47.259   432 14144 D CCodec  :   string mime = "audio/raw"
+11-16 02:53:47.259   432 14144 D CCodec  :   int32_t sample-rate = 44100
+11-16 02:53:47.259   432 14144 D CCodec  : }
+11-16 02:53:47.259   432 14144 I MediaCodec: MediaCodec will operate in async mode
+11-16 02:53:47.259   432 14144 W Codec2Client: query -- param skipped: index = 1342179345.
+11-16 02:53:47.259   432 14144 W Codec2Client: query -- param skipped: index = 2415921170.
+11-16 02:53:47.259   432 14144 W Codec2Client: query -- param skipped: index = 1610614798.
+11-16 02:53:47.260   432 14144 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.260   432 14144 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.260   432 14144 D CCodecBufferChannel: [c2.android.aac.decoder#176] Created input block pool with allocatorID 16 => poolID 27 - OK (0)
+11-16 02:53:47.260   439   439 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.260   439   439 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.260   432 14144 I CCodecBufferChannel: [c2.android.aac.decoder#176] Created output block pool with allocatorID 16 => poolID 36 - OK
+11-16 02:53:47.260   432 14144 D CCodecBufferChannel: [c2.android.aac.decoder#176] Configured output block pool ids 36 => OK
+11-16 02:53:47.260   432 14144 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.261   439 14145 D SimpleC2Component: Using output block pool with poolID 36 => got 36 - 0
+11-16 02:53:47.261   439   439 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.261   439 14145 I C2SoftAacDec: Reconfiguring decoder: 0->44100 Hz, 0->1 channels
+11-16 02:53:47.262   439 14145 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.262   432  9073 E FMQ     : grantorIdx must be less than 3
+11-16 02:53:47.262   432 14144 D CCodecConfig: c2 config diff is   c2::i32 coding.drc.compression-mode.value = 1
+11-16 02:53:47.262   432 14144 D CCodecBuffers: [c2.android.aac.decoder#176:Output[N]] popFromStashAndRegister: output format changed to AMessage(what = 0x00000000) = {
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-drc-album-mode = 0
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-drc-boost-level = 127
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-drc-cut-level = 127
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-drc-effect-type = 3
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-drc-heavy-compression = 1
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-drc-output-loudness = -1
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-encoded-target-level = -1
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-max-output-channel_count = 8
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t aac-target-ref-level = 64
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t channel-count = 1
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   string mime = "audio/raw"
+11-16 02:53:47.262   432 14144 D CCodecBuffers:   int32_t sample-rate = 44100
+11-16 02:53:47.262   432 14144 D CCodecBuffers: }
+11-16 02:53:47.263   374  1225 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+11-16 02:53:47.264   374  1225 D AudioFlinger: Client defaulted notificationFrames to 11224 for frameCount 22448
+11-16 02:53:47.264   374  1225 D AF::TrackHandle: OpPlayAudio: track:65 usage:1 not muted
+11-16 02:53:47.264   374  1225 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:47.264   374  1225 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:47.282   496  2008 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:49.636     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=300000 cc=10 chg=a
+11-16 02:53:49.567   496  2008 I ActivityManager: Force stopping com.yidplus.app appid=10167 user=0: from pid 14148
+11-16 02:53:49.567   496  2008 I ActivityManager: Killing 7100:com.yidplus.app/u0a167 (adj 0): stop com.yidplus.app due to from pid 14148
+11-16 02:53:49.568   496  2008 W ActivityTaskManager: Force removing ActivityRecord{21f52a u0 com.yidplus.app/.MainActivity t15 f}}: app died, no saved state
+11-16 02:53:49.575 14148 14150 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:49.578  1038  1038 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 02:53:49.598   496   523 W ActivityManager: Unable to start service Intent { act=android.service.appprediction.AppPredictionService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiPredictionService } U=0: not found
+11-16 02:53:49.598   496   523 W RemoteAppPredictionService: could not bind to Intent { act=android.service.appprediction.AppPredictionService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiPredictionService } using flags 67108865
+11-16 02:53:49.606   496   523 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ TRACK_DEFAULT id=51, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10167 AdministratorUids: [] RequestorUid: 10167 RequestorPackageName: com.yidplus.app] ], android.os.BinderProxy@9822c39)
+11-16 02:53:49.607   496  1671 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ LISTEN id=52, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND Uid: 10167 AdministratorUids: [] RequestorUid: 10167 RequestorPackageName: com.yidplus.app] ], android.os.BinderProxy@2fc627e)
+11-16 02:53:49.607   496  1671 D MediaSessionService: Media button session is changed to null
+11-16 02:53:49.607   432  3350 D NuPlayerDriver: reset(0xec4418d0) at state 5
+11-16 02:53:49.608   496   646 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=51, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10167 AdministratorUids: [] RequestorUid: 10167 RequestorPackageName: com.yidplus.app] ] (release request)
+11-16 02:53:49.608   691   691 I AvrcpMediaPlayerList: onMediaKeyEventSessionChanged: packageName=com.yidplus.app
+11-16 02:53:49.608   691   691 W AvrcpMediaPlayerList: com.yidplus.app is already the active player
+11-16 02:53:49.808     0     0 I binder  : undelivered transaction 696717, process died.
+11-16 02:53:49.613   691   691 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-16 02:53:49.615   285   285 I Zygote  : Process 7100 exited due to signal 9 (Killed)
+11-16 02:53:49.616   432 14144 D CCodecBuffers: [c2.android.aac.decoder#176:1D-Output.Impl[N]] Client returned a buffer it does not own according to our record: 0
+11-16 02:53:49.616   432 14144 D CCodecBuffers: [c2.android.aac.decoder#176:1D-Output.Impl[N]] Client returned a buffer it does not own according to our record: 1
+11-16 02:53:49.616   432 14144 D CCodecBuffers: [c2.android.aac.decoder#176:1D-Output.Impl[N]] Client returned a buffer it does not own according to our record: 2
+11-16 02:53:49.616   432 14144 D CCodecBuffers: [c2.android.aac.decoder#176:1D-Output.Impl[N]] Client returned a buffer it does not own according to our record: 3
+11-16 02:53:49.616   432 14144 D CCodecBuffers: [c2.android.aac.decoder#176:1D-Output.Impl[N]] Client returned a buffer it does not own according to our record: 4
+11-16 02:53:49.616   432 14144 D CCodecBuffers: [c2.android.aac.decoder#176:1D-Output.Impl[N]] Client returned a buffer it does not own according to our record: 5
+11-16 02:53:49.616   691   691 W AvrcpMediaPlayerWrapper: The session was destroyed com.yidplus.app
+11-16 02:53:49.616   691   691 D AvrcpMediaPlayerList: sessionUpdatedCallback(): packageName: com.yidplus.app
+11-16 02:53:49.617   496   529 W ActivityManager: setHasOverlayUi called on unknown pid: 7100
+11-16 02:53:49.620   432 14144 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-16 02:53:49.620   439   977 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-16 02:53:49.620   439   977 V C2Store : in ~ComponentModule
+11-16 02:53:49.620   439   977 V C2Store : unloading dll
+11-16 02:53:49.621   432 14139 D NuPlayerDriver: notifyResetComplete(0xec4418d0)
+11-16 02:53:49.621   691   691 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 02:53:49.621   691   691 D AvrcpMediaPlayerList: sendMediaUpdate state=null
+11-16 02:53:49.621   691   691 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 02:53:49.621   691   691 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 02:53:49.621   691   691 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 02:53:49.621   691   691 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 02:53:49.621   691   691 D AvrcpMediaPlayerList: Removing media player com.yidplus.app
+11-16 02:53:49.621   691   691 D AvrcpMediaPlayerList: com.yidplus.app doesn't have a browse service. Recycle player ID.
+11-16 02:53:49.621   432  3350 D AudioTrack: stop(37): called with 0 frames delivered
+11-16 02:53:49.626   374 10833 W AudioFlinger: session id 129 not found for pid 7100
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: Invalid input from icing corpus JSON flag.
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: android.util.MalformedJsonException: Use JsonReader.setLenient(true) to accept malformed JSON at line 123 column 2
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at android.util.JsonReader.checkLenient(JsonReader.java:840)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at android.util.JsonReader.nextInArray(JsonReader.java:615)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at android.util.JsonReader.peek(JsonReader.java:345)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at android.util.JsonReader.hasNext(JsonReader.java:321)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.searchbox.c.b.b.k.a(SourceFile:25)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.searchbox.c.b.b.k.<init>(SourceFile:4)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.staticplugins.searchboxroot.features.m.a.c.<init>(SourceFile:4)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.staticplugins.searchboxroot.b.a(SourceFile:16)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.staticplugins.searchboxroot.y.<init>(SourceFile:10)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.binaries.velvet.app.xp.d(SourceFile:10)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.binaries.velvet.app.yd.d(SourceFile:652)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.binaries.velvet.app.yd.a(SourceFile:38)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.apps.gsa.search.core.service.g.a.c.a(Unknown Source:2)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.android.libraries.gsa.l.a.n.a(Unknown Source:2)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.common.v.a.dm.b(SourceFile:7)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.common.v.a.cg.run(SourceFile:11)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.common.v.a.do.run(SourceFile:8)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.apps.tiktok.concurrent.aq.run(SourceFile:1)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at com.google.apps.tiktok.concurrent.f.run(Unknown Source:3)
+11-16 02:53:49.628 12472 12501 W CorpusConfigHelper: 	at java.lang.Thread.run(Thread.java:923)
+11-16 02:53:49.637  1038  1038 D Telephony: isEmergencyPreferredAccount: subId=1, activeData=1
+11-16 02:53:49.637  1038  1038 D Telephony: isEmergencyPreferredAccount: Device does not require preference.
+11-16 02:53:49.637   708   708 V KeyguardUpdateMonitor: onSubscriptionInfoChanged()
+11-16 02:53:49.638   708   708 V KeyguardUpdateMonitor: SubInfo:{id=1 iccId=89014103211118510720 simSlotIndex=0 carrierId=1 displayName=T-Mobile carrierName=T-Mobile nameSource=3 iconTint=-16746133 number=+15555215554 dataRoaming=0 iconBitmap=android.graphics.Bitmap@4062630 mcc=310 mnc=260 countryIso=us isEmbedded=false nativeAccessRules=null cardString=89014103211118510720 cardId=-1 isOpportunistic=false groupUUID=null isGroupDisabled=false profileClass=-1 ehplmns=null hplmns=null subscriptionType=0 groupOwner=null carrierConfigAccessRules=null areUiccApplicationsEnabled=true}
+11-16 02:53:49.640 12472 12505 W ThreadPoolDumper: Queue length for executor EventBus is now 11. Perhaps some tasks are too long, or the pool is too small.
+11-16 02:53:49.656   496   537 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 7100 in 88ms
+11-16 02:53:49.661   496  2008 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:49.661   374   447 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:49.662   374   447 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 02:53:49.680 12472 12546 E sb.v.u.LiteSuggestSourc: On-device lite suggest model loading error.
+11-16 02:53:49.686 12472 12502 E MDD     : DownloadProgressMonitor: Can't find file group for uri: android://com.google.android.googlequicksearchbox/files/sharedminusonemodule/shared/SharedMinusOneData.pb.tmp
+11-16 02:53:49.694 12472 12472 I BgTaskExecutorImpl: Starting EXCLUSIVE background task TNG_MINUS_ONE_SYNC.
+11-16 02:53:49.697 12472 12503 W LocationOracle: No location history returned by ContextManager
+11-16 02:53:49.706 12472 12516 I MicroDetectionState: Should stop hotword detection immediately - false
+11-16 02:53:49.707 12472 12516 I TngMinusOneSync: Syncing TNG:-1
+11-16 02:53:49.736  1165  2860 W GCoreFlp: No location to return for getLastLocation()
+11-16 02:53:50.056   496   642 D WifiConfigStore: Writing to stores completed in 2 ms.
+11-16 02:53:50.546   416   416 I perfetto: probes_producer.cc:329  Producer stop (id=27)
+11-16 02:53:50.546   417   417 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-16 02:53:50.547   417   417 I perfetto: ng_service_impl.cc:1948 Tracing session 27 ended, total sessions:0
+11-16 02:53:50.547   416   416 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 02:53:50.749     0     0 W perfetto: disabled ftrace
+11-16 02:53:50.604   496   529 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 02:53:50.604   496  1670 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.yidplus.app/.MainActivity} from uid 2000
+11-16 02:53:50.605   417   417 I perfetto: ing_service_impl.cc:758 Configured tracing session 28, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 02:53:50.609   496   529 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-16 02:53:50.609   496   536 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: ENABLED
+11-16 02:53:50.609   496   529 D EventSequenceValidator: Transition from INTENT_STARTED to ACTIVITY_LAUNCHED
+11-16 02:53:50.637   285   285 D Zygote  : Forked child process 14166
+11-16 02:53:50.638   496   536 I ActivityManager: Start proc 14166:com.yidplus.app/u0a167 for pre-top-activity {com.yidplus.app/com.yidplus.app.MainActivity}
+11-16 02:53:50.642 14166 14166 W com.yidplus.ap: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 02:53:50.645   399   408 I adbd    : jdwp connection from 14166
+11-16 02:53:50.666 14166 14166 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-16 02:53:50.667 14166 14166 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-16 02:53:50.669 14166 14166 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-16 02:53:50.671 14166 14166 I TetheringManager: registerTetheringEventCallback:com.yidplus.app
+11-16 02:53:50.672 14166 14166 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-16 02:53:50.672 14166 14166 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-16 02:53:50.696   416   416 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=28)
+11-16 02:53:50.705   496  2008 D ConnectivityService: requestNetwork for uid/pid:10167/14166 NetworkRequest [ TRACK_DEFAULT id=55, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10167 AdministratorUids: [] RequestorUid: 10167 RequestorPackageName: com.yidplus.app] ]
+11-16 02:53:50.705   496   646 D ConnectivityService: NetReassign [55 : null → 103]
+11-16 02:53:50.706  1038  1038 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=55, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10167 AdministratorUids: [] RequestorUid: 10167 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 02:53:50.707   496   642 D WifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=55, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10167 AdministratorUids: [] RequestorUid: 10167 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 02:53:50.707   496   642 D UntrustedWifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=55, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10167 AdministratorUids: [] RequestorUid: 10167 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 02:53:50.724   708   708 V KeyguardUpdateMonitor: onSubscriptionInfoChanged()
+11-16 02:53:50.731  1038  1038 D Telephony: isEmergencyPreferredAccount: subId=1, activeData=1
+11-16 02:53:50.731  1038  1038 D Telephony: isEmergencyPreferredAccount: Device does not require preference.
+11-16 02:53:50.733   416   416 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 02:53:50.931     0     0 W perfetto: enabled ftrace
+11-16 02:53:50.736   708   708 V KeyguardUpdateMonitor: SubInfo:{id=1 iccId=89014103211118510720 simSlotIndex=0 carrierId=1 displayName=T-Mobile carrierName=T-Mobile nameSource=3 iconTint=-16746133 number=+15555215554 dataRoaming=0 iconBitmap=android.graphics.Bitmap@7baa02e mcc=310 mnc=260 countryIso=us isEmbedded=false nativeAccessRules=null cardString=89014103211118510720 cardId=-1 isOpportunistic=false groupUUID=null isGroupDisabled=false profileClass=-1 ehplmns=null hplmns=null subscriptionType=0 groupOwner=null carrierConfigAccessRules=null areUiccApplicationsEnabled=true}
+11-16 02:53:50.744 14166 14196 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-16 02:53:50.745 14166 14196 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-16 02:53:50.747 14166 14196 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-16 02:53:50.797 14166 14193 D HostConnection: HostConnection::get() New Host Connection established 0x7407f9cdf010, tid 14193
+11-16 02:53:50.808 14166 14193 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 02:53:50.812   163   163 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-16 02:53:50.813 14166 14193 D EGL_emulation: eglCreateContext: 0x7407e9d09bc0: maj 3 min 0 rcv 3
+11-16 02:53:50.814 14166 14193 D EGL_emulation: eglMakeCurrent: 0x7407e9d09bc0: ver 3 0 (tinfo 0x740789d36c40) (first time)
+11-16 02:53:50.832   163   163 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 02:53:50.833 14166 14193 I Gralloc4: mapper 4.x is not supported
+11-16 02:53:50.833 14166 14193 D HostConnection: createUnique: call
+11-16 02:53:50.833 14166 14193 D HostConnection: HostConnection::get() New Host Connection established 0x7407f9ce0f90, tid 14193
+11-16 02:53:50.844 14166 14193 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 02:53:51.149 14158 14160 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:51.149   496   529 D EventSequenceValidator: Transition from ACTIVITY_LAUNCHED to ACTIVITY_FINISHED
+11-16 02:53:51.152   496   534 D ArtManagerInternalImpl: /data/misc/iorapd/com.yidplus.app/20000/com.yidplus.app.MainActivity/compiled_traces/compiled_trace.pb doesn't exist
+11-16 02:53:51.152   496   534 I ActivityTaskManager: Displayed com.yidplus.app/.MainActivity: +543ms
+11-16 02:53:51.267   496   646 D ConnectivityService: NetReassign [no changes]
+11-16 02:53:51.276 14166 14166 I YidPerf : Chats content 627 ms after process start
+11-16 02:53:51.303   163   163 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.allocator@4.0::IAllocator/default in either framework or device manifest.
+11-16 02:53:51.303 14166 14211 W Gralloc4: allocator 3.x is not supported
+11-16 02:53:51.382 14166 14222 D HostConnection: HostConnection::get() New Host Connection established 0x7407f9ce7d10, tid 14222
+11-16 02:53:51.402 12472 12546 I PBSessionCacheImpl: Deleted sessionId[54854230883906424] from persistence.
+11-16 02:53:51.406 14166 14222 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 02:53:51.408 14166 14222 D EGL_emulation: eglCreateContext: 0x7407e9d675d0: maj 3 min 0 rcv 3
+11-16 02:53:51.410 14166 14222 D EGL_emulation: eglMakeCurrent: 0x7407e9d675d0: ver 3 0 (tinfo 0x740789d55600) (first time)
+11-16 02:53:51.413 14166 14211 D HostConnection: HostConnection::get() New Host Connection established 0x7407f9ce8fd0, tid 14211
+11-16 02:53:51.414 12472 12516 W SearchServiceCore: Abort, client detached.
+11-16 02:53:51.414 12472 12516 I MicroDetectionState: Should stop hotword detection immediately - false
+11-16 02:53:51.420 14166 14211 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 02:53:51.954 14166 14166 I MediaController: Init 5c46f84 [AndroidXMedia3/1.4.1] [generic_x86_64_arm64, sdk_gphone_x86_64, Google, 30]
+11-16 02:53:51.957 14166 14166 I ExoPlayerImpl: Init 3ff033 [AndroidXMedia3/1.4.1] [generic_x86_64_arm64, sdk_gphone_x86_64, Google, 30]
+11-16 02:53:51.964   496  1670 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:51.964   496  1670 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:51.965 14166 14166 I MediaSessionImpl: Init 9f32ab [AndroidXMedia3/1.4.1] [generic_x86_64_arm64, sdk_gphone_x86_64, Google, 30]
+11-16 02:53:51.966   496  1659 D MediaSessionService: Media button session is changed to com.yidplus.app/androidx.media3.session.id. (userId=0)
+11-16 02:53:51.968   691   691 W AvrcpMediaPlayerList: onMediaKeyEventSessionChanged(Token): Addressed Player changed to a player we didn't have a session for
+11-16 02:53:51.969   691   691 I AvrcpMediaPlayerList: Adding wrapped media player: com.yidplus.app at key: 1
+11-16 02:53:51.969   691   691 I AvrcpMediaPlayerList: onMediaKeyEventSessionChanged: token=com.yidplus.app
+11-16 02:53:51.971   691   691 D AvrcpMediaPlayerList: setActivePlayer(): setting player to com.yidplus.app
+11-16 02:53:51.971   691   691 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 02:53:51.971   691   691 I AvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-16 02:53:51.971   691   691 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=0, position=0, buffered position=0, speed=0.0, updated=1035307, actions=7339655, custom actions=[], active item id=0, error=null}
+11-16 02:53:51.971   691   691 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 02:53:51.971   691   691 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 02:53:51.971   691   691 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 02:53:51.971   691   691 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 02:53:51.972   691   691 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-16 02:53:51.972   691   691 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 1
+11-16 02:53:51.972 14166 14166 I MediaController: Init 64c1b4 [AndroidXMedia3/1.4.1] [generic_x86_64_arm64, sdk_gphone_x86_64, Google, 30]
+11-16 02:53:51.972   691   691 D AvrcpMediaPlayerList: onActiveSessionsChanged: controller: com.yidplus.app
+11-16 02:53:51.972   691   691 D AvrcpMediaPlayerList: Already have a controller for the player: com.yidplus.app, updating instead
+11-16 02:53:51.973 14166 14166 I YidMusic: state=1 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 02:53:51.974   691   691 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 02:53:51.974   691   691 I AvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-16 02:53:51.974   691   691 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=0, position=0, buffered position=0, speed=0.0, updated=1035310, actions=7339655, custom actions=[], active item id=0, error=null}
+11-16 02:53:51.974   691   691 D AvrcpTargetService: onMediaUpdated: track_changed=false state=false queue=false
+11-16 02:53:51.974   691   691 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=false queue=false
+11-16 02:53:51.974   691   691 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 02:53:51.974   691   691 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=0 :  queue=0
+11-16 02:53:52.611   496  1659 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:52.820   432  9069 D BufferPoolAccessor2.0: bufferpool2 0xe8987618 : 0(0 size) total buffers - 0(0 size) used buffers - 518/530 (recycle/alloc) - 14/526 (fetch/transfer)
+11-16 02:53:52.820   439   912 D BufferPoolAccessor2.0: bufferpool2 0x714129f75cb8 : 0(0 size) total buffers - 0(0 size) used buffers - 517/524 (recycle/alloc) - 10/524 (fetch/transfer)
+11-16 02:53:52.820   432  9069 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-16 02:53:52.820   439   912 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-16 02:53:54.732  1462  1536 I PeriodicStatsRunner: PeriodicStatsRunner.call():180 call()
+11-16 02:53:54.732  1462  1536 I PeriodicStatsRunner: PeriodicStatsRunner.call():184 No submit PeriodicStats since input started.
+11-16 02:53:54.821   432  9069 D BufferPoolAccessor2.0: bufferpool2 0xe8986c88 : 0(0 size) total buffers - 0(0 size) used buffers - 125/137 (recycle/alloc) - 12/137 (fetch/transfer)
+11-16 02:53:54.821   432  9069 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-16 02:53:54.821   439   912 D BufferPoolAccessor2.0: bufferpool2 0x714129f77628 : 0(0 size) total buffers - 0(0 size) used buffers - 127/133 (recycle/alloc) - 6/133 (fetch/transfer)
+11-16 02:53:54.821   439   912 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-16 02:53:54.972   496  1659 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 02:53:55.606   416   416 I perfetto: probes_producer.cc:329  Producer stop (id=28)
+11-16 02:53:55.607   417   417 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-16 02:53:55.607   417   417 I perfetto: ng_service_impl.cc:1948 Tracing session 28 ended, total sessions:0
+11-16 02:53:55.607   427 14162 I iorapd  : Perfetto TraceBuffer saved to file: /data/misc/iorapd/com.yidplus.app/20000/com.yidplus.app.MainActivity/raw_traces/1794797635607789102.perfetto_trace.pb
+11-16 02:53:55.608   416   416 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 02:53:55.810     0     0 W perfetto: disabled ftrace
+11-16 02:53:55.936 14166 14228 D ProfileInstaller: Skipping profile installation for com.yidplus.app
