@@ -1,0 +1,57 @@
+[01:14:57] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[01:15:00] screen 480x640 @ 240 dpi
+[01:15:00] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[01:15:00] ---- Signed in (QA fixture account) ----
+[01:15:04] fixture true
+[01:15:14] shot F01-home-signedin
+[01:15:14] open https://yidplus.com/chat
+[01:15:19] shot F02-chats-list
+[01:15:20] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:15:28] shot F03-chat-dm
+[01:15:30] shot F03b-chat-dm-up
+[01:15:33] open https://yidplus.com/chat
+[01:15:47] shot F04-chat-group
+[01:15:49] shot F04b-group-up
+[01:15:51] shot F04c-group-top
+[01:15:55] shot F05-message-actions
+[01:16:05] shot F06-notifications
+[01:16:07] tab Home
+[01:16:10] shot F07-home-header
+[01:16:10] open https://yidplus.com/shorts
+[01:16:19] shot F08-shorts-signedin
+[01:16:19] tab Profile
+[01:16:22] shot F09-profile-signedin
+[01:16:34] shot F09b-profile-scrolled
+[01:16:47] open https://yidplus.com/chat
+[01:16:52] shot F10-chats-dark
+[01:16:58] shot F11-chat-dark
+[01:17:05] screen 1080x2400 @ 420 dpi
+[01:17:13] open https://yidplus.com/chat
+[01:17:17] shot F12-phone-chats
+[01:17:24] shot F13-phone-chat
+[01:17:28] screen 480x640 @ 240 dpi
+[01:17:28] ---- qa/fx-mu.sh ----
+[01:17:42] open https://yidplus.com/music
+[01:17:46] shot MU-01-site-music-off
+[01:17:47] MU music off on the site: tabs/texts content-desc="Shorts" content-desc="Channels" content-desc="Settings" 
+[01:17:49] open https://yidplus.com/music
+[01:17:56] shot MU-02-music-tab
+[01:17:57] MU music tab texts:  text="Music"  text="4 songs"  text="Niggun for Shabbos"  text="⁨Yanky⁩  ·  12 plays"  text="ישראל גרין"  text="⁨משה'לע⁩  ·  21 plays"  text="A very long song title that should wrap or be cut off cleanly on a small screen"  text="⁨DealPoint⁩  ·  3 plays"  text="Hora"  text="⁨Moshe K⁩"  text="18"  text="Chats"  text="Music"  text="Shorts" 
+[01:17:57] MU ok: '4 songs' on screen
+[01:17:57] MU ok: 'Niggun for Shabbos' on screen
+[01:17:57] MU ok: 'Hora' on screen
+[01:18:00] shot MU-03-down
+[01:18:03] MU playback sample 1: 11-16 01:17:59.993  3534  3534 I YidMusic: state=3 playing=true pos=53 dur=8000 err=null msg=null cause=null
+[01:18:06] MU playback sample 2: --------- beginning of kernel
+MU playing=true events: 8
+[01:18:06] shot MU-04-ok-play
+[01:18:08] MU after OK texts:  text="Music"  text="4 songs"  text="Niggun for Shabbos"  text="⁨Yanky⁩  ·  12 plays"  text="ישראל גרין"  text="⁨משה'לע⁩  ·  21 plays"  text="A very long song title that should wrap or be cut off cleanly on a small screen"  text="⁨DealPoint⁩  ·  3 plays"  text="ישראל גרין"  text="משה'לע"  text="18"  text="Chats"  text="Music"  text="Shorts" 
+[01:18:11] shot MU-05-player
+[01:18:12] MU player texts:  text="Music"  text="4 songs"  text="Niggun for Shabbos"  text="⁨Yanky⁩  ·  12 plays"  text="ישראל גרין"  text="⁨משה'לע⁩  ·  21 plays"  text="A very long song title that should wrap or be cut off cleanly on a small screen"  text="⁨DealPoint⁩  ·  3 plays"  text="Hora"  text="⁨Moshe K⁩"  text="Hora"  text="Moshe K" 
+[01:18:12] MU YidMusic lines: 4 I YidMusic: state=3 playing=true pos=39 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=38 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=49 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=52 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=53 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=11 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=2050 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=3353 dur=8000 err=null msg=null cause=null|
+[01:18:16] MU YidMusic later: 4 I YidMusic: state=3 playing=true pos=2050 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=3 playing=true pos=3353 dur=8000 err=null msg=null cause=null|4 I YidMusic: state=4 playing=false pos=8004 dur=8000 err=null msg=null cause=null|
+[01:18:20] shot MU-06-back
+[01:18:20] fixture writes the app would have sent: 0
+[01:18:24] fixture false

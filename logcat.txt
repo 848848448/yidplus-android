@@ -1,0 +1,711 @@
+--------- beginning of main
+11-16 01:17:55.713   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb767000 0x3fb893000]
+11-16 01:17:55.717   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 01:17:55.717  3647  3647 I Gralloc4: mapper 4.x is not supported
+11-16 01:17:55.720  3647  3647 D HostConnection: createUnique: call
+11-16 01:17:55.720  3647  3647 D HostConnection: HostConnection::get() New Host Connection established 0x772e40884110, tid 3647
+11-16 01:17:55.720  3647  3647 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 01:17:55.720  3647  3647 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 01:17:55.727  3647  3647 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:17:55.804  3649  3649 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 01:17:55.805  3649  3649 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 01:17:55.805  3649  3649 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 01:17:55.805  3649  3649 I AndroidRuntime: Using default boot image
+11-16 01:17:55.805  3649  3649 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 01:17:55.805  3649  3649 I AndroidRuntime: Leaving lock profiling enabled
+11-16 01:17:55.800  3649  3649 W app_process: type=1400 audit(0.0:173): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:55.805  3649  3649 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 01:17:55.806  3649  3649 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 01:17:55.800  3649  3649 W app_process: type=1400 audit(0.0:174): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:55.800  3649  3649 I chatty  : uid=2000(shell) app_process identical 1 line
+11-16 01:17:55.804  3649  3649 W app_process: type=1400 audit(0.0:176): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:55.839  3649  3649 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 01:17:55.839  3649  3649 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 01:17:55.840  3649  3649 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 01:17:55.841  3649  3649 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:17:55.842  3649  3649 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:17:55.847  3649  3649 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 01:17:55.849  3649  3649 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 01:17:55.853  3649  3663 V UiAutomation: Init UiAutomation@425a012[id=3, flags=0]
+11-16 01:17:56.867  3649  3649 W AccessibilityNodeInfoDumper: Fetch time: 2ms
+--------- beginning of system
+11-16 01:17:56.867   508   967 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@25e0797
+11-16 01:17:56.867  3649  3663 V UiAutomation: Init UiAutomation@425a012[id=-1, flags=0]
+11-16 01:17:56.870  3649  3649 D AndroidRuntime: Shutting down VM
+11-16 01:17:57.403  3675  3675 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 01:17:57.404  3675  3675 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 01:17:57.404  3675  3675 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 01:17:57.404  3675  3675 I AndroidRuntime: Using default boot image
+11-16 01:17:57.404  3675  3675 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 01:17:57.404  3675  3675 I AndroidRuntime: Leaving lock profiling enabled
+11-16 01:17:57.404  3675  3675 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 01:17:57.406  3675  3675 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 01:17:57.400  3675  3675 W app_process: type=1400 audit(0.0:177): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:57.400  3675  3675 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 01:17:57.400  3675  3675 W app_process: type=1400 audit(0.0:180): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:57.443  3675  3675 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 01:17:57.443  3675  3675 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 01:17:57.445  3675  3675 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 01:17:57.445  3675  3675 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:17:57.451  3675  3675 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 01:17:57.453  3675  3675 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 01:17:57.457  3675  3675 D AndroidRuntime: Shutting down VM
+11-16 01:17:59.710   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb767000 0x3fb893000]
+11-16 01:17:59.714   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 01:17:59.714  3690  3690 I Gralloc4: mapper 4.x is not supported
+11-16 01:17:59.717  3690  3690 D HostConnection: createUnique: call
+11-16 01:17:59.717  3690  3690 D HostConnection: HostConnection::get() New Host Connection established 0x7ca4ff4b24d0, tid 3690
+11-16 01:17:59.717  3690  3690 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 01:17:59.717  3690  3690 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 01:17:59.724  3690  3690 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:17:59.800  3692  3692 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 01:17:59.801  3692  3692 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 01:17:59.801  3692  3692 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 01:17:59.801  3692  3692 I AndroidRuntime: Using default boot image
+11-16 01:17:59.801  3692  3692 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 01:17:59.801  3692  3692 I AndroidRuntime: Leaving lock profiling enabled
+11-16 01:17:59.801  3692  3692 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 01:17:59.796  3692  3692 W app_process: type=1400 audit(0.0:181): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:59.802  3692  3692 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 01:17:59.796  3692  3692 W app_process: type=1400 audit(0.0:182): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:59.796  3692  3692 I chatty  : uid=2000(shell) app_process identical 1 line
+11-16 01:17:59.796  3692  3692 W app_process: type=1400 audit(0.0:184): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:17:59.835  3692  3692 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 01:17:59.835  3692  3692 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 01:17:59.837  3692  3692 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 01:17:59.837  3692  3692 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:17:59.844  3692  3692 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 01:17:59.846  3692  3692 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 01:17:59.851  3692  3692 D AndroidRuntime: Shutting down VM
+11-16 01:17:59.851  3534  3534 I YidMusic: state=2 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 01:17:59.873   508   967 I MediaFocusControl: requestAudioFocus() from uid/pid 10130/3534 clientId=android.media.AudioManager@39b3eabd2.b@973f908 callingPack=com.yidplus.app req=1 flags=0x0 sdk=34
+11-16 01:17:59.875   508   967 I WifiService: acquireWifiLock uid=10130 lockMode=3
+11-16 01:17:59.875   491   491 I hostapd : wlan1: STA-OPMODE-SMPS-MODE-CHANGED 02:15:b2:00:00:00 off
+11-16 01:17:59.876  3534  3534 I YidMusic: state=2 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 01:17:59.886  3534  3534 I chatty  : uid=10130(com.yidplus.app) identical 1 line
+11-16 01:17:59.898  3534  3534 I YidMusic: state=2 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 01:17:59.926   288   456 E android.hardware.audio.service.ranchu: device/generic/goldfish/audio/primary_device.cpp:getParameters:234 failure: Result::NOT_SUPPORTED
+11-16 01:17:59.940   359  1372 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+11-16 01:17:59.940   359  1372 D AudioFlinger: Client defaulted notificationFrames to 2756 for frameCount 5513
+11-16 01:17:59.941   359  1372 D AF::TrackHandle: OpPlayAudio: track:56 usage:1 not muted
+11-16 01:17:59.943   508   596 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:17:59.943   508   596 I chatty  : uid=1000(system) Binder:508_4 identical 2 lines
+11-16 01:17:59.943   508   596 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:17:59.944  3534  3534 I YidMusic: state=2 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 01:17:59.945  3534  3534 I YidMusic: state=2 playing=false pos=0 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.951   508   508 D MediaSessionService: Media button session is changed to com.yidplus.app/androidx.media3.session.id. (userId=0)
+11-16 01:17:59.952   359  1372 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 01:17:59.952   359  1372 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 01:17:59.952   359   450 D AudioFlinger: mixer(0x71ba10ac0040) throttle end: throttle time(3)
+11-16 01:17:59.953   698   698 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 1
+11-16 01:17:59.954   698   698 D AvrcpMediaPlayerList: onActiveSessionsChanged: controller: com.yidplus.app
+11-16 01:17:59.954   698   698 D AvrcpMediaPlayerList: Already have a controller for the player: com.yidplus.app, updating instead
+11-16 01:17:59.954   508  1265 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:17:59.955   698   698 I AvrcpMediaPlayerList: onMediaKeyEventSessionChanged: token=com.yidplus.app
+11-16 01:17:59.957  3534  3534 I YidMusic: state=3 playing=true pos=0 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.957   698   698 D AvrcpMediaPlayerList: setActivePlayer(): setting player to com.yidplus.app
+11-16 01:17:59.958   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:17:59.958   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=1, buffered position=4700, speed=1.0, updated=215421, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:17:59.958   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=true state=true queue=true
+11-16 01:17:59.958   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=true playStatus=true queue=true
+11-16 01:17:59.958   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:17:59.958   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=1 :  play_state=1 :  queue=1
+11-16 01:17:59.960   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=0, buffered position=4700, speed=1.0, updated=215419, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:17:59.961   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:17:59.961   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:17:59.961   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=4, buffered position=4700, speed=1.0, updated=215424, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:17:59.961  3534  3586 D AudioTrack: getTimestamp_l(16): device stall time corrected using current time 215425006183
+11-16 01:17:59.961   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=false queue=false
+11-16 01:17:59.961   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=false queue=false
+11-16 01:17:59.961   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:17:59.961   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=0 :  queue=0
+11-16 01:17:59.961   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=0, buffered position=4700, speed=1.0, updated=215420, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:17:59.961   698   698 W AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app tried to update with no new data
+11-16 01:17:59.962  3534  3534 I YidMusic: state=3 playing=true pos=22 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.972  3534  3534 I YidMusic: state=3 playing=true pos=33 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.974   698   698 V AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app
+11-16 01:17:59.974   698   698 W AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app tried to update with no new data
+11-16 01:17:59.977  3534  3534 I YidMusic: state=3 playing=true pos=39 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.978   698   698 V AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app
+11-16 01:17:59.978   698   698 W AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app tried to update with no new data
+11-16 01:17:59.980  3534  3534 I YidMusic: state=3 playing=true pos=38 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.988   698   698 V AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app
+11-16 01:17:59.988   698   698 W AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app tried to update with no new data
+11-16 01:17:59.988  3534  3534 I YidMusic: state=3 playing=true pos=49 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.991  3534  3534 I YidMusic: state=3 playing=true pos=52 dur=8000 err=null msg=null cause=null
+11-16 01:17:59.992   698   698 V AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app
+11-16 01:17:59.992   698   698 W AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app tried to update with no new data
+11-16 01:17:59.993  3534  3534 I YidMusic: state=3 playing=true pos=53 dur=8000 err=null msg=null cause=null
+11-16 01:18:00.001   717   717 D KeyguardClockSwitch: Updating clock: 118
+11-16 01:18:00.092   508   508 D NotificationService: 0|com.yidplus.app|1001|null|10130: granting content://settings/system/notification_sound
+11-16 01:18:00.092   508   508 I chatty  : uid=1000(system) Binder:508_3 identical 1 line
+11-16 01:18:00.092   508   508 D NotificationService: 0|com.yidplus.app|1001|null|10130: granting content://settings/system/notification_sound
+11-16 01:18:00.093   508   508 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-16 01:18:00.097   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.097   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.099   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=143, buffered position=4700, speed=1.0, updated=215563, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:18:00.099   717   717 D MediaResumeListener: Checking for service component for com.yidplus.app
+11-16 01:18:00.101   698   723 D BluetoothDatabase: getBondedDevicesOrdered: Invalid address for device LocalStorage
+11-16 01:18:00.111   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.111   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.111   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.131   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.131   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.131   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.137   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.137   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.137   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.143   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.143   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.143   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.151   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.151   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.160   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.160   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.160   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.167   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.167   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.172   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:00.178   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.178   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.178   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.179   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.179   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.194   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.194   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.194   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.195   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:00.202   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.212   717   717 I chatty  : uid=10121(com.android.systemui) identical 4 lines
+11-16 01:18:00.212   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.213   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.213   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.213   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.228   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.228   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:00.228   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.228   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.228   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.229   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:00.235   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.235   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.235   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.240   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:00.245   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:00.245   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:00.245   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:00.263   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:02.915   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 117 lines
+11-16 01:18:02.938   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:02.945   508  1265 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:02.961   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:02.983   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:02.997   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=3064, buffered position=8000, speed=1.0, updated=218459, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:18:02.997   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=3064, buffered position=8000, speed=1.0, updated=218459, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:18:02.998   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:18:02.998   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:02.998   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=3066, buffered position=8000, speed=1.0, updated=218461, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:18:02.998   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 01:18:02.998   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 01:18:02.998   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:02.998   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 01:18:03.006   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+--------- beginning of kernel
+11-16 01:18:03.302     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3713 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 01:18:04.380   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 61 lines
+11-16 01:18:04.403   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:04.404  1643  2049 I Dialer  : OmtpVvmCarrierCfgHlpr - OmtpEvent:CONFIG_STATUS_SMS_TIME_OUT
+11-16 01:18:04.404  1643  1643 I Dialer  : RetryPolicy - discarding deferred status: configuration_state=4
+11-16 01:18:04.404  1643  1643 I Dialer  : VvmTaskExecutor - no more tasks, stopping service if no task are added in 5000 millis
+11-16 01:18:04.405  1643  1643 I Dialer  : VvmTaskReceiver - task received
+11-16 01:18:04.405  1643  1643 I Dialer  : VvmTaskReceiver - TaskExecutor already running
+11-16 01:18:04.405  1643  1643 I Dialer  : Task.createTask - create task:com.android.voicemail.impl.ActivationTask
+11-16 01:18:04.405  1643  1643 I Dialer  : RetryPolicy - retry #3 for com.android.voicemail.impl.ActivationTask@243ced4 queued, executing in 5000
+11-16 01:18:04.405  1643  1643 I Dialer  : VvmTaskExecutor - com.android.voicemail.impl.ActivationTask@243ced4 added
+11-16 01:18:04.405  1643  1643 I Dialer  : VvmTaskExecutor - minimal wait time:5000
+11-16 01:18:04.405  1643  1643 I Dialer  : VvmTaskExecutor - sleep for 5000 millis
+11-16 01:18:04.426   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:05.974   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 68 lines
+11-16 01:18:05.998   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:05.999   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=6063, buffered position=8000, speed=1.0, updated=221462, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:18:05.999   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=6063, buffered position=8000, speed=1.0, updated=221462, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:18:06.000   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:18:06.000   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:06.000   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=6064, buffered position=8000, speed=1.0, updated=221463, actions=7340031, custom actions=[], active item id=1, error=null}
+11-16 01:18:06.000   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 01:18:06.000   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 01:18:06.000   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:06.000   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 01:18:06.021   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:06.324     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3716 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 01:18:06.343     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3719 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 01:18:06.113   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 4 lines
+11-16 01:18:06.135   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:06.163   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb767000 0x3fb893000]
+11-16 01:18:06.167   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 01:18:06.167  3724  3724 I Gralloc4: mapper 4.x is not supported
+11-16 01:18:06.170  3724  3724 D HostConnection: createUnique: call
+11-16 01:18:06.170   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:06.170  3724  3724 D HostConnection: HostConnection::get() New Host Connection established 0x7a81ca98d2d0, tid 3724
+11-16 01:18:06.170  3724  3724 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 01:18:06.171  3724  3724 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 01:18:06.178  3724  3724 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:06.182   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:06.204   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 1 line
+11-16 01:18:06.239   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:06.252  3726  3726 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 01:18:06.254  3726  3726 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 01:18:06.254  3726  3726 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 01:18:06.254  3726  3726 I AndroidRuntime: Using default boot image
+11-16 01:18:06.254  3726  3726 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 01:18:06.254  3726  3726 I AndroidRuntime: Leaving lock profiling enabled
+11-16 01:18:06.254  3726  3726 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 01:18:06.255  3726  3726 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 01:18:06.252  3726  3726 W app_process: type=1400 audit(0.0:185): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:18:06.272   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:06.252  3726  3726 W app_process: type=1400 audit(0.0:186): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:18:06.252  3726  3726 I chatty  : uid=2000(shell) app_process identical 1 line
+11-16 01:18:06.252  3726  3726 W app_process: type=1400 audit(0.0:188): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:18:06.292  3726  3726 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 01:18:06.292  3726  3726 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 01:18:06.294   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:06.294  3726  3726 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 01:18:06.295  3726  3726 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:18:06.295  3726  3726 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:18:06.301  3726  3726 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 01:18:06.303  3726  3726 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 01:18:06.308  3726  3740 V UiAutomation: Init UiAutomation@1224295[id=4, flags=0]
+11-16 01:18:06.332   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:07.285   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 40 lines
+11-16 01:18:07.308   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:07.329  3726  3726 W AccessibilityNodeInfoDumper: Fetch time: 8ms
+11-16 01:18:07.329   508  1265 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@b84b88b
+11-16 01:18:07.329  3726  3740 V UiAutomation: Init UiAutomation@1224295[id=-1, flags=0]
+11-16 01:18:07.331   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:07.333  3726  3726 D AndroidRuntime: Shutting down VM
+11-16 01:18:07.365   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:07.754   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 18 lines
+11-16 01:18:07.777   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:07.777   508   542 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 01:18:07.777   508  1265 I ActivityTaskManager: START u0 {act=com.yidplus.app.OPEN_PLAYER flg=0x10000000 cmp=com.yidplus.app/.MainActivity} from uid 2000
+11-16 01:18:07.778   408   408 I perfetto: ing_service_impl.cc:758 Configured tracing session 14, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 01:18:07.778   406   406 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=14)
+11-16 01:18:07.780   508   542 D EventSequenceValidator: Transition from INTENT_STARTED to INTENT_FAILED
+11-16 01:18:07.805   406   406 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 01:18:08.023     0     0 W perfetto: enabled ftrace
+11-16 01:18:07.819   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:07.903   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 5 lines
+11-16 01:18:07.927   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:07.940   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=11, buffered position=8000, speed=1.0, updated=223402, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:07.941   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=11, buffered position=8000, speed=1.0, updated=223402, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:07.941   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:18:07.941   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:07.941   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=12, buffered position=8000, speed=1.0, updated=223405, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:07.941   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=true state=true queue=false
+11-16 01:18:07.941   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=true playStatus=true queue=false
+11-16 01:18:07.941   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:07.941   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=1 :  play_state=1 :  queue=0
+11-16 01:18:07.942  3534  3534 I YidMusic: state=3 playing=true pos=11 dur=8000 err=null msg=null cause=null
+11-16 01:18:07.950   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=11, buffered position=8000, speed=1.0, updated=223404, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:07.954   698   698 V AvrcpMediaPlayerWrapper: Trying to update with last sent metadata
+11-16 01:18:07.954   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=11, buffered position=8000, speed=1.0, updated=223404, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:07.954   698   698 W AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app tried to update with no new data
+11-16 01:18:07.965   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:08.106   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 6 lines
+11-16 01:18:08.129   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:08.151   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:08.152   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:08.155   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:08.155   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:08.155   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:08.163   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:08.955   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 36 lines
+11-16 01:18:08.989   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:09.000   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=1072, buffered position=8000, speed=1.0, updated=224463, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:09.000   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=1072, buffered position=8000, speed=1.0, updated=224463, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:09.001   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:18:09.001   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:09.001   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=1074, buffered position=8000, speed=1.0, updated=224465, actions=7340031, custom actions=[], active item id=2, error=null}
+11-16 01:18:09.001   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 01:18:09.002   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 01:18:09.002   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:09.002   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 01:18:09.012   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:09.412   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 18 lines
+11-16 01:18:09.435   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:09.443  1643  2049 I Dialer  : VvmTaskExecutor - executing task com.android.voicemail.impl.ActivationTask@243ced4
+11-16 01:18:09.443  1643  2049 I Dialer  : PreOMigrationHandler - ComponentInfo{com.android.phone/com.android.services.telephony.TelephonyConnectionService}, ***, UserHandle{0} already migrated
+11-16 01:18:09.452  1776  1803 I VoicemailNotifier: receivers for android.intent.action.PROVIDER_CHANGED :[]
+11-16 01:18:09.452  1643  2049 I Dialer  : VvmActivationTask - VVM content provider configured - vvm_type_cvvm
+11-16 01:18:09.452  1643  2049 I Dialer  : OmtpVvmCarrierCfgHlpr - OmtpEvent:CONFIG_ACTIVATING
+11-16 01:18:09.454  1776  1803 I VoicemailNotifier: receivers for android.intent.action.PROVIDER_CHANGED :[]
+11-16 01:18:09.458  1047  1266 D SmsNumberUtils: enter filterDestAddr. destAddr="[BajqU4K5_YhSYbs-7QUn0dOwcmI]"
+11-16 01:18:09.458  1047  1266 D SmsNumberUtils: destAddr is not formatted.
+11-16 01:18:09.459  1047  1266 D SmsNumberUtils: leave filterDestAddr, new destAddr="[BajqU4K5_YhSYbs-7QUn0dOwcmI]"
+11-16 01:18:09.468   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:09.948   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 22 lines
+11-16 01:18:09.983   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:09.985   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=3353, buffered position=8000, speed=1.0, updated=225448, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:09.986   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=3353, buffered position=8000, speed=1.0, updated=225448, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:09.986  3534  3534 I YidMusic: state=3 playing=true pos=2050 dur=8000 err=null msg=null cause=null
+11-16 01:18:09.986   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=3353, buffered position=8000, speed=1.0, updated=225449, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:09.987  3534  3534 I YidMusic: state=3 playing=true pos=3353 dur=8000 err=null msg=null cause=null
+11-16 01:18:09.987   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=3353, buffered position=8000, speed=1.0, updated=225449, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:09.988   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:18:09.988   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:09.988   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=3355, buffered position=8000, speed=1.0, updated=225451, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:09.988   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=true state=true queue=false
+11-16 01:18:09.988   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=true playStatus=true queue=false
+11-16 01:18:09.988   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:09.988   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=1 :  play_state=1 :  queue=0
+11-16 01:18:09.989   698   698 V AvrcpMediaPlayerWrapper: Trying to update with last sent metadata
+11-16 01:18:09.989   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=3353, buffered position=8000, speed=1.0, updated=225449, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:09.990   698   698 W AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app tried to update with no new data
+11-16 01:18:09.991   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=3353, buffered position=8000, speed=1.0, updated=225449, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:09.991   698   698 W AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app tried to update with no new data
+11-16 01:18:10.006   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.168   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 9 lines
+11-16 01:18:10.190   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.190   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:10.191   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:10.195   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:10.195   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:10.195   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:10.225   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.789   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 24 lines
+11-16 01:18:10.811   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.822   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb767000 0x3fb893000]
+11-16 01:18:10.826   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 01:18:10.826  3757  3757 I Gralloc4: mapper 4.x is not supported
+11-16 01:18:10.830  3757  3757 D HostConnection: createUnique: call
+11-16 01:18:10.830  3757  3757 D HostConnection: HostConnection::get() New Host Connection established 0x7244fa1e3310, tid 3757
+11-16 01:18:10.830  3757  3757 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 01:18:10.830  3757  3757 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 01:18:10.838  3757  3757 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:10.869   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.892   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 1 line
+11-16 01:18:10.903   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.913  3759  3759 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 01:18:10.914  3759  3759 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 01:18:10.914  3759  3759 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 01:18:10.914  3759  3759 I AndroidRuntime: Using default boot image
+11-16 01:18:10.914  3759  3759 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 01:18:10.914  3759  3759 I AndroidRuntime: Leaving lock profiling enabled
+11-16 01:18:10.914  3759  3759 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 01:18:10.915  3759  3759 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 01:18:10.912  3759  3759 W app_process: type=1400 audit(0.0:189): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:18:10.912  3759  3759 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 01:18:10.912  3759  3759 W app_process: type=1400 audit(0.0:192): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:18:10.942   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.948  3759  3759 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 01:18:10.948  3759  3759 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 01:18:10.950  3759  3759 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 01:18:10.951  3759  3759 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:18:10.951  3759  3759 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:18:10.957  3759  3759 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 01:18:10.959  3759  3759 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 01:18:10.964   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:10.965  3759  3773 V UiAutomation: Init UiAutomation@bacac39[id=5, flags=0]
+11-16 01:18:11.000   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:11.921   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 41 lines
+11-16 01:18:11.956   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:11.973  3759  3759 W AccessibilityNodeInfoDumper: Fetch time: 2ms
+11-16 01:18:11.974   508  1111 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@bdb11dc
+11-16 01:18:11.975  3759  3773 V UiAutomation: Init UiAutomation@bacac39[id=-1, flags=0]
+11-16 01:18:11.976  3759  3759 D AndroidRuntime: Shutting down VM
+11-16 01:18:11.978   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.002   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=3, position=5365, buffered position=8000, speed=1.0, updated=227463, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:12.002   717   717 V MediaTimeout: processState: PlaybackState {state=3, position=5365, buffered position=8000, speed=1.0, updated=227463, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:12.003   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.004   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:18:12.004   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:12.004   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=3, position=5369, buffered position=8000, speed=1.0, updated=227467, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:12.004   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 01:18:12.004   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 01:18:12.004   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:12.004   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 01:18:12.014   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.265   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 11 lines
+11-16 01:18:12.288   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.290  3534  3586 D AudioTrack: stop(16): called with 529200 frames delivered
+11-16 01:18:12.311   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.379   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 3 lines
+11-16 01:18:12.402   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.422   359   445 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 01:18:12.422   359   445 W APM::AudioPolicyEngine: getDevicesForStrategy() unknown strategy: -1
+11-16 01:18:12.422   508   967 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:12.643     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3777 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 01:18:12.449   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.757   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 10 lines
+11-16 01:18:12.782   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:12.783   406   406 I perfetto: probes_producer.cc:329  Producer stop (id=14)
+11-16 01:18:12.783   408   408 I perfetto: ng_service_impl.cc:1948 Tracing session 14 ended, total sessions:0
+11-16 01:18:12.784   406   406 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 01:18:13.002     0     0 W perfetto: disabled ftrace
+11-16 01:18:12.821   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:14.573   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 60 lines
+11-16 01:18:14.599   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:14.636   508  1111 I WifiService: releaseWifiLock uid=10130
+11-16 01:18:14.636   491   491 I hostapd : wlan1: STA-OPMODE-SMPS-MODE-CHANGED 02:15:b2:00:00:00 dynamic
+11-16 01:18:14.637   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:14.638  3534  3534 I YidMusic: state=4 playing=false pos=8004 dur=8000 err=null msg=null cause=null
+11-16 01:18:14.638   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=1, position=8004, buffered position=8000, speed=0.0, updated=230100, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:14.639   698   698 V AvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.yidplus.app
+11-16 01:18:14.639   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:14.639   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=1, position=8004, buffered position=8000, speed=0.0, updated=230100, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:14.639   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 01:18:14.639   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 01:18:14.639   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:14.639   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 01:18:14.639   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=1, position=8004, buffered position=8000, speed=0.0, updated=230100, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:14.639   698   698 W AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app tried to update with no new data
+11-16 01:18:14.642   717   717 V MediaTimeout: processState: PlaybackState {state=1, position=8004, buffered position=8000, speed=0.0, updated=230100, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:14.642   717   717 V MediaTimeout: schedule timeout for 0|com.yidplus.app|1001|null|10130
+11-16 01:18:14.642   717   717 V MediaTimeout: processState: PlaybackState {state=1, position=8004, buffered position=8000, speed=0.0, updated=230100, actions=7339999, custom actions=[], active item id=3, error=null}
+11-16 01:18:14.647   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:14.647   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:14.664   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:14.668   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:14.668   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:14.669   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:14.689   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:14.840   508   508 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-16 01:18:14.794   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 3 lines
+11-16 01:18:14.820   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:14.842   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:14.842   717   717 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 01:18:14.850   717   717 W ConstraintSet: id unknown center_vertical_guideline
+11-16 01:18:14.850   717   717 W ConstraintSet: id unknown media_action_barrier
+11-16 01:18:14.851   717   717 W ConstraintSet: id unknown qs_media_controls_options
+11-16 01:18:14.858   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:15.352   288  1410 I chatty  : uid=1041(audioserver) HwBinder:288_3 identical 16 lines
+11-16 01:18:15.390   288  1410 W android.hardware.audio.service.ranchu: TinyalsaSink::write:125 pcm_write was late reading frames, dropping 22131 us of audio
+11-16 01:18:15.402   508  1265 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:16.667     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3780 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 01:18:16.499  3783  3783 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 01:18:16.500  3783  3783 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 01:18:16.500  3783  3783 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 01:18:16.500  3783  3783 I AndroidRuntime: Using default boot image
+11-16 01:18:16.500  3783  3783 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 01:18:16.500  3783  3783 I AndroidRuntime: Leaving lock profiling enabled
+11-16 01:18:16.500  3783  3783 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 01:18:16.501  3783  3783 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 01:18:16.496  3783  3783 W app_process: type=1400 audit(0.0:193): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:18:16.496  3783  3783 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 01:18:16.496  3783  3783 W app_process: type=1400 audit(0.0:196): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=8384 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 01:18:16.534  3783  3783 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 01:18:16.534  3783  3783 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 01:18:16.535  3783  3783 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 01:18:16.536  3783  3783 I app_process: The ClassLoaderContext is a special shared library.
+11-16 01:18:16.541  3783  3783 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 01:18:16.544  3783  3783 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 01:18:16.546   508   540 D AutofillManagerService: onBackKeyPressed()
+11-16 01:18:16.547  3783  3783 D AndroidRuntime: Shutting down VM
+11-16 01:18:19.800   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb767000 0x3fb893000]
+11-16 01:18:19.803   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 01:18:19.803  3798  3798 I Gralloc4: mapper 4.x is not supported
+11-16 01:18:19.806  3798  3798 D HostConnection: createUnique: call
+11-16 01:18:19.806  3798  3798 D HostConnection: HostConnection::get() New Host Connection established 0x76daa7ec4310, tid 3798
+11-16 01:18:19.806  3798  3798 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 01:18:19.807  3798  3798 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 01:18:19.814  3798  3798 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:20.085     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3802 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 01:18:19.891   508   542 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 01:18:19.891   508  1265 I ActivityTaskManager: START u0 {act=com.yidplus.app.QA_FIXTURE flg=0x10000000 cmp=com.yidplus.app/.MainActivity (has extras)} from uid 2000
+11-16 01:18:19.892   408   408 I perfetto: ing_service_impl.cc:758 Configured tracing session 15, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 01:18:19.892   406   406 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=15)
+11-16 01:18:19.895   508   542 D EventSequenceValidator: Transition from INTENT_STARTED to INTENT_FAILED
+11-16 01:18:19.914   406   406 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 01:18:20.131     0     0 W perfetto: enabled ftrace
+11-16 01:18:20.633   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fbfc0000 0x3fbfc5000]
+11-16 01:18:20.637  3534  3582 D HostConnection: HostConnection::get() New Host Connection established 0x7b57c5b2ff90, tid 3582
+11-16 01:18:20.639   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fbfc5000 0x3fbfca000]
+11-16 01:18:20.640  3534  3582 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:20.641  3534  3582 D EGL_emulation: eglCreateContext: 0x7b57b5baa1c0: maj 3 min 0 rcv 3
+11-16 01:18:20.642  3534  3582 D EGL_emulation: eglMakeCurrent: 0x7b57b5baa1c0: ver 3 0 (tinfo 0x7b5755b80990) (first time)
+11-16 01:18:20.643  3534  3576 D HostConnection: HostConnection::get() New Host Connection established 0x7b57c5b34cd0, tid 3576
+11-16 01:18:20.646  3534  3576 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:23.918   508   596 I ActivityManager: Force stopping com.yidplus.app appid=10130 user=0: from pid 3822
+11-16 01:18:23.918   508   596 I ActivityManager: Killing 3534:com.yidplus.app/u0a130 (adj 0): stop com.yidplus.app due to from pid 3822
+11-16 01:18:23.922   508   596 W ActivityTaskManager: Force removing ActivityRecord{a6d2258 u0 com.yidplus.app/.MainActivity t15 f}}: app died, no saved state
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.924   508   596 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.925   508   596 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:23.929   508  3419 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ TRACK_DEFAULT id=30, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ], android.os.BinderProxy@2479110)
+11-16 01:18:23.930   508   653 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=30, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] (release request)
+11-16 01:18:23.930   508  1579 I MediaFocusControl: AudioFocus  removeFocusStackEntryOnDeath(): removing entry for android.os.BinderProxy@90bd409
+11-16 01:18:23.930   508  1579 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ LISTEN id=31, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ], android.os.BinderProxy@c9a360e)
+11-16 01:18:23.930   508  1579 D MediaSessionService: Media button session is changed to null
+11-16 01:18:23.932   698   698 I AvrcpMediaPlayerList: onMediaKeyEventSessionChanged: packageName=com.yidplus.app
+11-16 01:18:23.932   698   698 W AvrcpMediaPlayerList: com.yidplus.app is already the active player
+11-16 01:18:23.932   698   698 W AvrcpMediaPlayerWrapper: The session was destroyed com.yidplus.app
+11-16 01:18:23.932   698   698 D AvrcpMediaPlayerList: sessionUpdatedCallback(): packageName: com.yidplus.app
+11-16 01:18:24.147     0     0 I binder  : undelivered transaction 127114, process died.
+11-16 01:18:23.933   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:23.933   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=null
+11-16 01:18:23.933   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=true state=true queue=true
+11-16 01:18:23.933   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=true playStatus=true queue=true
+11-16 01:18:23.933   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:23.933   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=1 :  play_state=1 :  queue=1
+11-16 01:18:23.933   698   698 D AvrcpMediaPlayerList: Removing media player com.yidplus.app
+11-16 01:18:23.933   698   698 D AvrcpMediaPlayerList: com.yidplus.app doesn't have a browse service. Recycle player ID.
+11-16 01:18:23.933   698   698 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-16 01:18:23.933   279   279 I Zygote  : Process 3534 exited due to signal 9 (Killed)
+11-16 01:18:23.939   508   542 W ActivityManager: setHasOverlayUi called on unknown pid: 3534
+11-16 01:18:23.939  1047  1047 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 01:18:23.939  1047  1047 D Telephony: isEmergencyPreferredAccount: subId=1, activeData=1
+11-16 01:18:23.939  1047  1047 D Telephony: isEmergencyPreferredAccount: Device does not require preference.
+11-16 01:18:23.950   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fbbd3000 0x3fbcff000]
+11-16 01:18:23.954   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb63b000 0x3fb767000]
+11-16 01:18:23.961   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb767000 0x3fb893000]
+11-16 01:18:23.964   717   717 V KeyguardUpdateMonitor: onSubscriptionInfoChanged()
+11-16 01:18:23.966   508   550 I libprocessgroup: Successfully killed process cgroup uid 10130 pid 3534 in 43ms
+11-16 01:18:23.966   717   717 V KeyguardUpdateMonitor: SubInfo:{id=1 iccId=89014103211118510720 simSlotIndex=0 carrierId=1 displayName=T-Mobile carrierName=T-Mobile nameSource=3 iconTint=-16746133 number=+15555215554 dataRoaming=0 iconBitmap=android.graphics.Bitmap@3e9f883 mcc=310 mnc=260 countryIso=us isEmbedded=false nativeAccessRules=null cardString=89014103211118510720 cardId=-1 isOpportunistic=false groupUUID=null isGroupDisabled=false profileClass=-1 ehplmns=null hplmns=null subscriptionType=0 groupOwner=null carrierConfigAccessRules=null areUiccApplicationsEnabled=true}
+11-16 01:18:24.894   406   406 I perfetto: probes_producer.cc:329  Producer stop (id=15)
+11-16 01:18:24.894   408   408 I perfetto: ng_service_impl.cc:1948 Tracing session 15 ended, total sessions:0
+11-16 01:18:24.895   406   406 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 01:18:25.113     0     0 W perfetto: disabled ftrace
+11-16 01:18:24.958   508   542 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 01:18:24.958   508   690 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.yidplus.app/.MainActivity} from uid 2000
+11-16 01:18:24.959   408   408 I perfetto: ing_service_impl.cc:758 Configured tracing session 16, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 01:18:24.969   508   542 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10130; state: DISABLED
+11-16 01:18:24.969   508   542 D EventSequenceValidator: Transition from INTENT_STARTED to ACTIVITY_LAUNCHED
+11-16 01:18:24.971   508   549 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10130; state: ENABLED
+11-16 01:18:24.984   279   279 D Zygote  : Forked child process 3837
+11-16 01:18:24.990   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb893000 0x3fb9bf000]
+11-16 01:18:24.993   508   549 I ActivityManager: Start proc 3837:com.yidplus.app/u0a130 for pre-top-activity {com.yidplus.app/com.yidplus.app.MainActivity}
+11-16 01:18:25.024  3837  3837 W com.yidplus.ap: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 01:18:25.064   508  3419 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.064   508  3419 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.065   508  3419 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 01:18:25.074  3837  3837 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-16 01:18:25.075  3837  3837 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-16 01:18:25.080   388   398 I adbd    : jdwp connection from 3837
+11-16 01:18:25.081  3837  3837 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-16 01:18:25.091  3837  3837 I TetheringManager: registerTetheringEventCallback:com.yidplus.app
+11-16 01:18:25.092  3837  3837 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-16 01:18:25.092  3837  3837 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-16 01:18:25.094   406   406 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=16)
+11-16 01:18:25.119   406   406 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 01:18:25.337     0     0 W perfetto: enabled ftrace
+11-16 01:18:25.161   508   596 D ConnectivityService: requestNetwork for uid/pid:10130/3837 NetworkRequest [ TRACK_DEFAULT id=32, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ]
+11-16 01:18:25.161   508   653 D ConnectivityService: NetReassign [32 : null → 100]
+11-16 01:18:25.161   508   649 D WifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=32, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 01:18:25.161   508   649 D UntrustedWifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=32, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 01:18:25.161  1047  1047 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=32, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 01:18:25.168  1047  1047 D Telephony: isEmergencyPreferredAccount: subId=1, activeData=1
+11-16 01:18:25.168  1047  1047 D Telephony: isEmergencyPreferredAccount: Device does not require preference.
+11-16 01:18:25.169   717   717 V KeyguardUpdateMonitor: onSubscriptionInfoChanged()
+11-16 01:18:25.170   717   717 V KeyguardUpdateMonitor: SubInfo:{id=1 iccId=89014103211118510720 simSlotIndex=0 carrierId=1 displayName=T-Mobile carrierName=T-Mobile nameSource=3 iconTint=-16746133 number=+15555215554 dataRoaming=0 iconBitmap=android.graphics.Bitmap@4b9f918 mcc=310 mnc=260 countryIso=us isEmbedded=false nativeAccessRules=null cardString=89014103211118510720 cardId=-1 isOpportunistic=false groupUUID=null isGroupDisabled=false profileClass=-1 ehplmns=null hplmns=null subscriptionType=0 groupOwner=null carrierConfigAccessRules=null areUiccApplicationsEnabled=true}
+11-16 01:18:25.174  3837  3867 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-16 01:18:25.175  3837  3867 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-16 01:18:25.182  3837  3867 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-16 01:18:25.270  3837  3865 D HostConnection: HostConnection::get() New Host Connection established 0x7b57c5b1f910, tid 3865
+11-16 01:18:25.273  3837  3865 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:25.322   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-16 01:18:25.323  3837  3865 D EGL_emulation: eglCreateContext: 0x7b57b5b43d80: maj 3 min 0 rcv 3
+11-16 01:18:25.323  3837  3865 D EGL_emulation: eglMakeCurrent: 0x7b57b5b43d80: ver 3 0 (tinfo 0x7b5755b76040) (first time)
+11-16 01:18:25.329   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb63b000 0x3fb767000]
+11-16 01:18:25.330   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 01:18:25.330  3837  3865 I Gralloc4: mapper 4.x is not supported
+11-16 01:18:25.330  3837  3865 D HostConnection: createUnique: call
+11-16 01:18:25.330  3837  3865 D HostConnection: HostConnection::get() New Host Connection established 0x7b57c5b1ee90, tid 3865
+11-16 01:18:25.331  3837  3865 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 01:18:25.331  3837  3865 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 01:18:25.338  3837  3865 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:25.343   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fbbd3000 0x3fbcff000]
+11-16 01:18:25.345   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fb9bf000 0x3fbaeb000]
+11-16 01:18:25.789  3829  3831 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:25.790   508   542 D EventSequenceValidator: Transition from ACTIVITY_LAUNCHED to ACTIVITY_FINISHED
+11-16 01:18:25.791   508   547 D ArtManagerInternalImpl: /data/misc/iorapd/com.yidplus.app/20000/com.yidplus.app.MainActivity/compiled_traces/compiled_trace.pb doesn't exist
+11-16 01:18:25.791   508   547 I ActivityTaskManager: Displayed com.yidplus.app/.MainActivity: +830ms
+11-16 01:18:25.811  3837  3837 I Choreographer: Skipped 35 frames!  The application may be doing too much work on its main thread.
+11-16 01:18:26.107  3837  3865 I OpenGLRenderer: Davey! duration=876ms; Flags=1, IntendedVsync=240689877850, Vsync=241273211160, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=241275150919, AnimationStart=241275151400, PerformTraversalsStart=241283067138, DrawStart=241285748013, SyncQueued=241296969032, SyncStart=241301781597, IssueDrawCommandsStart=241304072974, SwapBuffers=241532680079, FrameCompleted=241571109566, DequeueBufferDuration=32300, QueueBufferDuration=1038801, GpuCompleted=0, 
+11-16 01:18:26.236  3837  3837 I YidPerf : Chats content 1168 ms after process start
+11-16 01:18:26.403  3837  3837 I MediaController: Init ce1010 [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 01:18:26.406  3837  3837 I ExoPlayerImpl: Init 451432f [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 01:18:26.417   508  1579 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:26.417   508  1579 I chatty  : uid=1000(system) Binder:508_D identical 2 lines
+11-16 01:18:26.417   508  1579 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:26.418  3837  3837 I MediaSessionImpl: Init 5b06927 [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 01:18:26.421   508  1579 D MediaSessionService: Media button session is changed to com.yidplus.app/androidx.media3.session.id. (userId=0)
+11-16 01:18:26.421   698   698 W AvrcpMediaPlayerList: onMediaKeyEventSessionChanged(Token): Addressed Player changed to a player we didn't have a session for
+11-16 01:18:26.421   698   698 I AvrcpMediaPlayerList: Adding wrapped media player: com.yidplus.app at key: 1
+11-16 01:18:26.421   698   698 I AvrcpMediaPlayerList: onMediaKeyEventSessionChanged: token=com.yidplus.app
+11-16 01:18:26.422   698   698 D AvrcpMediaPlayerList: setActivePlayer(): setting player to com.yidplus.app
+11-16 01:18:26.423   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:26.423   698   698 I AvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-16 01:18:26.423   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=null
+11-16 01:18:26.423   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=false queue=false
+11-16 01:18:26.423   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=false queue=false
+11-16 01:18:26.423   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:26.423   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=0 :  queue=0
+11-16 01:18:26.423   698   698 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-16 01:18:26.423   698   698 V AvrcpMediaPlayerWrapper: onQueueChanged(): com.yidplus.app tried to update with no queue
+11-16 01:18:26.424   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=0, position=0, buffered position=0, speed=0.0, updated=241887, actions=7339655, custom actions=[], active item id=0, error=null}
+11-16 01:18:26.425   698   698 V AvrcpMediaPlayerWrapper: Waiting to send update as controller has no playback state
+11-16 01:18:26.425   698   698 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 1
+11-16 01:18:26.425   698   698 D AvrcpMediaPlayerList: onActiveSessionsChanged: controller: com.yidplus.app
+11-16 01:18:26.425   698   698 D AvrcpMediaPlayerList: Already have a controller for the player: com.yidplus.app, updating instead
+11-16 01:18:26.426   698   698 D AvrcpMediaPlayerList: sendMediaUpdate
+11-16 01:18:26.426   698   698 I AvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-16 01:18:26.426   698   698 D AvrcpMediaPlayerList: sendMediaUpdate state=PlaybackState {state=0, position=0, buffered position=0, speed=0.0, updated=241888, actions=7339655, custom actions=[], active item id=0, error=null}
+11-16 01:18:26.426   698   698 D AvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-16 01:18:26.426   698   698 D AvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-16 01:18:26.426   698   698 D AvrcpTargetJni: sendMediaUpdateNative
+11-16 01:18:26.426   698   698 I bt_stack: [INFO:avrcp_service.cc(346)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-16 01:18:26.426  3837  3837 I MediaController: Init 4cd9d40 [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 01:18:26.437   698   698 V AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app : PlaybackState {state=0, position=0, buffered position=0, speed=0.0, updated=241900, actions=7339655, custom actions=[], active item id=0, error=null}
+11-16 01:18:26.437   698   698 W AvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.yidplus.app tried to update with no new data
+11-16 01:18:26.438  3837  3837 I YidMusic: state=1 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 01:18:26.800   508   653 D ConnectivityService: NetReassign [no changes]
+11-16 01:18:26.843   158   158 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.allocator@4.0::IAllocator/default in either framework or device manifest.
+11-16 01:18:26.843  3837  3871 W Gralloc4: allocator 3.x is not supported
+11-16 01:18:26.844   299   299 D goldfish-address-space: claimShared: Ask to claim region [0x3fbfc0000 0x3fbfc6000]
+11-16 01:18:26.845  3837  3897 D HostConnection: HostConnection::get() New Host Connection established 0x7b57c5b25010, tid 3897
+11-16 01:18:26.847  3837  3897 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:26.848  3837  3897 D EGL_emulation: eglCreateContext: 0x7b57b5b989f0: maj 3 min 0 rcv 3
+11-16 01:18:26.848  3837  3897 D EGL_emulation: eglMakeCurrent: 0x7b57b5b989f0: ver 3 0 (tinfo 0x7b5755b862a0) (first time)
+11-16 01:18:26.850  3837  3871 D HostConnection: HostConnection::get() New Host Connection established 0x7b57c5b25790, tid 3871
+11-16 01:18:26.853  3837  3871 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 01:18:28.034   508  1417 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 01:18:29.424   508   690 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:29.424   508  3825 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 01:18:29.960   406   406 I perfetto: probes_producer.cc:329  Producer stop (id=16)
+11-16 01:18:29.960   408   408 I perfetto: ng_service_impl.cc:1948 Tracing session 16 ended, total sessions:0
+11-16 01:18:29.961   406   406 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 01:18:30.179     0     0 W perfetto: disabled ftrace
