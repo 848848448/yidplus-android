@@ -94,11 +94,11 @@ data class AdminWebPage(val section: String? = null) : PageScreen() {
 /** Older Android WebViews (83 on the Android 11 emulator image) lack replaceChildren, which the site's admin script calls. Defined only when missing (a no-op when the WebView has it); run at page start and again before the gate script. */
 private const val REPLACE_CHILDREN_POLY = "(function(){function rc(){while(this.firstChild)this.removeChild(this.firstChild);for(var i=0;i<arguments.length;i++){var a=arguments[i];this.appendChild(typeof a==='string'?document.createTextNode(a):a);}}var added=false;[window.Element,window.Document,window.DocumentFragment].forEach(function(C){if(C&&C.prototype&&!C.prototype.replaceChildren){C.prototype.replaceChildren=rc;added=true;}});if(added)console.log('yp replaceChildren polyfill added, readyState='+document.readyState);})();"
 
-/** The site's own door, filled in for you: waits for the gate, presses Continue on the email step, types the PIN, presses Unlock, then opens the section. */
+/** The site's own door, filled in for you: waits for the gate, presses Continue on the email step, types the PIN, presses Unlock, then opens the section with the page's own adminControlOpen(panel id) (navTo takes a screen id, not a panel id). */
 private fun gateJs(pin: String, section: String?): String {
     val sec = section?.filter { it.isLetterOrDigit() || it == '-' } ?: ""
     return REPLACE_CHILDREN_POLY + """(function(){var pin='$pin',sec='$sec',n=0,asked=0,typed=0;function go(){n++;if(n>120)return;
-if(window.ADMIN_GATE_SESSION){if(sec&&window.navTo){setTimeout(function(){try{navTo(sec)}catch(e){console.log('yp navTo '+e)}},700);}return;}
+if(window.ADMIN_GATE_SESSION){if(sec){var k=0;(function open(){k++;if(k>60)return console.log('yp open '+sec+' gave up');if(!window.adminControlOpen||!document.querySelector('.admin-home'))return setTimeout(open,250);try{adminControlOpen(sec)}catch(e){console.log('yp open '+e)}})();}return;}
 var g=document.getElementById('admin-gate');if(!g||!g.classList.contains('open'))return setTimeout(go,250);
 var ps=document.getElementById('gate-pin-step');if(ps&&ps.style.display==='block'){if(!typed){typed=1;for(var i=0;i<4;i++){var e=document.getElementById('p'+i);if(e)e.value=pin.charAt(i);}if(window.checkPin)checkPin();}return setTimeout(go,300);}
 var ge=document.getElementById('gate-email');if(ge&&ge.value&&!asked&&window.checkGateEmail){asked=1;checkGateEmail();}setTimeout(go,250);}go();})();"""
@@ -145,7 +145,11 @@ private fun AdminWebView(url: String, pin: String, section: String?, modifier: M
                         mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream(body.toByteArray()))
                 }
                 override fun onPageStarted(view: WebView, u: String, favicon: android.graphics.Bitmap?) {
+                    android.util.Log.i("YidAdminWeb", "page started " + u.substringBefore('?'))
                     if (u.contains("admin")) view.evaluateJavascript(REPLACE_CHILDREN_POLY, null)
+                    // QA fixture only: log who calls the site's page change (goPage), to find what leaves the admin page.
+                    if (Fixture.on && u.contains("admin")) view.evaluateJavascript(
+                        "(function(){var n=0,t=setInterval(function(){if(window.goPage&&!window.goPage.__yp){var o=window.goPage;window.goPage=function(p){console.log('yp goPage '+p+' '+String(new Error().stack).split('\\n').slice(1,4).join(' | '));return o.apply(this,arguments)};window.goPage.__yp=1;clearInterval(t)}if(++n>200)clearInterval(t)},25)})();", null)
                 }
                 override fun onPageFinished(view: WebView, u: String) {
                     if (u.contains("admin")) view.evaluateJavascript(gateJs(pin, section), null)
