@@ -1,0 +1,423 @@
+--------- beginning of main
+11-16 00:10:47.150   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb669000 0x3fb795000]
+11-16 00:10:47.152   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 00:10:47.152  3628  3628 I Gralloc4: mapper 4.x is not supported
+11-16 00:10:47.155  3628  3628 D HostConnection: createUnique: call
+11-16 00:10:47.155  3628  3628 D HostConnection: HostConnection::get() New Host Connection established 0x7bdba2de4850, tid 3628
+11-16 00:10:47.156  3628  3628 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 00:10:47.156  3628  3628 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 00:10:47.162  3628  3628 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:10:47.237  3630  3630 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 00:10:47.238  3630  3630 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 00:10:47.238  3630  3630 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 00:10:47.238  3630  3630 I AndroidRuntime: Using default boot image
+11-16 00:10:47.238  3630  3630 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 00:10:47.238  3630  3630 I AndroidRuntime: Leaving lock profiling enabled
+11-16 00:10:47.238  3630  3630 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 00:10:47.239  3630  3630 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 00:10:47.236  3630  3630 W app_process: type=1400 audit(0.0:171): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:47.236  3630  3630 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 00:10:47.236  3630  3630 W app_process: type=1400 audit(0.0:174): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:47.270  3630  3630 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 00:10:47.271  3630  3630 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 00:10:47.272  3630  3630 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 00:10:47.273  3630  3630 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:10:47.273  3630  3630 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:10:47.279  3630  3630 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 00:10:47.281  3630  3630 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 00:10:47.285  3630  3644 V UiAutomation: Init UiAutomation@db013f6[id=3, flags=0]
+11-16 00:10:48.299  3630  3630 W AccessibilityNodeInfoDumper: Fetch time: 2ms
+--------- beginning of system
+11-16 00:10:48.300   504  3505 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@b3c3f16
+11-16 00:10:48.301  3630  3644 V UiAutomation: Init UiAutomation@db013f6[id=-1, flags=0]
+11-16 00:10:48.303  3630  3630 D AndroidRuntime: Shutting down VM
+11-16 00:10:48.837  3655  3655 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 00:10:48.838  3655  3655 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 00:10:48.838  3655  3655 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 00:10:48.838  3655  3655 I AndroidRuntime: Using default boot image
+11-16 00:10:48.838  3655  3655 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 00:10:48.838  3655  3655 I AndroidRuntime: Leaving lock profiling enabled
+11-16 00:10:48.838  3655  3655 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 00:10:48.839  3655  3655 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 00:10:48.836  3655  3655 W app_process: type=1400 audit(0.0:175): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:48.836  3655  3655 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 00:10:48.836  3655  3655 W app_process: type=1400 audit(0.0:178): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:48.871  3655  3655 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 00:10:48.871  3655  3655 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 00:10:48.873  3655  3655 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 00:10:48.874  3655  3655 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:10:48.879  3655  3655 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 00:10:48.881  3655  3655 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 00:10:48.886  3655  3655 D AndroidRuntime: Shutting down VM
+11-16 00:10:51.138   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb669000 0x3fb795000]
+11-16 00:10:51.142   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 00:10:51.142  3670  3670 I Gralloc4: mapper 4.x is not supported
+11-16 00:10:51.145  3670  3670 D HostConnection: createUnique: call
+11-16 00:10:51.146  3670  3670 D HostConnection: HostConnection::get() New Host Connection established 0x79cd6f261bd0, tid 3670
+11-16 00:10:51.146  3670  3670 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 00:10:51.146  3670  3670 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 00:10:51.153  3670  3670 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:10:51.231  3672  3672 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 00:10:51.233  3672  3672 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 00:10:51.233  3672  3672 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 00:10:51.233  3672  3672 I AndroidRuntime: Using default boot image
+11-16 00:10:51.233  3672  3672 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 00:10:51.233  3672  3672 I AndroidRuntime: Leaving lock profiling enabled
+11-16 00:10:51.233  3672  3672 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 00:10:51.235  3672  3672 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 00:10:51.232  3672  3672 W app_process: type=1400 audit(0.0:179): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:51.232  3672  3672 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 00:10:51.232  3672  3672 W app_process: type=1400 audit(0.0:182): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:51.270  3672  3672 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 00:10:51.270  3672  3672 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 00:10:51.272  3672  3672 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 00:10:51.273  3672  3672 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:10:51.279  3672  3672 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 00:10:51.281  3672  3672 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 00:10:51.285  3516  3516 I YidMusic: state=2 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 00:10:51.285  3672  3672 D AndroidRuntime: Shutting down VM
+11-16 00:10:51.308   504  1875 I MediaFocusControl: requestAudioFocus() from uid/pid 10130/3516 clientId=android.media.AudioManager@b304d11d2.b@7322e76 callingPack=com.yidplus.app req=1 flags=0x0 sdk=34
+11-16 00:10:51.309   504  1875 I WifiService: acquireWifiLock uid=10130 lockMode=3
+11-16 00:10:51.318   498   498 I hostapd : wlan1: STA-OPMODE-SMPS-MODE-CHANGED 02:15:b2:00:00:00 off
+11-16 00:10:51.320  3516  3516 I YidMusic: state=2 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 00:10:51.526   504   504 D NotificationService: 0|com.yidplus.app|1001|null|10130: granting content://settings/system/notification_sound
+11-16 00:10:51.526   504   504 I chatty  : uid=1000(system) Binder:504_3 identical 1 line
+11-16 00:10:51.527   504   504 D NotificationService: 0|com.yidplus.app|1001|null|10130: granting content://settings/system/notification_sound
+11-16 00:10:51.527   504   504 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-16 00:10:51.321  3516  3516 I chatty  : uid=10130(com.yidplus.app) identical 1 line
+11-16 00:10:51.341  3516  3516 I YidMusic: state=2 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 00:10:51.531   716   716 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 00:10:51.531   716   716 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 00:10:51.534   716   716 V MediaTimeout: processState: PlaybackState {state=6, position=0, buffered position=0, speed=0.0, updated=214764, actions=7339703, custom actions=[], active item id=1, error=null}
+11-16 00:10:51.534   716   716 D MediaResumeListener: Checking for service component for com.yidplus.app
+11-16 00:10:51.535   697   713 D BluetoothDatabase: getBondedDevicesOrdered: Invalid address for device LocalStorage
+11-16 00:10:51.545   716   716 W ConstraintSet: id unknown center_vertical_guideline
+11-16 00:10:51.545   716   716 W ConstraintSet: id unknown media_action_barrier
+11-16 00:10:51.545   716   716 W ConstraintSet: id unknown qs_media_controls_options
+11-16 00:10:51.568   716   716 W ConstraintSet: id unknown center_vertical_guideline
+11-16 00:10:51.568   716   716 W ConstraintSet: id unknown media_action_barrier
+11-16 00:10:51.568   716   716 W ConstraintSet: id unknown qs_media_controls_options
+11-16 00:10:51.574   716   716 W ConstraintSet: id unknown center_vertical_guideline
+11-16 00:10:51.574   716   716 W ConstraintSet: id unknown media_action_barrier
+11-16 00:10:51.575   716   716 W ConstraintSet: id unknown qs_media_controls_options
+11-16 00:10:51.582   716   716 W ConstraintSet: id unknown center_vertical_guideline
+11-16 00:10:51.582   716   716 W ConstraintSet: id unknown media_action_barrier
+11-16 00:10:51.582   716   716 W ConstraintSet: id unknown qs_media_controls_options
+11-16 00:10:51.609   716   716 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 00:10:51.610   716   716 D InterruptionStateProvider: No alerting: filtered notification: 0|com.yidplus.app|1001|null|10130
+11-16 00:10:51.634   716   716 W ConstraintSet: id unknown center_vertical_guideline
+11-16 00:10:51.634   716   716 W ConstraintSet: id unknown media_action_barrier
+11-16 00:10:51.634   716   716 W ConstraintSet: id unknown qs_media_controls_options
+11-16 00:10:54.242  1424  1918 I Dialer  : OmtpVvmCarrierCfgHlpr - OmtpEvent:CONFIG_STATUS_SMS_TIME_OUT
+11-16 00:10:54.242  1424  1424 I Dialer  : RetryPolicy - discarding deferred status: configuration_state=4
+11-16 00:10:54.243  1424  1424 I Dialer  : VvmTaskExecutor - no more tasks, stopping service if no task are added in 5000 millis
+11-16 00:10:54.243  1424  1424 I Dialer  : VvmTaskReceiver - task received
+11-16 00:10:54.243  1424  1424 I Dialer  : VvmTaskReceiver - TaskExecutor already running
+11-16 00:10:54.243  1424  1424 I Dialer  : Task.createTask - create task:com.android.voicemail.impl.ActivationTask
+11-16 00:10:54.243  1424  1424 I Dialer  : RetryPolicy - retry #3 for com.android.voicemail.impl.ActivationTask@ee853d4 queued, executing in 5000
+11-16 00:10:54.243  1424  1424 I Dialer  : VvmTaskExecutor - com.android.voicemail.impl.ActivationTask@ee853d4 added
+11-16 00:10:54.243  1424  1424 I Dialer  : VvmTaskExecutor - minimal wait time:5000
+11-16 00:10:54.243  1424  1424 I Dialer  : VvmTaskExecutor - sleep for 5000 millis
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal: Playback error
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:   d2.m: Source error
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at d2.E.j(SourceFile:17)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at d2.E.handleMessage(SourceFile:382)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at android.os.Handler.dispatchMessage(Handler.java:102)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at android.os.Looper.loop(Looper.java:223)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at android.os.HandlerThread.run(HandlerThread.java:67)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:   Caused by: Z1.x: Malformed URL
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at b2.a.a(SourceFile:474)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at Z1.F.a(SourceFile:7)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at a2.e.p(SourceFile:275)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at a2.e.a(SourceFile:178)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at Z1.E.a(SourceFile:10)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at k2.K.a(SourceFile:26)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at n2.i.run(SourceFile:37)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-16 00:10:54.312  3516  3567 E ExoPlayerImplInternal:       at java.lang.Thread.run(Thread.java:923)
+11-16 00:10:54.313   504  2567 I WifiService: releaseWifiLock uid=10130
+11-16 00:10:54.313   498   498 I hostapd : wlan1: STA-OPMODE-SMPS-MODE-CHANGED 02:15:b2:00:00:00 dynamic
+11-16 00:10:54.314  3516  3516 I YidMusic: state=1 playing=false pos=0 dur=-9223372036854775807 err=ERROR_CODE_FAILED_RUNTIME_CHECK msg=Source error cause=Z1.x: Malformed URL
+11-16 00:10:54.318   716   716 V MediaTimeout: processState: PlaybackState {state=7, position=0, buffered position=0, speed=0.0, updated=217758, actions=7339703, custom actions=[], active item id=1, error=Source error}
+11-16 00:10:54.318   716   716 V MediaTimeout: schedule timeout for 0|com.yidplus.app|1001|null|10130
+11-16 00:10:54.318   716   716 V MediaTimeout: processState: PlaybackState {state=7, position=0, buffered position=0, speed=0.0, updated=217758, actions=7339703, custom actions=[], active item id=1, error=Source error}
+--------- beginning of kernel
+11-16 00:10:54.732     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3687 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 00:10:57.754     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3690 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 00:10:57.771     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3693 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 00:10:57.590   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb669000 0x3fb795000]
+11-16 00:10:57.592   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 00:10:57.592  3698  3698 I Gralloc4: mapper 4.x is not supported
+11-16 00:10:57.595  3698  3698 D HostConnection: createUnique: call
+11-16 00:10:57.596  3698  3698 D HostConnection: HostConnection::get() New Host Connection established 0x7e95a5e656d0, tid 3698
+11-16 00:10:57.596  3698  3698 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 00:10:57.596  3698  3698 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 00:10:57.604  3698  3698 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:10:57.679  3700  3700 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 00:10:57.680  3700  3700 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 00:10:57.680  3700  3700 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 00:10:57.680  3700  3700 I AndroidRuntime: Using default boot image
+11-16 00:10:57.680  3700  3700 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 00:10:57.680  3700  3700 I AndroidRuntime: Leaving lock profiling enabled
+11-16 00:10:57.680  3700  3700 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 00:10:57.682  3700  3700 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 00:10:57.680  3700  3700 W app_process: type=1400 audit(0.0:183): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:57.680  3700  3700 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 00:10:57.680  3700  3700 W app_process: type=1400 audit(0.0:186): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:10:57.719  3700  3700 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 00:10:57.719  3700  3700 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 00:10:57.721  3700  3700 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 00:10:57.722  3700  3700 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:10:57.722  3700  3700 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:10:57.728  3700  3700 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 00:10:57.730  3700  3700 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 00:10:57.736  3700  3714 V UiAutomation: Init UiAutomation@80a1c10[id=4, flags=0]
+11-16 00:10:58.750  3700  3700 W AccessibilityNodeInfoDumper: Fetch time: 5ms
+11-16 00:10:58.750   504  3505 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@a690076
+11-16 00:10:58.750  3700  3714 V UiAutomation: Init UiAutomation@80a1c10[id=-1, flags=0]
+11-16 00:10:58.752  3700  3700 D AndroidRuntime: Shutting down VM
+11-16 00:10:59.197   504   539 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 00:10:59.197   504  1875 I ActivityTaskManager: START u0 {act=com.yidplus.app.OPEN_PLAYER flg=0x10000000 cmp=com.yidplus.app/.MainActivity} from uid 2000
+11-16 00:10:59.198   409   409 I perfetto: ing_service_impl.cc:758 Configured tracing session 14, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 00:10:59.199   504   539 D EventSequenceValidator: Transition from INTENT_STARTED to INTENT_FAILED
+11-16 00:10:59.199   398   398 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=14)
+11-16 00:10:59.209   398   398 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 00:10:59.427     0     0 W perfetto: enabled ftrace
+11-16 00:10:59.354  1424  1918 I Dialer  : VvmTaskExecutor - executing task com.android.voicemail.impl.ActivationTask@ee853d4
+11-16 00:10:59.354  1424  1918 I Dialer  : PreOMigrationHandler - ComponentInfo{com.android.phone/com.android.services.telephony.TelephonyConnectionService}, ***, UserHandle{0} already migrated
+11-16 00:10:59.370  1613  1631 I VoicemailNotifier: receivers for android.intent.action.PROVIDER_CHANGED :[]
+11-16 00:10:59.372  1424  1918 I Dialer  : VvmActivationTask - VVM content provider configured - vvm_type_cvvm
+11-16 00:10:59.372  1424  1918 I Dialer  : OmtpVvmCarrierCfgHlpr - OmtpEvent:CONFIG_ACTIVATING
+11-16 00:10:59.374  1613  1910 I VoicemailNotifier: receivers for android.intent.action.PROVIDER_CHANGED :[]
+11-16 00:10:59.384  1029  1226 D SmsNumberUtils: enter filterDestAddr. destAddr="[BajqU4K5_YhSYbs-7QUn0dOwcmI]"
+11-16 00:10:59.384  1029  1226 D SmsNumberUtils: destAddr is not formatted.
+11-16 00:10:59.384  1029  1226 D SmsNumberUtils: leave filterDestAddr, new destAddr="[BajqU4K5_YhSYbs-7QUn0dOwcmI]"
+11-16 00:11:00.001   716   716 D KeyguardClockSwitch: Updating clock: 1211
+11-16 00:11:02.242   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb669000 0x3fb795000]
+11-16 00:11:02.246   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 00:11:02.246  3730  3730 I Gralloc4: mapper 4.x is not supported
+11-16 00:11:02.249  3730  3730 D HostConnection: createUnique: call
+11-16 00:11:02.250  3730  3730 D HostConnection: HostConnection::get() New Host Connection established 0x7a04883a3f90, tid 3730
+11-16 00:11:02.250  3730  3730 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 00:11:02.250  3730  3730 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 00:11:02.257  3730  3730 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:02.329  3732  3732 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 00:11:02.330  3732  3732 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 00:11:02.330  3732  3732 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 00:11:02.330  3732  3732 I AndroidRuntime: Using default boot image
+11-16 00:11:02.330  3732  3732 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 00:11:02.330  3732  3732 I AndroidRuntime: Leaving lock profiling enabled
+11-16 00:11:02.330  3732  3732 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 00:11:02.331  3732  3732 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 00:11:02.328  3732  3732 W app_process: type=1400 audit(0.0:187): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:11:02.328  3732  3732 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 00:11:02.328  3732  3732 W app_process: type=1400 audit(0.0:190): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:11:02.365  3732  3732 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 00:11:02.365  3732  3732 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 00:11:02.367  3732  3732 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 00:11:02.367  3732  3732 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:11:02.368  3732  3732 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:11:02.373  3732  3732 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 00:11:02.375  3732  3732 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-16 00:11:02.380  3732  3746 V UiAutomation: Init UiAutomation@537201d[id=5, flags=0]
+11-16 00:11:03.391  3732  3732 W AccessibilityNodeInfoDumper: Fetch time: 3ms
+11-16 00:11:03.391   504  2567 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@7ebc05f
+11-16 00:11:03.392  3732  3746 V UiAutomation: Init UiAutomation@537201d[id=-1, flags=0]
+11-16 00:11:03.395  3732  3732 D AndroidRuntime: Shutting down VM
+11-16 00:11:03.865  3750  3750 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-16 00:11:03.866  3750  3750 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.profilebootclasspath"
+11-16 00:11:03.866  3750  3750 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-16 00:11:03.866  3750  3750 I AndroidRuntime: Using default boot image
+11-16 00:11:03.866  3750  3750 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-16 00:11:03.866  3750  3750 I AndroidRuntime: Leaving lock profiling enabled
+11-16 00:11:03.866  3750  3750 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-16 00:11:03.867  3750  3750 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 00:11:03.864  3750  3750 W app_process: type=1400 audit(0.0:191): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:11:03.864  3750  3750 I chatty  : uid=2000(shell) app_process identical 2 lines
+11-16 00:11:03.864  3750  3750 W app_process: type=1400 audit(0.0:194): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=229 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-16 00:11:03.900  3750  3750 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 00:11:03.901  3750  3750 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-16 00:11:03.902  3750  3750 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 00:11:03.903  3750  3750 I app_process: The ClassLoaderContext is a special shared library.
+11-16 00:11:03.909  3750  3750 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 00:11:03.911  3750  3750 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-16 00:11:03.914   504   537 D AutofillManagerService: onBackKeyPressed()
+11-16 00:11:03.915  3750  3750 D AndroidRuntime: Shutting down VM
+11-16 00:11:04.203   398   398 I perfetto: probes_producer.cc:329  Producer stop (id=14)
+11-16 00:11:04.203   409   409 I perfetto: ng_service_impl.cc:1948 Tracing session 14 ended, total sessions:0
+11-16 00:11:04.204   398   398 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 00:11:04.421     0     0 W perfetto: disabled ftrace
+11-16 00:11:07.167   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb669000 0x3fb795000]
+11-16 00:11:07.170   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 00:11:07.171  3765  3765 I Gralloc4: mapper 4.x is not supported
+11-16 00:11:07.174  3765  3765 D HostConnection: createUnique: call
+11-16 00:11:07.174  3765  3765 D HostConnection: HostConnection::get() New Host Connection established 0x750b33ebbd90, tid 3765
+11-16 00:11:07.174  3765  3765 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 00:11:07.174  3765  3765 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 00:11:07.181  3765  3765 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:07.454     0     0 D logd    : logdr: UID=2000 GID=2000 PID=3769 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-16 00:11:07.260   504   539 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 00:11:07.261   504  2567 I ActivityTaskManager: START u0 {act=com.yidplus.app.QA_FIXTURE flg=0x10000000 cmp=com.yidplus.app/.MainActivity (has extras)} from uid 2000
+11-16 00:11:07.261   409   409 I perfetto: ing_service_impl.cc:758 Configured tracing session 15, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 00:11:07.262   398   398 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=15)
+11-16 00:11:07.267   504   539 D EventSequenceValidator: Transition from INTENT_STARTED to INTENT_FAILED
+11-16 00:11:07.278   398   398 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 00:11:07.495     0     0 W perfetto: enabled ftrace
+11-16 00:11:07.712   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fbfd3000 0x3fbfd8000]
+11-16 00:11:07.713  3516  3562 D HostConnection: HostConnection::get() New Host Connection established 0x7b2463d26c10, tid 3562
+11-16 00:11:07.716  3516  3562 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:07.717  3516  3562 D EGL_emulation: eglCreateContext: 0x7b2453d30af0: maj 3 min 0 rcv 3
+11-16 00:11:07.717  3516  3562 D EGL_emulation: eglMakeCurrent: 0x7b2453d30af0: ver 3 0 (tinfo 0x7b23f3d6f410) (first time)
+11-16 00:11:07.719   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fbf70000 0x3fbf75000]
+11-16 00:11:07.719  3516  3551 D HostConnection: HostConnection::get() New Host Connection established 0x7b2463d29c10, tid 3551
+11-16 00:11:07.720  3516  3557 D HostConnection: HostConnection::get() New Host Connection established 0x7b2463d28b90, tid 3557
+11-16 00:11:07.722  3516  3557 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:07.724  3516  3551 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:11.291   504  2567 I ActivityManager: Force stopping com.yidplus.app appid=10130 user=0: from pid 3792
+11-16 00:11:11.291   504  2567 I ActivityManager: Killing 3516:com.yidplus.app/u0a130 (adj 0): stop com.yidplus.app due to from pid 3792
+11-16 00:11:11.296   504  2567 W ActivityTaskManager: Force removing ActivityRecord{86f243b u0 com.yidplus.app/.MainActivity t15 f}}: app died, no saved state
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.299   504  2567 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:11.300   504  3505 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ TRACK_DEFAULT id=29, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ], android.os.BinderProxy@a520947)
+11-16 00:11:11.300   504  2714 I MediaFocusControl: AudioFocus  removeFocusStackEntryOnDeath(): removing entry for android.os.BinderProxy@7abc574
+11-16 00:11:11.300   504  2714 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ LISTEN id=30, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ], android.os.BinderProxy@6049a9d)
+11-16 00:11:11.518     0     0 I binder  : undelivered transaction 183408, process died.
+11-16 00:11:11.302   504   655 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=29, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] (release request)
+11-16 00:11:11.305   697   697 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-16 00:11:11.305   504   539 W ActivityManager: setHasOverlayUi called on unknown pid: 3516
+11-16 00:11:11.305   716   716 V KeyguardUpdateMonitor: onSubscriptionInfoChanged()
+11-16 00:11:11.306   716   716 V KeyguardUpdateMonitor: SubInfo:{id=1 iccId=89014103211118510720 simSlotIndex=0 carrierId=1 displayName=T-Mobile carrierName=T-Mobile nameSource=3 iconTint=-16746133 number=+15555215554 dataRoaming=0 iconBitmap=android.graphics.Bitmap@1c727d0 mcc=310 mnc=260 countryIso=us isEmbedded=false nativeAccessRules=null cardString=89014103211118510720 cardId=-1 isOpportunistic=false groupUUID=null isGroupDisabled=false profileClass=-1 ehplmns=null hplmns=null subscriptionType=0 groupOwner=null carrierConfigAccessRules=null areUiccApplicationsEnabled=true}
+11-16 00:11:11.307  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 00:11:11.307  1029  1029 D Telephony: isEmergencyPreferredAccount: subId=1, activeData=1
+11-16 00:11:11.307  1029  1029 D Telephony: isEmergencyPreferredAccount: Device does not require preference.
+11-16 00:11:11.308   280   280 I Zygote  : Process 3516 exited due to signal 9 (Killed)
+11-16 00:11:11.331   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb53d000 0x3fb669000]
+11-16 00:11:11.333   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb669000 0x3fb795000]
+11-16 00:11:11.341   504   547 I libprocessgroup: Successfully killed process cgroup uid 10130 pid 3516 in 44ms
+11-16 00:11:11.341   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb795000 0x3fb8c1000]
+11-16 00:11:12.266   398   398 I perfetto: probes_producer.cc:329  Producer stop (id=15)
+11-16 00:11:12.266   409   409 I perfetto: ng_service_impl.cc:1948 Tracing session 15 ended, total sessions:0
+11-16 00:11:12.267   398   398 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 00:11:12.484     0     0 W perfetto: disabled ftrace
+11-16 00:11:12.335   504   539 D EventSequenceValidator: Transition from INTENT_FAILED to INTENT_STARTED
+11-16 00:11:12.335   504  2567 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.yidplus.app/.MainActivity} from uid 2000
+11-16 00:11:12.336   409   409 I perfetto: ing_service_impl.cc:758 Configured tracing session 16, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-16 00:11:12.339   504   539 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10130; state: DISABLED
+11-16 00:11:12.340   504   546 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10130; state: ENABLED
+11-16 00:11:12.340   504   539 D EventSequenceValidator: Transition from INTENT_STARTED to ACTIVITY_LAUNCHED
+11-16 00:11:12.354   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb8c1000 0x3fb9ed000]
+11-16 00:11:12.388   280   280 D Zygote  : Forked child process 3806
+11-16 00:11:12.389   504   546 I ActivityManager: Start proc 3806:com.yidplus.app/u0a130 for pre-top-activity {com.yidplus.app/com.yidplus.app.MainActivity}
+11-16 00:11:12.392  3806  3806 W com.yidplus.ap: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 00:11:12.397   380   405 I adbd    : jdwp connection from 3806
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.400   504  2143 W InputReader: Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-16 00:11:12.408  3806  3806 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-16 00:11:12.408  3806  3806 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-16 00:11:12.415  3806  3806 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-16 00:11:12.420  3806  3806 I TetheringManager: registerTetheringEventCallback:com.yidplus.app
+11-16 00:11:12.421  3806  3806 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-16 00:11:12.421  3806  3806 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-16 00:11:12.462   398   398 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=16)
+11-16 00:11:12.468   504   533 D ConnectivityService: requestNetwork for uid/pid:10130/3806 NetworkRequest [ TRACK_DEFAULT id=31, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ]
+11-16 00:11:12.468   504   655 D ConnectivityService: NetReassign [31 : null → 101]
+11-16 00:11:12.468   504   651 D WifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=31, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 00:11:12.468   504   651 D UntrustedWifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=31, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 00:11:12.470  1029  1029 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=31, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10130 AdministratorUids: [] RequestorUid: 10130 RequestorPackageName: com.yidplus.app] ] with score 60 and providerId 3
+11-16 00:11:12.478  3806  3835 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-16 00:11:12.479  3806  3835 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-16 00:11:12.482  3806  3835 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-16 00:11:12.482   398   398 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-16 00:11:12.482   716   716 V KeyguardUpdateMonitor: onSubscriptionInfoChanged()
+11-16 00:11:12.482  1029  1029 D Telephony: isEmergencyPreferredAccount: subId=1, activeData=1
+11-16 00:11:12.482  1029  1029 D Telephony: isEmergencyPreferredAccount: Device does not require preference.
+11-16 00:11:12.699     0     0 W perfetto: enabled ftrace
+11-16 00:11:12.483   716   716 V KeyguardUpdateMonitor: SubInfo:{id=1 iccId=89014103211118510720 simSlotIndex=0 carrierId=1 displayName=T-Mobile carrierName=T-Mobile nameSource=3 iconTint=-16746133 number=+15555215554 dataRoaming=0 iconBitmap=android.graphics.Bitmap@e1e8ace mcc=310 mnc=260 countryIso=us isEmbedded=false nativeAccessRules=null cardString=89014103211118510720 cardId=-1 isOpportunistic=false groupUUID=null isGroupDisabled=false profileClass=-1 ehplmns=null hplmns=null subscriptionType=0 groupOwner=null carrierConfigAccessRules=null areUiccApplicationsEnabled=true}
+11-16 00:11:12.582  3806  3833 D HostConnection: HostConnection::get() New Host Connection established 0x7b2463d140d0, tid 3833
+11-16 00:11:12.584  3806  3833 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:12.597   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-16 00:11:12.601  3806  3833 D EGL_emulation: eglCreateContext: 0x7b2453d30780: maj 3 min 0 rcv 3
+11-16 00:11:12.604  3806  3833 D EGL_emulation: eglMakeCurrent: 0x7b2453d30780: ver 3 0 (tinfo 0x7b23f3d60710) (first time)
+11-16 00:11:12.611   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb9ed000 0x3fbb19000]
+11-16 00:11:12.611   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-16 00:11:12.611  3806  3833 I Gralloc4: mapper 4.x is not supported
+11-16 00:11:12.612  3806  3833 D HostConnection: createUnique: call
+11-16 00:11:12.612  3806  3833 D HostConnection: HostConnection::get() New Host Connection established 0x7b2463d14490, tid 3833
+11-16 00:11:12.612  3806  3833 D goldfish-address-space: allocate: Ask for block of size 0x100
+11-16 00:11:12.612  3806  3833 D goldfish-address-space: allocate: ioctl allocate returned offset 0x3f7ffe000 size 0x2000
+11-16 00:11:12.620  3806  3833 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:12.621   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb53d000 0x3fb669000]
+11-16 00:11:12.622   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fb669000 0x3fb795000]
+11-16 00:11:13.063   504   544 D ArtManagerInternalImpl: /data/misc/iorapd/com.yidplus.app/20000/com.yidplus.app.MainActivity/compiled_traces/compiled_trace.pb doesn't exist
+11-16 00:11:13.063   504   544 I ActivityTaskManager: Displayed com.yidplus.app/.MainActivity: +727ms
+11-16 00:11:13.064  3798  3800 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 00:11:13.064   504   539 D EventSequenceValidator: Transition from ACTIVITY_LAUNCHED to ACTIVITY_FINISHED
+11-16 00:11:13.071  3806  3806 I Choreographer: Skipped 33 frames!  The application may be doing too much work on its main thread.
+11-16 00:11:13.360  3806  3833 I OpenGLRenderer: Davey! duration=846ms; Flags=1, IntendedVsync=235953870423, Vsync=236503870401, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=236516310326, AnimationStart=236516311197, PerformTraversalsStart=236527925547, DrawStart=236532162031, SyncQueued=236547413918, SyncStart=236552745688, IssueDrawCommandsStart=236552807924, SwapBuffers=236765585676, FrameCompleted=236805242672, DequeueBufferDuration=73847, QueueBufferDuration=1355263, GpuCompleted=0, 
+11-16 00:11:13.395  3806  3806 I YidPerf : Chats content 993 ms after process start
+11-16 00:11:13.522   504   655 D ConnectivityService: NetReassign [no changes]
+11-16 00:11:13.582   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.allocator@4.0::IAllocator/default in either framework or device manifest.
+11-16 00:11:13.582  3806  3841 W Gralloc4: allocator 3.x is not supported
+11-16 00:11:13.582   300   300 D goldfish-address-space: claimShared: Ask to claim region [0x3fbf70000 0x3fbf76000]
+11-16 00:11:13.610  3806  3859 D HostConnection: HostConnection::get() New Host Connection established 0x7b2463d1d010, tid 3859
+11-16 00:11:13.617  3806  3859 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:13.619  3806  3859 D EGL_emulation: eglCreateContext: 0x7b2453d83920: maj 3 min 0 rcv 3
+11-16 00:11:13.620  3806  3859 D EGL_emulation: eglMakeCurrent: 0x7b2453d83920: ver 3 0 (tinfo 0x7b23f3d6f4d0) (first time)
+11-16 00:11:13.622  3806  3841 D HostConnection: HostConnection::get() New Host Connection established 0x7b2463d197d0, tid 3841
+11-16 00:11:13.624  3806  3841 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 00:11:13.690  3806  3806 I MediaController: Init 4a12183 [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 00:11:13.693  3806  3806 I ExoPlayerImpl: Init e840d7e [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 00:11:13.701   504  2567 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 00:11:13.701   504  2567 I chatty  : uid=1000(system) Binder:504_13 identical 2 lines
+11-16 00:11:13.701   504  2567 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 00:11:13.704  3806  3806 I MediaSessionImpl: Init baa4e56 [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 00:11:13.705   697   697 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-16 00:11:13.708   697   697 V AvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 1
+11-16 00:11:13.708   697   697 D AvrcpMediaPlayerList: onActiveSessionsChanged: controller: com.yidplus.app
+11-16 00:11:13.708   697   697 D AvrcpMediaPlayerList: Already have a controller for the player: com.yidplus.app, updating instead
+11-16 00:11:13.730  3806  3806 I MediaController: Init 15d7173 [AndroidXMedia3/1.4.1] [generic_x86_64, Android SDK built for x86_64, unknown, 30]
+11-16 00:11:13.731  3806  3806 I YidMusic: state=1 playing=false pos=0 dur=-9223372036854775807 err=null msg=null cause=null
+11-16 00:11:15.374   504  1451 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 00:11:16.710   504   533 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 00:11:16.710   504   533 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 00:11:17.338   398   398 I perfetto: probes_producer.cc:329  Producer stop (id=16)
+11-16 00:11:17.338   409   409 I perfetto: ng_service_impl.cc:1948 Tracing session 16 ended, total sessions:0
+11-16 00:11:17.339   398   398 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-16 00:11:17.556     0     0 W perfetto: disabled ftrace

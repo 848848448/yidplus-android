@@ -1,0 +1,55 @@
+[00:07:49] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[00:07:52] screen 480x640 @ 240 dpi
+[00:07:52] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[00:07:52] ---- Signed in (QA fixture account) ----
+[00:07:56] fixture true
+[00:08:05] shot F01-home-signedin
+[00:08:05] open https://yidplus.com/chat
+[00:08:11] shot F02-chats-list
+[00:08:12] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:08:20] shot F03-chat-dm
+[00:08:21] shot F03b-chat-dm-up
+[00:08:25] open https://yidplus.com/chat
+[00:08:39] shot F04-chat-group
+[00:08:41] shot F04b-group-up
+[00:08:43] shot F04c-group-top
+[00:08:47] shot F05-message-actions
+[00:08:56] shot F06-notifications
+[00:08:59] tab Home
+[00:09:02] shot F07-home-header
+[00:09:02] open https://yidplus.com/shorts
+[00:09:11] shot F08-shorts-signedin
+[00:09:11] tab Profile
+[00:09:14] shot F09-profile-signedin
+[00:09:26] shot F09b-profile-scrolled
+[00:09:39] open https://yidplus.com/chat
+[00:09:43] shot F10-chats-dark
+[00:09:50] shot F11-chat-dark
+[00:09:56] screen 1080x2400 @ 420 dpi
+[00:10:05] open https://yidplus.com/chat
+[00:10:09] shot F12-phone-chats
+[00:10:16] shot F13-phone-chat
+[00:10:20] screen 480x640 @ 240 dpi
+[00:10:20] ---- qa/fx-mu.sh ----
+[00:10:34] open https://yidplus.com/music
+[00:10:38] shot MU-01-site-music-off
+[00:10:40] MU music off on the site: tabs/texts content-desc="Shorts" content-desc="Channels" content-desc="Settings" 
+[00:10:42] open https://yidplus.com/music
+[00:10:48] shot MU-02-music-tab
+[00:10:49] MU music tab texts:  text="Music"  text="4 songs"  text="Niggun for Shabbos"  text="⁨Yanky⁩  ·  12 plays"  text="ישראל גרין"  text="⁨משה'לע⁩  ·  21 plays"  text="A very long song title that should wrap or be cut off cleanly on a small screen"  text="⁨DealPoint⁩  ·  3 plays"  text="Hora"  text="⁨Moshe K⁩"  text="18"  text="Chats"  text="Music"  text="Shorts" 
+[00:10:49] MU ok: '4 songs' on screen
+[00:10:49] MU ok: 'Niggun for Shabbos' on screen
+[00:10:49] MU ok: 'Hora' on screen
+[00:10:52] shot MU-03-down
+[00:10:55] MU playback sample 1: 11-16 00:10:54.314  3516  3516 I YidMusic: state=1 playing=false pos=0 dur=-9223372036854775807 err=ERROR_CODE_FAILED_RUNTIME_CHECK msg=Source error cause=Z1.x: Malformed URL
+[00:10:58] MU playback sample 2: --------- beginning of kernel
+MU playing=true events: 0
+[00:10:58] shot MU-04-ok-play
+[00:11:00] MU after OK texts:  text="Music"  text="4 songs"  text="Niggun for Shabbos"  text="⁨Yanky⁩  ·  12 plays"  text="ישראל גרין"  text="⁨משה'לע⁩  ·  21 plays"  text="A very long song title that should wrap or be cut off cleanly on a small screen"  text="⁨DealPoint⁩  ·  3 plays"  text="ישראל גרין"  text="משה'לע"  text="18"  text="Chats"  text="Music"  text="Shorts" 
+[00:11:03] shot MU-05-player
+[00:11:04] MU player texts:  text="Music"  text="4 songs"  text="Niggun for Shabbos"  text="⁨Yanky⁩  ·  12 plays"  text="ישראל גרין"  text="⁨משה'לע⁩  ·  21 plays"  text="A very long song title that should wrap or be cut off cleanly on a small screen"  text="⁨DealPoint⁩  ·  3 plays"  text="Hora"  text="⁨Moshe K⁩"  text="ישראל גרין"  text="משה'לע" 
+[00:11:08] shot MU-06-back
+[00:11:08] fixture writes the app would have sent: 0
+[00:11:12] fixture false
