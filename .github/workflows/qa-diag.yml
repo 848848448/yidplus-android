@@ -382,6 +382,12 @@ jobs:
             fi
             key 4; sleep 1; key 4; sleep 1
           done
+          # SETTINGS pages, every field on pixels: open each page, shoot the top, then scroll in steps until the end (max 5 shots).
+          for PG in EditProfile Privacy Security Blocked NotifPrefs; do
+            timeout 40 adb shell am start -n $KP/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page "x:$PG" >/dev/null 2>&1; sleep 5
+            for s in 0 1 2 3 4; do shot FPS-$PG-$s; vd s$s; log "FPS $PG view $s texts: $(vtexts s$s)"; adb shell input swipe 240 470 240 190 400; sleep 1.2; done
+            key 4; sleep 1
+          done
           NOE
           bash -n qa/fx-no.sh && echo fx-no.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
