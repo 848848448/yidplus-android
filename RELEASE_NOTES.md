@@ -1,10 +1,17 @@
-## New in 2.2.0 - TEST BUILD (not a finished release)
+## New in 2.2.0
 - Video channels, like the website: a "Video channels" block at the top of Channels (newest creators, "See all"), a Videos list with search, and each creator's page with their videos
+- Shorts, Following: shows the videos of everyone you follow (no cap). "Follow more people" in the top row opens a searchable list of creators with Follow buttons. With nobody followed, or followed people with no videos, it says so and offers "Find people to follow"
+- Shorts: only an identical video file shown twice is hidden. Different videos are never removed because of a similar size or length
+- Status: the viewers list of your own status opens with who saw it
+- Chats: Back inside chat search and selection no longer acts while a chat is open
 - Join by invite link: in portrait the Back bar, label and field stay visible with the keyboard open
-- Known gaps in this test build:
+- Admin: "More on the website" opens the chosen section of the website's admin page, and the page now works on older Android WebViews
+- Music follows the website's switch (it is off on the site now, so there is no Music tab)
+- Known gaps:
   - In an open chat with the keyboard up, the Right arrow key may not reach the Attach and mic buttons
   - Join by invite link in landscape: the keyboard can cover the field
-  - Playing a creator's video and the full video channel list have not been tested on a real phone yet
+  - Playing a creator's video and the full video channel list have only been checked on an emulator with sample data, not on a real phone
+  - The admin website page has not been checked with a real owner account inside the app
   - Voice message playback has not been checked with real audio
 
 ## New in 2.1.1
