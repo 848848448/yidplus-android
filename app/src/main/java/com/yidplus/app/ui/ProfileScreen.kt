@@ -277,7 +277,7 @@ private fun AppSettings() {
             }
         }
         RowDivider(64.dp)
-        SettingRow(Sym.PlayArrow, "Auto-play next Short", if (Prefs.autoAdvance) "A Short plays on to the next one by itself" else "A Short repeats until you swipe", switch = Prefs.autoAdvance) { Prefs.setAutoAdvance(!Prefs.autoAdvance) }
+        SettingRow(Sym.PlayArrow, "Auto-play next Short", if (Prefs.autoAdvance) "A Short plays on to the next one by itself" else "A Short repeats until you swipe", switch = Prefs.autoAdvance) { Prefs.enableAutoAdvance(!Prefs.autoAdvance) }
         RowDivider(64.dp)
         SettingRow(Sym.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
         RowDivider(64.dp)

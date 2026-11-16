@@ -22,7 +22,7 @@ object Prefs {
         keypadHintSeen = p.getBoolean("keypadHint", false)
         autoAdvance = p.getBoolean("autoAdvance", true)
     }
-    fun setAutoAdvance(v: Boolean) { autoAdvance = v; p.edit().putBoolean("autoAdvance", v).apply() }
+    fun enableAutoAdvance(v: Boolean) { autoAdvance = v; p.edit().putBoolean("autoAdvance", v).apply() }
     fun setThemeMode(v: Int) { theme = v; p.edit().putInt("theme", v).apply() }
     fun setMute(v: Boolean) { muted = v; p.edit().putBoolean("muted", v).apply() }
     fun enableNotify(v: Boolean) { notify = v; p.edit().putBoolean("notify", v).apply() }
