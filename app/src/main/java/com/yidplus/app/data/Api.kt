@@ -116,9 +116,13 @@ object Fixture {
     @Volatile var data: JSONObject? = null; private set
     /** QA only: own status list answers with just the zero-view slide (st-me-2), so its viewers pill and empty sheet can be opened directly. */
     @Volatile var onlyEmptyOwnStatus = false
-    val on get() = data != null
+    val on get() = BuildConfig.QA && data != null
     private fun prefs(c: Context) = c.getSharedPreferences("qa", Context.MODE_PRIVATE)
-    fun init(c: Context) { if (prefs(c).getBoolean("fixture", false)) load(c) }
+    fun init(c: Context) {
+        // Not a QA build: never load fixtures, and drop any persisted fixture flag so it cannot take effect later.
+        if (!BuildConfig.QA) { if (prefs(c).contains("fixture")) prefs(c).edit().remove("fixture").commit(); data = null; return }
+        if (prefs(c).getBoolean("fixture", false)) load(c)
+    }
     private fun load(c: Context) {
         // fixtures.json plus any fixtures-*.json next to it (each screen area keeps its own sample answers).
         val all = JSONObject()
@@ -141,6 +145,7 @@ object Fixture {
         data = if (all.length() > 0) all else null
     }
     fun set(c: Context, enable: Boolean) {
+        if (!BuildConfig.QA) return
         prefs(c).edit().putBoolean("fixture", enable).commit()
         if (enable) load(c) else data = null
         Disk.clear()
