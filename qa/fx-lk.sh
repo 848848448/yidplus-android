@@ -20,7 +20,7 @@ lk_inpicker() { timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mCurr
 lk_qapick() { timeout 10 adb shell am broadcast -a com.yidplus.app.QA_PICK --es kind "$1" >/dev/null 2>&1; sleep 2; log "qa pick $1"; }
 # My own channel: first row of Members (fixtures-lk.json puts it first).
 # The Video channels strip now sits above the list, so the first row is no longer at y 262: tap the row by its name (the demo channel's nickname).
-lk_mine() { tab Home; sleep 3; lk_tapui "Members"; sleep 4; lk_tapui "משה'לע"; [ "$LK_OK" = 1 ] || log "LK MISSING: my channel row not on screen"; sleep "${1:-5}"; }
+lk_mine() { tab Home; sleep 3; lk_tapui "Members"; sleep 4; lk_tapui "Owner"; [ "$LK_OK" = 1 ] || log "LK MISSING: my channel row not on screen"; sleep "${1:-5}"; }
 lk_tap() { timeout 10 adb shell input tap "$1" "$2"; sleep "${3:-2}"; }
 lk_dev() { timeout 10 adb shell getevent -pl 2>/dev/null | tr -d '\r' | awk '/add device/{d=$4} /ABS_MT_POSITION_X/{print d; exit}'; }
 lk_max() { timeout 10 adb shell getevent -pl "$1" 2>/dev/null | tr -d '\r' | grep "$2" | grep -oE 'max [0-9]+' | head -1 | awk '{print $2}'; }
