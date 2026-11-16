@@ -1,0 +1,10 @@
+--------- beginning of system
+--------- beginning of kernel
+--------- beginning of main
+11-16 01:17:55.597  2581  2615 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-16 01:18:00.541  2581  2615 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-16 01:18:25.793  2581  2617 I YidFx   : GET-unfixtured /api/src-react?ids=v0-0,v0-1,v0-2,v0-3,v1-0,v1-1,v1-2,v1-3
+11-16 01:19:07.362  2581  2621 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-16 01:19:32.836  3273  3317 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-16 01:20:45.595  3510  3551 I YidFx   : POST /api/auth/verify-password {"password":""}
+11-16 01:21:18.976  3510  3551 I YidFx   : POST /api/2fa {"action":"setup"}

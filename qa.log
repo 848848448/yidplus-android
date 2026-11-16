@@ -1,0 +1,58 @@
+[01:17:14] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[01:17:17] screen 480x640 @ 240 dpi
+[01:17:17] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[01:17:17] ---- Signed in (QA fixture account) ----
+[01:17:21] fixture true
+[01:17:30] shot F01-home-signedin
+[01:17:30] open https://yidplus.com/chat
+[01:17:35] shot F02-chats-list
+[01:17:37] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:17:44] shot F03-chat-dm
+[01:17:46] shot F03b-chat-dm-up
+[01:17:50] open https://yidplus.com/chat
+[01:18:04] shot F04-chat-group
+[01:18:06] shot F04b-group-up
+[01:18:08] shot F04c-group-top
+[01:18:11] shot F05-message-actions
+[01:18:21] shot F06-notifications
+[01:18:23] tab Home
+[01:18:27] shot F07-home-header
+[01:18:27] open https://yidplus.com/shorts
+[01:18:36] shot F08-shorts-signedin
+[01:18:36] tab Profile
+[01:18:39] shot F09-profile-signedin
+[01:18:50] shot F09b-profile-scrolled
+[01:19:04] open https://yidplus.com/chat
+[01:19:08] shot F10-chats-dark
+[01:19:15] shot F11-chat-dark
+[01:19:21] screen 1080x2400 @ 420 dpi
+[01:19:29] open https://yidplus.com/chat
+[01:19:34] shot F12-phone-chats
+[01:19:40] shot F13-phone-chat
+[01:19:44] screen 480x640 @ 240 dpi
+[01:19:44] ---- qa/fx-no.sh ----
+[01:20:19] FPN tapped '173'
+[01:20:22] shot FPS2-Blocked-0
+[01:20:24] FPS2 FPS2-Blocked view 0 texts:  text="מ"  text="משה'לע"  text="Owner"  text="@משה'לע"  text="owner@example.com"  text="Edit Profile"  text="Saved Items"  text="Messages, posts and Shorts you saved"  text="History"  text="What you watched and opened"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[01:20:26] shot FPS2-Blocked-1
+[01:20:28] FPS2 FPS2-Blocked view 1 texts:  text="History"  text="What you watched and opened"  text="Reading and help"  text="Higher contrast"  text="Darker text and lines"  text="Fewer animations"  text="App guide and what's new"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[01:20:30] shot FPS2-Blocked-2
+[01:20:32] FPS2 FPS2-Blocked view 2 texts:  text="Fewer animations"  text="App guide and what's new"  text="Appearance"  text="Dark mode"  text="Same as the phone"  text="Light"  text="Dark"  text="Auto"  text="Text size"  text="S"  text="M"  text="L"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[01:20:49] FPN tapped '194'
+[01:20:52] shot FPS2-ChangePw-0
+[01:20:54] FPS2 FPS2-ChangePw view 0 texts:  text="Change password"  text="Cancel"  text="Continue" 
+[01:20:57] shot FPS2-ChangePw-1
+[01:20:59] FPS2 FPS2-ChangePw view 1 texts:  text="Change password"  text="Cancel"  text="Continue" 
+[01:21:02] shot FPS2-ChangePw-2
+[01:21:04] FPS2 FPS2-ChangePw view 2 texts:  text="Change password"  text="Cancel"  text="Continue" 
+[01:21:22] FPN tapped '210'
+[01:21:25] shot FPS2-TwoStep-0
+[01:21:27] FPS2 FPS2-TwoStep view 0 texts:  text="Set up two-step verification"  text="Cancel"  text="Turn on" 
+[01:21:29] shot FPS2-TwoStep-1
+[01:21:31] FPS2 FPS2-TwoStep view 1 texts:  text="Set up two-step verification"  text="Cancel"  text="Turn on" 
+[01:21:33] shot FPS2-TwoStep-2
+[01:21:34] FPS2 FPS2-TwoStep view 2 texts:  text="Set up two-step verification"  text="Cancel"  text="Turn on" 
+[01:21:41] fixture writes the app would have sent: 7
+[01:21:45] fixture false
