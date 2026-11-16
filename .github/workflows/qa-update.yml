@@ -52,6 +52,6 @@ jobs:
           test -d qa/out || exit 0
           cd qa/out && git init -q && git checkout -q -b qa-update-evidence && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "update test ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-update-evidence
+          echo "evidence publication paused (privacy hold): nothing was pushed"
       - name: Result
         run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT
