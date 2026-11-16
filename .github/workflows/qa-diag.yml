@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx35o, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-no.sh' }
+          - { target: default, part: fx36p, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-no.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -372,22 +372,16 @@ jobs:
           vtexts() { grep -oE ' text="[^"]+"' "$OUT/vc-$1.txt" | head -40 | tr '\n' ' '; }
           KP=${PKG:-com.yidplus.app}
           restart 5; sleep 4
-          # r-g2 "Family" was created by another member (created_by u-yossi), r-g1 by the signed-in demo account.
-          for R in "r-g2 Family non-owner" "r-g1 \\u05d7\\u05d1\\u05e8\\u05d9\\u05dd owner"; do set -- $R; ID=$1; NICK=$2; WHO=$3
-            timeout 40 adb shell "am start -n $KP/.MainActivity -a com.yidplus.app.OPEN_CHAT --es room '{\"id\":\"$ID\",\"type\":\"group\",\"nick\":\"$NICK\"}'" >/dev/null 2>&1; sleep 5
-            vd c0; log "FPN $WHO chat texts: $(vtexts c0)"; shot FPN-$WHO-01-chat
-            if vtap "More"; then vtap "Group info"; sleep 3; shot FPN-$WHO-02-info; FOUND=""
-              for n in 1 2 3 4 5 6 7 8; do vd n$n; if grep -qF 'Report group' "$OUT/vc-n$n.txt"; then FOUND=$n; shot FPN-$WHO-03-report-row; break; fi; adb shell input swipe 240 420 240 170 600; sleep 1.5; done
-              if [ -n "$FOUND" ]; then log "FPN $WHO: 'Report group' row is shown (found after $((FOUND-1)) swipes)"; else log "FPN $WHO: no 'Report group' row after scrolling the whole info page"; fi
-            fi
-            key 4; sleep 1; key 4; sleep 1
-          done
-          # SETTINGS pages, every field on pixels: open each page, shoot the top, then scroll in steps until the end (max 5 shots).
-          for PG in EditProfile Privacy Security Blocked NotifPrefs; do
-            timeout 40 adb shell am start -n $KP/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page "x:$PG" >/dev/null 2>&1; sleep 5
-            for s in 0 1 2 3 4; do shot FPS-$PG-$s; vd s$s; log "FPS $PG view $s texts: $(vtexts s$s)"; adb shell input swipe 240 470 240 190 400; sleep 1.2; done
+          # SUBPAGES reached through the UI (the qa_page "x:Blocked" route landed on the main Settings page): Privacy > Blocked users, Security > Change password, Security > Two-step verification.
+          sub() { # $1 page, $2 row text, $3 frame prefix
+            timeout 40 adb shell am start -n $KP/.MainActivity -a com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page "x:$1" >/dev/null 2>&1; sleep 5
+            for n in 1 2 3 4; do vd r$n; if [ -n "$(vpos r$n "$2")" ]; then break; fi; adb shell input swipe 240 470 240 190 400; sleep 1.2; done
+            if vtap "$2"; then sleep 3; for s in 0 1 2; do shot $3-$s; vd q$s; log "FPS2 $3 view $s texts: $(vtexts q$s)"; adb shell input swipe 240 470 240 190 400; sleep 1.2; done; key 4; sleep 1; else log "FPS2 MISSING: row '$2' on $1"; fi
             key 4; sleep 1
-          done
+          }
+          sub Privacy "Blocked users" FPS2-Blocked
+          sub Security "Change password" FPS2-ChangePw
+          sub Security "Two-step verification" FPS2-TwoStep
           NOE
           bash -n qa/fx-no.sh && echo fx-no.sh syntax ok
           cat > qa/fx-vc.sh <<'VCE'
