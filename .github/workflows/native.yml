@@ -37,7 +37,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         run: |
           set -o pipefail
-          gradle :app:assembleRelease -PversionName=2.0.0 --no-daemon --stacktrace 2>&1 | tee build.log
+          gradle :app:assembleRelease -Pqa=true -PversionName=2.0.0 --no-daemon --stacktrace 2>&1 | tee build.log
       - name: Check
         run: |
           APK=app/build/outputs/apk/release/app-release.apk
@@ -46,6 +46,14 @@ jobs:
           ls -la "$APK"
           mkdir -p dist && cp "$APK" dist/YIDPLUS.apk
           unzip -l "$APK" | grep -E "baseline.prof|classes" || true
+      - name: Production-flag build (default, no -Pqa) for the seam negative test
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          gradle :app:assembleRelease -PversionName=2.0.0 --no-daemon 2>&1 | tail -5
+          cp app/build/outputs/apk/release/app-release.apk dist/YIDPLUS-prod.apk
       - uses: actions/upload-artifact@v4
         with:
           name: native-apk
@@ -114,3 +122,40 @@ jobs:
           cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native QA run ${{ github.run_id }}"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }}
+
+  prodneg:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-apk
+          path: dist/
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Production seam negative test (emulator, fixture data only)
+        timeout-minutes: 30
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 3072M
+          disk-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash qa/prodneg.sh dist/YIDPLUS.apk dist/YIDPLUS-prod.apk
+      - name: Publish QA evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          test -d qa/out || exit 0
+          cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-prodneg && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "prodneg run ${{ github.run_id }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-prodneg
