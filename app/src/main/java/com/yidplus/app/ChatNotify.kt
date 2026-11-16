@@ -454,7 +454,7 @@ class ChatReplyReceiver : BroadcastReceiver() {
  */
 class ChatQaReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != "com.yidplus.app.QA_CHAT_NOTIFY") return
+        if (!BuildConfig.QA || intent.action != "com.yidplus.app.QA_CHAT_NOTIFY") return
         val c = context.applicationContext
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
