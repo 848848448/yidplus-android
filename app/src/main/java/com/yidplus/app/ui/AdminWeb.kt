@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.yidplus.app.data.Api
+import com.yidplus.app.data.Fixture
 import com.yidplus.app.data.Session
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -116,6 +119,28 @@ private fun AdminWebView(url: String, pin: String, section: String?, modifier: M
                 }
             }
             webViewClient = object : WebViewClient() {
+                // QA fixture only: the site's own page and scripts load from the site, but its /api/ answers come from here, so the real
+                // gate (auth/me, check-email, verify-pin) can be exercised without a real session, PIN or any write reaching the site.
+                override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+                    if (!Fixture.on) return null
+                    val u = request.url
+                    val path = u.path.orEmpty()
+                    if (u.host != "yidplus.com" || !path.startsWith("/api/")) return null
+                    val route = request.method + " " + path.removePrefix("/api")
+                    // Fails closed: only the gate's own calls are answered; anything else gets a 501 so no test traffic can reach the site or look like success.
+                    val body = when (route) {
+                        "GET /auth/me" -> """{"user":{"id":"demo-me","email":"owner@example.com","nickname":"Owner","role":"owner","is_owner":true}}"""
+                        "POST /admin/check-email" -> """{"role":"owner"}"""
+                        "POST /admin/verify-pin" -> """{"ok":true}"""
+                        "GET /settings" -> """{"settings":{}}"""
+                        else -> null
+                    }
+                    android.util.Log.i("YidAdminWeb", "fixture " + route + if (body == null) " -> 501 (not faked)" else " -> 200")
+                    if (body == null) return WebResourceResponse("application/json", "utf-8", 501, "Not Implemented (QA fixture)",
+                        mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream("""{"error":"fixture: not implemented"}""".toByteArray()))
+                    return WebResourceResponse("application/json", "utf-8", 200, "OK",
+                        mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream(body.toByteArray()))
+                }
                 override fun onPageFinished(view: WebView, u: String) {
                     if (u.contains("admin")) view.evaluateJavascript(gateJs(pin, section), null)
                 }
