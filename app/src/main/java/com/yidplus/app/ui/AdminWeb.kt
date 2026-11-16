@@ -128,7 +128,19 @@ private fun AdminWebView(url: String, pin: String, section: String?, modifier: M
                     if (!Fixture.on) return null
                     val u = request.url
                     val path = u.path.orEmpty()
-                    if (u.host != "yidplus.com" || !path.startsWith("/api/")) return null
+                    val isApi = path.startsWith("/api/")
+                    val siteHost = u.host == "yidplus.com"
+                    // QA fixture only, fail closed: any /api/ path on ANY host, and any non-GET request, is answered here (or refused with 501) and never reaches the network.
+                    // Only plain GETs for the page and its public static files pass through. Logs carry method, host and path only: no query, headers, cookies or bodies.
+                    if (!isApi && request.method == "GET" && (siteHost || u.scheme == "https")) {
+                        android.util.Log.i("YidAdminWeb", "static " + request.method + " " + u.host + path.take(60).let { if (it.startsWith("/js/") || it.startsWith("/css/") || it.startsWith("/img/")) it.substringBeforeLast('/') + "/*" else it })
+                        return null
+                    }
+                    if (!isApi || !siteHost) {
+                        android.util.Log.i("YidAdminWeb", "blocked " + request.method + " " + u.host + path.take(60) + " -> 501")
+                        return WebResourceResponse("application/json", "utf-8", 501, "Not Implemented (QA fixture)",
+                            mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream("""{"error":"fixture: blocked"}""".toByteArray()))
+                    }
                     val route = request.method + " " + path.removePrefix("/api")
                     // Fails closed: only the gate's own calls are answered; anything else gets a 501 so no test traffic can reach the site or look like success.
                     val body = when (route) {
@@ -143,6 +155,9 @@ private fun AdminWebView(url: String, pin: String, section: String?, modifier: M
                         mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream("""{"error":"fixture: not implemented"}""".toByteArray()))
                     return WebResourceResponse("application/json", "utf-8", 200, "OK",
                         mapOf("Cache-Control" to "no-store"), java.io.ByteArrayInputStream(body.toByteArray()))
+                }
+                override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, resp: WebResourceResponse) {
+                    if (Fixture.on && resp.statusCode >= 400) android.util.Log.i("YidAdminWeb", "http " + resp.statusCode + " " + request.method + " " + request.url.host + request.url.path)
                 }
                 override fun onPageStarted(view: WebView, u: String, favicon: android.graphics.Bitmap?) {
                     android.util.Log.i("YidAdminWeb", "page started " + u.substringBefore('?'))
