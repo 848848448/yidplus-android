@@ -205,7 +205,7 @@ object Fixture {
                 if (it.optString("room_id").isNotEmpty() && it.optString("id").isEmpty()) noteSend(it.optString("room_id"), it.optString("type", "text"), it.optString("text"), "", null) } }
             // QA only: a text post is remembered for this session so the owner's post list returns it on reopen (the fixture echoes it; the site is never written).
             if (r.method == "POST" && u.encodedPath == "/api/posts" && raw.isNotEmpty()) runCatching { JSONObject(raw).let {
-                sentPosts.add(JSONObject().put("id", "fxnew-" + System.nanoTime()).put("username", "משה'לע").put("user_id", "demo-me").put("caption", it.optString("caption")).put("content", "")
+                sentPosts.add(JSONObject().put("id", "fxnew-" + System.nanoTime()).put("username", "Owner").put("user_id", "demo-me").put("caption", it.optString("caption")).put("content", "")
                     .put("likes", 0).put("comments", 0).put("created_at", java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date())).put("liked", false).put("_fxp", true)) } }
             // QA only: the viewers list of one of my own status slides (PUT /api/statuses {viewers:true,id}) answers from the canned set, so the sheet can be tested populated and empty.
             if (r.method == "PUT" && u.encodedPath == "/api/statuses" && raw.contains("\"viewers\"")) runCatching { d.optJSONObject("PUT /api/statuses viewers:" + JSONObject(raw).optString("id")) }.getOrNull()?.let { return it }
