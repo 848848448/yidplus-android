@@ -169,10 +169,18 @@ class AdminPage : PageScreen() {
             if (flagsOk == false) SettingsHint("⚠ yidplus.com didn't send the current switches, so they're locked to avoid saving the wrong value. Tap a switch to try again.")
             SettingsHint("Off = the tab disappears from the bottom bar for everyone, on the site and in the app.")
             // ── Rare sections stay on the website's admin page ──
-            if (owner) SettingsCard("More on the website") {
+            if (owner) SettingsCard("More tools") {
                 webSections.forEachIndexed { i, (id, label, icon) ->
                     if (i > 0) RowDivider(64.dp)
-                    SettingRow(icon, label, null) { Nav.open(AdminWebPage(id)) }
+                    SettingRow(icon, label, null) {
+                        Nav.open(when (id) {
+                            "maintenance" -> AdminMaintenancePage()
+                            "announcements" -> AdminAnnouncementsPage()
+                            "invite-codes" -> AdminInviteCodesPage()
+                            "audit-logs" -> AdminAuditLogsPage()
+                            else -> AdminWebPage(id)
+                        })
+                    }
                 }
                 RowDivider(64.dp)
                 SettingRow(Sym.OpenInNew, "Open the full admin panel", "Every section of the website's admin page") { Nav.open(AdminWebPage(null)) }

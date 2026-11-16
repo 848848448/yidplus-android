@@ -1,6 +1,8 @@
-## New in 2.2.1
+## New in 2.3.0
+- Calls are now native in the app: voice and video, 1-on-1 and group, built on the same calls the website uses — so an app call and a web call connect to each other. A full call screen: ringing, Accept/Decline, your camera in the corner, and buttons for mute, camera, flip camera, speaker and end, with a live timer. Group calls show everyone in a grid.
 - Shorts play on by themselves: when a video ends it glides to the next one, like the website. The last one replays. A new switch in Settings → App ("Auto-play next Short") turns it off, and then a Short repeats until you swipe
 - Shorts: "Who liked this" in a video's ⋯ menu opens the list of people who liked it, newest first, with their picture and name
+- Admin: an "Outside videos" switch right in the app (Admin → Features) turns the source/outside videos in Shorts on or off, without opening the website admin
 
 ## New in 2.2.0
 - Video channels, like the website: a "Video channels" block at the top of Channels (newest creators, "See all"), a Videos list with search, and each creator's page with their videos
