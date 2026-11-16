@@ -1,9 +1,6 @@
 name: Native app (branch native) build + emulator QA
 
 on:
-  push:
-    branches: [native, 'feat-*']
-    paths: ['app/**', '*.gradle.kts', 'gradle.properties', 'qa/**', '.github/workflows/native.yml']
   workflow_dispatch:
 
 permissions:
@@ -68,7 +65,7 @@ jobs:
           ls -la dist/ > /tmp/log/dist.txt 2>/dev/null || true
           cd /tmp/log && git init -q && git checkout -q -b ci-log-${{ github.ref_name }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native build log ${{ github.run_id }} ${{ job.status }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log-${{ github.ref_name }}
+          echo "evidence publication paused (privacy hold): nothing was pushed"
 
   qa:
     needs: build
@@ -121,7 +118,7 @@ jobs:
           test -d qa/out || exit 0
           bash qa/publish-gate.sh qa/out && cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native QA run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-${{ matrix.target }}-${{ matrix.part }}
+          echo "evidence publication paused (privacy hold): nothing was pushed"
 
   prodneg:
     needs: build
@@ -158,4 +155,4 @@ jobs:
           test -d qa/out || exit 0
           bash qa/publish-gate.sh qa/out && cd qa/out && git init -q && git checkout -q -b qa-${{ github.ref_name }}-prodneg && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "prodneg run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-${{ github.ref_name }}-prodneg
+          echo "evidence publication paused (privacy hold): nothing was pushed"
