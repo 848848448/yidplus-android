@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: default, part: fx36p, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-no.sh' }
+          - { target: default, part: jn8a, wait: '2', mode: 'ctrl', anim: 'off', fix: '1', diag: 'no', fx: 'qa/fx-jn.sh' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -407,6 +407,8 @@ jobs:
           VCE
           bash -n qa/fx-vc.sh && echo fx-vc.sh syntax ok
           bash -n qa/fx-entry2.sh && echo fx-entry2.sh syntax ok
+          { sed -n '1,/^# V1:/p' qa/fx-entry2.sh | sed '$d'; sed -n '/^# J:/,$p' qa/fx-entry2.sh; } > qa/fx-jn.sh
+          bash -n qa/fx-jn.sh && echo "fx-jn.sh syntax ok ($(wc -l < qa/fx-jn.sh) lines, J block only)" && grep -c "J landscape keyboard up" qa/fx-jn.sh
       - name: Exact-identity selector for duplicate voice labels in qa/fx-cs.sh (workspace only; asserts each replacement matches once)
         run: |
           python3 - <<'PY'
