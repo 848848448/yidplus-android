@@ -1,0 +1,56 @@
+[01:14:42] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[01:14:45] screen 480x640 @ 240 dpi
+[01:14:45] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[01:14:46] ---- Signed in (QA fixture account) ----
+[01:14:50] fixture true
+[01:14:59] shot F01-home-signedin
+[01:14:59] open https://yidplus.com/chat
+[01:15:04] shot F02-chats-list
+[01:15:05] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:15:13] shot F03-chat-dm
+[01:15:15] shot F03b-chat-dm-up
+[01:15:18] open https://yidplus.com/chat
+[01:15:32] shot F04-chat-group
+[01:15:34] shot F04b-group-up
+[01:15:36] shot F04c-group-top
+[01:15:40] shot F05-message-actions
+[01:15:49] shot F06-notifications
+[01:15:52] tab Home
+[01:15:55] shot F07-home-header
+[01:15:55] open https://yidplus.com/shorts
+[01:16:04] shot F08-shorts-signedin
+[01:16:04] tab Profile
+[01:16:07] shot F09-profile-signedin
+[01:16:19] shot F09b-profile-scrolled
+[01:16:32] open https://yidplus.com/chat
+[01:16:36] shot F10-chats-dark
+[01:16:43] shot F11-chat-dark
+[01:16:49] screen 1080x2400 @ 420 dpi
+[01:16:58] open https://yidplus.com/chat
+[01:17:02] shot F12-phone-chats
+[01:17:08] shot F13-phone-chat
+[01:17:12] screen 480x640 @ 240 dpi
+[01:17:12] ---- qa/fx-nav.sh ----
+[01:17:22] NAV pre-script: navigation_mode=2
+[01:17:22] ---- qa/fx-live3.sh ----
+[01:17:33] fixture false
+[01:17:48] LV3 gesture-nav live: navigation_mode=2 | [x] com.android.internal.systemui.navbar.gestural 
+[01:17:52] LV3 tapped at 300 599
+[01:18:00] shot LV3-01-channels
+[01:18:04] LV3 tapped at 395 238
+[01:18:14] shot LV3-02-list
+[01:18:24] shot LV3-03-creator
+[01:18:31] shot LV3-04-player
+[01:18:36] shot LV3-05-gback1
+[01:18:36] LV3 ok: gesture Back from the player returned to the creator page
+[01:18:42] shot LV3-06-gback2
+[01:18:42] LV3 ok: second gesture Back returned to the list
+[01:18:47] shot LV3-07-gback3
+[01:18:47] LV3 after third gesture Back:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="D"  text="DailyMonroenews"  text="10 members"  text="Chats" 
+[01:18:47] tab Home
+[01:18:54] LV3 tapped at 375 87
+[01:19:01] shot LV3-08-search-gback
+[01:19:01] fixture writes the app would have sent: 0
+[01:19:05] fixture false
