@@ -13,12 +13,16 @@ object Prefs {
     var muted by mutableStateOf(false)
     var notify by mutableStateOf(true)
     var keypadHintSeen by mutableStateOf(false)
+    /** Shorts plays on to the next video by itself when one ends (like the website). On by default. */
+    var autoAdvance by mutableStateOf(true)
 
     fun init(c: Context) {
         ctx = c.applicationContext
         theme = p.getInt("theme", 0); muted = p.getBoolean("muted", false); notify = p.getBoolean("notify", true)
         keypadHintSeen = p.getBoolean("keypadHint", false)
+        autoAdvance = p.getBoolean("autoAdvance", true)
     }
+    fun setAutoAdvance(v: Boolean) { autoAdvance = v; p.edit().putBoolean("autoAdvance", v).apply() }
     fun setThemeMode(v: Int) { theme = v; p.edit().putInt("theme", v).apply() }
     fun setMute(v: Boolean) { muted = v; p.edit().putBoolean("muted", v).apply() }
     fun enableNotify(v: Boolean) { notify = v; p.edit().putBoolean("notify", v).apply() }

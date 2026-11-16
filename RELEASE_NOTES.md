@@ -1,3 +1,7 @@
+## New in 2.2.1
+- Shorts play on by themselves: when a video ends it glides to the next one, like the website. The last one replays. A new switch in Settings → App ("Auto-play next Short") turns it off, and then a Short repeats until you swipe
+- Shorts: "Who liked this" in a video's ⋯ menu opens the list of people who liked it, newest first, with their picture and name
+
 ## New in 2.2.0
 - Video channels, like the website: a "Video channels" block at the top of Channels (newest creators, "See all"), a Videos list with search, and each creator's page with their videos
 - Shorts, Following: shows the videos of the people you follow. "Follow more people" in the top row opens a searchable list of creators with Follow buttons. With nobody followed, or followed people with no videos, it says so and offers "Find people to follow"
