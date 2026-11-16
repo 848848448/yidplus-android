@@ -7,9 +7,6 @@ name: In-place update check (artifact only, nothing is published)
 # installs the public APK, leaves a marker file in its private data, updates in place with `adb install -r`
 # and checks the marker survived and the new version runs. It publishes only a log branch; no release, no tag.
 on:
-  push:
-    branches: [feat-212look]
-    paths: ['.github/workflows/qa-inplace.yml', 'qa/inplace.sh']
   workflow_dispatch:
 
 permissions:
@@ -101,7 +98,7 @@ jobs:
           test -d qa/out || exit 0
           cd qa/out && git init -q && git checkout -q -b qa-inplace-evidence && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "in-place update check ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-inplace-evidence
+          echo "evidence publication paused (privacy hold): nothing was pushed"
       - name: Result
         run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT
 # rerun for the video-channels head cc4f594
