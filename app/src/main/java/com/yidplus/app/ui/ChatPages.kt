@@ -312,6 +312,26 @@ data class ChCall(val room: Room, val kind: String) : PageScreen() {
     @SuppressLint("SetJavaScriptEnabled")
     @Composable override fun Content() {
         val c = ctx()
+        // Native 1-on-1 call (WebRTC via CallKit). The global CallHost overlay draws the call;
+        // this page just asks for the mic/camera, starts the call, and steps aside.
+        val callee = room.otherUserId
+        if (callee != null && room.type == "private") {
+            val needCam = kind == "video"
+            val perms = if (needCam) arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA) else arrayOf(Manifest.permission.RECORD_AUDIO)
+            val launch = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+                    CallKit.startCall(c, callee, room.name, room.photo, needCam)
+                else toast(c, "Allow the microphone to make calls")
+                Nav.back()
+            }
+            LaunchedEffect(Unit) {
+                if (perms.all { ContextCompat.checkSelfPermission(c, it) == PackageManager.PERMISSION_GRANTED }) {
+                    CallKit.startCall(c, callee, room.name, room.photo, needCam); Nav.back()
+                } else launch.launch(perms)
+            }
+            Column(Modifier.fillMaxSize().background(Color.Black)) {}
+            return
+        }
         var allowed by remember { mutableStateOf(ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) }
         val perm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> allowed = ok; if (!ok) toast(c, "Allow the microphone to make calls") }
         LaunchedEffect(Unit) { if (!allowed) perm.launch(Manifest.permission.RECORD_AUDIO) }

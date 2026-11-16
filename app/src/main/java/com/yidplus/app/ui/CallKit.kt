@@ -101,6 +101,7 @@ object CallKit {
     fun startCall(c: Context, calleeId: String, name: String, photo: String?, video: Boolean) {
         if (phase != CallPhase.IDLE) return
         appCtx = c.applicationContext
+        runCatching { factory(c) }   // creates the EGL context now, so the call UI can render video right away
         isCaller = true; kind = if (video) "video" else "audio"; peerName = name; peerPhoto = photo
         cameraOn = video; muted = false; connected = false; startedAt = 0; since = 0; haveRemote = false
         pendingIce.clear(); outIce.clear(); remoteVideo = null; localVideo = null
@@ -125,6 +126,7 @@ object CallKit {
     fun acceptIncoming(c: Context) {
         val inc = incoming ?: return
         appCtx = c.applicationContext
+        runCatching { factory(c) }   // EGL context ready before the call UI renders video
         isCaller = false; kind = inc.kind; peerName = inc.callerNick; peerPhoto = inc.callerPhoto
         cameraOn = inc.kind == "video"; muted = false; connected = false; since = 0; haveRemote = false
         pendingIce.clear(); outIce.clear(); remoteVideo = null; localVideo = null

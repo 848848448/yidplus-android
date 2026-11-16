@@ -68,6 +68,9 @@ fun AppRoot(onExit: () -> Unit) {
         val twoPane = cfg.screenWidthDp >= 840 || (cfg.screenWidthDp >= 600 && cfg.screenWidthDp > cfg.screenHeightDp)
         Nav.wide = twoPane
         LaunchedEffect(Unit) { Session.refresh() }
+        // Ring in: while signed in, watch for an incoming call (the CallHost overlay shows it).
+        val callCtx = androidx.compose.ui.platform.LocalContext.current
+        LaunchedEffect(Session.me?.id) { while (Session.me != null) { CallKit.checkIncoming(callCtx); kotlinx.coroutines.delay(5000) } }
         // A feature the owner switched off on the site disappears here too (and its screen closes).
         LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
         BackHandler { if (!Nav.back()) onExit() }
@@ -144,6 +147,7 @@ fun AppRoot(onExit: () -> Unit) {
                     actionColor = Color(0xFF25D366), modifier = Modifier.padding(horizontal = 8.dp))
             }
         }
+        CallHost()
         }
     }
 }
