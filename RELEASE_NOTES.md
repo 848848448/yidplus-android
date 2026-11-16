@@ -1,15 +1,16 @@
 ## New in 2.2.0
 - Video channels, like the website: a "Video channels" block at the top of Channels (newest creators, "See all"), a Videos list with search, and each creator's page with their videos
-- Shorts, Following: shows the videos of everyone you follow (no cap). "Follow more people" in the top row opens a searchable list of creators with Follow buttons. With nobody followed, or followed people with no videos, it says so and offers "Find people to follow"
-- Shorts: only an identical video file shown twice is hidden. Different videos are never removed because of a similar size or length
+- Shorts, Following: shows the videos of the people you follow. "Follow more people" in the top row opens a searchable list of creators with Follow buttons. With nobody followed, or followed people with no videos, it says so and offers "Find people to follow"
+- Shorts: a video is collapsed only when another entry has exactly the same file link. Size, length or picture never remove a video, so the same video posted again under a different link can still show twice
 - Status: the viewers list of your own status opens with who saw it
 - Chats: Back while a chat is open no longer also closes the chat list's search or selection behind it
+- Chats: in an open chat the arrow keys have fixed targets: Right reaches Attach, Left returns to the message field
 - Join by invite link: in portrait the Back bar, label and field stay visible with the keyboard open
-- Music follows the website's switch (it is off on the site now, so there is no Music tab)
+- Music shows only when the website's Music switch is on
 - Known gaps:
-  - In an open chat with the keyboard up, the Right arrow key may not reach the Attach and mic buttons
+  - The chat arrow keys were checked on an emulator with sample data. An earlier, intermittent miss could not be reproduced on demand, and nothing has been tried on a physical keypad phone
   - Join by invite link in landscape: with some keyboards the keyboard can still cover the field
-  - Playing a creator's video and the full video channel list have only been checked on an emulator with sample data, not on a real phone
+  - Video channels and playing a creator's video were checked on an emulator and against the live site as a guest, not on a physical phone
   - The admin website page (More on the website, Open the full admin panel) has not been checked with a real owner account inside the app
   - Voice message playback has not been checked with real audio
 
