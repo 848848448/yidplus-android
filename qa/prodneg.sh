@@ -11,6 +11,7 @@ cold() { adb shell am force-stop $PKG; sleep 1; timeout 60 adb shell am start -W
 chat() { timeout 40 adb shell am start -a android.intent.action.VIEW -d "https://yidplus.com/chat" $PKG >/dev/null 2>&1; sleep 6; }
 act() { timeout 40 adb shell am start -n $PKG/.MainActivity -a "$@" >/dev/null 2>&1; sleep 3; }
 gate() { timeout 30 adb logcat -d -s YidQaGate:W 2>/dev/null | grep -c "$1"; }
+nrec() { timeout 30 adb shell dumpsys notification --noredact 2>/dev/null | awk -v p="pkg=$PKG" '/NotificationRecord\(/ {on=($0 ~ p)} on {print}'; }
 alive() { adb shell pidof $PKG >/dev/null 2>&1; }
 adb wait-for-device; adb shell input keyevent 82
 adb shell wm size 480x640; adb shell wm density 240; sleep 2
@@ -24,12 +25,13 @@ FXOK=0; echo "$T" | grep -q "Yossi Klein" && FXOK=1
 act com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page demo; shot PN1b-qa-page; T=$(texts pn1b); log "PN1b texts: $T"
 QPOK=0; echo "$T" | grep -qi "Edit profile" && QPOK=1
 [ $QPOK = 1 ] && log "PN1b PASS: QA build shows the qa_page demo settings (Edit profile)" || { log "PN1b INVALID: qa_page demo not visible in QA build, so the PN5 text check proves nothing"; FAIL=1; }
-adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n $PKG/.ChatQaReceiver >/dev/null 2>&1; sleep 3
-NQ=$(timeout 30 adb shell dumpsys notification --noredact 2>/dev/null | grep -c "pkg=$PKG")
-[ "${NQ:-0}" -gt 0 ] && log "PN1c PASS: QA build posts the sample chat notification (records=$NQ)" || { log "PN1c INVALID: QA build posted no sample notification, so the PN6 check proves nothing"; FAIL=1; }
+nrec > "$OUT/nrec-qa-before.txt"; B=$(md5sum < "$OUT/nrec-qa-before.txt")
+adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n $PKG/.ChatQaReceiver >/dev/null 2>&1; sleep 4
+nrec > "$OUT/nrec-qa-after.txt"; A=$(md5sum < "$OUT/nrec-qa-after.txt")
+log "PN1c records before: $(grep -c 'NotificationRecord(' "$OUT/nrec-qa-before.txt") after: $(grep -c 'NotificationRecord(' "$OUT/nrec-qa-after.txt")"
+if [ "$A" != "$B" ]; then log "PN1c PASS: QA build broadcast changes the app's notification records (before/after content differs), so the PN6 comparison can detect the action"; else log "PN1c INVALID: QA broadcast left the notification records identical, so PN6 proves nothing"; FAIL=1; fi
 # --- PRODUCTION APK (data kept, same signature)
 log "install PRODUCTION APK over it: $(timeout 180 adb install -r "$PRODAPK" 2>&1 | tail -1)"
-adb shell cmd notification cancel_all >/dev/null 2>&1 || true
 adb shell dumpsys package $PKG | grep -E "versionName|versionCode" | head -2 | tee -a "$OUT/qa.log"
 adb logcat -c
 cold; chat; shot PN2-prod-persisted; T=$(texts pn2); log "PN2 texts: $T"
@@ -50,10 +52,11 @@ act com.yidplus.app.OPEN_TAB --es tab Profile --es qa_page demo; shot PN5-prod-q
 N=$(gate "ignored extra qa_page")
 [ "${N:-0}" -ge 1 ] && log "PN5 PASS: qa_page extra reported ignored (YidQaGate $N)" || { log "PN5 WRONG: qa_page not reported ignored"; FAIL=1; }
 if echo "$T" | grep -qi "Edit profile"; then log "PN5 WRONG: demo settings (Edit profile) visible in production"; FAIL=1; else [ $QPOK = 1 ] && log "PN5 PASS: no demo settings text (positive control PN1b showed it in the QA build)"; fi
+nrec > "$OUT/nrec-prod-before.txt"; log "PN6 records present before the production broadcast (carried over from the QA run, provenance logged in nrec-prod-before.txt): $(grep -c 'NotificationRecord(' "$OUT/nrec-prod-before.txt")"
 adb logcat -c
-adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n $PKG/.ChatQaReceiver >/dev/null 2>&1; sleep 3
-N=$(gate "ignored QA broadcast"); NQ=$(timeout 30 adb shell dumpsys notification --noredact 2>/dev/null | grep -c "pkg=$PKG")
-if [ "${N:-0}" -ge 1 ] && [ "${NQ:-0}" = 0 ]; then log "PN6 PASS: QA_CHAT_NOTIFY ignored (YidQaGate $N, notification records for the app: $NQ)"; else log "PN6 WRONG: gate lines=$N app notification records=$NQ"; FAIL=1; fi
+adb shell am broadcast -a com.yidplus.app.QA_CHAT_NOTIFY -n $PKG/.ChatQaReceiver >/dev/null 2>&1; sleep 4
+nrec > "$OUT/nrec-prod-after.txt"; N=$(gate "ignored QA broadcast")
+if [ "${N:-0}" -ge 1 ] && cmp -s "$OUT/nrec-prod-before.txt" "$OUT/nrec-prod-after.txt"; then log "PN6 PASS: QA_CHAT_NOTIFY ignored (YidQaGate $N) and the app's notification records are byte-identical before and after"; else log "PN6 WRONG: gate lines=$N or records changed (diff in nrec-prod-*.txt)"; diff "$OUT/nrec-prod-before.txt" "$OUT/nrec-prod-after.txt" | head -20 | tee -a "$OUT/qa.log"; FAIL=1; fi
 adb shell am broadcast -a com.yidplus.app.QA_PICK -p $PKG >/dev/null 2>&1; adb shell am broadcast -a com.yidplus.app.QA_GESTURE -p $PKG >/dev/null 2>&1; sleep 2
 alive && log "PN7 PASS (limited): QA_PICK and QA_GESTURE broadcasts delivered, app still running; these receivers only act when Fixture.on, which is false in production" || { log "PN7 WRONG: app not running after QA_PICK/QA_GESTURE"; FAIL=1; }
 log "prodneg done FAIL=$FAIL"; echo "$([ $FAIL = 0 ] && echo PASS || echo FAIL)" > "$OUT/RESULT"; exit $FAIL
