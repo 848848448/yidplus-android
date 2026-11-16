@@ -127,7 +127,7 @@ jobs:
           mkdir -p /tmp/log && cp build.log /tmp/log/ 2>/dev/null || echo "no build log" > /tmp/log/build.log
           cd /tmp/log && git init -q && git checkout -q -b ci-log && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "build log ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log
+          echo "evidence publication paused (privacy hold): nothing was pushed"
 
   qa:
     needs: build
@@ -169,7 +169,7 @@ jobs:
           test -d qa/out || exit 0
           cd qa/out && git init -q && git checkout -q -b qa-evidence && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "QA ${{ needs.build.outputs.version }} run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-evidence
+          echo "evidence publication paused (privacy hold): nothing was pushed"
       - name: Fail on crash
         run: |
           cat qa/out/RESULT
@@ -218,7 +218,7 @@ jobs:
           test -d qa/out || exit 0
           cd qa/out && git init -q && git checkout -q -b qa-evidence-prod && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "shipped-APK seam negatives ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-evidence-prod
+          echo "evidence publication paused (privacy hold): nothing was pushed"
       - name: Fail on any WRONG, INVALID or FAIL
         run: |
           cat qa/out/RESULT
