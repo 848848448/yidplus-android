@@ -1,0 +1,65 @@
+[01:14:42] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[01:14:44] screen 480x640 @ 240 dpi
+[01:14:44] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[01:14:44] ---- Signed in (QA fixture account) ----
+[01:14:48] fixture true
+[01:14:58] shot F01-home-signedin
+[01:14:58] open https://yidplus.com/chat
+[01:15:03] shot F02-chats-list
+[01:15:04] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:15:12] shot F03-chat-dm
+[01:15:13] shot F03b-chat-dm-up
+[01:15:17] open https://yidplus.com/chat
+[01:15:31] shot F04-chat-group
+[01:15:33] shot F04b-group-up
+[01:15:35] shot F04c-group-top
+[01:15:38] shot F05-message-actions
+[01:15:48] shot F06-notifications
+[01:15:50] tab Home
+[01:15:53] shot F07-home-header
+[01:15:53] open https://yidplus.com/shorts
+[01:16:03] shot F08-shorts-signedin
+[01:16:03] tab Profile
+[01:16:06] shot F09-profile-signedin
+[01:16:17] shot F09b-profile-scrolled
+[01:16:30] open https://yidplus.com/chat
+[01:16:34] shot F10-chats-dark
+[01:16:41] shot F11-chat-dark
+[01:16:47] screen 1080x2400 @ 420 dpi
+[01:16:55] open https://yidplus.com/chat
+[01:17:00] shot F12-phone-chats
+[01:17:06] shot F13-phone-chat
+[01:17:10] screen 480x640 @ 240 dpi
+[01:17:10] ---- qa/fx-live2.sh ----
+[01:17:16] LV2 app data cleared: the Shorts keypad hint has not been seen on this install
+[01:17:21] fixture false
+[01:17:35] LV2 live mode (no fixture):     versionName=2.0.0
+[01:17:35] tab Shorts
+[01:17:37] LV2 hint sample 1 at 2s: overlay SHOWN
+[01:17:37] shot LV2-hint-shown-1
+[01:17:39] LV2 hint sample 2 at 4s: overlay SHOWN
+[01:17:40] shot LV2-hint-shown-2
+[01:17:42] LV2 hint sample 3 at 7s: not shown; feed content on screen: 2
+[01:17:43] LV2 hint sample 4 at 8s: not shown; feed content on screen: 2
+[01:17:45] LV2 hint sample 5 at 10s: not shown; feed content on screen: 2
+[01:17:47] LV2 hint sample 6 at 12s: not shown; feed content on screen: 2
+[01:17:49] LV2 hint sample 7 at 14s: not shown; feed content on screen: 2
+[01:17:51] LV2 hint sample 8 at 16s: not shown; feed content on screen: 2
+[01:17:53] LV2 hint sample 9 at 18s: not shown; feed content on screen: 2
+[01:17:54] LV2 hint sample 10 at 19s: not shown; feed content on screen: 2
+[01:17:55] shot LV2-02-shorts-after-samples
+[01:17:57] LV2 hint after first D-pad sample 1: not shown
+[01:17:59] LV2 hint after first D-pad sample 2: not shown
+[01:18:01] LV2 hint after first D-pad sample 3: not shown
+[01:18:02] shot LV2-03-shorts-first-dpad
+[01:18:02] LV2 hint: seen in 2 of 10 timed samples before any D-pad
+[01:18:36] LV2 dedupe (live feed): checked 200 videos: removed 0 re-posted duplicates; left: same id 0, same file 0, same picture+length 9
+[01:18:36] LV2 DEDUPE FAIL or short list: checked 200 videos: removed 0 re-posted duplicates; left: same id 0, same file 0, same picture+length 9
+[01:18:36] tab Shorts
+[01:18:54] shot LV2-04-shorts-3-swipes
+[01:18:58] shot LV2-05-shorts-back
+[01:18:58] LV2 after Shorts Back texts:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="D"  text="DailyMonroenews"  text="10 members"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:18:58] fixture writes the app would have sent: 0
+[01:19:02] fixture false
