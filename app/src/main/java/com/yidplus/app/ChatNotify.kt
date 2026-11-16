@@ -388,7 +388,7 @@ object ChatNotify {
     /** QA only (adb with the DUMP permission): a sample group chat notification, to photograph the expanded shade with its reply box. */
     fun demo(c: Context) {
         NotifyWorker.channels(c)
-        val r = Room("qa-demo-room", "group", "YID PLUS Chat", Api.abs("/api/media/user-avatars/392d8eda-e0dd-44ea-a51e-f55ead12fb0c_1785879385829.png"), "", "", 3, null, false, false, 12, null)
+        val r = Room("qa-demo-room", "group", "YID PLUS Chat", Api.abs("/api/media/user-avatars/aaf6ccf5-c46e-5267-99a0-0e08323e3221_1785879385829.png"), "", "", 3, null, false, false, 12, null)
         val now = System.currentTimeMillis()
         val msgs = JSONArray()
             .put(JSONObject().put("id", "d1").put("nick", "Moshe Klein").put("sid", "u1").put("text", "גוט מארגן! ווער קומט היינט צום שיעור?").put("t", now - 120_000))
