@@ -5,9 +5,6 @@ name: QA live-data check (read-only, separate from the native workflow)
 # (the same script plus IME/focus logging). Triggers only on diag/** and this file, so it never starts or cancels the
 # native workflow; it has its own concurrency group and publishes only qa-diag-* log branches.
 on:
-  push:
-    branches: ['feat-*']
-    paths: ['diag/**', '.github/workflows/qa-live.yml']
   workflow_dispatch:
 
 permissions:
@@ -73,7 +70,7 @@ jobs:
           cp app/build/outputs/mapping/release/mapping.txt /tmp/log/mapping.txt 2>/dev/null || true
           cd /tmp/log && git init -q && git checkout -q -b ci-log-live-${{ github.ref_name }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "native build log ${{ github.run_id }} ${{ job.status }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-log-live-${{ github.ref_name }}
+          echo "evidence publication paused (privacy hold): nothing was pushed"
 
   qa:
     needs: build
@@ -360,7 +357,7 @@ jobs:
           test -d qa/out || exit 0
           cd qa/out && git init -q && git checkout -q -b qa-live-${{ matrix.target }}-${{ matrix.part }} && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "diag QA run ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-live-${{ matrix.target }}-${{ matrix.part }}
+          echo "evidence publication paused (privacy hold): nothing was pushed"
 # y32: rerun on the head with the top strip
 # y33
 # live1
