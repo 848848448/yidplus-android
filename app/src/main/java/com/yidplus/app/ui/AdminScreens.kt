@@ -63,6 +63,12 @@ class AdminPage : PageScreen() {
         // null = still reading, false = the site didn't answer: the switches then stay locked, so nothing is saved from a wrong picture.
         var flagsOk by remember { mutableStateOf<Boolean?>(null) }
         var flagsTry by remember { mutableIntStateOf(0) }
+        // The outside-videos switch (admin.js src switch): GET /api/src-shorts?switch=1 → {enabled}; POST {enabled} to change. null = still reading.
+        var srcOn by remember { mutableStateOf<Boolean?>(null) }
+        LaunchedEffect(Unit) {
+            if (SettingsProfile.demo) { srcOn = true; return@LaunchedEffect }
+            runCatching { Api.get("/api/src-shorts?switch=1").optBoolean("enabled") }.onSuccess { srcOn = it }
+        }
         LaunchedEffect(Unit) {
             if (SettingsProfile.demo) {
                 statsRes.data = JSONObject().put("stats", JSONObject().put("users", 1834).put("new_today", 12).put("online", 47).put("shorts", 3120).put("messages", 98210).put("channels", 64).put("open_reports", 2))
@@ -145,6 +151,19 @@ class AdminPage : PageScreen() {
                     if (!on && owner) Text("Who can still see it: " + (flags[key + "_allow"]?.ifBlank { null } ?: "nobody") + " · change",
                         Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { allowFor = key }.padding(start = 64.dp, end = 16.dp, bottom = 10.dp),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                }
+                if (owner) {
+                    RowDivider(64.dp)
+                    val so = srcOn
+                    SettingRow(Sym.Movie, "Outside videos", when (so) { null -> "Checking…"; true -> "Shown in Shorts (For You / Following)"; else -> "Off · only members' uploads show" }, switch = so == true) {
+                        if (so == null) { toast(c, "Still reading the current setting…"); return@SettingRow }
+                        val v = !so; srcOn = v
+                        scope.launch {
+                            runCatching { if (!SettingsProfile.demo) Api.post("/api/src-shorts", JSONObject().put("enabled", v)) }
+                                .onSuccess { toast(c, if (v) "✅ Outside videos on" else "🚫 Outside videos off") }
+                                .onFailure { srcOn = so; toast(c, Api.friendly(it)) }
+                        }
+                    }
                 }
             }
             if (flagsOk == false) SettingsHint("⚠ yidplus.com didn't send the current switches, so they're locked to avoid saving the wrong value. Tap a switch to try again.")
