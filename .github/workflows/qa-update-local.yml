@@ -3,6 +3,7 @@ name: QA in-app update, local test feed (no release, no published APK)
 # TEST SEAM, not production. Builds the head twice in this one job (workspace-only patch, never committed):
 # an "installed" build 9.1.0 and a higher "candidate" 9.1.1, both signed by the CI key. The patch points the
 # updater's feed at http://10.0.2.2:8765 (the runner, seen from the emulator) and allows cleartext for 10.0.2.2 only.
+# Both builds use the production flag (no -Pqa): the updater runs in the same configuration as the shipped app. The feed's notes are the repository's RELEASE_NOTES.md.
 # Everything else in Updater.kt runs as shipped: version check, prompt, download, sha256, signer check,
 # PackageInstaller, Android's install prompt. The APKs stay inside this job (no artifact upload, no release);
 # the evidence branch gets screenshots and logs only.
@@ -63,24 +64,28 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p dist/serve
-          gradle :app:assembleRelease -Pqa=true -PversionName=9.1.0 --no-daemon 2>&1 | tail -5
+          gradle :app:assembleRelease -PversionName=9.1.0 --no-daemon 2>&1 | tail -5
           cp app/build/outputs/apk/release/app-release.apk dist/old.apk
-          gradle :app:assembleRelease -Pqa=true -PversionName=9.1.1 --no-daemon 2>&1 | tail -5
+          gradle :app:assembleRelease -PversionName=9.1.1 --no-daemon 2>&1 | tail -5
           cp app/build/outputs/apk/release/app-release.apk dist/serve/new.apk
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           "$BT/apksigner" verify --print-certs dist/old.apk | grep -i "SHA-256" | head -1
           "$BT/apksigner" verify --print-certs dist/serve/new.apk | grep -i "SHA-256" | head -1
           SHA=$(sha256sum dist/serve/new.apk | cut -d' ' -f1); SIZE=$(stat -c %s dist/serve/new.apk)
-          printf '{"versionCode":90101,"versionName":"9.1.1","apkUrl":"http://10.0.2.2:8765/new.apk","sha256":"%s","size":%s,"notes":"Test candidate"}\n' "$SHA" "$SIZE" > dist/serve/version.json
+          jq -n --arg sha "$SHA" --argjson size "$SIZE" --rawfile notes RELEASE_NOTES.md '{versionCode:90101,versionName:"9.1.1",apkUrl:"http://10.0.2.2:8765/new.apk",sha256:$sha,size:$size,notes:$notes}' > dist/serve/version.json
           cat dist/serve/version.json
       - name: Local-feed driver (workspace only, not committed)
         run: |
           cat > /tmp/update-local.sh <<'DRV'
           set -u
           cd "$GITHUB_WORKSPACE"
-          (cd dist/serve && python3 -m http.server 8765 --bind 0.0.0.0 >/tmp/feed-server.log 2>&1 &) ; sleep 2
+          (cd dist/serve && setsid nohup python3 -m http.server 8765 --bind 0.0.0.0 >/tmp/feed-server.log 2>&1 </dev/null &) ; sleep 2
           echo "feed from the runner: $(curl -s http://127.0.0.1:8765/version.json | head -c 200)"
           bash qa/update.sh dist/old.apk 9.1.1
+          RC=$?
+          # The feed server must not outlive the test: a live background child kept this step open until its timeout in run 43784672220.
+          pkill -f 'http.server 8765' || true
+          exit $RC
           DRV
           echo ok
       - name: Enable KVM
