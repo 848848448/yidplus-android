@@ -1,0 +1,100 @@
+[00:39:21] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[00:39:23] screen 480x640 @ 240 dpi
+[00:39:24] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[00:39:24] ---- Signed in (QA fixture account) ----
+[00:39:28] fixture true
+[00:39:37] shot F01-home-signedin
+[00:39:37] open https://yidplus.com/chat
+[00:39:42] shot F02-chats-list
+[00:39:44] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:39:51] shot F03-chat-dm
+[00:39:53] shot F03b-chat-dm-up
+[00:39:56] open https://yidplus.com/chat
+[00:40:10] shot F04-chat-group
+[00:40:12] shot F04b-group-up
+[00:40:14] shot F04c-group-top
+[00:40:18] shot F05-message-actions
+[00:40:27] shot F06-notifications
+[00:40:30] tab Home
+[00:40:33] shot F07-home-header
+[00:40:33] open https://yidplus.com/shorts
+[00:40:42] shot F08-shorts-signedin
+[00:40:42] tab Profile
+[00:40:45] shot F09-profile-signedin
+[00:40:56] shot F09b-profile-scrolled
+[00:41:10] open https://yidplus.com/chat
+[00:41:14] shot F10-chats-dark
+[00:41:20] shot F11-chat-dark
+[00:41:27] screen 1080x2400 @ 420 dpi
+[00:41:35] open https://yidplus.com/chat
+[00:41:39] shot F12-phone-chats
+[00:41:45] shot F13-phone-chat
+[00:41:49] screen 480x640 @ 240 dpi
+[00:41:49] ---- qa/fx-no.sh ----
+[00:42:13] FPN non-owner chat texts:  text="F"  text="Family"  text="3 members, 2 online"  text="&#128222; Group voice call · 12 min · 2:30 PM"  text="M"  text="Mommy"  text="מיר עסן 7 אזייגער"  text="2:20 PM"  text="Wednesday"  text="Message" 
+[00:42:13] shot FPN-non-owner-01-chat
+[00:42:17] FPN tapped '441'
+[00:42:21] FPN tapped '286'
+[00:42:24] shot FPN-non-owner-02-info
+[00:42:42] shot FPN-non-owner-03-report-row
+[00:42:42] FPN non-owner: 'Report group' row is shown (found after 4 swipes)
+[00:42:53] FPN owner chat texts:  text="ח"  text="חברים"  text="Yanky is typing…"  text="  Call in progress · 2 on the call"  text="Join"  text="דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אזוי אז מיר קענען זיך צוגרייטן."  text="7:19 PM"  text="Yanky"  text="7:15 PM"  text="Message" 
+[00:42:53] shot FPN-owner-01-chat
+[00:42:57] FPN tapped '441'
+[00:43:01] FPN tapped '315'
+[00:43:04] shot FPN-owner-02-info
+[00:43:37] FPN owner: no 'Report group' row after scrolling the whole info page
+[00:43:47] shot FPS-EditProfile-0
+[00:43:48] FPS EditProfile view 0 texts:  text="Edit profile"  text="SAVE"  text=" Cover"  text="מ"  text="משה'לע"  text="Name"  text="YID PLUS &#128081; owner"  text="Bio" 
+[00:43:50] shot FPS-EditProfile-1
+[00:43:52] FPS EditProfile view 1 texts:  text="Edit profile"  text="SAVE"  text="משה'לע"  text="YID PLUS &#128081; owner"  text="Bio"  text="17/1000"  text="Brooklyn, NY"  text="Location"  text="Birthday (YYYY-MM-DD)"  text="https://yidplus.com" 
+[00:43:54] shot FPS-EditProfile-2
+[00:43:56] FPS EditProfile view 2 texts:  text="Edit profile"  text="SAVE"  text="Brooklyn, NY"  text="Birthday (YYYY-MM-DD)"  text="https://yidplus.com"  text="Website"  text="Instagram"  text="YouTube" 
+[00:43:58] shot FPS-EditProfile-3
+[00:43:59] FPS EditProfile view 3 texts:  text="Edit profile"  text="SAVE"  text="YouTube"  text="Profile colour"  text="Save" 
+[00:44:02] shot FPS-EditProfile-4
+[00:44:03] FPS EditProfile view 4 texts:  text="Edit profile"  text="SAVE"  text="YouTube"  text="Profile colour"  text="Save" 
+[00:44:12] shot FPS-Privacy-0
+[00:44:14] FPS Privacy view 0 texts:  text="Privacy"  text="Who can see me"  text="Private account"  text="People must ask to follow you before they see your posts and statuses"  text="Follow requests"  text="People who asked to follow you"  text="Who can see my profile"  text="Everyone"  text="Who can message me"  text="Everyone" 
+[00:44:16] shot FPS-Privacy-1
+[00:44:18] FPS Privacy view 1 texts:  text="Privacy"  text="Who can see my profile"  text="Everyone"  text="Who can message me"  text="Everyone"  text="Activity"  text="Active status"  text="Let others see when you're online"  text="Read receipts"  text="Show others when you've read their message" 
+[00:44:20] shot FPS-Privacy-2
+[00:44:21] FPS Privacy view 2 texts:  text="Privacy"  text="Read receipts"  text="Show others when you've read their message"  text="Blocking"  text="Blocked users"  text="People you blocked can't message you"  text="Muted chats"  text="Chats that don't notify you" 
+[00:44:23] shot FPS-Privacy-3
+[00:44:25] FPS Privacy view 3 texts:  text="Privacy"  text="Read receipts"  text="Show others when you've read their message"  text="Blocking"  text="Blocked users"  text="People you blocked can't message you"  text="Muted chats"  text="Chats that don't notify you" 
+[00:44:27] shot FPS-Privacy-4
+[00:44:29] FPS Privacy view 4 texts:  text="Privacy"  text="Read receipts"  text="Show others when you've read their message"  text="Blocking"  text="Blocked users"  text="People you blocked can't message you"  text="Muted chats"  text="Chats that don't notify you" 
+[00:44:38] shot FPS-Security-0
+[00:44:40] FPS Security view 0 texts:  text="Security"  text="Sign-in"  text="Change password"  text="You'll confirm your current password first"  text="Two-step verification"  text="Off"  text="Devices (1 signed in)"  text="This device"  text="Signed in 4d ago"  text="Active" 
+[00:44:42] shot FPS-Security-1
+[00:44:43] FPS Security view 1 texts:  text="Security"  text="Sign-in"  text="Change password"  text="You'll confirm your current password first"  text="Two-step verification"  text="Off"  text="Devices (1 signed in)"  text="This device"  text="Signed in 4d ago"  text="Active" 
+[00:44:45] shot FPS-Security-2
+[00:44:47] FPS Security view 2 texts:  text="Security"  text="Sign-in"  text="Change password"  text="You'll confirm your current password first"  text="Two-step verification"  text="Off"  text="Devices (1 signed in)"  text="This device"  text="Signed in 4d ago"  text="Active" 
+[00:44:49] shot FPS-Security-3
+[00:44:51] FPS Security view 3 texts:  text="Security"  text="Sign-in"  text="Change password"  text="You'll confirm your current password first"  text="Two-step verification"  text="Off"  text="Devices (1 signed in)"  text="This device"  text="Signed in 4d ago"  text="Active" 
+[00:44:53] shot FPS-Security-4
+[00:44:54] FPS Security view 4 texts:  text="Security"  text="Sign-in"  text="Change password"  text="You'll confirm your current password first"  text="Two-step verification"  text="Off"  text="Devices (1 signed in)"  text="This device"  text="Signed in 4d ago"  text="Active" 
+[00:45:04] shot FPS-Blocked-0
+[00:45:05] FPS Blocked view 0 texts:  text="מ"  text="משה'לע"  text="Owner"  text="@משה'לע"  text="owner@example.com"  text="Edit Profile"  text="Saved Items"  text="Messages, posts and Shorts you saved"  text="History"  text="What you watched and opened"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[00:45:07] shot FPS-Blocked-1
+[00:45:09] FPS Blocked view 1 texts:  text="History"  text="What you watched and opened"  text="Reading and help"  text="Higher contrast"  text="Darker text and lines"  text="Fewer animations"  text="App guide and what's new"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[00:45:11] shot FPS-Blocked-2
+[00:45:13] FPS Blocked view 2 texts:  text="Fewer animations"  text="App guide and what's new"  text="Appearance"  text="Dark mode"  text="Same as the phone"  text="Light"  text="Dark"  text="Auto"  text="Text size"  text="S"  text="M"  text="L"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[00:45:15] shot FPS-Blocked-3
+[00:45:16] FPS Blocked view 3 texts:  text="Same as the phone"  text="Text size"  text="S"  text="M"  text="L"  text="Color theme"  text="Emerald Teal"  text="Crimson"  text="Violet"  text="Amber"  text="Midnight"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[00:45:18] shot FPS-Blocked-4
+[00:45:20] FPS Blocked view 4 texts:  text="Violet"  text="Amber"  text="Midnight"  text="Stats"  text="12"  text="Videos"  text="3"  text="Music"  text="1.5k"  text="Messages"  text="236"  text="Views"  text="58"  text="Followers"  text="Account"  text="Profile"  text="Name, photo, cover, bio, location, links"  text="Blocked users"  text="You haven't blocked anyone"  text="You can block someone from their profile or a chat." 
+[00:45:29] shot FPS-NotifPrefs-0
+[00:45:31] FPS NotifPrefs view 0 texts:  text="Notifications"  text="Notify me about"  text="New messages"  text="New likes"  text="New followers"  text="Channel updates"  text="These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page." 
+[00:45:33] shot FPS-NotifPrefs-1
+[00:45:35] FPS NotifPrefs view 1 texts:  text="Notifications"  text="New messages"  text="New likes"  text="New followers"  text="Channel updates"  text="These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page." 
+[00:45:37] shot FPS-NotifPrefs-2
+[00:45:38] FPS NotifPrefs view 2 texts:  text="Notifications"  text="New messages"  text="New likes"  text="New followers"  text="Channel updates"  text="These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page." 
+[00:45:40] shot FPS-NotifPrefs-3
+[00:45:42] FPS NotifPrefs view 3 texts:  text="Notifications"  text="New messages"  text="New likes"  text="New followers"  text="Channel updates"  text="These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page." 
+[00:45:44] shot FPS-NotifPrefs-4
+[00:45:45] FPS NotifPrefs view 4 texts:  text="Notifications"  text="New messages"  text="New likes"  text="New followers"  text="Channel updates"  text="These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page." 
+[00:45:50] fixture writes the app would have sent: 9
+[00:45:54] fixture false
