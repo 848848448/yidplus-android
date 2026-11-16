@@ -178,6 +178,11 @@ class AdminPage : PageScreen() {
                             "announcements" -> AdminAnnouncementsPage()
                             "invite-codes" -> AdminInviteCodesPage()
                             "audit-logs" -> AdminAuditLogsPage()
+                            "analytics" -> AdminAnalyticsPage()
+                            "feedback" -> AdminFeedbackPage()
+                            "support-chats" -> AdminSupportPage()
+                            "ads" -> AdminAdsPage()
+                            "badges" -> AdminBadgesPage()
                             else -> AdminWebPage(id)
                         })
                     }
@@ -207,7 +212,7 @@ class AdminPage : PageScreen() {
 }
 
 @Composable
-private fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = false, live: Boolean = false) {
+internal fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = false, live: Boolean = false) {
     Column(modifier.clip(RoundedCornerShape(12.dp)).background(if (alert) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer).padding(vertical = 10.dp, horizontal = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(adminN(n), style = MaterialTheme.typography.titleLarge,
@@ -218,7 +223,7 @@ private fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = fal
 
 /** New members per day (insights.growth: {day:'YYYY-MM-DD', count}), as small bars like the site's. */
 @Composable
-private fun GrowthBars(g: List<JSONObject>) {
+internal fun GrowthBars(g: List<JSONObject>) {
     val max = (g.maxOfOrNull { it.optInt("count") } ?: 1).coerceAtLeast(1)
     Column {
         Text("New members per day", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))
