@@ -1,0 +1,97 @@
+[01:14:44] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[01:14:47] screen 480x640 @ 240 dpi
+[01:14:47] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[01:14:47] ---- Signed in (QA fixture account) ----
+[01:14:52] fixture true
+[01:15:01] shot F01-home-signedin
+[01:15:01] open https://yidplus.com/chat
+[01:15:06] shot F02-chats-list
+[01:15:07] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:15:15] shot F03-chat-dm
+[01:15:17] shot F03b-chat-dm-up
+[01:15:20] open https://yidplus.com/chat
+[01:15:34] shot F04-chat-group
+[01:15:36] shot F04b-group-up
+[01:15:38] shot F04c-group-top
+[01:15:42] shot F05-message-actions
+[01:15:51] shot F06-notifications
+[01:15:54] tab Home
+[01:15:57] shot F07-home-header
+[01:15:57] open https://yidplus.com/shorts
+[01:16:06] shot F08-shorts-signedin
+[01:16:06] tab Profile
+[01:16:09] shot F09-profile-signedin
+[01:16:20] shot F09b-profile-scrolled
+[01:16:34] open https://yidplus.com/chat
+[01:16:38] shot F10-chats-dark
+[01:16:44] shot F11-chat-dark
+[01:16:51] screen 1080x2400 @ 420 dpi
+[01:16:59] open https://yidplus.com/chat
+[01:17:03] shot F12-phone-chats
+[01:17:10] shot F13-phone-chat
+[01:17:13] screen 480x640 @ 240 dpi
+[01:17:13] ---- qa/fx-live.sh ----
+[01:17:24] fixture false
+[01:17:40] LV live mode (no fixture):     versionName=2.0.0
+[01:17:44] LV tapped at 300 551
+[01:17:53] shot LV-01-channels
+[01:17:53] LV channels texts:  text="Channels"  text="Telegram"  text="Joined"  text="Members"  text="Recent"  text="Video channels"  text="1332  See all"  text="YB"  text="Yossi Brill"  text="NM"  text="NR Management"  text="J"  text="JustMyIsrael"  text="YF"  text="Yoiny Fischer"  text="D"  text="DailyMonroenews"  text="2h"  text="&#127916; Video"  text="Join"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:17:53] LV ok: Video channels block on live data
+[01:17:57] LV tapped at 395 238
+[01:18:07] shot LV-02-videos-list
+[01:18:07] LV list texts:  text="Channels"  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="1332 video channels"  text="YB"  text="Yossi Brill"  text="Videos"  text="NM"  text="NR Management"  text="Videos"  text="JustMyIsrael"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:18:07] LV count line: text="1332 video channels
+[01:18:17] shot LV-03-creator
+[01:18:17] LV creator texts:  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="1332 video channels"  text="Yossi Brill"  text="Yossi Brill"  text="YB"  text="Yossi Brill"  text="60 videos"  text="Follow"  text="0:29"  text="0:32"  text="0:09" 
+[01:18:17] LV ok: creator page lists videos on live data
+[01:18:19] shot LV-04-play-t1
+[01:18:21] LV hint: help overlay not shown at 1 s
+[01:18:27] LV hint: help overlay gone by 7 s
+[01:18:27] shot LV-05-play-t7
+[01:18:29] shot LV-05b-after-first-dpad
+[01:18:31] LV hint: help overlay not shown after the first D-pad press (MISSING if the overlay was never seen on this install)
+[01:18:33] shot LV-05c-after-second-key
+[01:18:35] LV hint: overlay gone after a second key
+[01:18:35] LV player texts:  text="Like"  text="Comment"  text="Share"  text="More"  text="YB"  text="@Yossi Brill"  text="+ Follow"  text="For You"  text="Following"  text="Uploads"  text="Saved"  text="@Yossi Brill"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:18:35] LV logcat: 11-16 01:18:34.957     0     0 W x86/PAT : MediaCodec_loop:3780 map pfn RAM range req write-combining for [mem 0xa6d3f000-0xa6d3ffff], got write-back
+[01:18:35] LV logcat: 11-16 01:18:34.983     0     0 W x86/PAT : MediaCodec_loop:3780 map pfn RAM range req write-combining for [mem 0xa6d3e000-0xa6d3efff], got write-back
+[01:18:35] LV logcat: 11-16 01:18:34.998     0     0 W x86/PAT : MediaCodec_loop:3780 map pfn RAM range req write-combining for [mem 0xa99b9000-0xa99b9fff], got write-back
+[01:18:35] LV logcat: 11-16 01:18:35.041     0     0 W x86/PAT : MediaCodec_loop:3780 map pfn RAM range req write-combining for [mem 0xa6d3e000-0xa6d3efff], got write-back
+[01:18:35] LV logcat: 11-16 01:18:35.065     0     0 W x86/PAT : MediaCodec_loop:3780 map pfn RAM range req write-combining for [mem 0xa6d3e000-0xa6d3efff], got write-back
+[01:18:35] LV logcat: 11-16 01:18:35.085     0     0 W x86/PAT : MediaCodec_loop:3780 map pfn RAM range req write-combining for [mem 0xa6d3e000-0xa6d3efff], got write-back
+[01:18:40] shot LV-06-back1
+[01:18:40] LV back1 texts:  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="1332 video channels"  text="Yossi Brill"  text="Yossi Brill"  text="YB"  text="Yossi Brill"  text="60 videos"  text="Follow"  text="0:29"  text="0:32"  text="0:09" 
+[01:18:40] LV ok: Back from the player returned to the creator page
+[01:18:45] shot LV-07-back2
+[01:18:45] LV back2 texts:  text="Channels"  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="1332 video channels"  text="YB"  text="Yossi Brill"  text="Videos"  text="NM"  text="NR Management"  text="Videos"  text="JustMyIsrael"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:18:45] LV ok: second Back returned to the video channel list
+[01:18:50] shot LV-08-back3
+[01:18:50] LV back3 texts:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="D"  text="DailyMonroenews"  text="10 members"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:18:50] tab Music
+[01:18:55] shot LV-tab-Music
+[01:18:57] LV tab Music texts:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="D"  text="DailyMonroenews"  text="10 members"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:18:57] tab Profile
+[01:19:02] shot LV-tab-Profile
+[01:19:03] LV tab Profile texts:  text="Settings"  text="YID"  text=" PLUS"  text="Sign in with your yidplus.com account"  text="Sign in with email"  text="Sign in with Google"  text="Create an account"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:19:03] tab Chats
+[01:19:09] shot LV-tab-Chats
+[01:19:10] LV tab Chats texts:  text="Chats"  text="Guest · featured groups"  text="  Sign in to see and send your own chats"  text="Sign in"  text="Search…"  text="L"  text="Links"  text="UshyCarTrust joined"  text="D"  text="DailyMonroenews"  text="10 members"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:19:10] tab Home
+[01:19:15] shot LV-tab-Home
+[01:19:17] LV tab Home texts:  text="Channels"  text="Joined"  text="Members"  text="Recent"  text="Videos"  text="1332 video channels"  text="YB"  text="Yossi Brill"  text="Videos"  text="NM"  text="NR Management"  text="Videos"  text="JustMyIsrael"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[01:19:17] tab Home
+[01:19:24] LV tapped at 375 87
+[01:19:27] shot LV-search
+[01:19:28] LV search texts:  text="Search channels"  text="Joined"  text="Members"  text="Recent"  text="Videos" 
+[01:19:42] tab Home
+[01:19:46] shot LV-land-channels
+[01:19:46] tab Profile
+[01:19:50] shot LV-land-settings
+[01:19:50] tab Home
+[01:19:55] LV MISSING: '[0-9]+  See all' not on screen
+[01:19:55] tab Shorts
+[01:20:03] shot LV-land-shorts
+[01:20:05] fixture writes the app would have sent: 0
+[01:20:09] fixture false
