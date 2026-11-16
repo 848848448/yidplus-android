@@ -5,11 +5,11 @@
 - Status: the viewers list of your own status opens with who saw it
 - Chats: Back while a chat is open no longer also closes the chat list's search or selection behind it
 - Chats: in an open chat the arrow keys have fixed targets: Right reaches Attach, Left returns to the message field
-- Join by invite link: in portrait the Back bar, label and field stay visible with the keyboard open
+- Join by invite link: the Back bar, label and field stay visible with the keyboard open, in portrait and in landscape
 - Music shows only when the website's Music switch is on
 - Known gaps:
   - The chat arrow keys were checked on an emulator with sample data. An earlier, intermittent miss could not be reproduced on demand, and nothing has been tried on a physical keypad phone
-  - Join by invite link in landscape: with some keyboards the keyboard can still cover the field
+  - Join by invite link was checked with the standard Android keyboard on an emulator only; other keyboards were not tried
   - Video channels and playing a creator's video were checked on an emulator and against the live site as a guest, not on a physical phone
   - The admin website page (More on the website, Open the full admin panel) has not been checked with a real owner account inside the app
   - Voice message playback has not been checked with real audio
