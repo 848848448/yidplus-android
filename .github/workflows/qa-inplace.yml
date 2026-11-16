@@ -48,7 +48,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         run: |
           set -o pipefail
-          gradle :app:assembleRelease -PversionName=$CANDIDATE_VERSION --no-daemon 2>&1 | tail -30
+          gradle :app:assembleRelease -Pqa=true -PversionName=$CANDIDATE_VERSION --no-daemon 2>&1 | tail -30
       - name: Compare with the public latest release
         run: |
           set -e
