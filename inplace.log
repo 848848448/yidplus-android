@@ -1,0 +1,11 @@
+Performing Streamed Install
+Success
+[01:14:30] old installed:     versionCode=20101 minSdk=24 targetSdk=34
+-rw-rw-rw- 1 root root 15 2026-11-16 01:14 /data/data/com.yidplus.app/files/qa-inplace-marker
+cache code_cache databases files no_backup shared_prefs 
+[01:14:47] data dir listing before update: cache code_cache databases files no_backup shared_prefs 
+Performing Streamed Install
+Success
+[01:14:47] new installed:     versionCode=20200 minSdk=24 targetSdk=34
+[01:14:48] marker survived the update; data dir after update: cache code_cache databases files no_backup shared_prefs 
+[01:15:03] PASS old     versionCode=20101 minSdk=24 targetSdk=34 -> new     versionCode=20200 minSdk=24 targetSdk=34; private data marker survived; candidate running
