@@ -10,13 +10,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -50,12 +55,51 @@ import org.webrtc.VideoTrack
  */
 @Composable
 fun CallHost() {
+    if (GroupCallKit.active) { Box(Modifier.fillMaxSize().zIndex(10f)) { GroupCall() }; return }
     val inc = CallKit.incoming
     val phase = CallKit.phase
     if (phase != CallPhase.IDLE) {
         Box(Modifier.fillMaxSize().zIndex(10f)) { ActiveCall() }
     } else if (inc != null) {
         Box(Modifier.fillMaxSize().zIndex(10f)) { IncomingCall(inc) }
+    }
+}
+
+@Composable
+private fun GroupCall() {
+    val c = ctx()
+    val video = GroupCallKit.kind == "video"
+    Box(Modifier.fillMaxSize().background(Color(0xFF0B141A))) {
+        Column(Modifier.fillMaxSize()) {
+            Text(GroupCallKit.roomName + "  ·  " + (GroupCallKit.peers.size + 1) + " on the call",
+                color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp,
+                modifier = Modifier.padding(top = 46.dp, start = 16.dp, end = 16.dp, bottom = 8.dp))
+            LazyVerticalGrid(GridCells.Fixed(2), Modifier.weight(1f).fillMaxWidth(), contentPadding = PaddingValues(8.dp)) {
+                items(GroupCallKit.peers, key = { it.id }) { p ->
+                    GroupTile(p.name, p.photo, p.video, video, mirror = false, Modifier.padding(4.dp).aspectRatio(0.8f))
+                }
+                item(key = "self") {
+                    GroupTile("You", null, GroupCallKit.localVideo, video && GroupCallKit.cameraOn, mirror = true, Modifier.padding(4.dp).aspectRatio(0.8f))
+                }
+            }
+            Row(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 30.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                CallAction(if (GroupCallKit.muted) Sym.MicOff else Sym.Mic, "Mute", Color(0xFF2A3942)) { GroupCallKit.toggleMute() }
+                if (video) CallAction(if (GroupCallKit.cameraOn) Sym.Videocam else Sym.VideocamOff, "Camera", Color(0xFF2A3942)) { GroupCallKit.toggleCamera() }
+                else CallAction(if (GroupCallKit.speakerOn) Sym.VolumeUp else Sym.VolumeOff, "Speaker", Color(0xFF2A3942)) { GroupCallKit.toggleSpeaker(c) }
+                if (video) CallAction(Sym.Videocam, "Flip", Color(0xFF2A3942)) { GroupCallKit.switchCamera() }
+                CallAction(Sym.CallEnd, "Leave", Color(0xFFE53935)) { GroupCallKit.leave() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GroupTile(name: String, photo: String?, track: VideoTrack?, video: Boolean, mirror: Boolean, modifier: Modifier) {
+    Box(modifier.clip(RoundedCornerShape(12.dp)).background(Color(0xFF13202B)), contentAlignment = Alignment.Center) {
+        if (video && track != null) RtcVideo(track, mirror, Modifier.fillMaxSize())
+        else Avatar(photo, name, 64.dp)
+        Text(name, color = Color.White, fontSize = 13.sp,
+            modifier = Modifier.align(Alignment.BottomStart).padding(6.dp).background(Color.Black.copy(alpha = .4f), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 2.dp))
     }
 }
 

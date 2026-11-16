@@ -83,6 +83,9 @@ object CallKit {
 
     fun eglContext(): EglBase.Context? = egl?.eglBaseContext
 
+    /** Shared with the group-call engine so both reuse one factory + EGL context. */
+    internal fun sharedFactory(c: Context): PeerConnectionFactory = factory(c)
+
     @Synchronized
     private fun factory(c: Context): PeerConnectionFactory {
         factory?.let { return it }

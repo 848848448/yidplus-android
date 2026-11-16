@@ -315,19 +315,22 @@ data class ChCall(val room: Room, val kind: String) : PageScreen() {
         // Native 1-on-1 call (WebRTC via CallKit). The global CallHost overlay draws the call;
         // this page just asks for the mic/camera, starts the call, and steps aside.
         val callee = room.otherUserId
-        if (callee != null && room.type == "private") {
+        val privateCall = room.type == "private" && callee != null
+        run {
             val needCam = kind == "video"
             val perms = if (needCam) arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA) else arrayOf(Manifest.permission.RECORD_AUDIO)
+            fun begin() {
+                if (privateCall) CallKit.startCall(c, callee!!, room.name, room.photo, needCam)
+                else GroupCallKit.join(c, room, needCam)
+            }
             val launch = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
-                    CallKit.startCall(c, callee, room.name, room.photo, needCam)
+                if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) begin()
                 else toast(c, "Allow the microphone to make calls")
                 Nav.back()
             }
             LaunchedEffect(Unit) {
-                if (perms.all { ContextCompat.checkSelfPermission(c, it) == PackageManager.PERMISSION_GRANTED }) {
-                    CallKit.startCall(c, callee, room.name, room.photo, needCam); Nav.back()
-                } else launch.launch(perms)
+                if (perms.all { ContextCompat.checkSelfPermission(c, it) == PackageManager.PERMISSION_GRANTED }) { begin(); Nav.back() }
+                else launch.launch(perms)
             }
             Column(Modifier.fillMaxSize().background(Color.Black)) {}
             return
