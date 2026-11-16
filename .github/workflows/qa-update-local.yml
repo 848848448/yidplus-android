@@ -9,9 +9,6 @@ name: QA in-app update, local test feed (no release, no published APK)
 # the evidence branch gets screenshots and logs only.
 on:
   workflow_dispatch:
-  push:
-    branches: ['feat-*']
-    paths: ['.github/workflows/qa-update-local.yml']
 
 permissions:
   contents: write
@@ -113,6 +110,6 @@ jobs:
           find qa/out -name '*.apk' -delete
           cd qa/out && git init -q && git checkout -q -b qa-update-local-evidence && git add -A
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "local feed update test ${{ github.run_id }}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" qa-update-local-evidence
+          echo "evidence publication paused (privacy hold): nothing was pushed"
       - name: Result
         run: cat qa/out/RESULT && grep -q '^PASS' qa/out/RESULT
