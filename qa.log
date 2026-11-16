@@ -1,0 +1,112 @@
+[00:07:59] install: Success
+    versionCode=20000 minSdk=24 targetSdk=34
+    versionName=2.0.0
+[00:08:01] screen 480x640 @ 240 dpi
+[00:08:02] mode: sequential fx scripts (qa/SEQUENTIAL-FX or QA_FX)
+[00:08:02] ---- Signed in (QA fixture account) ----
+[00:08:06] fixture true
+[00:08:15] shot F01-home-signedin
+[00:08:15] open https://yidplus.com/chat
+[00:08:20] shot F02-chats-list
+[00:08:21] chat list texts:  text="Search chats"  text="&#129302;"  text="Status"  text="3"  text="All"  text="18"  text="Unread"  text="Private"  text="YK"  text="Yossi Klein"  text="Wed"  text="גוט מארגן! ווען קומסטו?"  text="3"  text="ח"  text="חברים פון שול"  text="Wed"  text="Yanky: דא איז דער פלאן פאר מארגן: 9:00 שחרית, 10:30 שיעור, 12:00 מיטאג. ווער עס קען נישט קומען, לאזט וויסן ביז היינט ביינאכט אז"  text="12"  text="BL"  text="Berel Links"  text="Wed"  text="קוק די לינקס"  text="18"  text="Chats"  text="Shorts"  text="Channels"  text="Settings" 
+[00:08:29] shot F03-chat-dm
+[00:08:31] shot F03b-chat-dm-up
+[00:08:34] open https://yidplus.com/chat
+[00:08:48] shot F04-chat-group
+[00:08:50] shot F04b-group-up
+[00:08:52] shot F04c-group-top
+[00:08:56] shot F05-message-actions
+[00:09:06] shot F06-notifications
+[00:09:08] tab Home
+[00:09:11] shot F07-home-header
+[00:09:11] open https://yidplus.com/shorts
+[00:09:20] shot F08-shorts-signedin
+[00:09:20] tab Profile
+[00:09:23] shot F09-profile-signedin
+[00:09:35] shot F09b-profile-scrolled
+[00:09:48] open https://yidplus.com/chat
+[00:09:52] shot F10-chats-dark
+[00:09:59] shot F11-chat-dark
+[00:10:06] screen 1080x2400 @ 420 dpi
+[00:10:13] open https://yidplus.com/chat
+[00:10:18] shot F12-phone-chats
+[00:10:24] shot F13-phone-chat
+[00:10:28] screen 480x640 @ 240 dpi
+[00:10:28] ---- qa/fx-nw.sh ----
+[00:10:41] nw open ai_row
+[00:10:41] shot NW-01-chatlist-status-ai
+[00:10:42] nw texts chatlist:  content-desc="Back"  text="Chats"  text="מ"  content-desc="Add status"  text="My status"  text="D"  text="DealPoint"  text="ח"  text="חיים שמואל"  text="Y"  text="Yanky"  text="&#129302;"  text="YID PLUS AI"  text="AI"  content-desc="Pinned"  text="Ask me anything"  text="Y"  text="Yanky"  text="12:40"  text="Yanky: גוט שבת!"  text="ח"  text="חברים גרופע"  text="12:40" 
+[00:10:46] nw tapped 'YID PLUS AI'
+[00:10:49] shot NW-02-ai-chat
+[00:10:52] nw tapped 'Message YID PLUS AI'
+[00:10:54] shot NW-03-ai-typed
+[00:10:59] shot NW-04-ai-asked
+[00:11:02] nw tapped 'Clear chat'
+[00:11:04] shot NW-05-ai-clear-confirm
+[00:11:07] nw tapped 'Clear'
+[00:11:11] shot NW-06-ai-cleared-welcome
+[00:11:13] nw_tap: 'Give me an idea' not on screen
+[00:11:18] nw tapped 'Give me an idea'
+[00:11:21] shot NW-07-ai-chip-asked
+[00:11:31] nw open status
+[00:11:31] shot NW-08-status-viewer
+[00:11:33] nw texts viewer:  text="New deals this week"  content-desc="Close"  text="D"  text="DealPoint"  text="4d ago"  text="Reply…"  content-desc="Like status" 
+[00:11:36] shot NW-09-status-next
+[00:11:46] shot NW-10-status-next-user
+[00:11:49] nw tapped 'Like status'
+[00:11:51] shot NW-11-status-liked
+[00:11:53] nw_tap: 'Reply…' not on screen
+[00:11:57] shot NW-12-status-replied
+[00:12:01] nw open status_me
+[00:12:01] shot NW-13-my-status
+[00:12:04] shot NW-14-my-viewers
+[00:12:06] NW viewers ok: 'Viewed by 7' on screen
+[00:12:06] NW viewers ok: 'Yanky' on screen
+[00:12:06] NW viewers ok: 'DealPoint' on screen
+[00:12:06] NW viewers ok: 'Shimel' on screen
+[00:12:08] shot NW-14b-viewers-scrolled
+[00:12:09] NW viewers ok: last viewer 'Avrohom' reached by scrolling
+[00:12:12] shot NW-14c-viewers-closed
+[00:12:13] NW viewers ok: Back closed the sheet
+[00:12:22] nw open status_me
+[00:12:26] nw tapped 'More'
+[00:12:27] shot NW-15-my-status-menu
+[00:12:30] nw tapped 'Delete'
+[00:12:32] shot NW-16-my-status-deleted
+[00:12:40] nw open post_status
+[00:12:40] shot NW-17-post-status
+[00:12:45] nw tapped 'Change colour'
+[00:12:48] nw tapped 'Change colour'
+[00:12:49] shot NW-18-post-status-typed
+[00:12:56] nw tapped 'Followers'
+[00:12:57] shot NW-18b-post-status-colours
+[00:13:00] nw tapped 'Post status'
+[00:13:03] shot NW-19-after-post
+[00:13:09] nw open saved
+[00:13:09] shot NW-20-saved
+[00:13:11] nw texts saved:  content-desc="Back"  text="Saved items"  text="3 items"  text="אביסל חינוך פאראן דאגי אויך &#128021;&#129325;"  text="Short · @Shimel’a · 4d"  content-desc="Remove from saved"  text="@DealPoint"  text="Short · 5d"  content-desc="Remove from saved"  text="מזמור לדוד"  text="Song · Yid Plus Music · Nov 8"  content-desc="Remove from saved" 
+[00:13:14] nw tapped 'Remove from saved'
+[00:13:15] shot NW-21-unsaved-undo
+[00:13:18] nw tapped 'UNDO'
+[00:13:20] shot NW-22-undo
+[00:13:26] shot NW-23-saved-short-playing
+[00:13:37] nw open history
+[00:13:37] shot NW-24-history
+[00:13:40] nw tapped 'Clear all'
+[00:13:41] shot NW-25-history-confirm
+[00:13:44] nw tapped 'Clear'
+[00:13:47] shot NW-26-history-cleared
+[00:13:57] nw open ai_row
+[00:13:57] shot NW-27-dark-chatlist
+[00:14:00] nw tapped 'YID PLUS AI'
+[00:14:03] shot NW-28-dark-ai
+[00:14:15] nw open saved
+[00:14:15] shot NW-29-dark-saved
+[00:14:21] nw writes so far: 16
+[00:14:23] nw open status_me_empty
+[00:14:25] shot NW-14f-empty-sheet
+[00:14:27] NW own-empty texts:  text="מ"  text="My status"  text="4d ago"  text="Viewed by 0"  text="No views yet" 
+[00:14:27] NW viewers ok: zero-view own status shows the empty sheet (No views yet)
+[00:14:30] shot NW-14g-sheet-closed
+[00:14:33] fixture writes the app would have sent: 20
+[00:14:37] fixture false

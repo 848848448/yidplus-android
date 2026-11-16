@@ -1,0 +1,23 @@
+--------- beginning of system
+--------- beginning of main
+--------- beginning of kernel
+11-16 00:08:40.836  2631  2666 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-1"}
+11-16 00:08:45.837  2631  2666 I YidFx   : PUT /api/statuses {"view":true,"id":"st-y-2"}
+11-16 00:09:11.053  2631  2668 I YidFx   : GET-unfixtured /api/src-react?ids=v0-0,v0-1,v0-2,v0-3,v1-0,v1-1,v1-2,v1-3
+11-16 00:09:52.655  2631  2668 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-16 00:10:17.863  3299  3343 I YidFx   : POST /api/chat/read {"room_id":"r-dm1","receipts":true}
+11-16 00:10:53.875  3448  3490 I YidFx   : POST /api/ai/chat {"message":"Hello AI, what can you do?"}
+11-16 00:11:05.225  3448  3490 I YidFx   : DELETE /api/ai/chat < 0 bytes>
+11-16 00:11:16.454  3448  3490 I YidFx   : POST /api/ai/chat {"message":"Give me an idea"}
+11-16 00:11:26.036  3448  3491 I YidFx   : PUT /api/statuses {"view":true,"id":"st-d-1"}
+11-16 00:11:33.306  3448  3490 I YidFx   : PUT /api/statuses {"view":true,"id":"st-c-1"}
+11-16 00:11:47.495  3448  3490 I YidFx   : POST /api/chat/rooms {"type":"private","other_user_id":"u-yanky"}
+11-16 00:11:47.498  3448  3491 I YidFx   : POST /api/chat {"room_id":"fx-260101525574","type":"text","text":"❤️ (reacted to your status)"}
+11-16 00:12:01.568  3448  3489 I YidFx   : PUT /api/statuses {"viewers":true,"id":"st-me-1"}
+11-16 00:12:28.559  3448  3489 I YidFx   : PUT /api/statuses {"action":"delete","id":"st-me-1"}
+11-16 00:12:58.372  3448  3484 I YidFx   : POST /api/statuses {"type":"text","text":"Gut Shabbos from the app","bg":"linear-gradient(135deg,#1b4332,#40916c)","privacy":"followers"}
+11-16 00:13:12.419  3448  3484 I YidFx   : DELETE /api/saves?item_type=short&item_id=77e14f2a-e196-4ff3-915d-21ffa29f468c < 0 bytes>
+11-16 00:13:16.769  3448  3484 I YidFx   : POST /api/saves {"item_type":"short","item_id":"77e14f2a-e196-4ff3-915d-21ffa29f468c"}
+11-16 00:13:20.577  3448  3484 I YidFx   : POST /api/history {"item_type":"short","item_id":"73925fde-69b8-44e5-8ebe-daeb8abefc7b"}
+11-16 00:13:42.813  3448  3489 I YidFx   : DELETE /api/history < 0 bytes>
+11-16 00:14:23.086  3448  4854 I YidFx   : PUT /api/statuses {"viewers":true,"id":"st-me-2"}
