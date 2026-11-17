@@ -71,6 +71,15 @@ object LookPrefs {
     fun putLightBar(v: Boolean) { lightBar = v; p()?.edit()?.putBoolean("lightBar", v)?.apply() }
     fun putSilentCalls(v: Boolean) { silentCalls = v; p()?.edit()?.putBoolean("silentCalls", v)?.apply() }
 
+    // Per-chat wallpaper (WhatsApp): a single chat can override the app-wide wallpaper. Stored on-device.
+    var rwVersion by mutableStateOf(0); private set
+    fun roomWallpaper(id: String): String? = p()?.getString("rw:$id", null)
+    fun putRoomWallpaper(id: String, wallpaperId: String?) {
+        val e = p()?.edit() ?: return
+        if (wallpaperId == null || wallpaperId == "default") e.remove("rw:$id") else e.putString("rw:$id", wallpaperId)
+        e.apply(); rwVersion++
+    }
+
     /** The chosen colour theme. Theme.kt: primary = preset.accent (light) / preset.accentLight (dark); Midnight forces dark. */
     val preset: ColorPreset get() = ColorPresets[colorTheme]
     /** The chosen chat wallpaper, or null for the default background. */
@@ -81,8 +90,10 @@ object LookPrefs {
  * The chosen chat wallpaper (js/theme.js applyChatWallpaper: a 160° gradient behind the messages). Put it on the
  * message list's container in the chat screen: `Modifier.fillMaxSize().chatWallpaper()`. Default = no change.
  */
-fun Modifier.chatWallpaper(): Modifier = composed {
-    val w = LookPrefs.chatWallpaper
+fun Modifier.chatWallpaper(roomId: String? = null): Modifier = composed {
+    val ver = LookPrefs.rwVersion // recompose when a per-chat wallpaper changes
+    val id = (roomId?.let { LookPrefs.roomWallpaper(it) }) ?: LookPrefs.wallpaper
+    val w = if (ver >= 0) ChatWallpapers.firstOrNull { it.id == id && it.from != null } else null
     val from = w?.from; val to = w?.to
     if (from != null && to != null) this.background(Brush.linearGradient(listOf(from, to), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)))
     else this

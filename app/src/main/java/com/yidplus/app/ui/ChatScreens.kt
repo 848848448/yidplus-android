@@ -143,6 +143,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var confirm by remember { mutableStateOf<Pair<String, suspend () -> Unit>?>(null) }
     var reportFor by remember { mutableStateOf<ChatMsg?>(null) }
     var reactPickFor by remember { mutableStateOf<ChatMsg?>(null) }
+    var wallpaperOpen by remember { mutableStateOf(false) }
     var info by remember(room.id) { mutableStateOf(ChatApi.info(room.id)) }
     val roomsRes = ChatApi.rooms
     LaunchedEffect(roomsRes.data) { ChatApi.info(room.id)?.let { info = it } }
@@ -505,6 +506,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (msgs.isNotEmpty()) ChMenuItem(Sym.CheckCircle, "Select messages") { menu = false; selecting = true; selected.clear() }
                     if (info?.canManage == true && room.type != "private") ChMenuItem(Sym.Settings, if (isGroup) "Edit group" else "Edit channel") { menu = false; Nav.open(ChEditGroup(room)) }
                     if (me != null) ChMenuItem(Sym.Bookmark, "Saved messages") { menu = false; Nav.open(ChSaved()) }
+                    ChMenuItem(Sym.Wallpaper, "Wallpaper") { menu = false; wallpaperOpen = true }
                     if (me != null) { val lockVer2 = ChatLock.version; val locked = lockVer2 >= 0 && ChatLock.isLocked(room.id)
                         ChMenuItem(Sym.Lock, if (locked) "Unlock chat" else "Lock chat") {
                             menu = false
@@ -707,7 +709,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }
     // ChatScreen is split into lambdas: one huge composable method failed ART verification after R8 (CI 43156298868, VerifyError on API 30).
     HideStatusBarWhile((compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)))
-    Column(Modifier.fillMaxSize().imePadding().background(ChatLook.wall()).chatWallpaper()) {
+    Column(Modifier.fillMaxSize().imePadding().background(ChatLook.wall()).chatWallpaper(room.id)) {
         csHeader()
         if (pinned != null) {
             Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).tap(RoundedCornerShape(0.dp)) { scrollTo(pinned.id) }.padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
@@ -734,6 +736,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }
     csDialogs()
     reactPickFor?.let { m -> CsReactPicker(onPick = { e -> reactTo(m, e); reactPickFor = null }, onClose = { reactPickFor = null }) }
+    if (wallpaperOpen) CsWallpaperPicker(LookPrefs.roomWallpaper(room.id) ?: LookPrefs.wallpaper, onPick = { id -> LookPrefs.putRoomWallpaper(room.id, id); toast(c, "Wallpaper set"); wallpaperOpen = false }, onClose = { wallpaperOpen = false })
     // Chat lock: cover the conversation until the phone's fingerprint/PIN confirms it (WhatsApp's Chat lock).
     val lockVer = ChatLock.version
     if (lockVer >= 0 && ChatLock.needsUnlock(room.id)) {

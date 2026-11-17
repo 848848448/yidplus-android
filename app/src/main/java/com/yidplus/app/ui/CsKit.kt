@@ -351,6 +351,24 @@ internal fun CsReactStrip(myReact: String?, onReact: (String) -> Unit, onMore: (
 
 private val REACT_EMOJIS = listOf("👍","❤️","😂","😮","😢","🙏","🔥","🎉","👏","💯","😍","🥰","😊","😁","😅","😆","😉","😎","🤔","🤗","🙌","👌","✌️","🤝","💪","👀","😇","🥳","😋","😜","🤪","😭","😤","😡","🤯","😱","🥺","😴","🙄","😬","🤫","😏","😌","💔","💕","💖","✨","⭐","🌟","⚡","💥","🎊","🏆","✅","❌","🤣")
 
+/** Pick a wallpaper for this one chat (WhatsApp's per-chat wallpaper). */
+@Composable
+internal fun CsWallpaperPicker(current: String, onPick: (String) -> Unit, onClose: () -> Unit) {
+    AlertDialog(onDismissRequest = onClose, confirmButton = { TextButton(onClose) { Text("Close") } }, title = { Text("Chat wallpaper", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }, text = {
+        LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.heightIn(max = 340.dp)) {
+            gridItems(ChatWallpapers) { w ->
+                Column(Modifier.padding(6.dp).tap(RoundedCornerShape(10.dp)) { onPick(w.id) }, horizontalAlignment = Alignment.CenterHorizontally) {
+                    val mod = Modifier.fillMaxWidth().height(70.dp).clip(RoundedCornerShape(10.dp))
+                        .then(if (w.from != null && w.to != null) Modifier.background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(w.from, w.to))) else Modifier.background(MaterialTheme.colorScheme.surfaceVariant))
+                        .then(if (w.id == current) Modifier.border(2.dp, ChatLook.accent, RoundedCornerShape(10.dp)) else Modifier)
+                    Box(mod, contentAlignment = Alignment.Center) { if (w.id == current) Icon(Sym.Check, null, tint = ChatLook.accent) }
+                    Text(w.name, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+    })
+}
+
 /** Pick any emoji to react with (WhatsApp's "+" on the reaction bar). */
 @Composable
 internal fun CsReactPicker(onPick: (String) -> Unit, onClose: () -> Unit) {
