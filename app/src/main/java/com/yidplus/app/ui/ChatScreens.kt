@@ -439,7 +439,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             if (one != null && me != null && !one.deleted) CsReactStrip(reacts[one.id]?.mine, onReact = { e -> reactTo(one, e); selecting = false; selected.clear() },
                 onMore = { actionFor = one; selecting = false; selected.clear() })
         } else if (searchOn) {
-            Surface(color = ChatLook.bar, contentColor = Color.White) {
+            Surface(color = ChatLook.accent, contentColor = Color.White) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f)) { ChSearchField(sq, { sq = it; hit = 0 }, "Search in this chat", { searchOn = false; sq = "" }) }
                     if (matches.isNotEmpty()) Text("${hit + 1}/${matches.size}", color = Color.White, fontSize = 13.sp)
@@ -526,10 +526,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                             .tap(CircleShape) { scope.launch { state.animateScrollToItem(0) } }, contentAlignment = Alignment.Center) {
                             Icon(Sym.KeyboardArrowDown, if (newBelow > 0) "Newest, $newBelow new" else "Newest", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if (newBelow > 0) Text(if (newBelow > 99) "99+" else "$newBelow", Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-6).dp).clip(CircleShape).background(ChatLook.bar)
+                        if (newBelow > 0) Text(if (newBelow > 99) "99+" else "$newBelow", Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-6).dp).clip(CircleShape).background(ChatLook.accent)
                             .padding(horizontal = 6.dp, vertical = 1.dp), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
-                    if (loadingOlder) LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter), color = ChatLook.bar)
+                    if (loadingOlder) LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter), color = ChatLook.accent)
                     // WhatsApp's floating date while scrolled back: the day of the top visible message.
                     val topDay by remember(rows) { derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index?.let { i -> (rows.getOrNull(i) as? ChItem.M)?.m?.createdAt?.let { chatDay(it) } } ?: "" } }
                     // Solid chip with a shadow (WhatsApp): it never shows the bubble text through it.
@@ -545,7 +545,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             canWrite -> {
                 val ctxBar = editing ?: replyTo
                 if (ctxBar != null) Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(start = 12.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(if (editing != null) Sym.Edit else Sym.Reply, null, tint = ChatLook.bar, modifier = Modifier.size(20.dp))
+                    Icon(if (editing != null) Sym.Edit else Sym.Reply, null, tint = ChatLook.accent, modifier = Modifier.size(20.dp))
                     Box(Modifier.padding(start = 8.dp).width(3.dp).height(34.dp).background(ChatLook.nameColor(ctxBar.senderId)))
                     Column(Modifier.weight(1f).padding(start = 8.dp)) {
                         Text(if (editing != null) "Edit message" else "Reply to " + ctxBar.nick, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.nameColor(ctxBar.senderId), maxLines = 1)
@@ -664,9 +664,9 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         if (pinned != null) {
             Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).tap(RoundedCornerShape(0.dp)) { scrollTo(pinned.id) }.padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
                 verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(3.dp).height(32.dp).background(ChatLook.bar))
+                Box(Modifier.width(3.dp).height(32.dp).background(ChatLook.accent))
                 Column(Modifier.weight(1f).padding(start = 10.dp)) {
-                    Text("Pinned message", fontSize = 13.sp, color = ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it }, fontWeight = FontWeight.SemiBold)
+                    Text("Pinned message", fontSize = 13.sp, color = ChatLook.accent.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it }, fontWeight = FontWeight.SemiBold)
                     Text(pinned.preview, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                 }
                 ChIcon(Sym.ViewList, "All pinned messages", { pinsOpen = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)

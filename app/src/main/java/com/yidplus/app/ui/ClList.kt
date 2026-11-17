@@ -59,7 +59,7 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
     AnimatedVisibility(open, enter = slideInHorizontally { -it }, exit = slideOutHorizontally { -it }) {
         val me = Session.me
         Column(Modifier.fillMaxHeight().widthIn(max = 300.dp).fillMaxWidth(.82f).background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
-            Column(Modifier.fillMaxWidth().background(ChatLook.bar).tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp)) {
+            Column(Modifier.fillMaxWidth().background(ChatLook.accent).tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp)) {
                 ChAvatar(me?.photo, me?.nickname ?: "User", me?.id ?: "me", 64.dp)
                 Spacer(Modifier.height(10.dp))
                 Text(me?.nickname ?: "User", color = barContent(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,

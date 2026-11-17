@@ -118,7 +118,7 @@ internal fun CsActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                 if (signedIn && !m.failed && !m.deleted) {
                     Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                         CHAT_QUICK_REACTS.forEachIndexed { i, e ->
-                            Box(Modifier.size(40.dp).clip(CircleShape).background(if (myReact == e) ChatLook.bar.copy(alpha = .2f) else Color.Transparent)
+                            Box(Modifier.size(40.dp).clip(CircleShape).background(if (myReact == e) ChatLook.accent.copy(alpha = .2f) else Color.Transparent)
                                 .then(if (i == 0) Modifier.firstFocus(always = true) else Modifier).tap(CircleShape) { onAct("react:$e") }, contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
                         }
                         Box(Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { more = !more }, contentAlignment = Alignment.Center) {
@@ -183,7 +183,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
     Column(Modifier.fillMaxWidth().height(240.dp).background(MaterialTheme.colorScheme.surface)) {
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
             @Composable fun tab(sel: Boolean, onClick: () -> Unit, content: @Composable () -> Unit) =
-                Box(Modifier.height(44.dp).widthIn(min = 44.dp).background(if (sel) ChatLook.bar.copy(alpha = .15f) else Color.Transparent).tap(RoundedCornerShape(8.dp), onClick = onClick).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) { content() }
+                Box(Modifier.height(44.dp).widthIn(min = 44.dp).background(if (sel) ChatLook.accent.copy(alpha = .15f) else Color.Transparent).tap(RoundedCornerShape(8.dp), onClick = onClick).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) { content() }
             tab(cat == -1, { cat = -1 }) { Icon(Sym.Schedule, "Recent", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
             tab(cat == -2, { cat = -2 }) { Text("Stickers", fontSize = 14.sp, fontWeight = FontWeight.SemiBold) }
             CHAT_EMOJI_SETS.forEachIndexed { i, (icon, _) -> tab(cat == i, { cat = i }) { Text(icon, fontSize = 20.sp) } }
@@ -192,7 +192,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         when (cat) {
             -2 -> LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.fillMaxSize()) {
                 if (Session.me != null) item { Box(Modifier.size(76.dp).padding(6.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(10.dp)) { onPickSticker() }, contentAlignment = Alignment.Center) {
-                    Icon(Sym.AddPhotoAlternate, "Add sticker", tint = ChatLook.bar) } }
+                    Icon(Sym.AddPhotoAlternate, "Add sticker", tint = ChatLook.accent) } }
                 gridItems(custom) { s ->
                     val url = Api.abs(s.str("url")) ?: ""
                     val mineS = s.str("owner_id") == Session.me?.id || chIsSiteAdmin()
@@ -304,7 +304,7 @@ internal fun CsPinnedList(roomId: String, onJump: (String) -> Unit, onClose: () 
             else -> LazyColumn(Modifier.heightIn(max = 360.dp)) {
                 items(l) { p ->
                     Column(Modifier.fillMaxWidth().tap { onJump(p.str("message_id")) }.padding(vertical = 8.dp)) {
-                        if (p.str("sender_nick").isNotBlank()) Text("@" + p.str("sender_nick"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.bar)
+                        if (p.str("sender_nick").isNotBlank()) Text("@" + p.str("sender_nick"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.accent)
                         Text(if (p.str("text").isBlank()) "[deleted message]" else if (p.str("type") == "text") p.str("text").take(80) else "[" + p.str("type") + "]",
                             fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                         Text("Pinned by @" + p.str("pinned_by_nick").ifBlank { "admin" } + " · " + chatTime(p.strOrNull("pinned_at")), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -320,7 +320,7 @@ internal fun CsPinnedList(roomId: String, onJump: (String) -> Unit, onClose: () 
 @Composable
 internal fun CsSelectBar(n: Int, canDelete: Boolean, canSave: Boolean, onClose: () -> Unit, onCopy: () -> Unit, onForward: () -> Unit, onDelete: () -> Unit,
                          onReply: (() -> Unit)? = null, onStar: (() -> Unit)? = null, onMore: (() -> Unit)? = null) {
-    Surface(color = ChatLook.bar, contentColor = Color.White) {
+    Surface(color = ChatLook.accent, contentColor = Color.White) {
         Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             ChIcon(Sym.Close, "Cancel selection", onClose)
             Text("$n", Modifier.weight(1f).padding(start = 8.dp), fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
@@ -339,7 +339,7 @@ internal fun CsSelectBar(n: Int, canDelete: Boolean, canSave: Boolean, onClose: 
 internal fun CsReactStrip(myReact: String?, onReact: (String) -> Unit, onMore: () -> Unit) {
     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
         CHAT_QUICK_REACTS.forEach { e ->
-            Box(Modifier.size(40.dp).clip(CircleShape).background(if (myReact == e) ChatLook.bar.copy(alpha = .2f) else Color.Transparent).tap(CircleShape) { onReact(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
+            Box(Modifier.size(40.dp).clip(CircleShape).background(if (myReact == e) ChatLook.accent.copy(alpha = .2f) else Color.Transparent).tap(CircleShape) { onReact(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
         }
         Box(Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { onMore() }, contentAlignment = Alignment.Center) {
             Icon(Sym.Add, "More reactions", tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -352,7 +352,7 @@ internal fun CsReactStrip(myReact: String?, onReact: (String) -> Unit, onMore: (
 @Composable
 internal fun CsUnreadLine(n: Int) {
     Box(Modifier.fillMaxWidth().padding(vertical = 6.dp).background(ChatLook.theirs().copy(alpha = .85f)).padding(vertical = 5.dp), contentAlignment = Alignment.Center) {
-        Text(if (n == 1) "1 unread message" else "$n unread messages", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = ChatLook.bar)
+        Text(if (n == 1) "1 unread message" else "$n unread messages", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = ChatLook.accent)
     }
 }
 
@@ -375,7 +375,7 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (S
                 }
                 if (list.size > 1) LazyRow(Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(list.size) { i ->
-                        Box(Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).then(if (i == cur) Modifier.border(2.dp, ChatLook.bar, RoundedCornerShape(8.dp)) else Modifier).tap(RoundedCornerShape(8.dp)) { cur = i }) {
+                        Box(Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).then(if (i == cur) Modifier.border(2.dp, ChatLook.accent, RoundedCornerShape(8.dp)) else Modifier).tap(RoundedCornerShape(8.dp)) { cur = i }) {
                             AsyncImage(list[i], null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
                             Box(Modifier.align(Alignment.TopEnd).size(22.dp).clip(CircleShape).background(Color(0xAA000000)).tap(CircleShape) { onRemove(list[i]); if (cur >= list.size - 1) cur = 0 }, contentAlignment = Alignment.Center) {
                                 Icon(Sym.Close, "Remove", Modifier.size(14.dp), tint = Color.White) }
@@ -387,7 +387,7 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (S
                         textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent))
                     Spacer(Modifier.width(8.dp))
-                    Box(Modifier.size(52.dp).clip(CircleShape).background(ChatLook.bar).tap(CircleShape) { onSend(cap.trim()) }, contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(52.dp).clip(CircleShape).background(ChatLook.accent).tap(CircleShape) { onSend(cap.trim()) }, contentAlignment = Alignment.Center) {
                         Icon(Sym.Send, "Send", tint = Color.White) }
                 }
             }
@@ -425,7 +425,7 @@ data class CsForwardMany(val list: List<ChatMsg>) : PageScreen() {
                     }.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         ChAvatar(r.room.photo, r.room.name, r.room.otherUserId ?: r.room.id, 44.dp)
                         Text(r.room.name, Modifier.weight(1f).padding(start = 12.dp), fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        if (r.room.id in sent) Icon(Sym.Check, "Sent", tint = ChatLook.bar)
+                        if (r.room.id in sent) Icon(Sym.Check, "Sent", tint = ChatLook.accent)
                     }
                 }
             }
