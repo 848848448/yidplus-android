@@ -91,6 +91,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 import com.yidplus.app.data.Api
 import com.yidplus.app.data.Disk
 import com.yidplus.app.data.Net
@@ -199,9 +204,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                         Text("  " + if (m.isVoice) "Voice message unavailable" else m.caption.ifBlank { "Media unavailable" }, fontSize = 14.sp, color = ChatLook.sub(), style = TextStyle(textDirection = TextDirection.Content))
                     }
                     album != null && album.size > 1 -> CsAlbumGrid(album, maxW, onMedia)
-                    m.isVideoNote -> Box(Modifier.padding(2.dp).size(200.dp).clip(CircleShape).background(Color(0xFF263238)), contentAlignment = Alignment.Center) {
-                        ChVideoThumb(m.media ?: m.local!!, 200.dp); Icon(Sym.Videocam, null, Modifier.align(Alignment.BottomCenter).padding(10.dp).size(18.dp), tint = Color.White.copy(alpha = .85f))
-                    }
+                    m.isVideoNote -> ChVideoNote(m.media ?: m.local!!)
                     m.isImage -> AsyncImage(m.media ?: m.local, "Photo", contentScale = ContentScale.Crop, modifier = Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF263238)))
                     m.isVideo -> ChVideoThumb(m.media ?: m.local!!, maxW)
                     m.isAudio -> CsVoiceBubble(m)
@@ -355,6 +358,24 @@ internal fun ChBubbleSkeleton() {
 }
 
 /** Video message: a real frame from the video with a play button (never a black box). */
+@Composable
+/** WhatsApp round video message: plays inline in a circle, muted and looping; tap opens it full screen with sound. */
+@Composable
+private fun ChVideoNote(url: String) {
+    val c = ctx()
+    val player = remember(url) {
+        Media.player(c).apply { setMediaItem(MediaItem.fromUri(url)); repeatMode = Player.REPEAT_MODE_ONE; volume = 0f; playWhenReady = true; prepare() }
+    }
+    DisposableEffect(player) { onDispose { player.release() } }
+    Box(Modifier.padding(2.dp).size(200.dp).clip(CircleShape).background(Color(0xFF263238)), contentAlignment = Alignment.Center) {
+        AndroidView(factory = { ctx -> PlayerView(ctx).apply {
+            useController = false; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+            setShutterBackgroundColor(android.graphics.Color.TRANSPARENT); this.player = player
+        } }, modifier = Modifier.fillMaxSize())
+        Icon(Sym.Videocam, null, Modifier.align(Alignment.BottomCenter).padding(10.dp).size(18.dp), tint = Color.White.copy(alpha = .85f))
+    }
+}
+
 @Composable
 private fun ChVideoThumb(url: String, maxW: Dp) {
     val c = ctx()
