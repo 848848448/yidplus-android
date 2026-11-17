@@ -28,6 +28,11 @@ import com.yidplus.app.data.Api
 import com.yidplus.app.data.Prefs
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.str
+import coil.imageLoader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 // The website's Settings page, section by section (js/theme.js buildSettingsPage + js/comfort.js "Reading and help").
 
@@ -216,6 +221,55 @@ class SettingsChat : PageScreen() {
             SettingsHint("Wallpaper and silent calls are kept on this phone, like on the website.")
         }
     }
+}
+
+/** Storage and data (WhatsApp "Storage and data"): how much space the downloaded photos, videos and GIFs take on this phone, and a one-tap "Clear media cache" that frees it (media re-downloads when you open a chat again). Everything is on-device; nothing is deleted on the server. */
+class SettingsStorage : PageScreen() {
+    override val perfName = "Storage"
+    override fun equals(other: Any?) = other is SettingsStorage
+    override fun hashCode() = 322
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope()
+        var bytes by remember { mutableStateOf<Long?>(null) }
+        var clearing by remember { mutableStateOf(false) }
+        var confirm by remember { mutableStateOf(false) }
+        suspend fun measure() { bytes = withContext(Dispatchers.IO) { runCatching { dirSize(c.cacheDir) }.getOrDefault(0L) } }
+        LaunchedEffect(Unit) { measure() }
+        SettingsPage("Storage and data") {
+            SettingsCard("Media cache") {
+                SettingRow(Sym.Photo, "Downloaded media", "Photos, videos, GIFs and stickers kept on this phone so they open instantly",
+                    value = if (bytes == null) "…" else humanBytes(bytes!!)) {}
+                RowDivider(64.dp)
+                SettingRow(Sym.DeleteSweep, if (clearing) "Clearing…" else "Clear media cache",
+                    "Frees space now; media downloads again the next time you open a chat",
+                    danger = !clearing) { if (!clearing) confirm = true }
+            }
+            SettingsHint("This only clears copies saved on your phone — your messages, photos and videos stay in your chats and on the server.")
+        }
+        if (confirm) AlertDialog(onDismissRequest = { confirm = false },
+            title = { Text("Clear media cache?") },
+            text = { Text("The downloaded copies on this phone are removed. Nothing is deleted from your chats; media re-downloads when you open a chat again.") },
+            confirmButton = { TextButton({
+                confirm = false; clearing = true
+                scope.launch {
+                    withContext(Dispatchers.IO) {
+                        runCatching { c.imageLoader.diskCache?.clear() }
+                        runCatching { c.imageLoader.memoryCache?.clear() }
+                        runCatching { c.cacheDir.listFiles()?.forEach { it.deleteRecursively() } }
+                    }
+                    measure(); clearing = false; toast(c, "Media cache cleared")
+                }
+            }) { Text("Clear", color = Color(0xFFD32F2F)) } },
+            dismissButton = { TextButton({ confirm = false }) { Text("Cancel") } })
+    }
+}
+
+private fun dirSize(f: File): Long = if (!f.exists()) 0L else if (f.isDirectory) (f.listFiles()?.sumOf { dirSize(it) } ?: 0L) else f.length()
+private fun humanBytes(n: Long): String = when {
+    n >= 1024L * 1024 * 1024 -> "%.1f GB".format(n / (1024.0 * 1024 * 1024))
+    n >= 1024L * 1024 -> "%.0f MB".format(n / (1024.0 * 1024))
+    n >= 1024L -> "%.0f KB".format(n / 1024.0)
+    else -> "$n B"
 }
 
 /** theme.js "Verification": Verified account (Active) or Get verified (POST /api/verify-request {}). */

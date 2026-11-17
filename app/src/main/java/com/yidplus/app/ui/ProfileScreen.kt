@@ -169,6 +169,8 @@ fun ProfileScreen() {
                             RowDivider(64.dp)
                             SettingRow(Sym.NotificationsActive, "Notifications", "New messages, likes, followers, channel updates") { Nav.open(SettingsNotifPrefs()) }
                             RowDivider(64.dp)
+                            SettingRow(Sym.Storage, "Storage and data", "Manage the media kept on this phone, free up space") { Nav.open(SettingsStorage()) }
+                            RowDivider(64.dp)
                             val devs = SettingsProfile.res.data?.optJSONArray("sessions")?.length() ?: 0
                             SettingRow(Sym.Devices, "Devices", if (devs > 0) "$devs active · sign out other devices" else "Where you're signed in") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
