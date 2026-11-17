@@ -1,3 +1,7 @@
+## New in 2.6.0
+- Chat lock: lock any single chat behind your fingerprint or PIN (open the chat → menu → Lock chat). Locked chats hide their last message in the list and ask to unlock when you open them.
+- React with any emoji: the "+" on the reaction bar now opens a full emoji grid, not just the six quick ones.
+
 ## New in 2.5.0
 - Roomier chat list, exactly like WhatsApp: bigger rows, bigger pictures and clearer text — not cramped.
 - More than one account: add another account and switch between them from the menu, like WhatsApp.
