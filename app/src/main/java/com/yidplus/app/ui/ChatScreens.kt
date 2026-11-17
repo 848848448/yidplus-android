@@ -307,6 +307,11 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }.getOrNull()
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok: Boolean -> val u = shotUri; if (ok && u != null) pendingMedia = listOf(u) }
     val videoCam = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo()) { ok: Boolean -> val u = shotUri; if (ok && u != null) pendingMedia = listOf(u) }
+    // WhatsApp's round video message: record a short clip and send it as a 'videonote' (rendered in a circle).
+    val videoNoteCam = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo()) { ok: Boolean ->
+        val u = shotUri; if (ok && u != null) sendFile(u, null, "videonote", "videonote.mp4", "video/mp4", "", localPreview = u.toString())
+    }
+    fun shootNote() { val u = newCapture(".mp4") ?: run { toast(c, "Can't open the camera"); return }; shotUri = u; runCatching { videoNoteCam.launch(u) }.onFailure { toast(c, "No camera app") } }
     fun shoot(video: Boolean) {
         val u = newCapture(if (video) ".mp4" else ".jpg") ?: run { toast(c, "Can't open the camera"); return }
         shotUri = u
@@ -613,6 +618,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         "contact" -> runCatching { pickContact.launch(Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)) }.onFailure { toast(c, "No contacts app") }
                         "location" -> shareLocation()
                         "gif" -> gifOpen = true
+                        "videonote" -> shootNote()
                         "poll" -> Nav.open(CsPollNew(room))
                         "options" -> optsOpen = true
                     }

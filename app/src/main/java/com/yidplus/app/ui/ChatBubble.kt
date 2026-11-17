@@ -126,12 +126,12 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
     val shape = if (mine) RoundedCornerShape(r, if (first) tail else r, r, r) else RoundedCornerShape(if (first) tail else r, r, r, r)
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
-    val hasMedia = !m.deleted && (m.isImage || m.isVideo || (m.viewOnce && !mine && m.media != null))
+    val hasMedia = !m.deleted && (m.isImage || m.isVideo || m.isVideoNote || (m.viewOnce && !mine && m.media != null))
     fun open() {
         when {
             m.deleted -> onLong()
             m.viewOnce && !mine && m.media != null -> onMedia(m.media)
-            m.isVideo || m.isImage -> (m.media ?: m.local)?.let(onMedia)
+            m.isVideo || m.isVideoNote || m.isImage -> (m.media ?: m.local)?.let(onMedia)
             m.isSticker -> m.stickerUrl?.let(onMedia)
             m.isAudio -> m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) }
             m.media != null -> chOpenLink(c, m.media)
@@ -199,6 +199,9 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                         Text("  " + if (m.isVoice) "Voice message unavailable" else m.caption.ifBlank { "Media unavailable" }, fontSize = 14.sp, color = ChatLook.sub(), style = TextStyle(textDirection = TextDirection.Content))
                     }
                     album != null && album.size > 1 -> CsAlbumGrid(album, maxW, onMedia)
+                    m.isVideoNote -> Box(Modifier.padding(2.dp).size(200.dp).clip(CircleShape).background(Color(0xFF263238)), contentAlignment = Alignment.Center) {
+                        ChVideoThumb(m.media ?: m.local!!, 200.dp); Icon(Sym.Videocam, null, Modifier.align(Alignment.BottomCenter).padding(10.dp).size(18.dp), tint = Color.White.copy(alpha = .85f))
+                    }
                     m.isImage -> AsyncImage(m.media ?: m.local, "Photo", contentScale = ContentScale.Crop, modifier = Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF263238)))
                     m.isVideo -> ChVideoThumb(m.media ?: m.local!!, maxW)
                     m.isAudio -> CsVoiceBubble(m)

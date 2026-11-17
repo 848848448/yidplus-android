@@ -79,7 +79,9 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
     val stickerUrl get() = if (!isSticker) null else media ?: text.takeIf { it.startsWith("http") || it.startsWith("/") }?.let { Api.abs(it) }
     val isVoice get() = type == "voice"
     val isImage get() = !isSticker && (media != null || local != null) && (ext in setOf("jpg", "jpeg", "png", "gif", "webp", "heic", "avif") || (type == "media" && ext.isEmpty() && local == null))
-    val isVideo get() = (media != null || local != null) && ext in setOf("mp4", "mov", "webm", "3gp", "mkv", "m4v") && !isVoice
+    /** WhatsApp round video message. */
+    val isVideoNote get() = type == "videonote"
+    val isVideo get() = !isVideoNote && (media != null || local != null) && ext in setOf("mp4", "mov", "webm", "3gp", "mkv", "m4v") && !isVoice
     // local counts too: a voice note / music file just recorded on this phone renders as a playable bubble while it uploads.
     val isAudio get() = (media != null || local != null) && !isVideo && (isVoice || ext in setOf("mp3", "m4a", "ogg", "opus", "wav", "aac", "amr", "flac"))
     val isFile get() = media != null && !isImage && !isVideo && !isAudio && !isSticker
@@ -105,6 +107,7 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
         isPoll -> "📊 Poll"; isVoice -> "🎤 Voice message" + (voiceDur.takeIf { it.isNotBlank() }?.let { " $it" } ?: "")
         isVoiceText -> "🎤 Voice message" + (text.substringBefore('|').trim().takeIf { Regex("""\d+:\d\d""").matches(it) }?.let { " $it" } ?: "")
         isSticker -> "💟 Sticker"; isImage -> "📷 " + caption.ifBlank { "Photo" }
+        isVideoNote -> "📹 Video message"
         isVideo -> "🎬 " + caption.ifBlank { "Video" }; isMusic -> "🎵 " + fileName.substringBeforeLast('.'); isFile -> "📎 $fileName"
         isUnavailable -> "📎 " + caption.ifBlank { "Media" }
         else -> text.removeSuffix(" ↩ Forwarded").replace('\n', ' ').take(120)
