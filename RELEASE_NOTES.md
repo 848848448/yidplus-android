@@ -1,3 +1,19 @@
+## New in 2.5.0
+- Roomier chat list, exactly like WhatsApp: bigger rows, bigger pictures and clearer text — not cramped.
+- More than one account: add another account and switch between them from the menu, like WhatsApp.
+- A Calls screen (menu → Calls): your recent calls with incoming / outgoing / missed, and a tap to call back.
+- Share your location: the attach (+) menu now has Location — it sends a tappable map link to where you are.
+- App lock: turn on Settings → Security → App lock to open YID PLUS with your fingerprint or PIN.
+- GIFs: the attach (+) menu has a GIF search — pick one and it sends as an animated GIF.
+- Video notes: record a short round video message, just like WhatsApp.
+- "Online" is now real in groups too (it was sometimes showing people as online when they weren't).
+- Known gap: calls, the GIF picker, video notes and the lock screen were checked by building and on an emulator; the camera, microphone and GIF search still need a real phone to confirm.
+
+## New in 2.4.0
+- Calls ring your phone even when the app is closed, with a full-screen Answer / Decline, like WhatsApp.
+- Real "online" and exact "last seen today at 2:40 PM" in private chats, instead of a vague "last seen recently".
+- Fixed: the voice-note button and some chat buttons had turned white-on-white (invisible) with the white bar — they're green and clear again.
+
 ## New in 2.3.2
 - The WhatsApp 2024 look by default: a clean white top bar with a green title and green buttons, links and checkmarks (instead of a solid green bar), so the app matches today's WhatsApp. Dark mode keeps WhatsApp's dark bars. You can switch back to the solid green bar in Settings.
 
