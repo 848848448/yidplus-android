@@ -1,10 +1,3 @@
-## New in 2.4.0
-- Calls now ring your phone even when the app is closed: a voice or video call shows a full-screen incoming-call screen over the lock screen, with Answer and Decline, just like WhatsApp. Answer opens the call; Decline hangs up.
-- Online and last seen are now real: the app reports when you're using it, so "online" is accurate, and a private chat's header shows the exact time — "last seen today at 2:40 PM" — instead of a vague "last seen recently".
-- Fixed: in some chats the voice-note record/send button and the voice waveforms, reply icons, reactions, polls and Join buttons had gone white-on-white (invisible) with the new white top bar. They're green and clearly visible again.
-- Known gaps:
-  - Calls, the ring-while-closed screen and the instant notifications were checked on an emulator and by building; they still need a real phone with Google Play services to confirm the ring, the camera and the microphone.
-
 ## New in 2.3.2
 - The WhatsApp 2024 look by default: a clean white top bar with a green title and green buttons, links and checkmarks (instead of a solid green bar), so the app matches today's WhatsApp. Dark mode keeps WhatsApp's dark bars. You can switch back to the solid green bar in Settings.
 

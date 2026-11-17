@@ -58,13 +58,44 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
     }
     AnimatedVisibility(open, enter = slideInHorizontally { -it }, exit = slideOutHorizontally { -it }) {
         val me = Session.me
+        val scope = rememberCoroutineScope()
+        val c = ctx()
+        var acctsOpen by remember { mutableStateOf(false) }
+        val acctVer = com.yidplus.app.data.Accounts.version
+        val others = remember(acctVer, me?.id) { com.yidplus.app.data.Accounts.list().filter { it.id != me?.id } }
         Column(Modifier.fillMaxHeight().widthIn(max = 300.dp).fillMaxWidth(.82f).background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
-            Column(Modifier.fillMaxWidth().background(ChatLook.accent).tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp)) {
-                ChAvatar(me?.photo, me?.nickname ?: "User", me?.id ?: "me", 64.dp)
-                Spacer(Modifier.height(10.dp))
-                Text(me?.nickname ?: "User", color = barContent(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(textDirection = TextDirection.Content))
-                Text("@" + (me?.nickname ?: "user"), color = barContent().copy(alpha = .8f), fontSize = 14.sp, maxLines = 1, style = TextStyle(textDirection = TextDirection.Content))
+            Box(Modifier.fillMaxWidth().background(ChatLook.accent)) {
+                Column(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp)) {
+                    ChAvatar(me?.photo, me?.nickname ?: "User", me?.id ?: "me", 64.dp)
+                    Spacer(Modifier.height(10.dp))
+                    Text(me?.nickname ?: "User", color = barContent(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = TextStyle(textDirection = TextDirection.Content))
+                    Text("@" + (me?.nickname ?: "user"), color = barContent().copy(alpha = .8f), fontSize = 14.sp, maxLines = 1, style = TextStyle(textDirection = TextDirection.Content))
+                }
+                // Switch / add account (WhatsApp's account chevron)
+                if (me != null) Box(Modifier.align(Alignment.TopEnd).padding(6.dp).size(40.dp).clip(CircleShape).tap(CircleShape) { acctsOpen = !acctsOpen }
+                    .semantics { contentDescription = "Switch account" }, contentAlignment = Alignment.Center) {
+                    Icon(if (acctsOpen) Sym.ExpandLess else Sym.ExpandMore, null, tint = barContent(), modifier = Modifier.size(26.dp))
+                }
+            }
+            AnimatedVisibility(acctsOpen) {
+                Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f))) {
+                    for (a in others) Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp)) {
+                        acctsOpen = false; onClose()
+                        scope.launch { if (!Session.switchTo(a.id)) { toast(c, "Please sign in to this account again"); Session.beginAddAccount(); Nav.go(Tab.Profile) } else Nav.go(Tab.Chats) }
+                    }.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        ChAvatar(a.photo, a.nick, a.id, 40.dp)
+                        Text(a.nick, Modifier.weight(1f).padding(start = 16.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                        Icon(Sym.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                    }
+                    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).tap(RoundedCornerShape(0.dp)) {
+                        acctsOpen = false; onClose(); Session.beginAddAccount(); Nav.go(Tab.Profile)
+                    }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = .15f)), contentAlignment = Alignment.Center) { Icon(Sym.Add, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp)) }
+                        Text("Add account", Modifier.weight(1f).padding(start = 16.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
+                    }
+                    HorizontalDivider()
+                }
             }
             ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true)) { onClose(); Nav.go(Tab.Profile) }
             ClDrawerItem(Sym.Bookmark, "Saved Messages") { onClose(); Nav.open(ChSaved()) }

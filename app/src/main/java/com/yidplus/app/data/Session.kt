@@ -14,6 +14,7 @@ object Session {
 
     fun init(c: Context) {
         ctx = c.applicationContext
+        Accounts.init(ctx)
         if (Api.hasSession()) me = prefs.getString("me", null)?.let { runCatching { Me.from(JSONObject(it)) }.getOrNull() }
     }
 
@@ -32,7 +33,33 @@ object Session {
         if (m != null && changed) runCatching { com.yidplus.app.Push.start(ctx) }
         me = m
         prefs.edit().apply { if (m == null) remove("me") else putString("me", m.json().toString()) }.apply()
+        // Keep the multi-account roster current: record this account + its live cookies whenever a sign-in is confirmed.
+        if (m != null) runCatching { Accounts.record(m.id, m.nickname, m.photo, Api.cookieSnapshot()) }
         if (changed) Store.clear()
+    }
+
+    /** Switch to another saved account, then reload as them. Returns false if that account must sign in again. */
+    suspend fun switchTo(id: String): Boolean {
+        if (id == me?.id) return true
+        if (!Accounts.switchTo(id)) return false
+        me = null
+        refresh()
+        return me != null
+    }
+
+    /** Stash the current account and clear the session so the sign-in screen adds a new one. */
+    fun beginAddAccount() { Accounts.beginAdd(); set(null) }
+
+    /** Sign out of the current account only; if another saved account exists, switch into it instead of going empty. */
+    suspend fun logoutThenMaybeSwitch(): Boolean {
+        val leaving = me?.id
+        runCatching { com.yidplus.app.Push.unregister(ctx) }
+        runCatching { Api.post("/api/auth/logout") }
+        if (leaving != null) Accounts.remove(leaving)
+        val next = Accounts.list().firstOrNull()?.id
+        if (next != null && Accounts.switchTo(next)) { me = null; refresh(); if (me != null) return true }
+        Api.clearSession(); Disk.clear(); set(null)
+        return false
     }
 
     sealed class Login { object Ok : Login(); object Need2fa : Login(); data class Fail(val msg: String) : Login() }
@@ -52,6 +79,7 @@ object Session {
     suspend fun logout() {
         runCatching { com.yidplus.app.Push.unregister(ctx) }
         runCatching { Api.post("/api/auth/logout") }
+        runCatching { me?.id?.let { Accounts.remove(it) } }
         Api.clearSession(); Disk.clear(); set(null)
     }
 
