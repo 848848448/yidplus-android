@@ -135,6 +135,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var actionFor by remember { mutableStateOf<ChatMsg?>(null) }
     var emojiOpen by remember { mutableStateOf(false) }
     var attachOpen by remember { mutableStateOf(false) }
+    var gifOpen by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
     var searchOn by remember { mutableStateOf(false) }
     var sq by remember { mutableStateOf("") }
@@ -287,6 +288,16 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             else sendPhoto(u, null, cap)
         }
     }
+    // A GIF picked from the GIF picker: download it once and send it as media (.gif renders animated, like WhatsApp).
+    fun sendGif(gifUrl: String) {
+        scope.launch {
+            val f = runCatching { withContext(Dispatchers.IO) {
+                val resp = Api.http.newCall(okhttp3.Request.Builder().url(gifUrl).build()).execute()
+                resp.use { val bytes = it.body?.bytes() ?: throw java.io.IOException("empty"); java.io.File(c.cacheDir, "gif_" + System.nanoTime() + ".gif").also { ff -> ff.writeBytes(bytes) } }
+            } }.getOrElse { toast(c, "Couldn't load that GIF"); return@launch }
+            sendFile(null, f, "media", "gif.gif", "image/gif", "", localPreview = Uri.fromFile(f).toString())
+        }
+    }
     val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { l: List<Uri> -> if (l.isNotEmpty()) pendingMedia = l.take(30) }
     // Full-size camera photo (the old preview-size picture was ~200 px): the camera writes into our FileProvider's captures/.
     var shotUri by remember { mutableStateOf<Uri?>(null) }
@@ -434,8 +445,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         }
     }
 
-    BackHandler(enabled = selecting || searchOn || emojiOpen || attachOpen || recording || editing != null || replyTo != null) {
-        when { selecting -> { selecting = false; selected.clear() }; recording -> stopRec(false); attachOpen -> attachOpen = false; emojiOpen -> emojiOpen = false; searchOn -> { searchOn = false; sq = "" }
+    BackHandler(enabled = selecting || searchOn || emojiOpen || attachOpen || gifOpen || recording || editing != null || replyTo != null) {
+        when { selecting -> { selecting = false; selected.clear() }; recording -> stopRec(false); gifOpen -> gifOpen = false; attachOpen -> attachOpen = false; emojiOpen -> emojiOpen = false; searchOn -> { searchOn = false; sq = "" }
             else -> { if (editing != null) text = ""; editing = null; replyTo = null } }
     }
     val csHeader: @Composable ColumnScope.() -> Unit = {
@@ -601,10 +612,12 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         "video" -> pickVideo.launch("video/*"); "audio" -> pickAudio.launch("audio/*"); "file" -> pickDoc.launch("*/*")
                         "contact" -> runCatching { pickContact.launch(Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)) }.onFailure { toast(c, "No contacts app") }
                         "location" -> shareLocation()
+                        "gif" -> gifOpen = true
                         "poll" -> Nav.open(CsPollNew(room))
                         "options" -> optsOpen = true
                     }
                 })
+                if (gifOpen && !recording) GifPickerPanel(onPick = { url -> gifOpen = false; sendGif(url) }, onClose = { gifOpen = false })
             }
             spectating -> Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 Icon(Sym.Visibility, null, Modifier.size(18.dp), tint = Color(0xFFB8860B))

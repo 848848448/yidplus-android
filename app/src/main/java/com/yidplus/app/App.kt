@@ -37,6 +37,7 @@ class App : Application(), ImageLoaderFactory {
 
     /** Images: small memory cache (weak phones), 120 MB on disk so channels open instantly offline too. */
     override fun newImageLoader(): ImageLoader = ImageLoader.Builder(this)
+        .components { if (Build.VERSION.SDK_INT >= 28) add(coil.decode.ImageDecoderDecoder.Factory()) else add(coil.decode.GifDecoder.Factory()) }
         .okHttpClient { Api.http }
         .memoryCache { MemoryCache.Builder(this).maxSizePercent(0.15).build() }
         .diskCache { DiskCache.Builder().directory(cacheDir.resolve("img")).maxSizeBytes(120L * 1024 * 1024).build() }
