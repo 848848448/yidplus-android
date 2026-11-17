@@ -525,6 +525,16 @@ class SettingsSecurity : PageScreen() {
                 RowDivider(64.dp)
                 SettingRow(Sym.Security, "Two-step verification", when (twofa) { true -> "On · a code from your authenticator app"; false -> "Off"; null -> "…" }) { if (twofa != null) show2fa = true }
             }
+            SettingsCard("App lock") {
+                SettingRow(Sym.Lock, "Lock YID PLUS", if (AppLock.enabled) "On · asks for your fingerprint or PIN to open" else "Off · open without unlocking",
+                    switch = AppLock.enabled) {
+                    if (!AppLock.enabled) {
+                        val km = c.getSystemService(android.app.KeyguardManager::class.java)
+                        if (km == null || !km.isDeviceSecure) toast(c, "Set a screen lock (PIN, pattern or fingerprint) on your phone first")
+                        else { AppLock.setEnabled(true); toast(c, "App lock on") }
+                    } else { AppLock.setEnabled(false); toast(c, "App lock off") }
+                }
+            }
             SettingsCard("Devices (${sessions.size} signed in)") {
                 sessions.take(10).forEachIndexed { i, s ->
                     if (i > 0) RowDivider(64.dp)

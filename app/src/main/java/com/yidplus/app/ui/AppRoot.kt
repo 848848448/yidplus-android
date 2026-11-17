@@ -157,6 +157,24 @@ fun AppRoot(onExit: () -> Unit) {
             }
         }
         CallHost()
+        if (AppLock.locked) AppLockScreen()
+        }
+    }
+}
+
+/** Full-screen lock cover shown until the phone's fingerprint/PIN confirms it's you. */
+@Composable
+private fun AppLockScreen() {
+    Box(Modifier.fillMaxSize().background(Color(0xFF008069)).tap(RoundedCornerShape(0.dp)) {}, contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Sym.Lock, null, tint = Color.White, modifier = Modifier.size(56.dp))
+            Spacer(Modifier.height(16.dp))
+            Text("YID PLUS is locked", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(24.dp))
+            Box(Modifier.clip(RoundedCornerShape(24.dp)).background(Color.White).tap(RoundedCornerShape(24.dp)) { AppLock.onUnlockRequest?.invoke() }
+                .padding(horizontal = 28.dp, vertical = 12.dp)) {
+                Text("Unlock", color = Color(0xFF008069), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }

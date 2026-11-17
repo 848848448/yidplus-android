@@ -86,6 +86,8 @@ class MainActivity : ComponentActivity() {
         val cfg = resources.configuration
         if (cfg.navigation == Configuration.NAVIGATION_DPAD || cfg.keyboard == Configuration.KEYBOARD_12KEY) Keys.keypad = true
         LookPrefs.init(this); UiPrefs.init(this)
+        com.yidplus.app.ui.AppLock.init(this)
+        com.yidplus.app.ui.AppLock.onUnlockRequest = { promptAppUnlock() }
         YidMotion.system = runCatching { android.provider.Settings.Global.getFloat(contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) }.getOrDefault(1f)
         // Our own recomposer (same as Compose's window recomposer) so Reduce motion reaches every animation.
         val recomposer = Recomposer(AndroidUiDispatcher.CurrentThread + YidMotion)
@@ -175,15 +177,29 @@ class MainActivity : ComponentActivity() {
         return super.dispatchKeyEvent(event)
     }
 
+    // App lock: confirm with the phone's fingerprint/PIN. Always falls back to the device PIN, so no lockout.
+    private val appLockLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
+        if (r.resultCode == RESULT_OK) com.yidplus.app.ui.AppLock.markUnlocked()
+    }
+    private fun promptAppUnlock() {
+        val km = getSystemService(android.app.KeyguardManager::class.java)
+        if (km == null || !km.isDeviceSecure) { com.yidplus.app.ui.AppLock.markUnlocked(); return }
+        val i = runCatching { @Suppress("DEPRECATION") km.createConfirmDeviceCredentialIntent("YID PLUS", "Unlock to continue") }.getOrNull()
+        if (i != null) runCatching { appLockLauncher.launch(i) }.onFailure { com.yidplus.app.ui.AppLock.markUnlocked() }
+        else com.yidplus.app.ui.AppLock.markUnlocked()
+    }
+
     override fun onResume() {
         super.onResume()
         UpdateUi.onResume(this)
+        if (com.yidplus.app.ui.AppLock.enabled && com.yidplus.app.ui.AppLock.locked) promptAppUnlock()
         if (Session.me != null) lifecycleScope.launch { Session.refresh() }
         lifecycleScope.launch { com.yidplus.app.data.SiteConfig.refresh() }
     }
 
     override fun onStop() {
         super.onStop()
+        com.yidplus.app.ui.AppLock.onBackground()
         if (Session.me != null) NotifyWorker.schedule(this)
     }
 }
