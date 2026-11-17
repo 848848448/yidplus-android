@@ -74,9 +74,9 @@ private fun CallHistoryRow(r: CallRow) {
             }
         }
         // Call back, same kind.
-        ChIcon(if (r.kind == "audio") Sym.Call else Sym.Videocam, "Call back") {
+        ChIcon(if (r.kind == "audio") Sym.Call else Sym.Videocam, "Call back", onClick = {
             CallKit.startCall(c, r.otherId, r.nick, r.photo, video = r.kind != "audio")
-        }
+        })
     }
     HorizontalDivider(Modifier.padding(start = 82.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
 }
