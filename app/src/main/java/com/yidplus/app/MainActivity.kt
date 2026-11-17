@@ -88,6 +88,8 @@ class MainActivity : ComponentActivity() {
         LookPrefs.init(this); UiPrefs.init(this)
         com.yidplus.app.ui.AppLock.init(this)
         com.yidplus.app.ui.AppLock.onUnlockRequest = { promptAppUnlock() }
+        com.yidplus.app.ui.ChatLock.init(this)
+        com.yidplus.app.ui.ChatLock.onUnlockRequest = { roomId -> promptChatUnlock(roomId) }
         YidMotion.system = runCatching { android.provider.Settings.Global.getFloat(contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) }.getOrDefault(1f)
         // Our own recomposer (same as Compose's window recomposer) so Reduce motion reaches every animation.
         val recomposer = Recomposer(AndroidUiDispatcher.CurrentThread + YidMotion)
@@ -177,17 +179,22 @@ class MainActivity : ComponentActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-    // App lock: confirm with the phone's fingerprint/PIN. Always falls back to the device PIN, so no lockout.
+    // App lock & chat lock: confirm with the phone's fingerprint/PIN. Always falls back to the device PIN, so no lockout.
+    private var pendingUnlock: (() -> Unit)? = null
     private val appLockLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
-        if (r.resultCode == RESULT_OK) com.yidplus.app.ui.AppLock.markUnlocked()
+        if (r.resultCode == RESULT_OK) { val act = pendingUnlock; if (act != null) act() else com.yidplus.app.ui.AppLock.markUnlocked() }
+        pendingUnlock = null
     }
-    private fun promptAppUnlock() {
+    private fun confirmCredential(onOk: () -> Unit) {
         val km = getSystemService(android.app.KeyguardManager::class.java)
-        if (km == null || !km.isDeviceSecure) { com.yidplus.app.ui.AppLock.markUnlocked(); return }
+        if (km == null || !km.isDeviceSecure) { onOk(); return }
+        pendingUnlock = onOk
         val i = runCatching { @Suppress("DEPRECATION") km.createConfirmDeviceCredentialIntent("YID PLUS", "Unlock to continue") }.getOrNull()
-        if (i != null) runCatching { appLockLauncher.launch(i) }.onFailure { com.yidplus.app.ui.AppLock.markUnlocked() }
-        else com.yidplus.app.ui.AppLock.markUnlocked()
+        if (i != null) runCatching { appLockLauncher.launch(i) }.onFailure { pendingUnlock = null; onOk() }
+        else { pendingUnlock = null; onOk() }
     }
+    private fun promptAppUnlock() = confirmCredential { com.yidplus.app.ui.AppLock.markUnlocked() }
+    private fun promptChatUnlock(roomId: String) = confirmCredential { com.yidplus.app.ui.ChatLock.markUnlocked(roomId) }
 
     override fun onResume() {
         super.onResume()
@@ -200,6 +207,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         com.yidplus.app.ui.AppLock.onBackground()
+        com.yidplus.app.ui.ChatLock.relockAll()
         if (Session.me != null) NotifyWorker.schedule(this)
     }
 }

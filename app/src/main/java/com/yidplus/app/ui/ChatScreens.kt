@@ -504,6 +504,17 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (msgs.isNotEmpty()) ChMenuItem(Sym.CheckCircle, "Select messages") { menu = false; selecting = true; selected.clear() }
                     if (info?.canManage == true && room.type != "private") ChMenuItem(Sym.Settings, if (isGroup) "Edit group" else "Edit channel") { menu = false; Nav.open(ChEditGroup(room)) }
                     if (me != null) ChMenuItem(Sym.Bookmark, "Saved messages") { menu = false; Nav.open(ChSaved()) }
+                    if (me != null) { val lockVer2 = ChatLock.version; val locked = lockVer2 >= 0 && ChatLock.isLocked(room.id)
+                        ChMenuItem(Sym.Lock, if (locked) "Unlock chat" else "Lock chat") {
+                            menu = false
+                            if (locked) { ChatLock.unlock(room.id); toast(c, "Chat unlocked") }
+                            else {
+                                val km = c.getSystemService(android.app.KeyguardManager::class.java)
+                                if (km == null || !km.isDeviceSecure) toast(c, "Set a screen lock (PIN/fingerprint) on your phone first")
+                                else { ChatLock.lock(room.id); ChatLock.markUnlocked(room.id); toast(c, "🔒 Chat locked") }
+                            }
+                        }
+                    }
                     if (me != null && joinedOk && info != null) ChMenuItem(Sym.ExitToApp, if (room.type == "private") "Delete chat" else if (isGroup) "Leave group" else "Leave channel", Color(0xFFD32F2F)) {
                         menu = false
                         confirm = (if (room.type == "private") "Delete this chat from your list?" else "Leave \"${room.name}\"?") to suspend { ChatApi.leave(room.id); roomsRes.load(true); Nav.back(); Unit }
@@ -721,6 +732,29 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         csComposer()
     }
     csDialogs()
+    // Chat lock: cover the conversation until the phone's fingerprint/PIN confirms it (WhatsApp's Chat lock).
+    val lockVer = ChatLock.version
+    if (lockVer >= 0 && ChatLock.needsUnlock(room.id)) {
+        LaunchedEffect(room.id) { ChatLock.onUnlockRequest?.invoke(room.id) }
+        ChatLockedCover(room.name) { ChatLock.onUnlockRequest?.invoke(room.id) }
+    }
+}
+
+/** Full-screen cover over a locked chat until the device credential confirms it. */
+@Composable
+private fun ChatLockedCover(name: String, onUnlock: () -> Unit) {
+    Box(Modifier.fillMaxSize().background(ChatLook.wall()).tap(RoundedCornerShape(0.dp)) {}, contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
+            Icon(Sym.Lock, null, tint = ChatLook.accent, modifier = Modifier.size(52.dp))
+            Spacer(Modifier.height(14.dp))
+            Text(name, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("This chat is locked", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(20.dp))
+            Box(Modifier.clip(RoundedCornerShape(24.dp)).background(ChatLook.accent).tap(RoundedCornerShape(24.dp)) { onUnlock() }.padding(horizontal = 28.dp, vertical = 12.dp)) {
+                Text("Unlock", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
 }
 
 private fun buildItems(rev: List<ChatMsg>): List<ChItem> {
