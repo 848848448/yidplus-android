@@ -25,7 +25,7 @@ object AppLock {
         locked = enabled
     }
 
-    fun setEnabled(on: Boolean) {
+    fun enable(on: Boolean) {
         enabled = on
         p?.edit()?.putBoolean("on", on)?.apply()
         locked = on && locked

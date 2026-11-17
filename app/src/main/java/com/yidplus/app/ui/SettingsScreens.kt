@@ -531,8 +531,8 @@ class SettingsSecurity : PageScreen() {
                     if (!AppLock.enabled) {
                         val km = c.getSystemService(android.app.KeyguardManager::class.java)
                         if (km == null || !km.isDeviceSecure) toast(c, "Set a screen lock (PIN, pattern or fingerprint) on your phone first")
-                        else { AppLock.setEnabled(true); toast(c, "App lock on") }
-                    } else { AppLock.setEnabled(false); toast(c, "App lock off") }
+                        else { AppLock.enable(true); toast(c, "App lock on") }
+                    } else { AppLock.enable(false); toast(c, "App lock off") }
                 }
             }
             SettingsCard("Devices (${sessions.size} signed in)") {
