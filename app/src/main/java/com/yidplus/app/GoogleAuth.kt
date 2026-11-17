@@ -28,7 +28,7 @@ object GoogleAuth {
         prefs(c).edit().putString("v", v).putLong("at", System.currentTimeMillis()).apply()
         val url = Uri.parse(Api.BASE + "/api/auth/google-login?return_to=" + Uri.encode("/native-login-complete?challenge=$challenge"))
         try {
-            CustomTabsIntent.Builder().setDefaultColorSchemeParams(CustomTabColorSchemeParams.Builder().setToolbarColor(0xFF1F6F5C.toInt()).build())
+            CustomTabsIntent.Builder().setDefaultColorSchemeParams(CustomTabColorSchemeParams.Builder().setToolbarColor(0xFF008069.toInt()).build())
                 .setShowTitle(true).build().apply { intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }.launchUrl(c, url)
         } catch (e: ActivityNotFoundException) {
             runCatching { c.startActivity(Intent(Intent.ACTION_VIEW, url).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }

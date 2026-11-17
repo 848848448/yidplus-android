@@ -184,7 +184,7 @@ private fun GuestGate() {
 
 @Composable
 private fun Notice(text: String) {
-    Box(Modifier.fillMaxWidth().background(Color(0xFF1F6F5C)).padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().background(Color(0xFF008069)).padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
         Text(text, color = Color.White, style = MaterialTheme.typography.labelMedium, maxLines = 2)
     }
 }

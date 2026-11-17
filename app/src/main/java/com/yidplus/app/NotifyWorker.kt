@@ -174,7 +174,7 @@ class NotifyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
                     e.putStringSet("notifs", (seen + list.map { it.id }).toList().takeLast(300).toSet())
                     if (!first && allowed) for (n in fresh.take(5)) {
                         val open = Intent(ctx, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_NOTIFS).putExtra("link", n.link)
-                        nm.notify("activity", n.id.hashCode(), NotificationCompat.Builder(ctx, CH_ACTIVITY).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF1F6F5C.toInt())
+                        nm.notify("activity", n.id.hashCode(), NotificationCompat.Builder(ctx, CH_ACTIVITY).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF008069.toInt())
                             .setContentTitle(n.actor.ifBlank { "YID PLUS" }).setContentText(n.text.ifBlank { n.type }).setGroup(GROUP_ACTIVITY).setAutoCancel(true)
                             .setContentIntent(pi(ctx, n.id.hashCode(), open)).build()); shown++
                     }
@@ -188,7 +188,7 @@ class NotifyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
                         e.putString(k, ch.lastAt)
                         if (first || !allowed) continue
                         val open = Intent(ctx, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_CHANNEL).putExtra("username", ch.username).putExtra("title", ch.title)
-                        nm.notify("tg", ch.username.hashCode(), NotificationCompat.Builder(ctx, CH_CHANNELS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF1F6F5C.toInt())
+                        nm.notify("tg", ch.username.hashCode(), NotificationCompat.Builder(ctx, CH_CHANNELS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF008069.toInt())
                             .setContentTitle(ch.title).setContentText(ch.lastText.ifBlank { "New post" }).setNumber(ch.unread).setAutoCancel(true)
                             .setContentIntent(pi(ctx, ch.username.hashCode(), open)).build()); shown++
                     }

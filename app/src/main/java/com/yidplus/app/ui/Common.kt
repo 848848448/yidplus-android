@@ -153,7 +153,7 @@ fun Logo(modifier: Modifier = Modifier) {
 
 /** Calm, distinct colours for people without a photo (picked from the name, so a person keeps the same colour). */
 private val avatarPalette = listOf(
-    Color(0xFF1F6F5C), Color(0xFF3A86D4), Color(0xFF8A68D2), Color(0xFFDB6A55), Color(0xFFE0913A),
+    Color(0xFF008069), Color(0xFF3A86D4), Color(0xFF8A68D2), Color(0xFFDB6A55), Color(0xFFE0913A),
     Color(0xFF45A35F), Color(0xFF239FAE), Color(0xFFCF5C91), Color(0xFF5A76C0), Color(0xFF7E8F33),
 )
 /** The same colour for a name however it is written ("'ישיבה" and "ישיבה" match): only its letters and digits count. */

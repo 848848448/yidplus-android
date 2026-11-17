@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.sp
 import com.yidplus.app.data.Prefs
 
 // ── Brand ──────────────────────────────────────────────────────────────────────
-// One brand colour (the site's green). Gold is only a small accent (the logo's "PLUS", the keypad focus ring,
+// One brand colour — WhatsApp's teal green. Gold is only a small accent (the logo's "PLUS", the keypad focus ring,
 // verified marks), never a badge or a big surface.
-val Green = Color(0xFF1F6F5C)
+val Green = Color(0xFF008069)       // WhatsApp light primary (headers, FAB, links)
 val GreenDeep = Color(0xFF14221F)
 val Gold = Color(0xFFD4AF37)
 val GoldSoft = Color(0xFFF3E2A6)
@@ -39,15 +39,15 @@ val BadgeGreen = Color(0xFF25D366)  // WhatsApp 2024 unread badge
 
 private val Light = lightColorScheme(
     primary = Green, onPrimary = Color.White,
-    primaryContainer = Color(0xFFD2EEE5), onPrimaryContainer = Color(0xFF002019),
-    inversePrimary = Color(0xFF86D5BB),
+    primaryContainer = Color(0xFFD9FDD3), onPrimaryContainer = Color(0xFF0A3B2E),  // WhatsApp sent-bubble green
+    inversePrimary = Color(0xFF00A884),
     secondary = Color(0xFF4A635B), onSecondary = Color.White,
     secondaryContainer = Color(0xFFCDE8DE), onSecondaryContainer = Color(0xFF062019),
     tertiary = Color(0xFF8A6D10), onTertiary = Color.White,
     tertiaryContainer = GoldSoft, onTertiaryContainer = Color(0xFF2A2000),
-    background = Color(0xFFF6F8F7), onBackground = Color(0xFF171D1B),
-    surface = Color.White, onSurface = Color(0xFF171D1B),
-    surfaceVariant = Color(0xFFEBF0EE), onSurfaceVariant = Color(0xFF5B6B66),
+    background = Color(0xFFF7F8FA), onBackground = Color(0xFF111B21),              // WhatsApp light surfaces
+    surface = Color.White, onSurface = Color(0xFF111B21),
+    surfaceVariant = Color(0xFFF0F2F5), onSurfaceVariant = Color(0xFF667781),       // WhatsApp search/secondary
     surfaceTint = Green,
     inverseSurface = Color(0xFF2B3230), inverseOnSurface = Color(0xFFECF2EF),
     error = Color(0xFFBA1A1A), onError = Color.White, errorContainer = Color(0xFFFFDAD6), onErrorContainer = Color(0xFF410002),
@@ -58,17 +58,17 @@ private val Light = lightColorScheme(
 )
 
 private val Dark = darkColorScheme(
-    primary = Color(0xFF7DD3B6), onPrimary = Color(0xFF00382C),
-    primaryContainer = Color(0xFF1C5446), onPrimaryContainer = Color(0xFFC6F0E1),
+    primary = Color(0xFF00A884), onPrimary = Color(0xFF04140D),                     // WhatsApp dark accent green
+    primaryContainer = Color(0xFF005C4B), onPrimaryContainer = Color(0xFFD9FDD3),   // WhatsApp sent-bubble dark
     inversePrimary = Green,
     secondary = Color(0xFFB1CCC2), onSecondary = Color(0xFF1C352E),
     secondaryContainer = Color(0xFF2A3F38), onSecondaryContainer = Color(0xFFCDE8DE),
     tertiary = Color(0xFFE3C35A), onTertiary = Color(0xFF3C2F00),
     tertiaryContainer = Color(0xFF574500), onTertiaryContainer = GoldSoft,
-    background = Color(0xFF0B141A), onBackground = Color(0xFFE1E8E5),
-    surface = Color(0xFF111B21), onSurface = Color(0xFFE1E8E5),
-    surfaceVariant = Color(0xFF1F2C34), onSurfaceVariant = Color(0xFFA2B2AC),
-    surfaceTint = Color(0xFF7DD3B6),
+    background = Color(0xFF0B141A), onBackground = Color(0xFFE9EDEF),               // WhatsApp dark text
+    surface = Color(0xFF111B21), onSurface = Color(0xFFE9EDEF),
+    surfaceVariant = Color(0xFF2A3942), onSurfaceVariant = Color(0xFF8696A0),        // WhatsApp input / secondary
+    surfaceTint = Color(0xFF00A884),
     inverseSurface = Color(0xFFE1E8E5), inverseOnSurface = Color(0xFF2B3230),
     error = Color(0xFFFFB4AB), onError = Color(0xFF690005), errorContainer = Color(0xFF93000A), onErrorContainer = Color(0xFFFFDAD6),
     outline = Color(0xFF3E4C47), outlineVariant = Color(0xFF283330), scrim = Color.Black,
@@ -129,7 +129,7 @@ fun isDark(): Boolean = LookPrefs.preset.dark || when (Prefs.theme) { 1 -> false
 
 /** The brand bar's colour: the site's green by day (or the chosen colour theme), a deep green-grey at night (like WhatsApp's dark header). */
 @Composable
-fun topBarColor(): Color = if (isDark()) Color(0xFF111B21) else if (LookPrefs.lightBar) MaterialTheme.colorScheme.surface else if (LookPrefs.colorTheme == 0) Green else LookPrefs.preset.accent
+fun topBarColor(): Color = if (isDark()) Color(0xFF1F2C34) else if (LookPrefs.lightBar) MaterialTheme.colorScheme.surface else if (LookPrefs.colorTheme == 0) Green else LookPrefs.preset.accent
 
 /** Ink for everything inside the top bar: white on the brand bar, dark ink on the light (WhatsApp-2024) bar. */
 @Composable

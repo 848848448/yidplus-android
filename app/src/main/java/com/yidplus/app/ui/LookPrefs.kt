@@ -20,7 +20,7 @@ data class ColorPreset(val name: String, val accent: Color, val accentLight: Col
 
 /** The site's 7 colour themes (js/theme.js THEME_PRESETS), in the same order. */
 val ColorPresets = listOf(
-    ColorPreset("Emerald Teal", Color(0xFF1F6F5C), Color(0xFF2B8A73), Color(0xFFFAFAF8), Color(0xFFF1F0ED), Color(0xFF14151A)),
+    ColorPreset("Emerald Teal", Color(0xFF008069), Color(0xFF00A884), Color(0xFFFAFAF8), Color(0xFFF1F0ED), Color(0xFF14151A)),
     ColorPreset("Ocean Blue", Color(0xFF1565C0), Color(0xFF42A5F5), Color(0xFFFAFAFB), Color(0xFFF0F4FA), Color(0xFF14151A)),
     ColorPreset("Forest", Color(0xFF2E7D32), Color(0xFF66BB6A), Color(0xFFFAFBFA), Color(0xFFF0F8F0), Color(0xFF14151A)),
     ColorPreset("Crimson", Color(0xFFC62828), Color(0xFFEF5350), Color(0xFFFBFAFA), Color(0xFFFAF0F0), Color(0xFF14151A)),
