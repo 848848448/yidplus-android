@@ -1,3 +1,6 @@
+## New in 2.3.1
+- A fresh WhatsApp-style look: the app now uses WhatsApp's own colours — the teal-green for bars, buttons and links, the green message bubbles, and the familiar dark mode — for one clean, consistent look on every screen.
+
 ## New in 2.3.0
 - Calls are now native in the app: voice and video, 1-on-1 and group, built on the same calls the website uses — so an app call and a web call connect to each other. A full call screen: ringing, Accept/Decline, your camera in the corner, and buttons for mute, camera, flip camera, speaker and end, with a live timer. Group calls show everyone in a grid.
 - Shorts play on by themselves: when a video ends it glides to the next one, like the website. The last one replays. A new switch in Settings → App ("Auto-play next Short") turns it off, and then a Short repeats until you swipe
