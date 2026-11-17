@@ -1,3 +1,7 @@
+## New in 2.8.0
+- Enter key sends: a new switch in chat settings lets the Enter key send the message (on) or start a new line (off), just like WhatsApp.
+- Status is reachable from everywhere: the small Status row at the top of the chat list now opens the full Updates screen too (not only the menu).
+
 ## New in 2.7.0
 - Status is now a proper screen like WhatsApp: open it (the Status chip, or menu → Status) to see "My status", "Recent updates" and "Viewed updates" as a list with the story rings and time, and buttons to post a photo or text status — instead of jumping straight into someone's status.
 - Video notes play right in the chat: the round video message now plays by itself, looping and muted, like WhatsApp; tap to open it full screen with sound.
