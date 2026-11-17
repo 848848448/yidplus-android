@@ -124,6 +124,10 @@ object ClLocal {
     fun setFont(c: Context, f: String) { p(c).edit().putString("font", f).apply(); fontVersion++ }
     var fontVersion by androidx.compose.runtime.mutableIntStateOf(0)
     fun fontScale(c: Context): Float = when (font(c)) { "sm" -> 0.88f; "lg" -> 1.12f; else -> 1f }
+    // Enter key sends the message (on) vs inserts a new line (off), like WhatsApp.
+    fun enterSends(c: Context): Boolean = p(c).getBoolean("enterSends", true)
+    fun setEnterSends(c: Context, on: Boolean) { p(c).edit().putBoolean("enterSends", on).apply(); enterVersion++ }
+    var enterVersion by androidx.compose.runtime.mutableIntStateOf(0)
 }
 
 /** chat.js _autoDeleteLabel */

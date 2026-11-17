@@ -613,7 +613,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         textStyle = TextStyle(fontSize = if (compact) 17.sp else 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { sendText() }))
+                        keyboardOptions = KeyboardOptions(imeAction = if (ClLocal.enterSends(c)) ImeAction.Send else ImeAction.Default), keyboardActions = KeyboardActions(onSend = { sendText() }))
                     if (editing == null) ChIcon(Sym.AttachFile, "Attach", { attachOpen = !attachOpen; emojiOpen = false }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = attachFocus, leftTo = inputFocus)
                     if (editing == null && text.isBlank()) ChIcon(Sym.PhotoCamera, "Camera", { shoot(false) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }

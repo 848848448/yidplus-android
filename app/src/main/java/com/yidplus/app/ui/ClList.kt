@@ -261,6 +261,7 @@ class ClChatSettings : PageScreen() {
         val c = ctx()
         var font by remember { mutableStateOf(ClLocal.font(c)) }
         var receipts by remember { mutableStateOf(ClLocal.receipts(c)) }
+        var enterSends by remember { mutableStateOf(ClLocal.enterSends(c)) }
         val dark = com.yidplus.app.data.Prefs.theme == 2
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
             ChBar("Chat settings", onBack = { Nav.back() })
@@ -293,6 +294,14 @@ class ClChatSettings : PageScreen() {
                 Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Read receipts", fontSize = 16.sp); Text("Let others see when you've read their messages", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 Switch(receipts, null)
             }
+            HorizontalDivider()
+            Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).tap(RoundedCornerShape(0.dp)) {
+                enterSends = !enterSends; ClLocal.setEnterSends(c, enterSends); toast(c, if (enterSends) "Enter key sends" else "Enter key makes a new line")
+            }.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Sym.Keyboard, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Enter key sends", fontSize = 16.sp); Text("Off = Enter adds a new line", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                Switch(enterSends, null)
+            }
         }
     }
 }
@@ -306,8 +315,7 @@ internal fun ClStatusRow(all: List<StUser>) {
     val unseen = others.filter { !Statuses.allSeen(it) }
     Column {
         Row(Modifier.fillMaxWidth().height(56.dp).tap(RoundedCornerShape(0.dp)) {
-            val first = unseen.firstOrNull() ?: others.firstOrNull()
-            if (first != null) Nav.open(StatusViewerPage(first.userId)) else if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+            Nav.open(StatusUpdatesPage())
         }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.width(if (others.isEmpty()) 40.dp else (40 + 14 * (others.size.coerceAtMost(3) - 1)).dp).height(40.dp)) {
                 if (others.isEmpty()) Box(Modifier.size(40.dp).clip(CircleShape).background(ChatLook.unread.copy(alpha = .15f)), contentAlignment = Alignment.Center) {
