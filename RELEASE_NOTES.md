@@ -1,3 +1,6 @@
+## New in 2.3.2
+- The WhatsApp 2024 look by default: a clean white top bar with a green title and green buttons, links and checkmarks (instead of a solid green bar), so the app matches today's WhatsApp. Dark mode keeps WhatsApp's dark bars. You can switch back to the solid green bar in Settings.
+
 ## New in 2.3.1
 - A fresh WhatsApp-style look: the app now uses WhatsApp's own colours — the teal-green for bars, buttons and links, the green message bubbles, and the familiar dark mode — for one clean, consistent look on every screen.
 
