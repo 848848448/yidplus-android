@@ -129,9 +129,20 @@ fun ReadingCard() {
 /** theme.js "Appearance": Dark Mode, Text Size S / M / L. */
 @Composable
 fun AppearanceCard() {
+    val c = ctx()
     SettingsCard("Appearance") {
-        LabelRow(Sym.DarkMode, "Dark mode", if (Prefs.theme == 0) "Same as the phone" else null) {
-            Segmented(listOf("Light", "Dark", "Auto"), when (Prefs.theme) { 1 -> 0; 2 -> 1; else -> 2 }) { Prefs.setThemeMode(when (it) { 0 -> 1; 1 -> 2; else -> 0 }) }
+        LabelRow(Sym.DarkMode, "Dark mode", when (Prefs.theme) { 0 -> "Same as the phone"; 3 -> "Dark %02d:00 → %02d:00".format(Prefs.darkFrom, Prefs.darkTo); else -> null }) {
+            Segmented(listOf("Light", "Dark", "Auto", "Timed"), when (Prefs.theme) { 1 -> 0; 2 -> 1; 3 -> 3; else -> 2 }) { Prefs.setThemeMode(when (it) { 0 -> 1; 1 -> 2; 3 -> 3; else -> 0 }) }
+        }
+        if (Prefs.theme == 3) {
+            RowDivider(64.dp)
+            SettingRow(Sym.DarkMode, "Dark starts at", null, value = "%02d:00".format(Prefs.darkFrom)) {
+                android.app.TimePickerDialog(c, { _, h, _ -> Prefs.setDarkSchedule(h, Prefs.darkTo); ThemeClock.tick++ }, Prefs.darkFrom, 0, true).show()
+            }
+            RowDivider(64.dp)
+            SettingRow(Sym.LightMode, "Dark ends at", null, value = "%02d:00".format(Prefs.darkTo)) {
+                android.app.TimePickerDialog(c, { _, h, _ -> Prefs.setDarkSchedule(Prefs.darkFrom, h); ThemeClock.tick++ }, Prefs.darkTo, 0, true).show()
+            }
         }
         RowDivider(64.dp)
         LabelRow(Sym.FormatSize, "Text size") { Segmented(listOf("S", "M", "L"), UiPrefs.textSize) { UiPrefs.setText(it) } }

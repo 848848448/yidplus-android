@@ -11,10 +11,12 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
@@ -124,8 +126,21 @@ private val YidShapes = Shapes(
     large = RoundedCornerShape(20.dp), extraLarge = RoundedCornerShape(28.dp),
 )
 
+/** A minute-tick so a scheduled dark/light flip happens live while the app is open (not only on the next screen). */
+object ThemeClock { var tick by mutableStateOf(0) }
+
+/** For the "Scheduled" dark mode: is the clock currently inside the dark window [from, to)? Handles windows that cross midnight (e.g. 19 → 7). */
+fun darkScheduled(from: Int, to: Int): Boolean {
+    val h = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    return when { from == to -> false; from < to -> h in from until to; else -> h >= from || h < to }
+}
+
 @Composable
-fun isDark(): Boolean = LookPrefs.preset.dark || when (Prefs.theme) { 1 -> false; 2 -> true; else -> isSystemInDarkTheme() }
+fun isDark(): Boolean = LookPrefs.preset.dark || when (Prefs.theme) {
+    1 -> false; 2 -> true
+    3 -> { ThemeClock.tick; darkScheduled(Prefs.darkFrom, Prefs.darkTo) }
+    else -> isSystemInDarkTheme()
+}
 
 /** The brand bar's colour: the site's green by day (or the chosen colour theme), a deep green-grey at night (like WhatsApp's dark header). */
 @Composable
@@ -154,6 +169,8 @@ private fun contrast(s: ColorScheme): ColorScheme = s.copy(onSurfaceVariant = s.
 fun YidTheme(content: @Composable () -> Unit) {
     val ctx = LocalContext.current
     UiPrefs.init(ctx); LookPrefs.init(ctx)
+    // Scheduled dark mode: tick every half-minute so the flip happens on its own at the set hour while the app is open.
+    if (Prefs.theme == 3) LaunchedEffect(Unit) { while (true) { delay(30_000); ThemeClock.tick++ } }
     val dark = isDark()
     val scheme = themed(if (dark) Dark else Light, LookPrefs.preset, dark).let { if (LookPrefs.highContrast) contrast(it) else it }
     val type = remember { yidTypography(1f) }

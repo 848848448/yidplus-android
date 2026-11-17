@@ -507,6 +507,17 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (msgs.isNotEmpty()) ChMenuItem(Sym.CheckCircle, "Select messages") { menu = false; selecting = true; selected.clear() }
                     if (info?.canManage == true && room.type != "private") ChMenuItem(Sym.Settings, if (isGroup) "Edit group" else "Edit channel") { menu = false; Nav.open(ChEditGroup(room)) }
                     if (me != null) ChMenuItem(Sym.Bookmark, "Saved messages") { menu = false; Nav.open(ChSaved()) }
+                    if (msgs.isNotEmpty()) ChMenuItem(Sym.Share, "Export chat") {
+                        menu = false
+                        val sb = StringBuilder(room.name).append("\n\n")
+                        var lastDay = ""
+                        msgs.sortedBy { it.createdAt ?: "" }.forEach { m ->
+                            val day = chatDay(m.createdAt)
+                            if (day != lastDay) { sb.append("— ").append(day).append(" —\n"); lastDay = day }
+                            sb.append("[").append(chatTime(m.createdAt)).append("] ").append(m.nick).append(": ").append(m.preview).append("\n")
+                        }
+                        share(c, sb.toString())
+                    }
                     ChMenuItem(Sym.Wallpaper, "Wallpaper") { menu = false; wallpaperOpen = true }
                     if (me != null) { val lockVer2 = ChatLock.version; val locked = lockVer2 >= 0 && ChatLock.isLocked(room.id)
                         ChMenuItem(Sym.Lock, if (locked) "Unlock chat" else "Lock chat") {
