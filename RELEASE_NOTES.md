@@ -1,3 +1,9 @@
+## New in 2.7.0
+- Status is now a proper screen like WhatsApp: open it (the Status chip, or menu → Status) to see "My status", "Recent updates" and "Viewed updates" as a list with the story rings and time, and buttons to post a photo or text status — instead of jumping straight into someone's status.
+- Video notes play right in the chat: the round video message now plays by itself, looping and muted, like WhatsApp; tap to open it full screen with sound.
+- Each chat can have its own wallpaper (open the chat → menu → Wallpaper).
+- Message info: long-press your own message → Info to see when it was sent and whether it was delivered/read (or how many saw it in a group).
+
 ## New in 2.6.0
 - Chat lock: lock any single chat behind your fingerprint or PIN (open the chat → menu → Lock chat). Locked chats hide their last message in the list and ask to unlock when you open them.
 - React with any emoji: the "+" on the reaction bar now opens a full emoji grid, not just the six quick ones.
