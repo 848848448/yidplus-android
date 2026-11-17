@@ -349,6 +349,20 @@ internal fun CsReactStrip(myReact: String?, onReact: (String) -> Unit, onMore: (
     HorizontalDivider(thickness = 0.5.dp)
 }
 
+private val REACT_EMOJIS = listOf("👍","❤️","😂","😮","😢","🙏","🔥","🎉","👏","💯","😍","🥰","😊","😁","😅","😆","😉","😎","🤔","🤗","🙌","👌","✌️","🤝","💪","👀","😇","🥳","😋","😜","🤪","😭","😤","😡","🤯","😱","🥺","😴","🙄","😬","🤫","😏","😌","💔","💕","💖","✨","⭐","🌟","⚡","💥","🎊","🏆","✅","❌","🤣")
+
+/** Pick any emoji to react with (WhatsApp's "+" on the reaction bar). */
+@Composable
+internal fun CsReactPicker(onPick: (String) -> Unit, onClose: () -> Unit) {
+    AlertDialog(onDismissRequest = onClose, confirmButton = {}, title = { Text("React", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }, text = {
+        LazyVerticalGrid(columns = GridCells.Fixed(6), modifier = Modifier.heightIn(max = 320.dp)) {
+            gridItems(REACT_EMOJIS) { e ->
+                Box(Modifier.padding(2.dp).size(44.dp).clip(CircleShape).tap(CircleShape) { onPick(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 26.sp) }
+            }
+        }
+    })
+}
+
 /** "N unread messages" line (the site's _insertUnreadSeparator, which the site never shows; WhatsApp does). */
 @Composable
 internal fun CsUnreadLine(n: Int) {

@@ -142,6 +142,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var hit by remember { mutableStateOf(0) }
     var confirm by remember { mutableStateOf<Pair<String, suspend () -> Unit>?>(null) }
     var reportFor by remember { mutableStateOf<ChatMsg?>(null) }
+    var reactPickFor by remember { mutableStateOf<ChatMsg?>(null) }
     var info by remember(room.id) { mutableStateOf(ChatApi.info(room.id)) }
     val roomsRes = ChatApi.rooms
     LaunchedEffect(roomsRes.data) { ChatApi.info(room.id)?.let { info = it } }
@@ -469,7 +470,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 onStar = if (me != null && one != null) ({ scope.launch { runCatching { ChatApi.save(one.id, room.id) }.onSuccess { toast(c, "⭐ Saved") }.onFailure { toast(c, Api.friendly(it)) } }; selecting = false; selected.clear() }) else null,
                 onMore = if (one != null) ({ actionFor = one; selecting = false; selected.clear() }) else null)
             if (one != null && me != null && !one.deleted) CsReactStrip(reacts[one.id]?.mine, onReact = { e -> reactTo(one, e); selecting = false; selected.clear() },
-                onMore = { actionFor = one; selecting = false; selected.clear() })
+                onMore = { reactPickFor = one; selecting = false; selected.clear() })
         } else if (searchOn) {
             Surface(color = ChatLook.accent, contentColor = Color.White) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -732,6 +733,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         csComposer()
     }
     csDialogs()
+    reactPickFor?.let { m -> CsReactPicker(onPick = { e -> reactTo(m, e); reactPickFor = null }, onClose = { reactPickFor = null }) }
     // Chat lock: cover the conversation until the phone's fingerprint/PIN confirms it (WhatsApp's Chat lock).
     val lockVer = ChatLock.version
     if (lockVer >= 0 && ChatLock.needsUnlock(room.id)) {
