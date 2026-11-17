@@ -98,6 +98,7 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
                 }
             }
             ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true)) { onClose(); Nav.go(Tab.Profile) }
+            ClDrawerItem(Sym.RadioButtonChecked, "Status") { onClose(); Nav.open(StatusUpdatesPage()) }
             ClDrawerItem(Sym.Call, "Calls") { onClose(); Nav.open(ChCalls()) }
             ClDrawerItem(Sym.Bookmark, "Saved Messages") { onClose(); Nav.open(ChSaved()) }
             ClDrawerItem(Sym.Folder, "Chat Folders") { onClose(); Nav.open(ClFolderManager()) }
@@ -377,8 +378,7 @@ internal fun ClStatusChip(all: List<StUser>) {
     val unseen = others.filter { !Statuses.allSeen(it) }
     val shape = RoundedCornerShape(16.dp)
     Row(Modifier.height(25.dp).clip(shape).background(MaterialTheme.colorScheme.surfaceVariant).tap(shape) {
-            val first = unseen.firstOrNull() ?: others.firstOrNull()
-            if (first != null) Nav.open(StatusViewerPage(first.userId)) else if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+            Nav.open(StatusUpdatesPage())
         }.semantics { contentDescription = "Status" + if (unseen.isNotEmpty()) ", ${unseen.size} new" else "" }.padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(14.dp).clip(CircleShape).border(2.dp, if (unseen.isNotEmpty()) ChatLook.unread else MaterialTheme.colorScheme.outline, CircleShape))

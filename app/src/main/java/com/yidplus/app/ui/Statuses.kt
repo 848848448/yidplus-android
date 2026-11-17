@@ -309,6 +309,86 @@ private fun StatusCircle(label: String, photo: String?, colorName: String, seen:
     }
 }
 
+/* ─────────────── The dedicated WhatsApp "Updates" screen (vertical list) ─────────────── */
+
+/** WhatsApp's Status/Updates screen: My status, then Recent updates and Viewed updates as a vertical list, plus a camera to post. */
+class StatusUpdatesPage : PageScreen() {
+    override val perfName get() = "Status"
+    @Composable override fun Content() {
+        val me = Session.me
+        val res = Statuses.res
+        LaunchedEffect(me?.id) { res.load() }
+        @Suppress("UNUSED_VARIABLE") val v = Statuses.seenVersion
+        val all = res.data.orEmpty()
+        val mine = all.firstOrNull { it.userId == me?.id }
+        val others = Statuses.ordered(all).filter { it.userId != me?.id }
+        val unseen = others.filter { !Statuses.allSeen(it) }
+        val seenList = others.filter { Statuses.allSeen(it) }
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            Column(Modifier.fillMaxSize()) {
+                ChBar("Status", onBack = { Nav.back() })
+                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 90.dp)) {
+                    item(key = "mine") { StatusMyRow(me, mine) }
+                    if (unseen.isNotEmpty()) { item(key = "h1") { StatusHeader("Recent updates") }; items(unseen, key = { it.userId }) { StatusUserRow(it) } }
+                    if (seenList.isNotEmpty()) { item(key = "h2") { StatusHeader("Viewed updates") }; items(seenList, key = { it.userId }) { StatusUserRow(it) } }
+                    if (others.isEmpty()) item(key = "empty") { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text("No recent updates to show.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) } }
+                }
+            }
+            // Camera + text-status buttons (WhatsApp's two FABs).
+            Column(Modifier.align(Alignment.BottomEnd).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { Nav.open(PostStatusPage()) }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Edit, "Text status", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.height(12.dp))
+                Box(Modifier.size(56.dp).clip(CircleShape).background(ChatLook.unread).tap(CircleShape) { Nav.open(PostStatusPage()) }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.PhotoCamera, "Add status", tint = Color.White, modifier = Modifier.size(26.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusHeader(text: String) {
+    Text(text, Modifier.fillMaxWidth().padding(start = 16.dp, top = 14.dp, bottom = 6.dp), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable
+private fun StatusMyRow(me: com.yidplus.app.data.Me?, mine: StUser?) {
+    me ?: return
+    Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).tap(RoundedCornerShape(0.dp)) {
+        if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+    }.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(58.dp)) {
+            if (mine != null) StatusRing(mine.slides.map { true }, mine = true, Modifier.fillMaxSize())
+            Box(Modifier.align(Alignment.Center).size(50.dp).clip(CircleShape)) { Avatar(me.photo, me.nickname, 50.dp) }
+            Box(Modifier.align(Alignment.BottomEnd).size(22.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(2.dp).clip(CircleShape).background(BadgeGreen), contentAlignment = Alignment.Center) {
+                Icon(Sym.Add, null, tint = Color.White, modifier = Modifier.size(14.dp))
+            }
+        }
+        Column(Modifier.weight(1f).padding(start = 14.dp)) {
+            Text("My status", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(if (mine != null) "Tap to view your update" else "Tap to add status update", fontSize = 13.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+    HorizontalDivider(Modifier.padding(start = 88.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
+}
+
+@Composable
+private fun StatusUserRow(u: StUser) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(StatusViewerPage(u.userId)) }
+        .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(58.dp)) {
+            StatusRing(u.slides.map { Statuses.seen(it.id) }, mine = false, Modifier.fillMaxSize())
+            Box(Modifier.align(Alignment.Center).size(50.dp).clip(CircleShape)) { Avatar(u.photo, u.nick, 50.dp) }
+        }
+        Column(Modifier.weight(1f).padding(start = 14.dp)) {
+            Text(u.nick, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+            Text(chatTime(u.slides.firstOrNull()?.createdAt), fontSize = 13.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
 /** The segmented ring: one arc per slide, green = not seen yet, grey = seen, brand green for my own. */
 @Composable
 private fun StatusRing(seen: List<Boolean>, mine: Boolean, modifier: Modifier) {
