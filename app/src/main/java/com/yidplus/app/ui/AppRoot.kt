@@ -71,6 +71,15 @@ fun AppRoot(onExit: () -> Unit) {
         // Ring in: while signed in, watch for an incoming call (the CallHost overlay shows it).
         val callCtx = androidx.compose.ui.platform.LocalContext.current
         LaunchedEffect(Session.me?.id) { while (Session.me != null) { CallKit.checkIncoming(callCtx); kotlinx.coroutines.delay(5000) } }
+        // Presence: tell the server I'm online every ~25 s while the app is open, so others really see "online"
+        // (not the stale flag). When the app goes to the background, mark offline so it clears within a minute.
+        val presenceLifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current
+        LaunchedEffect(Session.me?.id) {
+            while (Session.me != null) {
+                if (presenceLifecycle.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) runCatching { ChatApi.ping(true) }
+                kotlinx.coroutines.delay(25_000)
+            }
+        }
         // A feature the owner switched off on the site disappears here too (and its screen closes).
         LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
         BackHandler { if (!Nav.back()) onExit() }

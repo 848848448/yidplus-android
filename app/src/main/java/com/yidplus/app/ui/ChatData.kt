@@ -149,6 +149,8 @@ object ChatApi {
     suspend fun react(msgId: String, emoji: String) = Api.post("/api/chat/reactions", JSONObject().put("message_id", msgId).put("emoji", emoji))
     suspend fun typing(roomId: String): List<String> = chObjs(Api.get("/api/chat/typing?room_id=" + chEnc(roomId)).optJSONArray("typing")).map { it.str("user_nick") }.filter { it.isNotBlank() }
     suspend fun sendTyping(roomId: String) = Api.post("/api/chat/typing", JSONObject().put("room_id", roomId))
+    /** Mark myself online (the site shows "online" when last_ping is within ~60s). The app pings while it's open. */
+    suspend fun ping(online: Boolean = true) = Api.post("/api/presence", JSONObject().put("online", online))
     suspend fun sendText(roomId: String, text: String, replyTo: String?, scheduledFor: String? = null, disappearSecs: Int = 0): ChatMsg? {
         val b = JSONObject().put("room_id", roomId).put("type", "text").put("text", text)
         if (replyTo != null) b.put("reply_to_id", replyTo)
