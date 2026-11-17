@@ -48,7 +48,7 @@ data class ChMember(val id: String, val nick: String, val photo: String?, val on
 data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean, val joined: Boolean, val isGroupAdmin: Boolean, val createdBy: String?,
                     val inviteCode: String?, val pinnedId: String?, val description: String, val visibility: String,
                     val members: List<ChMember>, val featured: Boolean, val rawPreview: String = "", val spectating: Boolean = false, val hasMessages: Boolean = true,
-                    val allowSaving: Boolean = true) {
+                    val allowSaving: Boolean = true, val lastSeen: String? = null) {
     val isGroup get() = room.type == "group"
     val isChannel get() = room.type == "channel"
     val isPrivate get() = room.type == "private"
@@ -60,7 +60,7 @@ data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean,
             j.strOrNull("created_by"), j.strOrNull("invite_code"), j.strOrNull("pinned_message_id"), j.str("description"), j.str("visibility"),
             chObjs(j.optJSONArray("member_list")).map { m -> ChMember(m.str("id"), m.str("nickname"), Api.abs(m.strOrNull("photo_url")), m.optInt("online") == 1 || m.optBoolean("online"), m.str("role"), m.optInt("is_group_admin") == 1 || m.optBoolean("is_group_admin"), m.str("title")) },
             j.optBoolean("featured"), j.str("preview"), j.optBoolean("admin_spectating") || j.optInt("admin_spectating") == 1, j.opt("has_messages") != false,
-            !(j.has("allow_saving") && (j.opt("allow_saving") == false || j.optInt("allow_saving", 1) == 0)))
+            !(j.has("allow_saving") && (j.opt("allow_saving") == false || j.optInt("allow_saving", 1) == 0)), j.strOrNull("last_seen"))
         fun list(j: JSONObject) = chObjs(j.optJSONArray("rooms")).map(::from)
     }
 }
@@ -308,6 +308,22 @@ fun chatTime(s: String?): String {
         days < 7 -> java.text.SimpleDateFormat("EEE", java.util.Locale.US).format(c.time)
         else -> java.text.SimpleDateFormat(if (now.get(java.util.Calendar.YEAR) == c.get(java.util.Calendar.YEAR)) "MMM d" else "d/M/yy", java.util.Locale.US).format(c.time)
     }
+}
+/** WhatsApp chat header: "last seen today at 2:40 PM" / "…yesterday at…" / "…Monday at…" / "…Nov 3 at…". */
+fun lastSeenText(s: String?): String {
+    val t = parseTime(s) ?: return "last seen recently"
+    val now = java.util.Calendar.getInstance(); val c = java.util.Calendar.getInstance().apply { timeInMillis = t }
+    val days = ((startOfDay(now.timeInMillis) - startOfDay(t)) / 86_400_000L).toInt()
+    // Clocks can disagree by a few seconds; never show a future last-seen.
+    if (t > System.currentTimeMillis() + 60_000L) return "last seen recently"
+    val time = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US).format(c.time)
+    val day = when {
+        days <= 0 -> "today"
+        days == 1 -> "yesterday"
+        days < 7 -> java.text.SimpleDateFormat("EEEE", java.util.Locale.US).format(c.time)
+        else -> java.text.SimpleDateFormat(if (now.get(java.util.Calendar.YEAR) == c.get(java.util.Calendar.YEAR)) "MMM d" else "MMM d, yyyy", java.util.Locale.US).format(c.time)
+    }
+    return "last seen $day at $time"
 }
 /** Date chip between messages: Today / Yesterday / Monday / November 3. */
 fun chatDay(s: String?): String {

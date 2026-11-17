@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
         const val ACTION_OPEN_NOTIFS = "com.yidplus.app.OPEN_NOTIFS"
         const val ACTION_OPEN_CHANNEL = "com.yidplus.app.OPEN_CHANNEL"
         const val ACTION_OPEN_TAB = "com.yidplus.app.OPEN_TAB"
+        const val ACTION_OPEN_CALL = "com.yidplus.app.OPEN_CALL"
         const val ACTION_INSTALL_UPDATE = "com.yidplus.app.INSTALL_UPDATE"
         private val DPAD = setOf(KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_CENTER)
 
@@ -131,6 +132,7 @@ class MainActivity : ComponentActivity() {
             ACTION_CHECK_UPDATE -> UpdateUi.check(this, force = true, userAsked = true)
             ACTION_OPEN_PLAYER -> Nav.open(Screen.Player)
             ACTION_OPEN_CHATS -> Nav.go(Tab.Chats)
+            ACTION_OPEN_CALL -> { CallPush.dismiss(this); lifecycleScope.launch { runCatching { com.yidplus.app.ui.CallKit.checkIncoming(applicationContext) } } }
             "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
             // QA (helper DS): set a look setting exactly as Settings does, to prove it changes the screens.
             "com.yidplus.app.QA_LOOK" -> qaLook(i)

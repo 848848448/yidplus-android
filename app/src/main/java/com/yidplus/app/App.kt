@@ -27,6 +27,7 @@ class App : Application(), ImageLoaderFactory {
             runCatching { nm.deleteNotificationChannel("updates") }
         }
         NotifyWorker.channels(this)
+        CallPush.channel(this)
         UpdateWorker.schedule(this)
         if (Api.hasSession() && Prefs.notify) {
             NotifyWorker.schedule(this)

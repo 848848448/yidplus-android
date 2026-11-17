@@ -361,8 +361,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val subtitle = when {
         spectating -> "👁 Viewing as Admin"
         typing.isNotEmpty() -> if (room.type == "private") "typing…" else typing.take(2).joinToString(", ") + if (typing.size == 1) " is typing…" else " are typing…"
-        // The site: "online" when the other person is online, else "last seen recently" (it sends no exact last-seen time).
-        room.type == "private" -> if (info?.online == true) "online" else "last seen recently"
+        // "online" when the other person is online, else the exact "last seen today at 2:40 PM" the site now sends.
+        room.type == "private" -> if (info?.online == true) "online" else lastSeenText(info?.lastSeen)
         room.type == "channel" -> if (room.members > 0) "${room.members} subscribers" else "Channel"
         else -> (info?.members?.size?.takeIf { it > 0 } ?: room.members).let { n -> if (n > 0) "$n members" + (info?.onlineCount?.takeIf { it > 0 }?.let { ", $it online" } ?: "") else "Group" }
     }

@@ -100,6 +100,8 @@ object Push {
     /** A Firebase message arrived: check right away and show the real notifications. */
     fun onPush(c: Context, data: Map<String, String>) {
         Api.init(c); Prefs.init(c)
+        // A ringing call bypasses the notify toggle and the chat check — it's a live call, not a digest.
+        if (data["type"] == "call") { if (Api.hasSession()) runCatching { CallPush.onCallPush(c, data) }; return }
         if (!Prefs.notify || !Api.hasSession()) return
         val done = runBlocking { withTimeoutOrNull(15_000) { runCatching { NotifyWorker.check(c) }.isSuccess } }
         if (done != true) NotifyWorker.now(c)
