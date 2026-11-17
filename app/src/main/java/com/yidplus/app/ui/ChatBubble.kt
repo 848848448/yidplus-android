@@ -360,6 +360,7 @@ internal fun ChBubbleSkeleton() {
 /** Video message: a real frame from the video with a play button (never a black box). */
 @Composable
 /** WhatsApp round video message: plays inline in a circle, muted and looping; tap opens it full screen with sound. */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 private fun ChVideoNote(url: String) {
     val c = ctx()
