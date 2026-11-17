@@ -142,6 +142,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var hit by remember { mutableStateOf(0) }
     var confirm by remember { mutableStateOf<Pair<String, suspend () -> Unit>?>(null) }
     var reportFor by remember { mutableStateOf<ChatMsg?>(null) }
+    var infoFor by remember { mutableStateOf<ChatMsg?>(null) }
     var reactPickFor by remember { mutableStateOf<ChatMsg?>(null) }
     var wallpaperOpen by remember { mutableStateOf(false) }
     var info by remember(room.id) { mutableStateOf(ChatApi.info(room.id)) }
@@ -674,6 +675,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 "save" -> scope.launch { runCatching { ChatApi.save(m.id, room.id) }.onSuccess { toast(c, "⭐ Saved") }.onFailure { toast(c, Api.friendly(it)) } }
                 "share" -> share(c, listOf(m.caption, m.media ?: "").filter { it.isNotBlank() }.joinToString("\n").ifBlank { m.text })
                 "report" -> reportFor = m
+                "info" -> infoFor = m
                 "select" -> { selecting = true; selected.clear(); selected.add(m.id) }
                 "delete" -> confirm = "Delete this message for everyone?" to suspend { ChatApi.delete(m.id); msgs.removeAll { it.id == m.id }; Unit }
                 "retry" -> { msgs.remove(m); if (m.type == "text") { text = m.text; sendText() } else Unit }
@@ -686,6 +688,17 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         CsReport(onSend = { reason, details -> reportFor = null
             scope.launch { runCatching { ChatApi.reportMsg(m, reason, details) }.onSuccess { toast(c, "✅ Report submitted. Thank you.") }.onFailure { toast(c, Api.friendly(it)) } } },
             onClose = { reportFor = null })
+    }
+    infoFor?.let { m ->
+        AlertDialog(onDismissRequest = { infoFor = null }, confirmButton = { TextButton({ infoFor = null }) { Text("Close") } },
+            title = { Text("Message info", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }, text = {
+            Column {
+                Text("Sent · " + chatTime(m.createdAt), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(Modifier.height(6.dp))
+                if (room.type == "private") Text(if (m.read) "✓✓ Read" else "✓ Delivered", fontSize = 15.sp, color = if (m.read) ChatLook.tick else MaterialTheme.colorScheme.onSurfaceVariant)
+                else if (isGroup) Text("👁 Seen by " + m.seen, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        })
     }
     if (optsOpen) CsMsgOptions(disappear, onSchedule = {
         optsOpen = false
