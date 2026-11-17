@@ -98,6 +98,7 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
                 }
             }
             ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true)) { onClose(); Nav.go(Tab.Profile) }
+            ClDrawerItem(Sym.Call, "Calls") { onClose(); Nav.open(ChCalls()) }
             ClDrawerItem(Sym.Bookmark, "Saved Messages") { onClose(); Nav.open(ChSaved()) }
             ClDrawerItem(Sym.Folder, "Chat Folders") { onClose(); Nav.open(ClFolderManager()) }
             ClDrawerItem(Sym.Group, "New Group") { onClose(); Nav.open(ChNewGroup("group")) }

@@ -223,8 +223,8 @@ internal fun CsAttachSheet(onPick: (String) -> Unit) {
     val opts = listOf(Triple("gallery", "Gallery", Sym.Image to Color(0xFF7E57C2)), Triple("camera", "Camera", Sym.PhotoCamera to Color(0xFFE91E63)),
         Triple("videocam", "Record video", Sym.Videocam to Color(0xFFD81B60)), Triple("video", "Video", Sym.Movie to Color(0xFFEF6C00)),
         Triple("audio", "Audio", Sym.Headphones to Color(0xFFFF7043)), Triple("file", "Document", Sym.Description to Color(0xFF5C6BC0)),
-        Triple("contact", "Contact", Sym.ContactPhone to Color(0xFF1E88E5)), Triple("poll", "Poll", Sym.Poll to Color(0xFF00897B)),
-        Triple("options", "Schedule", Sym.Schedule to Color(0xFF546E7A)))
+        Triple("contact", "Contact", Sym.ContactPhone to Color(0xFF1E88E5)), Triple("location", "Location", Sym.LocationOn to Color(0xFF43A047)),
+        Triple("poll", "Poll", Sym.Poll to Color(0xFF00897B)), Triple("options", "Schedule", Sym.Schedule to Color(0xFF546E7A)))
     Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxWidth().heightIn(max = 260.dp).verticalScroll(rememberScrollState()).padding(vertical = 6.dp)) {
             opts.chunked(4).forEach { row ->

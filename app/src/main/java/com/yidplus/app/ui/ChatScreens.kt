@@ -326,6 +326,22 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         }.getOrNull()
         if (card != null) { text = card; sendText() } else toast(c, "Couldn't read that contact")
     }
+    // Share my location as a tappable Google-Maps link (no API key needed; the chat linkifies it).
+    fun doShareLocation() {
+        val lm = c.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+        val loc = runCatching {
+            lm?.let { m -> listOf(android.location.LocationManager.GPS_PROVIDER, android.location.LocationManager.NETWORK_PROVIDER)
+                .mapNotNull { p -> runCatching { m.getLastKnownLocation(p) }.getOrNull() }.maxByOrNull { it.time } }
+        }.getOrNull()
+        if (loc == null) { toast(c, "Couldn't get your location. Turn location on and try again."); return }
+        text = "📍 Location: https://maps.google.com/?q=${loc.latitude},${loc.longitude}"; sendText()
+    }
+    val locPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) doShareLocation() else toast(c, "Allow location to share where you are") }
+    fun shareLocation() {
+        if (ContextCompat.checkSelfPermission(c, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(c, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) doShareLocation()
+        else locPerm.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
     // Voice notes (helper CS 2.1): hold to record, release to send, slide left to cancel, slide up to lock;
     // tap (or OK on the keypad) = hands-free right away with Pause, Stop-to-listen, Delete and Send.
     val vr = remember { CsRec(c.applicationContext) }
@@ -584,6 +600,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         "gallery" -> pickPhoto.launch("image/*"); "camera" -> shoot(false); "videocam" -> shoot(true)
                         "video" -> pickVideo.launch("video/*"); "audio" -> pickAudio.launch("audio/*"); "file" -> pickDoc.launch("*/*")
                         "contact" -> runCatching { pickContact.launch(Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)) }.onFailure { toast(c, "No contacts app") }
+                        "location" -> shareLocation()
                         "poll" -> Nav.open(CsPollNew(room))
                         "options" -> optsOpen = true
                     }
