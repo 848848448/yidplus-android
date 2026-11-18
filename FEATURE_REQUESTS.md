@@ -89,6 +89,15 @@ Add the missing ones:
 - 10h. **Profile picture full-screen viewer with edit** (own) + share.
 - 10i. **Add to Favorites** (same as 6c) — from the chat info.
 
+### 11. In-chat conversation design — details to match exactly
+App already has bubbles, date pills, blue double-checks, reply, reactions, system messages, forwarded, files, scroll-to-bottom. Refine to match the screenshots:
+- 11a. **Phone number under the sender name** for non-contacts in groups.
+- 11b. **"N unread messages" divider pill** at the first unread message.
+- 11c. **Media download size label** (e.g. "5.1 MB") + blurred thumbnail until the user downloads it (tap to download).
+- 11d. **"X online" count** in the group header.
+- 11e. **Sender avatars** beside grouped messages in groups.
+- 11f. Verify colored sender names, reply quote bars, and reaction pills match WhatsApp exactly.
+
 <!-- user is still sending more features; keep appending below -->
 
 
