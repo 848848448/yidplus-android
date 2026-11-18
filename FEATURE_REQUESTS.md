@@ -224,3 +224,5 @@ RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there.
 - #2c Broadcast: needs nicer.
 - #20d Default reactions: needs nicer.
 - #4a/#4d Photo send preview: ❌ BLOCKING BUG — caption field auto-focuses so Gboard pops up and can't be dismissed, covering Send → can't send the photo. FIX: remove firstFocus auto-focus on caption, keep Send above keyboard (imePadding), make rotate/HD nicer.
+- #12 Video note recorder: ❌ mostly doesn't work well. REWORK to match WhatsApp's recorder look+behavior, the SEND, and the in-chat bubble. Make it nicer. (study WhatsApp both recording + the sent note)
+- #16c @mention green: ❌ does not work (mention not highlighting green / not detected). INVESTIGATE+FIX.
