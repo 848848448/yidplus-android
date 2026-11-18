@@ -76,6 +76,19 @@ App already has a WhatsApp-style list (big rows, 56dp avatar, 17sp name). Refine
 - 9a. Tapping a chat's **profile photo in the chat list** opens a dimmed **quick-preview popup**: an enlarged rounded photo, the chat name, and a 3-button row — **Message**, **Call**, **Info** (open chat info).
 - 9b. From there, tapping the photo opens the **full-screen "Group icon" / profile photo viewer** with back + **share**. (viewer may exist in chat info — add the list popup + the quick actions.)
 
+### 10. Chat menu / chat info — full WhatsApp parity (from "Message yourself" screenshots)
+App already has: Export chat, Add shortcut (= add to home screen), Lock chat, Media/Files/Links tabs, Mute, Wallpaper.
+Add the missing ones:
+- 10a. **Message yourself / Notes** chat (same as 2d) — header "@you (You) · Message yourself".
+- 10b. **Media visibility** toggle — whether this chat's media shows in the device gallery.
+- 10c. **Restricted chat** — restrict/hide a chat.
+- 10d. **Chat theme** — a per-chat theme (broader than wallpaper).
+- 10e. **Add to contacts** from a chat.
+- 10f. **Add to list** — custom chat lists/filters (app has folders — align with WhatsApp "lists").
+- 10g. **Search in chat** — search messages inside a conversation.
+- 10h. **Profile picture full-screen viewer with edit** (own) + share.
+- 10i. **Add to Favorites** (same as 6c) — from the chat info.
+
 <!-- user is still sending more features; keep appending below -->
 
 
