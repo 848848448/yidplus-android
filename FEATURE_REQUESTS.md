@@ -11,8 +11,12 @@ Mark each item [DONE] as it lands on the branch.
 ## BUILD PROGRESS (on branch, not released)
 - [DONE] #12 Video note recorder: slide-to-lock, timer pill, delete/stop/send, flip, hold-camera-in-composer entry.
 - [DONE] #2a Archive chats, #2b Mark as unread (select bar + Archived section + dot).
+- [DONE] #18a status viewer quick-reaction emoji bar; #18c status viewer Mute/Hide menu for others.
+- [DONE] #4a Photo editor — ROTATE in the send preview (tap to turn 90°, re-saved at send). Crop/draw/text still pending.
 - [ALREADY EXISTS] #8a green unread time, #8b mute bell; #17b voice seek, #17c voice speed (1x/1.5x/2x).
-- Next up: verify remaining items against code, build the genuine gaps (status fonts, status viewer extras, photo editor, sticker maker, auto-download, message-yourself, group permissions screen, etc.).
+- [ALREADY EXISTS] #2e Pin message (bubble menu + pinned-messages list), #4f View once (👁 photo/video).
+- [ALREADY EXISTS] #11 in-chat design: group sender avatars + per-sender name colour, "N members, X online" + typing + exact last-seen header, "N unread messages" divider.
+- Next up: genuine gaps only — status fonts/voice/music/AI (backend), sticker maker, home widget, auto-download settings, message-yourself (backend). Most client UI already exists; focus on polish + the few true gaps.
 
 ## Already done on the branch (waiting in the big update, not yet released)
 - Video note: WhatsApp-style recorder (circular selfie preview, hold-to-record, progress ring, flip) + reliable tap-to-play with progress ring
