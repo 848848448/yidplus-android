@@ -325,3 +325,41 @@ class AdminHealthPage : PageScreen() {
         }
     }
 }
+
+/** Attacks (admin.js "Attacks"): the security log — headline numbers, repeat offenders, and the recent attack feed. Native, read-only. */
+class AdminSecurityPage : PageScreen() {
+    override val perfName get() = "AdminSecurity"
+    @Composable override fun Content() {
+        val logs = remember { mutableStateListOf<JSONObject>() }
+        val offenders = remember { mutableStateListOf<JSONObject>() }
+        var stats by remember { mutableStateOf<JSONObject?>(null) }
+        var loaded by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            runCatching { Api.get("/api/admin/security-log") }.onSuccess {
+                stats = it.optJSONObject("stats")
+                logs.clear(); it.optJSONArray("logs").objects().forEach { x -> logs.add(x) }
+                offenders.clear(); it.optJSONArray("offenders").objects().forEach { x -> offenders.add(x) }
+            }
+            loaded = true
+        }
+        SettingsPage("Attacks", sub = stats?.let { "${it.optInt("total")} total · ${it.optInt("last24")} in 24h · ${it.optInt("unique_ips")} IPs" }) {
+            if (loaded && logs.isEmpty() && offenders.isEmpty()) SettingsHint("No attacks logged. 🎉")
+            if (offenders.isNotEmpty()) SettingsCard("Repeat offenders") {
+                offenders.forEachIndexed { i, x ->
+                    if (i > 0) RowDivider(16.dp)
+                    val loc = listOfNotNull(x.optString("city").ifBlank { null }, x.optString("country").ifBlank { null }).joinToString(", ")
+                    SettingRow(Sym.Public, x.optString("ip").ifBlank { "?" }, (if (loc.isNotBlank()) "$loc · " else "") + "${x.optInt("hits")} hits") {}
+                }
+            }
+            if (logs.isNotEmpty()) SettingsCard("Recent") {
+                logs.take(40).forEachIndexed { i, x ->
+                    if (i > 0) RowDivider(16.dp)
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp)) {
+                        Text(x.optString("attack_type").ifBlank { (x.optString("method") + " " + x.optString("path")).trim() }.take(60), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                        Text(x.optString("ip") + " · " + ago(x.optString("created_at").ifBlank { null }), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
+    }
+}
