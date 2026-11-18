@@ -85,7 +85,7 @@ internal fun csFormat(t: String, onLink: (String) -> Unit, onMention: (String) -
                 withLink(LinkAnnotation.Clickable("url", linkStyle) { onLink(url) }) { append(clean) }
                 append(v.substring(clean.length))
             }
-            m.groups[3] != null -> withLink(LinkAnnotation.Clickable("mention", TextLinkStyles(SpanStyle(color = Color(0xFF1E88E5), fontWeight = FontWeight.SemiBold))) { onMention(v.removePrefix("@")) }) { append(v) }
+            m.groups[3] != null -> withLink(LinkAnnotation.Clickable("mention", TextLinkStyles(SpanStyle(color = ChatLook.accent, fontWeight = FontWeight.SemiBold))) { onMention(v.removePrefix("@")) }) { append(v) }
             m.groups[4] != null -> withStyle(SpanStyle(fontFamily = FontFamily.Monospace, background = Color(0x22000000))) { append(v.trim('`')) }
             m.groups[5] != null -> withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(v.removePrefix("**").removeSuffix("**")) }
             m.groups[6] != null -> withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) { append(v.trim('~')) }
