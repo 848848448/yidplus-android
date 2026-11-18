@@ -139,6 +139,14 @@ Add/refine:
 - 16e. Per-group **Notifications** settings (All / custom / off), in the Media/Settings tab.
 - 16f. **Encryption notice** ONLY if the app is actually end-to-end encrypted; otherwise omit (do not claim E2E falsely). If not E2E, consider an honest "secured" note instead.
 
+### 17. Voice message design parity
+App already has: play/pause, a filling waveform, duration, reply preview "🎤 Voice message".
+Add/refine:
+- 17a. **Sender avatar with a mic badge** next to the voice message; **blue mic = unplayed** indicator (changes once heard).
+- 17b. **Draggable scrubber** on the waveform (seek to any point).
+- 17c. **Playback speed** toggle (1x / 1.5x / 2x).
+- 17d. Duration counts up while playing; shows total when idle.
+
 <!-- user is still sending more features; keep appending below -->
 
 
