@@ -129,6 +129,16 @@ Add/refine:
 - 15d. **Group info tabs**: Members / Media / Settings; and **"Created by …, date"** footer.
 - 15e. Add group to a community (communities exist — wire this entry).
 
+### 16. Group info details (header actions, members, media tab, mentions)
+App already has group info with members, admin, member titles, action buttons, media tabs.
+Add/refine:
+- 16a. Group header **action buttons**: Call (voice/video dropdown), **Status**, Share, **Search**.
+- 16b. **"Add group description"** prompt when empty.
+- 16c. **@ mentions highlighted** (green) in messages; member-list subtitle in the chat header.
+- 16d. **Group Admin** green tags + member titles/tags shown clearly on each member.
+- 16e. Per-group **Notifications** settings (All / custom / off), in the Media/Settings tab.
+- 16f. **Encryption notice** ONLY if the app is actually end-to-end encrypted; otherwise omit (do not claim E2E falsely). If not E2E, consider an honest "secured" note instead.
+
 <!-- user is still sending more features; keep appending below -->
 
 
