@@ -128,6 +128,22 @@ object ClLocal {
     fun enterSends(c: Context): Boolean = p(c).getBoolean("enterSends", true)
     fun setEnterSends(c: Context, on: Boolean) { p(c).edit().putBoolean("enterSends", on).apply(); enterVersion++ }
     var enterVersion by androidx.compose.runtime.mutableIntStateOf(0)
+
+    // Archived chats (WhatsApp): hidden from the main list into an "Archived" section. On this phone only.
+    fun archived(c: Context): Set<String> = (p(c).getString("arch:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
+    fun isArchived(c: Context, id: String) = id in archived(c)
+    fun toggleArchive(c: Context, id: String): Boolean {
+        val l = archived(c).toMutableSet(); val on = l.add(id); if (!on) l.remove(id)
+        p(c).edit().putString("arch:" + me(), l.joinToString(",")).apply(); chListVersion++; return on
+    }
+    // Mark as unread (WhatsApp): a manual unread dot even with 0 server-unread; cleared when the chat is opened.
+    fun markedUnread(c: Context): Set<String> = (p(c).getString("munr:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
+    fun isMarkedUnread(c: Context, id: String) = id in markedUnread(c)
+    fun setMarkedUnread(c: Context, id: String, on: Boolean) {
+        val l = markedUnread(c).toMutableSet(); if (on) l.add(id) else l.remove(id)
+        p(c).edit().putString("munr:" + me(), l.joinToString(",")).apply(); chListVersion++
+    }
+    var chListVersion by androidx.compose.runtime.mutableIntStateOf(0)
 }
 
 /** chat.js _autoDeleteLabel */

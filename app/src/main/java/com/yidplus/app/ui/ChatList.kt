@@ -156,6 +156,7 @@ fun ChatsScreen() {
     val sel = remember { mutableStateListOf<String>() }
     var muteAsk by remember { mutableStateOf<List<ChatRoomInfo>?>(null) }
     var delAsk by remember { mutableStateOf<List<ChatRoomInfo>?>(null) }
+    var showArchived by rememberSaveable { mutableStateOf(false) }
     val kb = LocalSoftwareKeyboardController.current
     val focusMgr = androidx.compose.ui.platform.LocalFocusManager.current
     // Gap 10: leaving search (✕ or Back) also closes the keyboard.
@@ -185,7 +186,8 @@ fun ChatsScreen() {
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         when {
-            sel.isNotEmpty() -> ClSelectBar(sel.size, selRooms.isNotEmpty() && selRooms.all { it.room.id in pins }, selRooms.isNotEmpty() && selRooms.all { it.muted }, sel.size == 1,
+            sel.isNotEmpty() -> ClSelectBar(sel.size, selRooms.isNotEmpty() && selRooms.all { it.room.id in pins }, selRooms.isNotEmpty() && selRooms.all { it.muted },
+                selRooms.isNotEmpty() && selRooms.all { ClLocal.isArchived(c, it.room.id) }, sel.size == 1,
                 onClose = { sel.clear() },
                 onPin = {
                     val unpin = selRooms.all { it.room.id in pins }
@@ -199,7 +201,15 @@ fun ChatsScreen() {
                     } else muteAsk = selRooms
                 },
                 onRead = {
-                    scope.launch { selRooms.forEach { ri -> runCatching { ClApi.markRead(c, ri.room.id) } }; toast(c, "Marked as read"); sel.clear(); res.load(true) }
+                    scope.launch { selRooms.forEach { ri -> runCatching { ClApi.markRead(c, ri.room.id) }; ClLocal.setMarkedUnread(c, ri.room.id, false) }; toast(c, "Marked as read"); sel.clear(); res.load(true) }
+                },
+                onMarkUnread = {
+                    selRooms.forEach { ClLocal.setMarkedUnread(c, it.room.id, true) }; toast(c, "Marked as unread"); sel.clear()
+                },
+                onArchive = {
+                    val unarch = selRooms.all { ClLocal.isArchived(c, it.room.id) }
+                    selRooms.forEach { if (ClLocal.isArchived(c, it.room.id) == unarch) ClLocal.toggleArchive(c, it.room.id) }
+                    toast(c, if (unarch) "Unarchived" else "Archived"); sel.clear()
                 },
                 onDelete = { delAsk = selRooms },
                 onInfo = { selRooms.firstOrNull()?.let { Nav.open(ChInfo(it.room)) }; sel.clear() })
@@ -265,14 +275,30 @@ fun ChatsScreen() {
                     list == null -> ChSkeleton()
                     else -> {
                         val f = folders.firstOrNull { it.id == folder }
-                        val shown = remember(list, tab, f, pins) {
-                            list.filter { ri -> (if (f != null) ri.room.id in f.roomIds else matchTab(ri, tab)) && !(ri.isPrivate && !ri.hasMessages && ri.room.unread == 0) }
+                        val cv = ClLocal.chListVersion
+                        val archSet = remember(list, cv) { ClLocal.archived(c) }
+                        val shown = remember(list, tab, f, pins, showArchived, cv) {
+                            list.filter { ri -> (if (f != null) ri.room.id in f.roomIds else matchTab(ri, tab)) && !(ri.isPrivate && !ri.hasMessages && ri.room.unread == 0)
+                                && ((ri.room.id in archSet) == showArchived) }
                                 .sortedBy { val p = pins.indexOf(it.room.id); if (p < 0) Int.MAX_VALUE else p }
                         }
                         val tg = if (f == null && (tab == "all" || tab == "channels" || tab == "unread")) tgRes.data.orEmpty().filter { (it.joined || me == null) && (tab != "unread" || it.unread > 0) }.sortedByDescending { it.lastAt ?: "" } else emptyList()
                         LazyColumn(Modifier.fillMaxSize().nestedScroll(pillScroll), state = listState, contentPadding = fabSafePadding(hasFab = me != null)) {
-                            if (me != null && tab == "all" && f == null && q.isBlank() && !compact) item(key = "nw-status") { StatusStrip() }
-                            if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank() && !compact) item(key = "nw-ai") { AiChatRow(compact) { Nav.open(AiChatPage()) } }
+                            if (me != null && showArchived) item(key = "arch-hdr") {
+                                Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { showArchived = false }.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Sym.ArrowBack, "Back", Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurface)
+                                    Text("Archived", Modifier.padding(start = 20.dp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                            }
+                            if (me != null && !showArchived && tab == "all" && f == null && q.isBlank() && archSet.isNotEmpty()) item(key = "arch-row") {
+                                Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { showArchived = true }.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Sym.Archive, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Archived", Modifier.weight(1f).padding(start = 24.dp), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                                    Text("${archSet.size}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                            if (me != null && tab == "all" && f == null && q.isBlank() && !compact && !showArchived) item(key = "nw-status") { StatusStrip() }
+                            if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank() && !compact && !showArchived) item(key = "nw-ai") { AiChatRow(compact) { Nav.open(AiChatPage()) } }
                             if (shown.isEmpty() && tg.isEmpty()) item {
                                 if (me == null) ChEmpty(Sym.Forum, "No public groups right now")
                                 else if (f != null) ChEmpty(Sym.Folder, "No chats in this folder", action = "Edit folders") { Nav.open(ClFolderManager()) }
@@ -379,7 +405,8 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
                        ring: Boolean = false, ringSeen: Boolean = false, onRing: () -> Unit = {}, onLong: (() -> Unit)? = null, onToggle: () -> Unit = {}) {
     val r = ri.room
     val c = ctx()
-    val open = { if (selecting) onToggle() else { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) } }
+    val markedUnread = ClLocal.chListVersion.let { ClLocal.isMarkedUnread(c, r.id) }
+    val open = { if (selecting) onToggle() else { ClLocal.setMarkedUnread(c, r.id, false); Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) } }
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
     val sel = Nav.chatDetail?.room?.id == r.id
@@ -402,7 +429,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
                     // Title takes the room it has and ellipsizes; the time always keeps its place at the far end (RTL names can't push it away).
                     Text(r.name, Modifier.weight(1f).padding(end = 10.dp), fontSize = if (compact) 16.5.sp else 17.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
-                    Text(chatTime(r.lastTime), fontSize = 12.5.sp, color = if (r.unread > 0 && !ri.muted) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                    Text(chatTime(r.lastTime), fontSize = 12.5.sp, color = if ((r.unread > 0 || markedUnread) && !ri.muted) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
                 Spacer(Modifier.height(if (compact) 3.dp else 4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -415,7 +442,9 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
                         fontSize = if (compact) 14.sp else 15.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                     if (ri.muted) Icon(Sym.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (pinned) Icon(Sym.PushPinFill, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.width(4.dp)); ChBadge(r.unread, ri.muted)
+                    Spacer(Modifier.width(4.dp))
+                    if (markedUnread && r.unread == 0) Box(Modifier.size(11.dp).clip(CircleShape).background(if (ri.muted) MaterialTheme.colorScheme.onSurfaceVariant else ChatLook.unread))
+                    else ChBadge(r.unread, ri.muted)
                 }
             }
         }
