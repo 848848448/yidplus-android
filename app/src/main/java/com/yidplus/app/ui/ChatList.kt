@@ -121,7 +121,7 @@ import androidx.compose.material3.Checkbox
 /* ═════════════════════════ Chat list ═════════════════════════ */
 
 // The site's tabs (All / Private Chats / Groups / Channels) plus WhatsApp's Unread chip; custom folders follow, then "+".
-private val CHAT_TABS = listOf("all" to "All", "unread" to "Unread", "private" to "Private", "groups" to "Groups", "channels" to "Channels")
+private val CHAT_TABS = listOf("all" to "All", "unread" to "Unread", "favorites" to "Favorites", "private" to "Private", "groups" to "Groups", "channels" to "Channels")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,7 +187,8 @@ fun ChatsScreen() {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         when {
             sel.isNotEmpty() -> ClSelectBar(sel.size, selRooms.isNotEmpty() && selRooms.all { it.room.id in pins }, selRooms.isNotEmpty() && selRooms.all { it.muted },
-                selRooms.isNotEmpty() && selRooms.all { ClLocal.isArchived(c, it.room.id) }, sel.size == 1,
+                selRooms.isNotEmpty() && selRooms.all { ClLocal.isArchived(c, it.room.id) },
+                selRooms.isNotEmpty() && selRooms.all { ClLocal.isFavorite(c, it.room.id) }, sel.size == 1,
                 onClose = { sel.clear() },
                 onPin = {
                     val unpin = selRooms.all { it.room.id in pins }
@@ -210,6 +211,11 @@ fun ChatsScreen() {
                     val unarch = selRooms.all { ClLocal.isArchived(c, it.room.id) }
                     selRooms.forEach { if (ClLocal.isArchived(c, it.room.id) == unarch) ClLocal.toggleArchive(c, it.room.id) }
                     toast(c, if (unarch) "Unarchived" else "Archived"); sel.clear()
+                },
+                onFavorite = {
+                    val unfav = selRooms.all { ClLocal.isFavorite(c, it.room.id) }
+                    selRooms.forEach { if (ClLocal.isFavorite(c, it.room.id) == unfav) ClLocal.toggleFavorite(c, it.room.id) }
+                    toast(c, if (unfav) "Removed from favorites" else "Added to favorites"); sel.clear()
                 },
                 onDelete = { delAsk = selRooms },
                 onInfo = { selRooms.firstOrNull()?.let { Nav.open(ChInfo(it.room)) }; sel.clear() })
@@ -241,7 +247,7 @@ fun ChatsScreen() {
             if (compact && tab == "all" && folder == null) ClStatusChip(stUsers.orEmpty())
             CHAT_TABS.forEach { (k, label) ->
                 val n = list?.let { l -> l.filter { matchTab(it, k) && !it.muted }.sumOf { it.room.unread } } ?: 0
-                ClChip(label, folder == null && tab == k, if (k == "unread") 0 else n) { setTab(k) }
+                ClChip(label, folder == null && tab == k, if (k == "unread" || k == "favorites") 0 else n) { setTab(k) }
             }
             folders.forEach { f ->
                 val n = list?.let { l -> l.filter { it.room.id in f.roomIds && !it.muted }.sumOf { it.room.unread } } ?: 0
@@ -277,8 +283,10 @@ fun ChatsScreen() {
                         val f = folders.firstOrNull { it.id == folder }
                         val cv = ClLocal.chListVersion
                         val archSet = remember(list, cv) { ClLocal.archived(c) }
+                        val favSet = remember(list, cv) { ClLocal.favorites(c) }
                         val shown = remember(list, tab, f, pins, showArchived, cv) {
                             list.filter { ri -> (if (f != null) ri.room.id in f.roomIds else matchTab(ri, tab)) && !(ri.isPrivate && !ri.hasMessages && ri.room.unread == 0)
+                                && (tab != "favorites" || ri.room.id in favSet)
                                 && ((ri.room.id in archSet) == showArchived) }
                                 .sortedBy { val p = pins.indexOf(it.room.id); if (p < 0) Int.MAX_VALUE else p }
                         }
@@ -391,6 +399,7 @@ private fun ClFreshStrip(res: Res<List<ChatRoomInfo>>, onRetry: () -> Unit) {
 
 private fun matchTab(r: ChatRoomInfo, tab: String) = when (tab) {
     "private" -> r.isPrivate; "groups" -> r.isGroup; "channels" -> r.isChannel; "unread" -> r.room.unread > 0; else -> true
+    // "favorites" is handled in the list filter (needs the per-account set); matchTab lets it through here.
 }
 
 @Composable

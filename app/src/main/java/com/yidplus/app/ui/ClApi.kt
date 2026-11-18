@@ -143,6 +143,13 @@ object ClLocal {
         val l = markedUnread(c).toMutableSet(); if (on) l.add(id) else l.remove(id)
         p(c).edit().putString("munr:" + me(), l.joinToString(",")).apply(); chListVersion++
     }
+    // Favorites (WhatsApp "Favourites"): a per-account set this phone keeps; shown under a Favorites filter chip.
+    fun favorites(c: Context): Set<String> = (p(c).getString("fav:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
+    fun isFavorite(c: Context, id: String) = id in favorites(c)
+    fun toggleFavorite(c: Context, id: String): Boolean {
+        val l = favorites(c).toMutableSet(); val on = l.add(id); if (!on) l.remove(id)
+        p(c).edit().putString("fav:" + me(), l.joinToString(",")).apply(); chListVersion++; return on
+    }
     var chListVersion by androidx.compose.runtime.mutableIntStateOf(0)
 }
 

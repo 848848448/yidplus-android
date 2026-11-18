@@ -124,12 +124,13 @@ private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = M
 
 /** WhatsApp's selection bar (long-press a chat): count, then Pin, Mute, Mark as read, Delete, Info. */
 @Composable
-internal fun ClSelectBar(n: Int, allPinned: Boolean, allMuted: Boolean, allArchived: Boolean, single: Boolean, onClose: () -> Unit, onPin: () -> Unit, onMute: () -> Unit,
-                         onRead: () -> Unit, onMarkUnread: () -> Unit, onArchive: () -> Unit, onDelete: () -> Unit, onInfo: () -> Unit) {
+internal fun ClSelectBar(n: Int, allPinned: Boolean, allMuted: Boolean, allArchived: Boolean, allFav: Boolean, single: Boolean, onClose: () -> Unit, onPin: () -> Unit, onMute: () -> Unit,
+                         onRead: () -> Unit, onMarkUnread: () -> Unit, onArchive: () -> Unit, onFavorite: () -> Unit, onDelete: () -> Unit, onInfo: () -> Unit) {
     Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 2.dp), verticalAlignment = Alignment.CenterVertically) {
             ChIcon(Sym.Close, "Cancel selection", onClose)
             Text("$n", Modifier.weight(1f).padding(start = 6.dp), color = LocalContentColor.current, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+            ChIcon(if (allFav) Sym.StarFill else Sym.StarBorder, if (allFav) "Remove from favorites" else "Add to favorites", onFavorite)
             ChIcon(if (allArchived) Sym.Unarchive else Sym.Archive, if (allArchived) "Unarchive" else "Archive", onArchive)
             ChIcon(if (allPinned) Sym.PushPinFill else Sym.PushPin, if (allPinned) "Unpin" else "Pin", onPin)
             ChIcon(if (allMuted) Sym.Notifications else Sym.NotificationsOff, if (allMuted) "Unmute" else "Mute", onMute)
