@@ -518,6 +518,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         }
                         share(c, sb.toString())
                     }
+                    if (me != null) ChMenuItem(Sym.Home, "Add to home screen") {
+                        menu = false
+                        if (com.yidplus.app.ChatNotify.pinChat(c, room)) toast(c, "Added — check your home screen") else toast(c, "Your launcher doesn't support this")
+                    }
                     ChMenuItem(Sym.Wallpaper, "Wallpaper") { menu = false; wallpaperOpen = true }
                     if (me != null) { val lockVer2 = ChatLock.version; val locked = lockVer2 >= 0 && ChatLock.isLocked(room.id)
                         ChMenuItem(Sym.Lock, if (locked) "Unlock chat" else "Lock chat") {

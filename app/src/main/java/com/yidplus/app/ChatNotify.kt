@@ -61,6 +61,17 @@ object ChatNotify {
     private fun me(c: Context): JSONObject? = runCatching { c.getSharedPreferences("session", Context.MODE_PRIVATE).getString("me", null)?.let { JSONObject(it) } }.getOrNull()
     private fun enc(s: String) = URLEncoder.encode(s, "UTF-8")
     fun shortcutId(roomId: String) = "chat_$roomId"
+
+    /** WhatsApp's "Add chat to home screen": pin a launcher shortcut that opens this chat directly. Returns false if the launcher doesn't support pinning. */
+    fun pinChat(c: Context, r: Room): Boolean {
+        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(c)) return false
+        val open = Intent(c, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_CHAT).putExtra("room", r.json().toString())
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val si = ShortcutInfoCompat.Builder(c, "pin_" + r.id)
+            .setShortLabel(r.name.ifBlank { "Chat" }.take(20)).setLongLabel(r.name.ifBlank { "Chat" }.take(40))
+            .setIcon(IconCompat.createWithResource(c, R.mipmap.ic_launcher)).setIntent(open).build()
+        return runCatching { ShortcutManagerCompat.requestPinShortcut(c, si, null) }.getOrDefault(false)
+    }
     /**
      * Each chat is its OWN group (no shared bundle, no summary). With one shared group + an InboxStyle summary, Android 11
      * puts the chats (conversations, they have a shortcut) in the Conversations section and the summary (no shortcut) in
