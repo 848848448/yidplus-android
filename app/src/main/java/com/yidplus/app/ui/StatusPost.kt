@@ -169,6 +169,13 @@ private fun PostStatus() {
     var recording by remember { mutableStateOf(false) }
     var recSec by remember { mutableIntStateOf(0) }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u -> if (u != null) media = u }
+    var shotUri by remember { mutableStateOf<Uri?>(null) }
+    val takePic = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) shotUri?.let { media = it } }
+    fun shoot() {
+        val f = java.io.File(java.io.File(c.cacheDir, "captures").apply { mkdirs() }, "status_" + System.currentTimeMillis() + ".jpg")
+        val u = runCatching { androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", f) }.getOrNull() ?: return
+        shotUri = u; runCatching { takePic.launch(u) }.onFailure { toast(c, "No camera app found") }
+    }
     fun startRec() { if (recorder.start()) { recording = true } else toast(c, "Couldn't start recording") }
     val micPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRec() else toast(c, "Allow the microphone to record a voice status") }
     fun askRec() { if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRec() else micPerm.launch(Manifest.permission.RECORD_AUDIO) }
@@ -227,6 +234,7 @@ private fun PostStatus() {
             }
             if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
             if (media == null) IconBtn(Sym.Mic, "Voice status", { askRec() }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.PhotoCamera, "Camera", { shoot() }, tint = Color.White, size = 48.dp)
             IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
