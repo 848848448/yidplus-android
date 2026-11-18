@@ -1,3 +1,11 @@
+## New in 2.15.0 (test build — fixes from your testing)
+Fixes for the things you flagged:
+- **Sending a photo:** the keyboard no longer pops up and blocks the Send button — you can send right away (caption is optional).
+- **Tap a chat's photo:** the quick popup now opens reliably (Message / Call / Info).
+- **Favorites:** you can now add/remove a favorite from the chat's ⋮ menu too (not only long-press), so it's easy to find.
+- **@mentions** now work with Yiddish/Hebrew names (they show green and are tappable).
+- Still improving the look of the Status composer and the video-note recorder — more to come.
+
 ## New in 2.14.0 (test build — work in progress)
 Everything from 2.13.0 plus more to try:
 - **Tap a chat's photo** in the list → a quick popup with the big photo and **Message / Call / Info** (tap the photo for full screen).
