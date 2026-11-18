@@ -298,3 +298,30 @@ class AdminAdFreePage : PageScreen() {
         }
     }
 }
+
+/** Health check (admin.js "Health Check"): runs the owner diagnostics and lists each check with its status. Native, read-only. */
+class AdminHealthPage : PageScreen() {
+    override val perfName get() = "AdminHealth"
+    @Composable override fun Content() {
+        val checks = remember { mutableStateListOf<JSONObject>() }
+        var summary by remember { mutableStateOf<JSONObject?>(null) }
+        var loaded by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            runCatching { Api.get("/api/admin/diagnostics") }.onSuccess { checks.clear(); it.optJSONArray("checks").objects().forEach { x -> checks.add(x) }; summary = it.optJSONObject("summary") }
+            loaded = true
+        }
+        SettingsPage("Health check", sub = summary?.let { "✅ ${it.optInt("ok")}   ⚠️ ${it.optInt("warn")}   ❌ ${it.optInt("fail")}" }) {
+            if (loaded && checks.isEmpty()) SettingsHint("No checks returned.")
+            if (checks.isNotEmpty()) SettingsCard {
+                checks.forEachIndexed { i, x ->
+                    if (i > 0) RowDivider(16.dp)
+                    val icon = when (x.optString("status")) { "ok" -> "✅"; "warn" -> "⚠️"; "fail" -> "❌"; else -> "➖" }
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 9.dp)) {
+                        Text("$icon  " + x.optString("label").ifBlank { x.optString("category") }, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                        x.optString("detail").ifBlank { null }?.let { Text(it, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 24.dp)) }
+                    }
+                }
+            }
+        }
+    }
+}
