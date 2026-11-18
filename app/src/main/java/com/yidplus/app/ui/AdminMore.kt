@@ -242,3 +242,32 @@ class AdminSessionsPage : PageScreen() {
         }, onDismiss = { confirmAll = false })
     }
 }
+
+/** Banned devices (admin.js "Banned"): blocked IPs / devices, with Unban. Native, same /api/admin/device-bans calls as the website. */
+class AdminBannedDevicesPage : PageScreen() {
+    override val perfName get() = "AdminBannedDevices"
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope()
+        val list = remember { mutableStateListOf<JSONObject>() }
+        var loaded by remember { mutableStateOf(false) }
+        suspend fun load() {
+            runCatching { Api.get("/api/admin/device-bans") }.onSuccess { list.clear(); it.optJSONArray("bans").objects().forEach { x -> list.add(x) } }
+            loaded = true
+        }
+        LaunchedEffect(Unit) { load() }
+        SettingsPage("Banned devices", sub = "Blocked IPs and devices") {
+            if (loaded && list.isEmpty()) SettingsHint("No banned devices.")
+            if (list.isNotEmpty()) SettingsCard {
+                list.forEachIndexed { i, x ->
+                    if (i > 0) RowDivider(64.dp)
+                    val id = x.optString("id")
+                    val who = x.optString("ip").ifBlank { x.optString("fingerprint").take(18).ifBlank { "device" } }
+                    val sub = listOfNotNull(x.optString("reason").ifBlank { null }, ago(x.optString("created_at").ifBlank { null })).joinToString(" · ")
+                    SettingRow(Sym.Block, who, sub, value = "Unban") {
+                        scope.launch { runCatching { Api.delete("/api/admin/device-bans?id=" + chEnc(id)) }.onSuccess { list.removeAll { r -> r.optString("id") == id }; toast(c, "Unbanned") }.onFailure { toast(c, Api.friendly(it)) } }
+                    }
+                }
+            }
+        }
+    }
+}
