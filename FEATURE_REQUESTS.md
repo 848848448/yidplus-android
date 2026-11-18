@@ -15,6 +15,9 @@ Mark each item [DONE] as it lands on the branch.
 - [DONE] #4a Photo editor — ROTATE in the send preview (tap to turn 90°, re-saved at send). Crop/draw/text still pending.
 - [DONE] #1b Status text fonts — backend (additive `font` column, web branch claude/whatsapp-fixes, NOT merged) + app Aa picker (default/serif/mono/cursive) in composer + viewer renders saved font.
 - [DONE] #1c Voice status — mic button in composer records (RECORD_AUDIO), WhatsApp-style recording overlay (timer, Cancel/Send, 60s cap); posts via media path as .m4a (NO backend change); viewer plays audio (StAudio) with avatar + mic badge. Auto-advances on audio length.
+- [DONE] #1a Camera capture in status composer (TakePicture -> FileProvider).
+- [DONE] #1e Layout/collage — pick 2–4 photos, composed client-side into one image (clean 2/3/4 templates, centre-cropped) and posted as a normal media status. NO backend change.
+- Status "Add status" options now: Text ✓ (with fonts), Camera ✓, Voice ✓, Layout ✓. Remaining: Music (#1d, backend+catalogue), AI images (#1f, backend/AI).
 - [ALREADY EXISTS] #8a green unread time, #8b mute bell; #17b voice seek, #17c voice speed (1x/1.5x/2x).
 - [ALREADY EXISTS] #2e Pin message (bubble menu + pinned-messages list), #4f View once (👁 photo/video).
 - [ALREADY EXISTS] #11 in-chat design: group sender avatars + per-sender name colour, "N members, X online" + typing + exact last-seen header, "N unread messages" divider.

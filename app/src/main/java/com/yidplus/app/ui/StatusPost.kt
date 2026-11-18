@@ -176,6 +176,18 @@ private fun PostStatus() {
         val u = runCatching { androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", f) }.getOrNull() ?: return
         shotUri = u; runCatching { takePic.launch(u) }.onFailure { toast(c, "No camera app found") }
     }
+    var composingLayout by remember { mutableStateOf(false) }
+    val pickMany = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(4)) { list ->
+        when {
+            list.size >= 2 -> { composingLayout = true; scope.launch {
+                val f = withContext(Dispatchers.IO) { csComposeCollage(c, list.take(4)) }
+                composingLayout = false
+                if (f != null) media = runCatching { androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", f) }.getOrNull()
+                else toast(c, "Couldn't make the layout")
+            } }
+            list.size == 1 -> media = list[0]
+        }
+    }
     fun startRec() { if (recorder.start()) { recording = true } else toast(c, "Couldn't start recording") }
     val micPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRec() else toast(c, "Allow the microphone to record a voice status") }
     fun askRec() { if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRec() else micPerm.launch(Manifest.permission.RECORD_AUDIO) }
@@ -235,6 +247,9 @@ private fun PostStatus() {
             if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
             if (media == null) IconBtn(Sym.Mic, "Voice status", { askRec() }, tint = Color.White, size = 48.dp)
             if (media == null) IconBtn(Sym.PhotoCamera, "Camera", { shoot() }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.GridView, "Layout (collage)", {
+                runCatching { pickMany.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }.onFailure { toast(c, "No photo app found") }
+            }, tint = Color.White, size = 48.dp)
             IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
@@ -316,5 +331,47 @@ private fun PostStatus() {
               }
           }
       }
+      if (composingLayout) Box(Modifier.fillMaxSize().background(Color(0x99000000)), contentAlignment = Alignment.Center) {
+          Text("Making layout…", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+      }
     }
 }
+
+/** Compose 2–4 photos into one status image (WhatsApp "Layout"): clean 2/3/4 templates, each cell centre-cropped. */
+internal fun csComposeCollage(c: Context, uris: List<Uri>): java.io.File? = runCatching {
+    val n = uris.size.coerceIn(1, 4)
+    val W = 1080f; val H = 1350f
+    val out = android.graphics.Bitmap.createBitmap(W.toInt(), H.toInt(), android.graphics.Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(out)
+    canvas.drawColor(android.graphics.Color.BLACK)
+    val rects: List<android.graphics.RectF> = when (n) {
+        2 -> listOf(android.graphics.RectF(0f, 0f, W / 2, H), android.graphics.RectF(W / 2, 0f, W, H))
+        3 -> listOf(android.graphics.RectF(0f, 0f, W / 2, H), android.graphics.RectF(W / 2, 0f, W, H / 2), android.graphics.RectF(W / 2, H / 2, W, H))
+        4 -> listOf(android.graphics.RectF(0f, 0f, W / 2, H / 2), android.graphics.RectF(W / 2, 0f, W, H / 2), android.graphics.RectF(0f, H / 2, W / 2, H), android.graphics.RectF(W / 2, H / 2, W, H))
+        else -> listOf(android.graphics.RectF(0f, 0f, W, H))
+    }
+    val gap = 6f
+    for (i in 0 until n) {
+        val r = rects[i]
+        val cell = android.graphics.RectF(r.left + (if (r.left > 0f) gap / 2 else 0f), r.top + (if (r.top > 0f) gap / 2 else 0f),
+            r.right - (if (r.right < W) gap / 2 else 0f), r.bottom - (if (r.bottom < H) gap / 2 else 0f))
+        val bmp = csDecodeSampled(c, uris[i], cell.width().toInt(), cell.height().toInt()) ?: continue
+        val scale = maxOf(cell.width() / bmp.width, cell.height() / bmp.height)
+        val sw = cell.width() / scale; val sh = cell.height() / scale
+        val sx = ((bmp.width - sw) / 2f).toInt(); val sy = ((bmp.height - sh) / 2f).toInt()
+        canvas.drawBitmap(bmp, android.graphics.Rect(sx, sy, sx + sw.toInt(), sy + sh.toInt()), cell, null)
+        bmp.recycle()
+    }
+    val f = java.io.File(java.io.File(c.cacheDir, "captures").apply { mkdirs() }, "collage_" + System.currentTimeMillis() + ".jpg")
+    java.io.FileOutputStream(f).use { out.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, it) }
+    out.recycle()
+    f
+}.getOrNull()
+
+private fun csDecodeSampled(c: Context, uri: Uri, reqW: Int, reqH: Int): android.graphics.Bitmap? = runCatching {
+    val o = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    c.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, o) }
+    var s = 1
+    while (reqW > 0 && reqH > 0 && o.outWidth / (s * 2) >= reqW && o.outHeight / (s * 2) >= reqH) s *= 2
+    c.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = s }) }
+}.getOrNull()
