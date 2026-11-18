@@ -416,6 +416,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
     val c = ctx()
     val markedUnread = ClLocal.chListVersion.let { ClLocal.isMarkedUnread(c, r.id) }
     val open = { if (selecting) onToggle() else { ClLocal.setMarkedUnread(c, r.id, false); Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) } }
+    var popup by remember { mutableStateOf(false) }
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
     val sel = Nav.chatDetail?.room?.id == r.id
@@ -428,7 +429,9 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
             Box {
                 // The site shows "online" only to site admins (chat.js renderChatList: c.online && isAnyAdmin()).
                 val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 50.dp else 56.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
-                if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() } else av()
+                if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() }
+                else if (!selecting) Box(Modifier.clip(CircleShape).tap(CircleShape) { popup = true }) { av() }
+                else av()
                 if (selected) Box(Modifier.align(Alignment.BottomEnd).size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(1.dp).clip(CircleShape).background(ChatLook.unread), contentAlignment = Alignment.Center) {
                     Icon(Sym.Check, "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
                 }
@@ -458,6 +461,36 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
             }
         }
         HorizontalDivider(Modifier.padding(start = if (compact) 82.dp else 88.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
+    }
+    // WhatsApp avatar quick-preview popup: tap a chat's photo → enlarged photo + name + Message / Call / Info.
+    if (popup) Dialog(onDismissRequest = { popup = false }) {
+        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 6.dp) {
+            Column(Modifier.padding(22.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.clip(CircleShape).tap(CircleShape) { popup = false; r.photo?.let { Nav.open(Screen.Photo(it)) } }) {
+                    ChAvatar(r.photo, r.name, r.otherUserId ?: r.id, 150.dp)
+                }
+                Spacer(Modifier.height(14.dp))
+                Text(r.name, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, textAlign = TextAlign.Center, style = TextStyle(textDirection = TextDirection.Content))
+                Spacer(Modifier.height(18.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ClPopupAction(Sym.Chat, "Message") { popup = false; open() }
+                    if (ri.isPrivate || ri.isGroup) ClPopupAction(Sym.Call, "Call") { popup = false; Nav.open(ChCall(r, "audio")) }
+                    ClPopupAction(Sym.Info, "Info") { popup = false; Nav.open(ChInfo(r)) }
+                }
+            }
+        }
+    }
+}
+
+/** One action in the chat-avatar quick-preview popup: a round-tinted icon with a label under it. */
+@Composable
+private fun ClPopupAction(icon: ImageVector, label: String, onClick: () -> Unit) {
+    Column(Modifier.padding(horizontal = 16.dp).clip(RoundedCornerShape(12.dp)).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(horizontal = 8.dp, vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(48.dp).clip(CircleShape).background(ChatLook.accent.copy(alpha = .14f)), contentAlignment = Alignment.Center) {
+            Icon(icon, label, tint = ChatLook.accent, modifier = Modifier.size(24.dp))
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
