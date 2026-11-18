@@ -120,8 +120,50 @@ class ChNewChat : PageScreen() {
             }, header = {
                 ChRow("New group", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Group, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("group")) }
                 ChRow("New channel", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Campaign, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("channel")) }
+                ChRow("New broadcast", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Campaign, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewBroadcast()) }
                 ChRow("Join by invite link", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Link, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChJoinLink()) }
             })
+        }
+    }
+}
+
+/** New broadcast (WhatsApp): pick people, type one message; it's sent to each person privately (their own DM). */
+class ChNewBroadcast : PageScreen() {
+    override val perfName get() = "NewBroadcast"
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope()
+        val picked = remember { mutableStateListOf<ChMember>() }
+        var text by remember { mutableStateOf("") }
+        var sending by remember { mutableStateOf(false) }
+        fun send() {
+            if (sending) return
+            val list = picked.toList(); val t = text.trim()
+            if (list.isEmpty()) { toast(c, "Pick at least one person"); return }
+            if (t.isBlank()) { toast(c, "Type a message first"); return }
+            sending = true
+            scope.launch {
+                var ok = 0
+                for (m in list) runCatching { val rid = ChatApi.openDm(m.id); ChatApi.sendText(rid, t, null) }.onSuccess { ok++ }
+                sending = false
+                toast(c, if (ok == list.size) "✅ Sent to $ok ${if (ok == 1) "person" else "people"}" else "Sent to $ok of ${list.size}")
+                ChatApi.rooms.load(true); Nav.back()
+            }
+        }
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            ChBar("New broadcast", sub = if (picked.isEmpty()) "Pick who gets it" else "${picked.size} selected", onBack = { Nav.back() })
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                UserSearch("Search people", selected = picked.map { it.id }.toSet(), onUser = { mb ->
+                    val i = picked.indexOfFirst { it.id == mb.id }
+                    if (i >= 0) picked.removeAt(i) else picked.add(mb)
+                })
+            }
+            if (picked.isNotEmpty()) Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(text, { text = it }, Modifier.weight(1f), placeholder = { Text("Message to ${picked.size}…") }, maxLines = 4, shape = RoundedCornerShape(24.dp),
+                    textStyle = TextStyle(textDirection = TextDirection.Content))
+                Box(Modifier.padding(start = 8.dp).size(52.dp).clip(CircleShape).background(if (sending) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { send() }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Send, "Send broadcast", tint = Color.White)
+                }
+            }
         }
     }
 }

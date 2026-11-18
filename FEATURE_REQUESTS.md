@@ -20,6 +20,9 @@ Mark each item [DONE] as it lands on the branch.
 - Status "Add status" options now: Text ✓ (with fonts), Camera ✓, Voice ✓, Layout ✓. Remaining: Music (#1d, backend+catalogue), AI images (#1f, backend/AI).
 - [DONE] #4d HD photos — an "HD" toggle in the media send preview sends photos at 2560px/q92 (Standard stays 1280px/q82). chShrink gained a maxPx param, threaded through sendPicked/sendPhoto.
 - [DONE/VERIFIED] #4 admin native — all 15 enumerated admin sections already route to native pages (when(id) in AdminScreens); only unknown ids fall back to the web panel.
+- [DONE] #6 Favorites — Favorites filter chip + star toggle in the selection bar (ClLocal.favorites, per-account on phone).
+- [DONE] #2c Broadcast — "New broadcast" in the new-message menu: pick people, type one message, it's sent to each person's private chat (client-only, reuses openDm + sendText; no backend change).
+- DEFERRED (backend / core-chat risk, do carefully): #2d message yourself (self-room ripples through room model), #1d music status, #1f AI status, #5a chat backup, #4e auto-download (Coil plumbing).
 - [ALREADY EXISTS] #8a green unread time, #8b mute bell; #17b voice seek, #17c voice speed (1x/1.5x/2x).
 - [ALREADY EXISTS] #2e Pin message (bubble menu + pinned-messages list), #4f View once (👁 photo/video).
 - [ALREADY EXISTS] #11 in-chat design: group sender avatars + per-sender name colour, "N members, X online" + typing + exact last-seen header, "N unread messages" divider.
