@@ -186,6 +186,21 @@ object Statuses {
         return true
     }
 
+    // Muted people's updates (WhatsApp "Mute"): kept on this phone; moved to a "Muted updates" section.
+    private const val MUTED = "nw|status-muted"
+    private val mutedIds: MutableSet<String> by lazy {
+        val a = Disk.read(MUTED)?.optJSONArray("ids")
+        HashSet<String>().apply { if (a != null) for (i in 0 until a.length()) add(a.optString(i)) }
+    }
+    var muteVersion by mutableIntStateOf(0); private set
+    fun isMuted(userId: String) = userId in mutedIds
+    fun toggleMute(userId: String): Boolean {
+        val nowMuted = if (userId in mutedIds) { mutedIds.remove(userId); false } else { mutedIds.add(userId); true }
+        muteVersion++
+        Disk.write(MUTED, JSONObject().put("ids", JSONArray(mutedIds.toList())))
+        return nowMuted
+    }
+
     /** Mine first, then people with something new, then the ones already watched (WhatsApp's Updates order). */
     fun ordered(all: List<StUser>): List<StUser> {
         val me = Session.me?.id
@@ -319,9 +334,12 @@ class StatusUpdatesPage : PageScreen() {
         val res = Statuses.res
         LaunchedEffect(me?.id) { res.load() }
         @Suppress("UNUSED_VARIABLE") val v = Statuses.seenVersion
+        @Suppress("UNUSED_VARIABLE") val v2 = Statuses.muteVersion
         val all = res.data.orEmpty()
         val mine = all.firstOrNull { it.userId == me?.id }
-        val others = Statuses.ordered(all).filter { it.userId != me?.id }
+        val everyone = Statuses.ordered(all).filter { it.userId != me?.id }
+        val others = everyone.filter { !Statuses.isMuted(it.userId) }
+        val muted = everyone.filter { Statuses.isMuted(it.userId) }
         val unseen = others.filter { !Statuses.allSeen(it) }
         val seenList = others.filter { Statuses.allSeen(it) }
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
@@ -331,7 +349,8 @@ class StatusUpdatesPage : PageScreen() {
                     item(key = "mine") { StatusMyRow(me, mine) }
                     if (unseen.isNotEmpty()) { item(key = "h1") { StatusHeader("Recent updates") }; items(unseen, key = { it.userId }) { StatusUserRow(it) } }
                     if (seenList.isNotEmpty()) { item(key = "h2") { StatusHeader("Viewed updates") }; items(seenList, key = { it.userId }) { StatusUserRow(it) } }
-                    if (others.isEmpty()) item(key = "empty") { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text("No recent updates to show.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) } }
+                    if (muted.isNotEmpty()) { item(key = "h3") { StatusHeader("Muted updates") }; items(muted, key = { it.userId }) { StatusUserRow(it) } }
+                    if (everyone.isEmpty()) item(key = "empty") { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text("No recent updates to show.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) } }
                 }
             }
             // Camera + text-status buttons (WhatsApp's two FABs).
@@ -374,17 +393,30 @@ private fun StatusMyRow(me: com.yidplus.app.data.Me?, mine: StUser?) {
     HorizontalDivider(Modifier.padding(start = 88.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StatusUserRow(u: StUser) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(StatusViewerPage(u.userId)) }
-        .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(58.dp)) {
-            StatusRing(u.slides.map { Statuses.seen(it.id) }, mine = false, Modifier.fillMaxSize())
-            Box(Modifier.align(Alignment.Center).size(50.dp).clip(CircleShape)) { Avatar(u.photo, u.nick, 50.dp) }
+    val c = ctx()
+    var menu by remember { mutableStateOf(false) }
+    val muted = Statuses.muteVersion.let { Statuses.isMuted(u.userId) }
+    Box {
+        Row(Modifier.fillMaxWidth().heightIn(min = 72.dp)
+            .combinedClickable(onClick = { Nav.open(StatusViewerPage(u.userId)) }, onLongClick = { menu = true })
+            .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(58.dp)) {
+                StatusRing(u.slides.map { Statuses.seen(it.id) }, mine = false, Modifier.fillMaxSize())
+                Box(Modifier.align(Alignment.Center).size(50.dp).clip(CircleShape)) { Avatar(u.photo, u.nick, 50.dp) }
+            }
+            Column(Modifier.weight(1f).padding(start = 14.dp)) {
+                Text(u.nick, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                Text(if (muted) "Muted" else chatTime(u.slides.firstOrNull()?.createdAt), fontSize = 13.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
-        Column(Modifier.weight(1f).padding(start = 14.dp)) {
-            Text(u.nick, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-            Text(chatTime(u.slides.firstOrNull()?.createdAt), fontSize = 13.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        DropdownMenu(menu, { menu = false }) {
+            DropdownMenuItem(text = { Text(if (muted) "Unmute ${u.nick}" else "Mute ${u.nick}") }, onClick = {
+                menu = false; val nm = Statuses.toggleMute(u.userId); toast(c, if (nm) "Muted ${u.nick}'s updates" else "Unmuted")
+            })
+            DropdownMenuItem(text = { Text("View") }, onClick = { menu = false; Nav.open(StatusViewerPage(u.userId)) })
         }
     }
 }
