@@ -166,6 +166,16 @@ Add / reorganize to match WhatsApp:
 - 19f. **Linked devices** — use the account on other devices (companion/web). (big; needs backend.)
 - 19g. Organize Settings into WhatsApp's clean sections (Account, Privacy, Lists, Chats, Appearance, Events, Notifications, Storage, Help…).
 
+### 20. Settings — granular detail (from the full 147s video)
+Match WhatsApp's full settings depth (beyond item 19):
+- 20a. **Account**: Passkeys, Password, Email, Two-step verification, Security notifications, Username, Change phone number, Request account info, **Delete account**.
+- 20b. **Privacy (granular)**: Last seen & online, Profile picture, About, Links, Status, Read receipts (all with My contacts / Everyone / Nobody / except…), Groups, Live location, **Silence unknown callers**, **Advanced** (protect IP in calls, disable link previews), **Default message timer** (default disappearing).
+- 20c. **Lists**: custom chat lists/filters (Unread, Favorites, Groups presets + create custom).
+- 20d. **Chats**: Enter is send (exists), **Media visibility**, Font size (exists), **Default reactions** (set your quick-reaction set), **Voice message transcripts** (transcribe voice to text — AI; confirm desired), Keep chats archived, **Chat backup**, Transfer chats, Chat history.
+- 20e. **Notifications (granular)**: Reminders, separate Notification tone / Vibrate / Light / high-priority / Reaction notifications for Messages, Groups and Status; App icon badge; **Focus schedules**.
+- 20f. **Storage and data**: Free up storage, Network usage counters, **Use less data for calls**, **Proxy**, **Media upload quality (HD)**, **Auto-download quality**, media auto-download per network (mobile/Wi-Fi/roaming). (extends Storage screen already built.)
+- 20g. **QR code**: My code / Scan code tabs + **Reset QR**; **Reserved username** (@username) in Profile; Links; About.
+
 <!-- user is still sending more features; keep appending below -->
 
 
