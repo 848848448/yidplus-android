@@ -58,6 +58,12 @@ Build to match WhatsApp newest:
 - 6c. **Favorites** — a list of favourite contacts.
 - 6d. **Group events** — schedule an event in a group.
 
+### 7. Status/Updates list screen (screenshot: WhatsApp "Updates" tab)
+App already has StatusUpdatesPage (My status / Recent updates / Viewed updates, rings, time, camera+text FABs, mute added). New bits from this screenshot:
+- 7a. **"Last photo you took?"** smart suggestion on Add status (quick-post the latest gallery photo).
+- 7b. **Search** within the status/updates list.
+- 7c. (optional) a dedicated **"Updates" bottom tab** with the ring icon (app nav differs today).
+
 <!-- user is still sending more features; keep appending below -->
 
 
