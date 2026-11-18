@@ -198,6 +198,17 @@ Match WhatsApp's full settings depth (beyond item 19):
 - 20f. **Storage and data**: Free up storage, Network usage counters, **Use less data for calls**, **Proxy**, **Media upload quality (HD)**, **Auto-download quality**, media auto-download per network (mobile/Wi-Fi/roaming). (extends Storage screen already built.)
 - 20g. **QR code**: My code / Scan code tabs + **Reset QR**; **Reserved username** (@username) in Profile; Links; About.
 
+## VERIFICATION PASS (2026-11-18) — checked each remaining item against real code
+Most of the list ALREADY EXISTS in the app. Confirmed present (not rebuilt):
+- 10g Search in chat (searchOn) · 2e Pin · 4f View once · 4b/14a Create sticker (Add sticker in panel)
+- 16c @mentions highlighted+tappable (recolored to green now) · 15a group permissions (ChEditGroup)
+- 17b voice scrubber · 17c speed · 11d "X online" · 11b unread divider · 11e sender avatars
+- revoke invite link · stickers panel (emoji+sticker tabs) · attach sheet (gallery/camera/video/audio/doc/contact/location/gif/videonote/poll/schedule)
+NEW this session (in v2.13.0 test build + branch): rotate, status fonts, voice status, camera-in-status, layout/collage, HD photos, favorites, broadcast, avatar quick-preview popup, @mention green.
+GENUINE gaps still open (feasible): default reactions set (20d), app language picker (19e), group add-description prompt (16b), status "get notifications"/report menu (18c), group link QR (15b/6b — needs a QR encoder lib), silence unknown callers (3d — touches call handling).
+NEED INFRASTRUCTURE (cannot fake): screen share (3c WebRTC), linked devices/companion (19f), AI image status (1f — needs an AI image service), parental controls (19c), full chat backup (5a), music status catalogue (1d).
+RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there. Testing together pinpoints the few real gaps far better than building blind.
+
 <!-- user is still sending more features; keep appending below -->
 
 
