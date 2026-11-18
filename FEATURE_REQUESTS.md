@@ -220,3 +220,5 @@ RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there.
 - #1e Status layout/collage: works poorly + needs nicer (improve collage quality/layout).
 - #18c Status viewer reactions + menu: needs nicer.
 - #9a Avatar popup: ❌ DOES NOT WORK (tapping the chat photo doesn't open the popup — row click likely intercepts; must make the avatar tap consume the gesture). INVESTIGATE+FIX.
+- #6 Favorites: ❌ DOES NOT WORK (filter shows nothing and/or star toggle not working/discoverable). INVESTIGATE+FIX.
+- #2c Broadcast: needs nicer.
