@@ -98,6 +98,18 @@ App already has bubbles, date pills, blue double-checks, reply, reactions, syste
 - 11e. **Sender avatars** beside grouped messages in groups.
 - 11f. Verify colored sender names, reply quote bars, and reaction pills match WhatsApp exactly.
 
+### 12. Video note recorder — refine to match WhatsApp exactly (screenshots)
+The branch already has a circular selfie recorder (hold-to-record, progress ring, flip). Add the states from the screenshots:
+- 12a. **Slide up to lock** (hands-free) while holding — like voice notes.
+- 12b. **"‹ Slide to cancel"** affordance while holding.
+- 12c. **Locked state buttons**: trash (delete) · stop (centre) · send (green, right) · flip camera.
+- 12d. **Red timer pill** at the top centre while recording.
+
+### 13. Attach sheet + pickers + location (bonus from the same screenshots)
+- 13a. Attach (+) sheet: add **Event** and **AI images** options.
+- 13b. Media picker: an **HD toggle** for high-quality send.
+- 13c. Rich **location picker**: Share live location, "current location · accurate to N m", and a **nearby places** list (not just a map link).
+
 <!-- user is still sending more features; keep appending below -->
 
 
