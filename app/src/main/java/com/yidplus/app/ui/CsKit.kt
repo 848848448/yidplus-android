@@ -409,11 +409,12 @@ internal fun csRotateImage(c: Context, uri: Uri, degrees: Int): Uri {
 
 /** Photos/videos before sending (WhatsApp's preview): the pictures, remove one, rotate a photo, a caption, Send. */
 @Composable
-internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (List<Uri>, String) -> Unit, onClose: () -> Unit) {
+internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (List<Uri>, String, Boolean) -> Unit, onClose: () -> Unit) {
     var cap by remember { mutableStateOf("") }
     val c = ctx(); val scope = rememberCoroutineScope()
     val rotations = remember { mutableStateMapOf<Uri, Int>() }
     var sending by remember { mutableStateOf(false) }
+    var hd by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize(), color = Color.Black) {
             Column(Modifier.fillMaxSize()) {
@@ -423,6 +424,9 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                 Row(Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     ChIcon(Sym.Close, "Cancel", onClose, tint = Color.White)
                     Text(if (list.size == 1) "1 item" else "${list.size} items", Modifier.weight(1f).padding(start = 8.dp), color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    if (shown != null && isPhoto) Box(Modifier.clip(RoundedCornerShape(8.dp)).then(if (hd) Modifier.background(Color.White) else Modifier).tap(RoundedCornerShape(8.dp)) { hd = !hd }.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                        Text("HD", color = if (hd) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    }
                     if (shown != null && isPhoto) ChIcon(Sym.RotateRight, "Rotate", { rotations[shown] = ((rotations[shown] ?: 0) + 90) % 360 }, tint = Color.White)
                 }
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -448,7 +452,7 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                         val snap = list.toList(); val rots = rotations.toMap(); val text = cap.trim()
                         scope.launch {
                             val finals = withContext(Dispatchers.IO) { snap.map { csRotateImage(c, it, rots[it] ?: 0) } }
-                            onSend(finals, text)
+                            onSend(finals, text, hd)
                         }
                     }, contentAlignment = Alignment.Center) {
                         if (sending) CircularProgressIndicator(Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)

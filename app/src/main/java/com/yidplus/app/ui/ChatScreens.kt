@@ -276,19 +276,19 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             finally { sending = false; file?.takeIf { it.name.startsWith("cam_") || it.name.startsWith("voice_") }?.delete() }
         }
     }
-    fun sendPhoto(uri: Uri?, bmp: Bitmap?, caption: String = "") {
+    fun sendPhoto(uri: Uri?, bmp: Bitmap?, caption: String = "", hd: Boolean = false) {
         scope.launch {
-            val f = runCatching { withContext(Dispatchers.IO) { java.io.File(c.cacheDir, "cam_" + System.nanoTime() + ".jpg").also { it.writeBytes(chShrink(c, uri, bmp)) } } }.getOrElse { toast(c, "Can't read the photo"); return@launch }
+            val f = runCatching { withContext(Dispatchers.IO) { java.io.File(c.cacheDir, "cam_" + System.nanoTime() + ".jpg").also { it.writeBytes(chShrink(c, uri, bmp, if (hd) 2560 else 1280)) } } }.getOrElse { toast(c, "Can't read the photo"); return@launch }
             sendFile(null, f, "media", "photo.jpg", "image/jpeg", caption, localPreview = Uri.fromFile(f).toString())
         }
     }
     /** Photos and videos picked or shot go to the preview first (caption, remove one), like WhatsApp; then each is sent the site's way. */
-    fun sendPicked(list: List<Uri>, caption: String) {
+    fun sendPicked(list: List<Uri>, caption: String, hd: Boolean = false) {
         list.forEachIndexed { i, u ->
             val mime = c.contentResolver.getType(u) ?: (if (u.toString().endsWith(".mp4")) "video/mp4" else "image/jpeg")
             val cap = if (i == 0) caption else ""
             if (mime.startsWith("video/")) { val n = ChatApi.nameOf(c, u).let { if (it.contains('.')) it else "$it.mp4" }; sendFile(u, null, "media", n, mime, cap, localPreview = u.toString()) }
-            else sendPhoto(u, null, cap)
+            else sendPhoto(u, null, cap, hd)
         }
     }
     // A GIF picked from the GIF picker: download it once and send it as media (.gif renders animated, like WhatsApp).
@@ -731,7 +731,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }, onDisappear = { disappear = it }, onClose = { optsOpen = false })
     if (pinsOpen) CsPinnedList(room.id, onJump = { id -> pinsOpen = false; jumpTo(id) }, onClose = { pinsOpen = false })
     personFor?.let { p -> CsPersonCard(p, onMention = { text = (text.trimEnd() + " @" + p.nick + " ").trimStart(); runCatching { inputFocus.requestFocus() } }, onClose = { personFor = null }) }
-    if (pendingMedia.isNotEmpty()) CsMediaPreview(pendingMedia, onRemove = { u -> pendingMedia = pendingMedia - u }, onSend = { uris, cap -> pendingMedia = emptyList(); sendPicked(uris, cap) },
+    if (pendingMedia.isNotEmpty()) CsMediaPreview(pendingMedia, onRemove = { u -> pendingMedia = pendingMedia - u }, onSend = { uris, cap, hd -> pendingMedia = emptyList(); sendPicked(uris, cap, hd) },
         onClose = { pendingMedia = emptyList() })
     confirm?.let { (q, act) ->
         AlertDialog(onDismissRequest = { confirm = null }, text = { Text(q, fontSize = 16.sp) },

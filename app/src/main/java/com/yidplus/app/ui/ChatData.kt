@@ -445,17 +445,17 @@ class ChatVoiceRecorder(private val ctx: Context) {
     }
 }
 
-/** Photos go out at 1280 px max, like the website. */
-fun chShrink(ctx: Context, uri: Uri?, bmpIn: Bitmap?): ByteArray {
+/** Photos go out at 1280 px max (Standard), or 2560 px (HD) when the user picks HD in the preview. */
+fun chShrink(ctx: Context, uri: Uri?, bmpIn: Bitmap?, maxPx: Int = 1280): ByteArray {
     val bmp = bmpIn ?: run {
         val o = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         ctx.contentResolver.openInputStream(uri!!)?.use { BitmapFactory.decodeStream(it, null, o) }
-        var s = 1; while (maxOf(o.outWidth, o.outHeight) / (s * 2) >= 1280) s *= 2
+        var s = 1; while (maxOf(o.outWidth, o.outHeight) / (s * 2) >= maxPx) s *= 2
         ctx.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = s }) } ?: error("Can't read the photo")
     }
-    val scale = 1280f / maxOf(bmp.width, bmp.height)
+    val scale = maxPx.toFloat() / maxOf(bmp.width, bmp.height)
     val out = if (scale < 1f) Bitmap.createScaledBitmap(bmp, (bmp.width * scale).toInt(), (bmp.height * scale).toInt(), true) else bmp
-    return java.io.ByteArrayOutputStream().use { out.compress(Bitmap.CompressFormat.JPEG, 82, it); it.toByteArray() }
+    return java.io.ByteArrayOutputStream().use { out.compress(Bitmap.CompressFormat.JPEG, if (maxPx > 1280) 92 else 82, it); it.toByteArray() }
 }
 
 /** Emoji panel sets (the site's categories). */
