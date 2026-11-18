@@ -731,7 +731,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }, onDisappear = { disappear = it }, onClose = { optsOpen = false })
     if (pinsOpen) CsPinnedList(room.id, onJump = { id -> pinsOpen = false; jumpTo(id) }, onClose = { pinsOpen = false })
     personFor?.let { p -> CsPersonCard(p, onMention = { text = (text.trimEnd() + " @" + p.nick + " ").trimStart(); runCatching { inputFocus.requestFocus() } }, onClose = { personFor = null }) }
-    if (pendingMedia.isNotEmpty()) CsMediaPreview(pendingMedia, onRemove = { u -> pendingMedia = pendingMedia - u }, onSend = { cap -> val l = pendingMedia; pendingMedia = emptyList(); sendPicked(l, cap) },
+    if (pendingMedia.isNotEmpty()) CsMediaPreview(pendingMedia, onRemove = { u -> pendingMedia = pendingMedia - u }, onSend = { uris, cap -> pendingMedia = emptyList(); sendPicked(uris, cap) },
         onClose = { pendingMedia = emptyList() })
     confirm?.let { (q, act) ->
         AlertDialog(onDismissRequest = { confirm = null }, text = { Text(q, fontSize = 16.sp) },

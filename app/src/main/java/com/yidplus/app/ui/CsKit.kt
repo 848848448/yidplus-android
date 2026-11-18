@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.Color
@@ -391,26 +392,46 @@ internal fun CsUnreadLine(n: Int) {
 }
 
 
-/** Photos/videos before sending (WhatsApp's preview): the pictures, remove one, a caption, Send. */
+/** Rotate an image Uri by `degrees` (clockwise, a multiple of 90) and save it as a fresh JPEG in the cache; returns a FileProvider Uri, or the original on any failure or no rotation. */
+internal fun csRotateImage(c: Context, uri: Uri, degrees: Int): Uri {
+    if (degrees % 360 == 0) return uri
+    return runCatching {
+        val src = c.contentResolver.openInputStream(uri)!!.use { android.graphics.BitmapFactory.decodeStream(it) }!!
+        val m = android.graphics.Matrix().apply { postRotate((degrees % 360).toFloat()) }
+        val rot = android.graphics.Bitmap.createBitmap(src, 0, 0, src.width, src.height, m, true)
+        val dir = java.io.File(c.cacheDir, "captures").apply { mkdirs() }
+        val out = java.io.File(dir, "edit_" + System.currentTimeMillis() + ".jpg")
+        java.io.FileOutputStream(out).use { rot.compress(android.graphics.Bitmap.CompressFormat.JPEG, 92, it) }
+        if (rot !== src) src.recycle()
+        androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", out)
+    }.getOrDefault(uri)
+}
+
+/** Photos/videos before sending (WhatsApp's preview): the pictures, remove one, rotate a photo, a caption, Send. */
 @Composable
-internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (String) -> Unit, onClose: () -> Unit) {
+internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (List<Uri>, String) -> Unit, onClose: () -> Unit) {
     var cap by remember { mutableStateOf("") }
+    val c = ctx(); val scope = rememberCoroutineScope()
+    val rotations = remember { mutableStateMapOf<Uri, Int>() }
+    var sending by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize(), color = Color.Black) {
             Column(Modifier.fillMaxSize()) {
+                var cur by remember { mutableStateOf(0) }
+                val shown = list.getOrNull(cur.coerceIn(0, (list.size - 1).coerceAtLeast(0)))
+                val isPhoto = shown != null && !shown.toString().lowercase().let { it.endsWith(".mp4") || it.contains("video") }
                 Row(Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     ChIcon(Sym.Close, "Cancel", onClose, tint = Color.White)
                     Text(if (list.size == 1) "1 item" else "${list.size} items", Modifier.weight(1f).padding(start = 8.dp), color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    if (shown != null && isPhoto) ChIcon(Sym.RotateRight, "Rotate", { rotations[shown] = ((rotations[shown] ?: 0) + 90) % 360 }, tint = Color.White)
                 }
-                var cur by remember { mutableStateOf(0) }
-                val shown = list.getOrNull(cur.coerceIn(0, (list.size - 1).coerceAtLeast(0)))
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    if (shown != null) AsyncImage(shown, "Preview", Modifier.fillMaxSize().padding(6.dp))
+                    if (shown != null) AsyncImage(shown, "Preview", Modifier.fillMaxSize().padding(6.dp).rotate((rotations[shown] ?: 0).toFloat()))
                 }
                 if (list.size > 1) LazyRow(Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(list.size) { i ->
                         Box(Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).then(if (i == cur) Modifier.border(2.dp, ChatLook.accent, RoundedCornerShape(8.dp)) else Modifier).tap(RoundedCornerShape(8.dp)) { cur = i }) {
-                            AsyncImage(list[i], null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+                            AsyncImage(list[i], null, Modifier.fillMaxSize().rotate((rotations[list[i]] ?: 0).toFloat()), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
                             Box(Modifier.align(Alignment.TopEnd).size(22.dp).clip(CircleShape).background(Color(0xAA000000)).tap(CircleShape) { onRemove(list[i]); if (cur >= list.size - 1) cur = 0 }, contentAlignment = Alignment.Center) {
                                 Icon(Sym.Close, "Remove", Modifier.size(14.dp), tint = Color.White) }
                         }
@@ -421,8 +442,17 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (S
                         textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent))
                     Spacer(Modifier.width(8.dp))
-                    Box(Modifier.size(52.dp).clip(CircleShape).background(ChatLook.accent).tap(CircleShape) { onSend(cap.trim()) }, contentAlignment = Alignment.Center) {
-                        Icon(Sym.Send, "Send", tint = Color.White) }
+                    Box(Modifier.size(52.dp).clip(CircleShape).background(ChatLook.accent).tap(CircleShape) {
+                        if (sending) return@tap
+                        sending = true
+                        val snap = list.toList(); val rots = rotations.toMap(); val text = cap.trim()
+                        scope.launch {
+                            val finals = withContext(Dispatchers.IO) { snap.map { csRotateImage(c, it, rots[it] ?: 0) } }
+                            onSend(finals, text)
+                        }
+                    }, contentAlignment = Alignment.Center) {
+                        if (sending) CircularProgressIndicator(Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                        else Icon(Sym.Send, "Send", tint = Color.White) }
                 }
             }
         }
