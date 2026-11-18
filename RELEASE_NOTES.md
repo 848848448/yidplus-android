@@ -1,3 +1,8 @@
+## New in 2.9.0
+- Storage and data: a new Settings → Storage and data screen shows how much space the downloaded photos, videos, GIFs and stickers take on your phone, with a one-tap "Clear media cache" to free it up (media downloads again when you reopen a chat; nothing is removed from your chats or the server).
+- Export chat: open a chat → menu → Export chat to share the conversation as plain text (with dates and "time – name: message"), like WhatsApp's "Export chat".
+- Scheduled dark mode: Settings → Appearance → Dark mode now has a "Timed" option — set when dark mode turns on and off (e.g. 19:00 to 07:00) and the app switches by itself.
+
 ## New in 2.8.0
 - Enter key sends: a new switch in chat settings lets the Enter key send the message (on) or start a new line (off), just like WhatsApp.
 - Status is reachable from everywhere: the small Status row at the top of the chat list now opens the full Updates screen too (not only the menu).
