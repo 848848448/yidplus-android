@@ -145,7 +145,7 @@ object ChatNotify {
         val s = when (m.optString("type")) {
             "voice" -> "🎤 Voice message" + (m.optString("duration").takeIf { Regex("""^\d+:\d\d$""").matches(it) }?.let { " $it" } ?: "")
             "voice_text" -> "🎤 Voice message" + (t.substringBefore('|').takeIf { Regex("""^\d+:\d\d$""").matches(it) }?.let { " $it" } ?: "")
-            "video_msg" -> "📹 Video message"
+            "video_msg", "videonote" -> "📹 Video message"
             "sticker" -> "💟 Sticker"
             "gif" -> "GIF"
             "poll" -> "📊 Poll" + (m.optString("question").ifBlank { m.optJSONObject("poll")?.optString("question").orEmpty() }.takeIf { it.isNotBlank() }?.let { ": $it" } ?: "")
@@ -165,7 +165,8 @@ object ChatNotify {
                 else -> ""
             }
         }
-        return s.ifBlank { "New message" }.take(700)
+        // One tidy line like WhatsApp: collapse newlines/runs of spaces and keep it short (the system truncates anyway).
+        return s.replace(Regex("\\s+"), " ").trim().ifBlank { "New message" }.take(280)
     }
 
     private fun entry(m: JSONObject) = JSONObject().put("id", m.optString("id")).put("nick", m.optString("sender_nick"))
