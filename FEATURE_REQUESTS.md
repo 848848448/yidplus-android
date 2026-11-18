@@ -155,6 +155,17 @@ Add:
 - 18b. **Reply with emoji/sticker/media/voice** (not just text) — full reply composer.
 - 18c. **Viewer overflow menu**: Message · Voice call · Video call · View contact · **Get notifications** (notify me when they post) · **Hide** · Report.
 
+### 19. Settings menu structure + new settings (screenshots)
+App already has a rich Settings (Profile, Privacy, Security, Chat, Notifications, Storage and data (added), Devices, Blocked, Appearance, Stats, Help, AI).
+Add / reorganize to match WhatsApp:
+- 19a. **App icon** — pick an alternative launcher icon.
+- 19b. **App theme** (light/dark/system) separate from chat theme (dark-schedule exists — group under Appearance).
+- 19c. **Parental controls** — family settings. (needs backend/policy — evaluate.)
+- 19d. **Accessibility** — increase contrast (exists), reduce animation, larger touch targets.
+- 19e. **App language** — choose the app's language in-app.
+- 19f. **Linked devices** — use the account on other devices (companion/web). (big; needs backend.)
+- 19g. Organize Settings into WhatsApp's clean sections (Account, Privacy, Lists, Chats, Appearance, Events, Notifications, Storage, Help…).
+
 <!-- user is still sending more features; keep appending below -->
 
 
