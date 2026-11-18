@@ -49,6 +49,7 @@ private val webSections = listOf(
     Triple("audit-logs", "Audit logs", Sym.History), Triple("sessions", "Sessions", Sym.Devices),
     Triple("banned-devices", "Banned devices", Sym.Block), Triple("ad-exempt", "Ad-Free", Sym.Sell),
     Triple("diagnostics", "Health check", Sym.Insights), Triple("security", "Attacks", Sym.Shield),
+    Triple("ip-logs", "IP logs", Sym.Public),
 )
 
 class AdminPage : PageScreen() {
@@ -190,6 +191,7 @@ class AdminPage : PageScreen() {
                             "ad-exempt" -> AdminAdFreePage()
                             "diagnostics" -> AdminHealthPage()
                             "security" -> AdminSecurityPage()
+                            "ip-logs" -> AdminIpLogsPage()
                             else -> AdminWebPage(id)
                         })
                     }

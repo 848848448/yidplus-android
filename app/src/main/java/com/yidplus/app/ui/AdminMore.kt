@@ -363,3 +363,29 @@ class AdminSecurityPage : PageScreen() {
         }
     }
 }
+
+/** IP logs (admin.js "IP Logs"): recent sign-ins with who / IP / where / when. Native, read-only (/api/admin/device-bans?logs=1). */
+class AdminIpLogsPage : PageScreen() {
+    override val perfName get() = "AdminIpLogs"
+    @Composable override fun Content() {
+        val list = remember { mutableStateListOf<JSONObject>() }
+        var loaded by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            runCatching { Api.get("/api/admin/device-bans?logs=1") }.onSuccess { list.clear(); it.optJSONArray("logs").objects().forEach { x -> list.add(x) } }
+            loaded = true
+        }
+        SettingsPage("IP logs", sub = "Recent sign-ins") {
+            if (loaded && list.isEmpty()) SettingsHint("No sign-in logs.")
+            if (list.isNotEmpty()) SettingsCard {
+                list.forEachIndexed { i, x ->
+                    if (i > 0) RowDivider(16.dp)
+                    val loc = listOfNotNull(x.optString("city").ifBlank { null }, x.optString("country").ifBlank { null }).joinToString(", ")
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp)) {
+                        Text(x.optString("nickname").ifBlank { "?" } + " · " + x.optString("ip").ifBlank { "?" }, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                        Text((if (loc.isNotBlank()) "$loc · " else "") + ago(x.optString("created_at").ifBlank { null }), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
+    }
+}
