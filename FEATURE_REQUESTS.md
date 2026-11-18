@@ -222,3 +222,5 @@ RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there.
 - #9a Avatar popup: ❌ DOES NOT WORK (tapping the chat photo doesn't open the popup — row click likely intercepts; must make the avatar tap consume the gesture). INVESTIGATE+FIX.
 - #6 Favorites: ❌ DOES NOT WORK (filter shows nothing and/or star toggle not working/discoverable). INVESTIGATE+FIX.
 - #2c Broadcast: needs nicer.
+- #20d Default reactions: needs nicer.
+- #4a/#4d Photo send preview: ❌ BLOCKING BUG — caption field auto-focuses so Gboard pops up and can't be dismissed, covering Send → can't send the photo. FIX: remove firstFocus auto-focus on caption, keep Send above keyboard (imePadding), make rotate/HD nicer.
