@@ -1,3 +1,6 @@
+## New in 2.11.0
+- More of the owner admin panel is now native in the app (no website): Admin → More tools now has native **Sessions** (see who's signed in, sign out one person or everyone), **Banned devices** (view blocked IPs/devices and unban), and **Ad-Free** (the people who see no ads, with remove).
+
 ## New in 2.10.0
 - Video notes now play reliably: a round video message shows its first frame and plays when you tap it, with sound and a progress ring around the circle. (They used to try to auto-play all at once and often never started on some phones.)
 - Cleaner notifications, like WhatsApp: message previews are now one tidy line instead of long multi-line text, and a video note shows "📹 Video message".
