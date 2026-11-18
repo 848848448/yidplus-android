@@ -4,9 +4,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.core.content.ContextCompat
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
@@ -162,7 +165,13 @@ private fun PostStatus() {
     var caption by remember { mutableStateOf("") }
     var posting by remember { mutableStateOf(false) }
     val fr = remember { FocusRequester() }
+    val recorder = remember { ChatVoiceRecorder(c) }
+    var recording by remember { mutableStateOf(false) }
+    var recSec by remember { mutableIntStateOf(0) }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u -> if (u != null) media = u }
+    fun startRec() { if (recorder.start()) { recording = true } else toast(c, "Couldn't start recording") }
+    val micPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRec() else toast(c, "Allow the microphone to record a voice status") }
+    fun askRec() { if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRec() else micPerm.launch(Manifest.permission.RECORD_AUDIO) }
     val isVideo = media?.let { (c.contentResolver.getType(it) ?: "").startsWith("video") } == true
     LaunchedEffect(Unit) { kotlinx.coroutines.delay(250); runCatching { fr.requestFocus() } }
     BackHandler(enabled = media != null) { media = null }
@@ -181,6 +190,28 @@ private fun PostStatus() {
             } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { posting = false }
         }
     }
+    fun stopRec(keep: Boolean) {
+        val res = recorder.stop(keep); recording = false; recSec = 0
+        if (keep && res != null) {
+            if (Session.me == null) { toast(c, "Please sign in first."); return }
+            posting = true
+            scope.launch {
+                try {
+                    Statuses.postVoice(res.first, privacy)
+                    toast(c, "Voice status posted")
+                    Statuses.scope.launch { Statuses.res.load(true) }
+                    Nav.back()
+                } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { posting = false }
+            }
+        } else if (keep) toast(c, "Too short — hold to record")
+    }
+    // Tick the timer while recording; auto-stop and post at 60s (WhatsApp's status cap).
+    LaunchedEffect(recording) {
+        if (!recording) return@LaunchedEffect
+        while (recording) { recSec = recorder.seconds(); if (recSec >= 60) { stopRec(true); break }; kotlinx.coroutines.delay(200) }
+    }
+    BackHandler(enabled = recording) { stopRec(false) }
+    DisposableEffect(Unit) { onDispose { runCatching { recorder.stop(false) } } }
     val fieldColors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
         focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
         focusedTextColor = Color.White, unfocusedTextColor = Color.White)
@@ -195,6 +226,7 @@ private fun PostStatus() {
                 Text("Aa", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = Statuses.fontFamily(Statuses.FONTS[fontIdx]))
             }
             if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.Mic, "Voice status", { askRec() }, tint = Color.White, size = 48.dp)
             IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
@@ -246,6 +278,35 @@ private fun PostStatus() {
                 }
             }
         }
+      }
+      // Voice-status recording overlay (WhatsApp-style): big mic + timer, Cancel / Send.
+      if (recording) Box(Modifier.fillMaxSize().background(Color(0xE6000000)), contentAlignment = Alignment.Center) {
+          Column(horizontalAlignment = Alignment.CenterHorizontally) {
+              Box(Modifier.size(140.dp).clip(CircleShape).background(BadgeGreen.copy(alpha = .18f)), contentAlignment = Alignment.Center) {
+                  Box(Modifier.size(96.dp).clip(CircleShape).background(BadgeGreen), contentAlignment = Alignment.Center) {
+                      Icon(Sym.Mic, null, tint = Color.White, modifier = Modifier.size(48.dp))
+                  }
+              }
+              Spacer(Modifier.height(24.dp))
+              Text("%d:%02d".format(recSec / 60, recSec % 60), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+              Spacer(Modifier.height(6.dp))
+              Text("Recording voice status…", color = Color.White.copy(alpha = .7f), fontSize = 14.sp)
+              Spacer(Modifier.height(40.dp))
+              Row(horizontalArrangement = Arrangement.spacedBy(44.dp)) {
+                  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      Box(Modifier.size(64.dp).clip(CircleShape).background(Color(0x33FFFFFF)).tap(CircleShape) { stopRec(false) }, contentAlignment = Alignment.Center) {
+                          Icon(Icons.Filled.Delete, "Cancel", tint = Color.White, modifier = Modifier.size(30.dp))
+                      }
+                      Spacer(Modifier.height(6.dp)); Text("Cancel", color = Color.White, fontSize = 13.sp)
+                  }
+                  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      Box(Modifier.size(64.dp).clip(CircleShape).background(if (posting) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { stopRec(true) }, contentAlignment = Alignment.Center) {
+                          Icon(Sym.Send, "Send", tint = Color.White, modifier = Modifier.size(30.dp))
+                      }
+                      Spacer(Modifier.height(6.dp)); Text("Send", color = Color.White, fontSize = 13.sp)
+                  }
+              }
+          }
       }
     }
 }

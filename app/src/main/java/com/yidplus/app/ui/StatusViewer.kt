@@ -268,6 +268,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                 }) { ch, d -> ch.consume(); dx += d.x; dy += d.y }
             }, contentAlignment = Alignment.Center) {
             when {
+                slide.media != null && slide.audio -> StAudio(slide.media, user.nick, user.photo, paused, onDur = { durMs = it.coerceIn(1500L, 60_000L) }, onReady = { ready = true })
                 slide.media != null && slide.video -> StVideo(slide.media, paused, onDur = { durMs = it.coerceIn(1500L, 60_000L) }, onReady = { ready = true })
                 slide.media != null -> AsyncImage(slide.media, slide.text.ifBlank { "Status photo" }, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize(),
                     onSuccess = { ready = true }, onError = { ready = true })
@@ -432,4 +433,33 @@ private fun StVideo(url: String, paused: Boolean, onDur: (Long) -> Unit, onReady
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         this.player = player; useController = false; setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
     } }, modifier = Modifier.fillMaxSize())
+}
+
+/** A voice status: plays the audio (always audible) over a gradient, WhatsApp-style, with the poster's avatar and a mic badge. */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+@Composable
+private fun StAudio(url: String, nick: String, photo: String?, paused: Boolean, onDur: (Long) -> Unit, onReady: () -> Unit) {
+    val c = ctx()
+    val player = remember(url) { Media.player(c).apply { setMediaItem(MediaItem.fromUri(url)); prepare(); playWhenReady = true; volume = 1f } }
+    DisposableEffect(player) {
+        val l = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_READY) { if (player.duration > 0) onDur(player.duration); onReady() } }
+            override fun onPlayerError(error: PlaybackException) { onReady() }
+        }
+        player.addListener(l)
+        onDispose { player.removeListener(l); player.release() }
+    }
+    LaunchedEffect(paused) { player.playWhenReady = !paused }
+    Box(Modifier.fillMaxSize().background(Statuses.brush("linear-gradient(135deg,#0f3460,#533483)")), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(contentAlignment = Alignment.BottomEnd) {
+                ChAvatar(photo, nick, nick, 128.dp)
+                Box(Modifier.size(44.dp).clip(CircleShape).background(BadgeGreen), contentAlignment = Alignment.Center) {
+                    Icon(Sym.Mic, "Voice status", tint = Color.White, modifier = Modifier.size(26.dp))
+                }
+            }
+            Spacer(Modifier.height(20.dp))
+            Text("Voice update", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        }
+    }
 }

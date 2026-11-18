@@ -139,7 +139,7 @@ import org.json.JSONObject
 /* ─────────────── Statuses (stories): the site's /api/statuses (home.js loadStatuses / openSV / submitStatus) ─────────────── */
 
 data class StSlide(val id: String, val type: String, val text: String, val bg: String, val color: String, val media: String?, val video: Boolean,
-                   val createdAt: String?, val views: Int, val reacted: Boolean, val font: String? = null)
+                   val createdAt: String?, val views: Int, val reacted: Boolean, val font: String? = null, val audio: Boolean = false)
 data class StUser(val userId: String, val nick: String, val photo: String?, val slides: List<StSlide>)
 
 object Statuses {
@@ -163,13 +163,16 @@ object Statuses {
         val j = j0
         val me = Session.me?.id
         val vid = Regex("\\.(mp4|webm|mov|avi|3gp|mkv)(\\?|$)", RegexOption.IGNORE_CASE)
+        val aud = Regex("\\.(m4a|aac|mp3|ogg|oga|opus|wav)(\\?|$)", RegexOption.IGNORE_CASE)
         val list = j.optJSONArray("statuses").objects().mapNotNull { s ->
             val slides = s.optJSONArray("slides").objects().map { sl ->
                 val type = sl.str("type")
                 val media = Api.abs(sl.strOrNull("media_url"))
+                val mk = sl.str("media_key")
                 StSlide(sl.str("id"), type, sl.str("text").ifBlank { sl.str("caption") }, sl.str("bg"), sl.str("color"), media,
-                    type == "video" || sl.optBoolean("is_video") || vid.containsMatchIn(sl.str("media_key")) || (media != null && vid.containsMatchIn(media)),
-                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"), sl.strOrNull("font"))
+                    type == "video" || sl.optBoolean("is_video") || vid.containsMatchIn(mk) || (media != null && vid.containsMatchIn(media)),
+                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"), sl.strOrNull("font"),
+                    type == "voice" || aud.containsMatchIn(mk) || (media != null && aud.containsMatchIn(media)))
             }.filter { it.text.isNotBlank() || it.media != null }
             val uid = s.str("user_id").ifBlank { s.str("owner_id") }
             if (slides.isEmpty() || uid.isBlank()) null else StUser(uid, s.str("nickname").ifBlank { s.str("nick").ifBlank { "User" } }, Api.abs(s.strOrNull("photo_url")), slides)
@@ -264,6 +267,27 @@ object Statuses {
         val body = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("type", "media").addFormDataPart("media", "status.$ext", file)
             .addFormDataPart("caption", caption).addFormDataPart("privacy", privacy).build()
+        val req = Request.Builder().url(Api.abs("/api/statuses")!!).post(body).header("Accept", "application/json").build()
+        Fixture.answer(req)?.let { return@withContext it }
+        Api.http.newCall(req).execute().use { r ->
+            val t = r.body?.string().orEmpty()
+            val j = runCatching { JSONObject(t) }.getOrNull()
+            if (!r.isSuccessful) throw Api.ApiError(r.code, j?.strOrNull("error") ?: "The site answered ${r.code}", j)
+            j ?: JSONObject().put("ok", true)
+        }
+    }
+
+    /** A voice status: upload the recorded .m4a as a media status (filename keeps the .m4a so viewers show a player, not a broken image). */
+    suspend fun postVoice(file: java.io.File, privacy: String): JSONObject = withContext(Dispatchers.IO) {
+        val mime = "audio/mp4"
+        val body0 = object : RequestBody() {
+            override fun contentType() = mime.toMediaType()
+            override fun contentLength() = file.length()
+            override fun writeTo(sink: BufferedSink) { file.source().use { sink.writeAll(it) } }
+        }
+        val body = MultipartBody.Builder().setType(MultipartBody.FORM)
+            .addFormDataPart("type", "voice").addFormDataPart("media", "status.m4a", body0)
+            .addFormDataPart("caption", "").addFormDataPart("privacy", privacy).build()
         val req = Request.Builder().url(Api.abs("/api/statuses")!!).post(body).header("Accept", "application/json").build()
         Fixture.answer(req)?.let { return@withContext it }
         Api.http.newCall(req).execute().use { r ->
