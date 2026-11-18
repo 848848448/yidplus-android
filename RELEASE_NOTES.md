@@ -1,3 +1,11 @@
+## New in 2.14.0 (test build — work in progress)
+Everything from 2.13.0 plus more to try:
+- **Tap a chat's photo** in the list → a quick popup with the big photo and **Message / Call / Info** (tap the photo for full screen).
+- **Status viewer menu** on someone's update now has **Message / Voice call / Video call** (plus Mute).
+- **Default reactions:** Chat settings → **Default reactions** — tap any of the 6 to change your quick-reaction set.
+- **Groups:** an **Add group description** prompt when a group has none (admins).
+- **@mentions** now show in WhatsApp green.
+
 ## New in 2.13.0 (test build — work in progress)
 This is a test build with a big batch of new things to try:
 - **Status — more ways to post, like WhatsApp:** a **font** button (Aa) for text statuses (serif / mono / handwriting); a **voice** status (record and post, plays in the viewer); a **camera** button to shoot straight into a status; and **Layout** — pick 2–4 photos and they're combined into one collage status.
