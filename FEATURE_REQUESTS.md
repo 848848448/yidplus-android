@@ -72,6 +72,10 @@ App already has a WhatsApp-style list (big rows, 56dp avatar, 17sp name). Refine
 - 8d. **Camera icon** in the top bar for a quick photo/status.
 - 8e. Verify spacing/divider alignment feels roomy and even (not cramped).
 
+### 9. Avatar quick-preview popup + full-screen profile/group photo
+- 9a. Tapping a chat's **profile photo in the chat list** opens a dimmed **quick-preview popup**: an enlarged rounded photo, the chat name, and a 3-button row — **Message**, **Call**, **Info** (open chat info).
+- 9b. From there, tapping the photo opens the **full-screen "Group icon" / profile photo viewer** with back + **share**. (viewer may exist in chat info — add the list popup + the quick actions.)
+
 <!-- user is still sending more features; keep appending below -->
 
 
