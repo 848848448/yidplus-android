@@ -271,3 +271,30 @@ class AdminBannedDevicesPage : PageScreen() {
         }
     }
 }
+
+/** Ad-Free users (admin.js "Ad-Free"): the people who see no ads, with Remove. Native, same /api/admin/ad-exempt calls. */
+class AdminAdFreePage : PageScreen() {
+    override val perfName get() = "AdminAdFree"
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope()
+        val list = remember { mutableStateListOf<JSONObject>() }
+        var loaded by remember { mutableStateOf(false) }
+        suspend fun load() {
+            runCatching { Api.get("/api/admin/ad-exempt") }.onSuccess { list.clear(); it.optJSONArray("users").objects().forEach { x -> list.add(x) } }
+            loaded = true
+        }
+        LaunchedEffect(Unit) { load() }
+        SettingsPage("Ad-Free", sub = "People who see no ads") {
+            if (loaded && list.isEmpty()) SettingsHint("Nobody is ad-free yet.")
+            if (list.isNotEmpty()) SettingsCard {
+                list.forEachIndexed { i, x ->
+                    if (i > 0) RowDivider(64.dp)
+                    val id = x.optString("id")
+                    SettingRow(Sym.Sell, x.optString("nickname").ifBlank { "?" }, x.optString("email").ifBlank { null }, value = "Remove") {
+                        scope.launch { runCatching { Api.delete("/api/admin/ad-exempt?id=" + chEnc(id)) }.onSuccess { list.removeAll { r -> r.optString("id") == id }; toast(c, "Removed") }.onFailure { toast(c, Api.friendly(it)) } }
+                    }
+                }
+            }
+        }
+    }
+}
