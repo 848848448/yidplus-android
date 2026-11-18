@@ -64,6 +64,14 @@ App already has StatusUpdatesPage (My status / Recent updates / Viewed updates, 
 - 7b. **Search** within the status/updates list.
 - 7c. (optional) a dedicated **"Updates" bottom tab** with the ring icon (app nav differs today).
 
+### 8. Chats list — design polish to match WhatsApp exactly (user stressed beauty/comfort)
+App already has a WhatsApp-style list (big rows, 56dp avatar, 17sp name). Refine to match the screenshot:
+- 8a. **Unread timestamp in green** (grey when read).
+- 8b. **Mute bell icon** shown next to the time/unread badge on muted chats.
+- 8c. **Inline media icons** in the preview (small vector icon + "Video"/"Photo", not only an emoji); keep the "~ sender:" prefix in groups.
+- 8d. **Camera icon** in the top bar for a quick photo/status.
+- 8e. Verify spacing/divider alignment feels roomy and even (not cramped).
+
 <!-- user is still sending more features; keep appending below -->
 
 
