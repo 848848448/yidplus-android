@@ -305,6 +305,22 @@ class ClChatSettings : PageScreen() {
                 Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Enter key sends", fontSize = 16.sp); Text("Off = Enter adds a new line", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 Switch(enterSends, null)
             }
+            HorizontalDivider()
+            var reacts by remember { mutableStateOf(ClLocal.quickReacts(c)) }
+            var editSlot by remember { mutableIntStateOf(-1) }
+            Row(Modifier.padding(start = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Sym.AddReaction, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.padding(start = 18.dp)) { Text("Default reactions", fontSize = 16.sp); Text("Tap one to change your quick-reaction set", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            }
+            Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                reacts.forEachIndexed { i, e ->
+                    Box(Modifier.weight(1f).heightIn(min = 48.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { editSlot = i }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) }
+                }
+            }
+            if (editSlot in reacts.indices) CsReactPicker(onPick = { e ->
+                val nl = reacts.toMutableList(); nl[editSlot] = e; reacts = nl; ClLocal.setQuickReacts(c, nl); editSlot = -1
+            }, onClose = { editSlot = -1 })
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

@@ -117,8 +117,9 @@ internal fun CsActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                 Text(m.preview.ifBlank { "Message" }, Modifier.padding(horizontal = 18.dp, vertical = 6.dp), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                 if (signedIn && !m.failed && !m.deleted) {
+                    val reacts = ClLocal.reactVersion.let { ClLocal.quickReacts(ctx()) }
                     Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                        CHAT_QUICK_REACTS.forEachIndexed { i, e ->
+                        reacts.forEachIndexed { i, e ->
                             Box(Modifier.size(40.dp).clip(CircleShape).background(if (myReact == e) ChatLook.accent.copy(alpha = .2f) else Color.Transparent)
                                 .then(if (i == 0) Modifier.firstFocus(always = true) else Modifier).tap(CircleShape) { onAct("react:$e") }, contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
                         }
@@ -340,8 +341,10 @@ internal fun CsSelectBar(n: Int, canDelete: Boolean, canSave: Boolean, onClose: 
 /** WhatsApp's reaction strip under the long-press bar: the quick reactions and "+" for any emoji. */
 @Composable
 internal fun CsReactStrip(myReact: String?, onReact: (String) -> Unit, onMore: () -> Unit) {
+    val c = ctx()
+    val reacts = ClLocal.reactVersion.let { ClLocal.quickReacts(c) }
     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-        CHAT_QUICK_REACTS.forEach { e ->
+        reacts.forEach { e ->
             Box(Modifier.size(40.dp).clip(CircleShape).background(if (myReact == e) ChatLook.accent.copy(alpha = .2f) else Color.Transparent).tap(CircleShape) { onReact(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 22.sp) }
         }
         Box(Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { onMore() }, contentAlignment = Alignment.Center) {

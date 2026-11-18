@@ -143,6 +143,17 @@ object ClLocal {
         val l = markedUnread(c).toMutableSet(); if (on) l.add(id) else l.remove(id)
         p(c).edit().putString("munr:" + me(), l.joinToString(",")).apply(); chListVersion++
     }
+    // Default (quick) reactions set (WhatsApp Chats → Default reactions): 6 emojis this phone uses on the long-press bar.
+    var reactVersion by androidx.compose.runtime.mutableIntStateOf(0)
+    fun quickReacts(c: Context): List<String> {
+        val s = p(c).getString("qreacts:" + me(), "") ?: ""
+        val l = s.split('\u0001').filter { it.isNotBlank() }
+        return if (l.size == 6) l else CHAT_QUICK_REACTS
+    }
+    fun setQuickReacts(c: Context, list: List<String>) {
+        if (list.size != 6) return
+        p(c).edit().putString("qreacts:" + me(), list.joinToString("\u0001")).apply(); reactVersion++
+    }
     // Favorites (WhatsApp "Favourites"): a per-account set this phone keeps; shown under a Favorites filter chip.
     fun favorites(c: Context): Set<String> = (p(c).getString("fav:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
     fun isFavorite(c: Context, id: String) = id in favorites(c)
