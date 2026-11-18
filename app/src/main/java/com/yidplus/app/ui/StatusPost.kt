@@ -156,6 +156,7 @@ private fun PostStatus() {
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var bg by remember { mutableIntStateOf(0) }
+    var fontIdx by remember { mutableIntStateOf(0) }
     var privacy by remember { mutableStateOf("public") }
     var media by remember { mutableStateOf<Uri?>(null) }
     var caption by remember { mutableStateOf("") }
@@ -173,7 +174,7 @@ private fun PostStatus() {
         posting = true
         scope.launch {
             try {
-                if (m == null) Statuses.postText(text.trim(), Statuses.BGS[bg], privacy) else Statuses.postMedia(c, m, caption.trim(), privacy)
+                if (m == null) Statuses.postText(text.trim(), Statuses.BGS[bg], privacy, Statuses.FONTS[fontIdx]) else Statuses.postMedia(c, m, caption.trim(), privacy)
                 toast(c, "Status posted")
                 Statuses.scope.launch { Statuses.res.load(true) }
                 Nav.back()
@@ -190,6 +191,9 @@ private fun PostStatus() {
         Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
             IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
             Spacer(Modifier.weight(1f))
+            if (media == null) Box(Modifier.size(48.dp).clip(CircleShape).tap(CircleShape) { fontIdx = (fontIdx + 1) % Statuses.FONTS.size }, contentAlignment = Alignment.Center) {
+                Text("Aa", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = Statuses.fontFamily(Statuses.FONTS[fontIdx]))
+            }
             if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
             IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
@@ -205,7 +209,7 @@ private fun PostStatus() {
                 TextField(text, { if (it.length <= 700) text = it }, Modifier.fillMaxWidth().padding(horizontal = 20.dp).focusRequester(fr).onFocusChanged { fieldFocused = it.isFocused },
                     placeholder = { if (!fieldFocused) Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = big, textAlign = TextAlign.Center) },
                     textStyle = TextStyle(fontSize = if (text.length > 120) 18.sp else big, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center,
-                        textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
+                        fontFamily = Statuses.fontFamily(Statuses.FONTS[fontIdx]), textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
             } else if (isVideo) Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Sym.PlayCircle, null, tint = Color.White, modifier = Modifier.size(72.dp))
                 Text("Video ready to post", color = Color.White, fontSize = 16.sp)

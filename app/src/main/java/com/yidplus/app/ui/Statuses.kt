@@ -139,7 +139,7 @@ import org.json.JSONObject
 /* ─────────────── Statuses (stories): the site's /api/statuses (home.js loadStatuses / openSV / submitStatus) ─────────────── */
 
 data class StSlide(val id: String, val type: String, val text: String, val bg: String, val color: String, val media: String?, val video: Boolean,
-                   val createdAt: String?, val views: Int, val reacted: Boolean)
+                   val createdAt: String?, val views: Int, val reacted: Boolean, val font: String? = null)
 data class StUser(val userId: String, val nick: String, val photo: String?, val slides: List<StSlide>)
 
 object Statuses {
@@ -148,6 +148,14 @@ object Statuses {
         "linear-gradient(135deg,#1a1a2e,#16213e)", "linear-gradient(135deg,#0f3460,#533483)", "linear-gradient(135deg,#1b4332,#40916c)",
         "linear-gradient(135deg,#7b2d8b,#e040fb)", "linear-gradient(135deg,#b5179e,#f72585)", "linear-gradient(135deg,#e85d04,#faa307)",
         "linear-gradient(135deg,#03045e,#0096c7)", "linear-gradient(135deg,#2d3436,#636e72)")
+    /** WhatsApp's text-status fonts. Built-in families only (no bundled font files), cycled with the "Aa" button. */
+    val FONTS = listOf("default", "serif", "mono", "cursive")
+    fun fontFamily(name: String?): androidx.compose.ui.text.font.FontFamily = when (name) {
+        "serif" -> androidx.compose.ui.text.font.FontFamily.Serif
+        "mono" -> androidx.compose.ui.text.font.FontFamily.Monospace
+        "cursive" -> androidx.compose.ui.text.font.FontFamily.Cursive
+        else -> androidx.compose.ui.text.font.FontFamily.SansSerif
+    }
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     val res get() = Store.res("/api/statuses") { parse(it) }
 
@@ -161,7 +169,7 @@ object Statuses {
                 val media = Api.abs(sl.strOrNull("media_url"))
                 StSlide(sl.str("id"), type, sl.str("text").ifBlank { sl.str("caption") }, sl.str("bg"), sl.str("color"), media,
                     type == "video" || sl.optBoolean("is_video") || vid.containsMatchIn(sl.str("media_key")) || (media != null && vid.containsMatchIn(media)),
-                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"))
+                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"), sl.strOrNull("font"))
             }.filter { it.text.isNotBlank() || it.media != null }
             val uid = s.str("user_id").ifBlank { s.str("owner_id") }
             if (slides.isEmpty() || uid.isBlank()) null else StUser(uid, s.str("nickname").ifBlank { s.str("nick").ifBlank { "User" } }, Api.abs(s.strOrNull("photo_url")), slides)
@@ -231,8 +239,9 @@ object Statuses {
     /** Who viewed my slide: PUT /api/statuses {viewers:true,id} → {viewers:[{nickname,photo_url,verified,viewed_at}]}. */
     suspend fun viewers(id: String): List<JSONObject> = Api.put("/api/statuses", JSONObject().put("viewers", true).put("id", id)).optJSONArray("viewers").objects()
     /** A text status: POST /api/statuses {type:'text', text, bg, privacy}. */
-    suspend fun postText(text: String, bg: String, privacy: String) =
-        Api.post("/api/statuses", JSONObject().put("type", "text").put("text", text).put("bg", bg).put("privacy", privacy))
+    suspend fun postText(text: String, bg: String, privacy: String, font: String? = null) =
+        Api.post("/api/statuses", JSONObject().put("type", "text").put("text", text).put("bg", bg).put("privacy", privacy)
+            .apply { if (!font.isNullOrBlank() && font != "default") put("font", font) })
     /** Reply / react: the site opens the private chat (POST /api/chat/rooms) and sends a text line in it (POST /api/chat). */
     suspend fun replyTo(userId: String, text: String) {
         val r = Api.post("/api/chat/rooms", JSONObject().put("type", "private").put("other_user_id", userId))

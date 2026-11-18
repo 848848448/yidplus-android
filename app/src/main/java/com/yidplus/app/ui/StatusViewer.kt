@@ -273,7 +273,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                     onSuccess = { ready = true }, onError = { ready = true })
                 else -> Box(Modifier.fillMaxSize().background(Statuses.brush(slide.bg)).padding(28.dp), contentAlignment = Alignment.Center) {
                     Text(slide.text, color = Statuses.textColor(slide.color), fontSize = if (slide.text.length > 120) 20.sp else 26.sp, fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center, lineHeight = if (slide.text.length > 120) 28.sp else 36.sp, style = TextStyle(textDirection = TextDirection.Content))
+                        fontFamily = Statuses.fontFamily(slide.font), textAlign = TextAlign.Center, lineHeight = if (slide.text.length > 120) 28.sp else 36.sp, style = TextStyle(textDirection = TextDirection.Content))
                 }
             }
             if (slide.media != null && slide.text.isNotBlank()) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()
