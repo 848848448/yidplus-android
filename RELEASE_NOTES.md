@@ -1,5 +1,9 @@
-## New in 2.12.0
-- Even more of the owner admin panel is native (no website): Admin → More tools now also has **Health check** (runs the owner diagnostics and lists each check), **Attacks** (the security log — totals, repeat offenders, recent attack feed) and **IP logs** (recent sign-ins: who, IP, where, when).
+## New in 2.12.0 (test build — work in progress)
+- Video notes: a proper WhatsApp-style recorder — a round selfie-camera preview, press-and-hold to record (slide up to lock hands-free, with Delete / Stop / Send), a timer and progress ring, and a flip button. Hold the camera button in the chat to start one.
+- Archive chats and Mark as unread: long-press chats → Archive (they move to an "Archived" section) or Mark as unread (a green dot you can clear by opening the chat).
+- Status: quick-reaction emojis while viewing someone's status, and a Mute/Hide menu for other people's updates.
+- Even more of the owner admin panel is native (no website): Admin → More tools now also has **Health check**, **Attacks** (security log) and **IP logs**.
+- More features are still being built for the full update.
 
 ## New in 2.11.0
 - More of the owner admin panel is now native in the app (no website): Admin → More tools now has native **Sessions** (see who's signed in, sign out one person or everyone), **Banned devices** (view blocked IPs/devices and unban), and **Ad-Free** (the people who see no ads, with remove).
