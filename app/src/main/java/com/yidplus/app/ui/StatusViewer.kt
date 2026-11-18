@@ -116,6 +116,7 @@ import com.yidplus.app.data.Disk
 import com.yidplus.app.data.Fixture
 import com.yidplus.app.data.Media
 import com.yidplus.app.data.Prefs
+import com.yidplus.app.data.Room
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.SiteConfig
 import com.yidplus.app.data.Store
@@ -324,6 +325,13 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                     Box {
                         IconBtn(Sym.MoreVert, "More", { menu = true }, tint = Color.White)
                         DropdownMenu(menu, { menu = false }) {
+                            fun goDm(then: (Room) -> Unit) { menu = false; scope.launch { runCatching { val rid = ChatApi.openDm(user.userId); ChatApi.info(rid)?.room ?: ChatApi.roomOf(rid, "private", user.nick, user.photo, user.userId) }.onSuccess { Nav.back(); then(it) }.onFailure { toast(c, Api.friendly(it)) } } }
+                            DropdownMenuItem(text = { Text("Message", fontSize = 16.sp) }, leadingIcon = { Icon(Sym.Chat, null) },
+                                onClick = { goDm { Nav.open(Screen.Chat(it)) } })
+                            DropdownMenuItem(text = { Text("Voice call", fontSize = 16.sp) }, leadingIcon = { Icon(Sym.Call, null) },
+                                onClick = { goDm { Nav.open(ChCall(it, "audio")) } })
+                            DropdownMenuItem(text = { Text("Video call", fontSize = 16.sp) }, leadingIcon = { Icon(Sym.Videocam, null) },
+                                onClick = { goDm { Nav.open(ChCall(it, "video")) } })
                             val muted = Statuses.muteVersion.let { Statuses.isMuted(user.userId) }
                             DropdownMenuItem(text = { Text(if (muted) "Unmute ${user.nick}" else "Mute ${user.nick}", fontSize = 16.sp) },
                                 leadingIcon = { Icon(Sym.NotificationsOff, null) },

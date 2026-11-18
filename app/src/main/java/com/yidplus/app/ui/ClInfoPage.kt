@@ -120,6 +120,12 @@ data class ChInfo(val room: Room) : PageScreen() {
                 if (!info?.description.isNullOrBlank()) {
                     Text(info!!.description, Modifier.padding(16.dp), fontSize = 15.sp, style = TextStyle(textDirection = TextDirection.Content))
                     HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
+                } else if (manage && !isPrivate) {
+                    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp)) { Nav.open(ChEditGroup(room)) }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Sym.Add, null, tint = ChatLook.accent, modifier = Modifier.size(22.dp))
+                        Text("Add group description", Modifier.padding(start = 16.dp), fontSize = 15.sp, color = ChatLook.accent)
+                    }
+                    HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
                 }
                 if (info != null && me != null) {
                     val until = ClLocal.muteUntil(c, room.id)
