@@ -1,9 +1,11 @@
-## New in 2.12.0 (test build — work in progress)
-- Video notes: a proper WhatsApp-style recorder — a round selfie-camera preview, press-and-hold to record (slide up to lock hands-free, with Delete / Stop / Send), a timer and progress ring, and a flip button. Hold the camera button in the chat to start one.
-- Archive chats and Mark as unread: long-press chats → Archive (they move to an "Archived" section) or Mark as unread (a green dot you can clear by opening the chat).
-- Status: quick-reaction emojis while viewing someone's status, and a Mute/Hide menu for other people's updates.
-- Even more of the owner admin panel is native (no website): Admin → More tools now also has **Health check**, **Attacks** (security log) and **IP logs**.
-- More features are still being built for the full update.
+## New in 2.13.0 (test build — work in progress)
+This is a test build with a big batch of new things to try:
+- **Status — more ways to post, like WhatsApp:** a **font** button (Aa) for text statuses (serif / mono / handwriting); a **voice** status (record and post, plays in the viewer); a **camera** button to shoot straight into a status; and **Layout** — pick 2–4 photos and they're combined into one collage status.
+- **Photo editing before sending:** rotate a photo in the send preview, and an **HD** toggle to send photos in higher quality.
+- **Favorites:** a Favorites filter at the top of Chats; star a chat from the selection bar.
+- **Broadcast:** New message → **New broadcast** — pick several people, type once, and it's sent to each of them privately.
+- From the earlier test build: WhatsApp-style **video-note recorder**, **Archive** chats, **Mark as unread**, status **quick-reactions** and **Mute**, and native admin **Health check / Attacks / IP logs**.
+- Still being built for the full update: music & AI-image statuses, "message yourself", and more (these need server-side work).
 
 ## New in 2.11.0
 - More of the owner admin panel is now native in the app (no website): Admin → More tools now has native **Sessions** (see who's signed in, sign out one person or everyone), **Banned devices** (view blocked IPs/devices and unban), and **Ad-Free** (the people who see no ads, with remove).
