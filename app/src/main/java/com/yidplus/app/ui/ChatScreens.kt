@@ -304,6 +304,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { l: List<Uri> -> if (l.isNotEmpty()) pendingMedia = l.take(30) }
     // Full-size camera photo (the old preview-size picture was ~200 px): the camera writes into our FileProvider's captures/.
     var shotUri by remember { mutableStateOf<Uri?>(null) }
+    var noteCamOpen by remember { mutableStateOf(false) }
     fun newCapture(ext: String): Uri? = runCatching {
         val dir = java.io.File(c.cacheDir, "captures").apply { mkdirs() }
         androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", java.io.File(dir, "cam_" + System.currentTimeMillis() + ext))
@@ -314,7 +315,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val videoNoteCam = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo()) { ok: Boolean ->
         val u = shotUri; if (ok && u != null) sendFile(u, null, "videonote", "videonote.mp4", "video/mp4", "", localPreview = u.toString())
     }
-    fun shootNote() { val u = newCapture(".mp4") ?: run { toast(c, "Can't open the camera"); return }; shotUri = u; runCatching { videoNoteCam.launch(u) }.onFailure { toast(c, "No camera app") } }
+    fun shootNote() { noteCamOpen = true }
     fun shoot(video: Boolean) {
         val u = newCapture(if (video) ".mp4" else ".jpg") ?: run { toast(c, "Can't open the camera"); return }
         shotUri = u
@@ -765,6 +766,11 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     csDialogs()
     reactPickFor?.let { m -> CsReactPicker(onPick = { e -> reactTo(m, e); reactPickFor = null }, onClose = { reactPickFor = null }) }
     if (wallpaperOpen) CsWallpaperPicker(LookPrefs.roomWallpaper(room.id) ?: LookPrefs.wallpaper, onPick = { id -> LookPrefs.putRoomWallpaper(room.id, id); toast(c, "Wallpaper set"); wallpaperOpen = false }, onClose = { wallpaperOpen = false })
+    // WhatsApp-style round video-note recorder: circular selfie preview, hold to record.
+    if (noteCamOpen) VideoNoteRecorder(
+        onCancel = { noteCamOpen = false },
+        onRecorded = { f -> noteCamOpen = false; sendFile(null, f, "videonote", "videonote.mp4", "video/mp4", localPreview = Uri.fromFile(f).toString()) }
+    )
     // Chat lock: cover the conversation until the phone's fingerprint/PIN confirms it (WhatsApp's Chat lock).
     val lockVer = ChatLock.version
     if (lockVer >= 0 && ChatLock.needsUnlock(room.id)) {
