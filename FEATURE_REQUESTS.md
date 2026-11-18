@@ -216,3 +216,5 @@ RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there.
 ## TESTING FEEDBACK (user walkthrough, 2026-11-18) — fix after collecting all
 - #1b Status fonts: WORKS but layout NOT nice, not really like WhatsApp. Make the whole status composer much nicer/prettier + add the many extra status features WhatsApp has. (big redesign of PostStatus)
 - #1c Voice status: needs nicer.
+- #1a Status camera: needs nicer.
+- #1e Status layout/collage: works poorly + needs nicer (improve collage quality/layout).
