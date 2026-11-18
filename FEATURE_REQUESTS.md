@@ -104,6 +104,7 @@ The branch already has a circular selfie recorder (hold-to-record, progress ring
 - 12b. **"‹ Slide to cancel"** affordance while holding.
 - 12c. **Locked state buttons**: trash (delete) · stop (centre) · send (green, right) · flip camera.
 - 12d. **Red timer pill** at the top centre while recording.
+- 12e. **Entry point = press-and-hold the camera button in the composer** (next to send/mic) to record a video note, like WhatsApp (a short tap = normal camera). Keep the attach-sheet option too.
 
 ### 13. Attach sheet + pickers + location (bonus from the same screenshots)
 - 13a. Attach (+) sheet: add **Event** and **AI images** options.
