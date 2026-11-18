@@ -332,6 +332,15 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                     Text("${slide.views} views", color = Color.White, fontSize = 15.sp)
                 }
             } else if (Session.me != null) {
+              Column {
+                // WhatsApp's quick status reactions.
+                if (!typing) Row(Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    listOf("👍", "❤️", "😂", "😮", "😢", "🙏").forEach { e ->
+                        Text(e, Modifier.clip(CircleShape).tap(CircleShape) {
+                            scope.launch { try { Statuses.replyTo(user.userId, "$e (reacted to your status)"); toast(c, "$e Reacted!") } catch (ex: Exception) { toast(c, Api.friendly(ex)) } }
+                        }.padding(4.dp), fontSize = 30.sp)
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextField(reply, { reply = it }, Modifier.weight(1f).onFocusChanged { typing = it.isFocused },
                         placeholder = { Text("Reply…", color = Color.White.copy(alpha = .75f)) }, singleLine = true, shape = RoundedCornerShape(24.dp),
@@ -354,6 +363,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                         if (liked) scope.launch { try { Statuses.replyTo(user.userId, "❤️ (reacted to your status)"); toast(c, "❤️ Reacted!") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
                     }, tint = if (liked) Color(0xFFFF4D67) else Color.White, size = 48.dp)
                 }
+              }
             }
         }
         if (sheet) StViewersSheet(slide) { sheet = false }

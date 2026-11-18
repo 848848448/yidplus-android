@@ -8,6 +8,12 @@ Status: BUILDING (user said go, 2026-11-18). Build everything in validated batch
 accumulate for ONE big update; DO NOT release until the user says. Last live version: 2.11.0.
 Mark each item [DONE] as it lands on the branch.
 
+## BUILD PROGRESS (on branch, not released)
+- [DONE] #12 Video note recorder: slide-to-lock, timer pill, delete/stop/send, flip, hold-camera-in-composer entry.
+- [DONE] #2a Archive chats, #2b Mark as unread (select bar + Archived section + dot).
+- [ALREADY EXISTS] #8a green unread time, #8b mute bell; #17b voice seek, #17c voice speed (1x/1.5x/2x).
+- Next up: verify remaining items against code, build the genuine gaps (status fonts, status viewer extras, photo editor, sticker maker, auto-download, message-yourself, group permissions screen, etc.).
+
 ## Already done on the branch (waiting in the big update, not yet released)
 - Video note: WhatsApp-style recorder (circular selfie preview, hold-to-record, progress ring, flip) + reliable tap-to-play with progress ring
 - Cleaner notifications (one tidy line; video note labelled)
