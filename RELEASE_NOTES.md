@@ -1,3 +1,6 @@
+## New in 2.12.0
+- Even more of the owner admin panel is native (no website): Admin → More tools now also has **Health check** (runs the owner diagnostics and lists each check), **Attacks** (the security log — totals, repeat offenders, recent attack feed) and **IP logs** (recent sign-ins: who, IP, where, when).
+
 ## New in 2.11.0
 - More of the owner admin panel is now native in the app (no website): Admin → More tools now has native **Sessions** (see who's signed in, sign out one person or everyone), **Banned devices** (view blocked IPs/devices and unban), and **Ad-Free** (the people who see no ads, with remove).
 
