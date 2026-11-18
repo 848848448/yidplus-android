@@ -631,7 +631,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
                         keyboardOptions = KeyboardOptions(imeAction = if (ClLocal.enterSends(c)) ImeAction.Send else ImeAction.Default), keyboardActions = KeyboardActions(onSend = { sendText() }))
                     if (editing == null) ChIcon(Sym.AttachFile, "Attach", { attachOpen = !attachOpen; emojiOpen = false }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = attachFocus, leftTo = inputFocus)
-                    if (editing == null && text.isBlank()) ChIcon(Sym.PhotoCamera, "Camera", { shoot(false) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (editing == null && text.isBlank()) Box(Modifier.size(44.dp).clip(CircleShape)
+                        .combinedClickable(onClick = { shoot(false) }, onLongClick = { shootNote() }), contentAlignment = Alignment.Center) {
+                        Icon(Sym.PhotoCamera, "Camera (hold for a video note)", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
+                    }
                     }
                     Spacer(Modifier.width(2.dp))
                     CsMicButton(canSend = text.isNotBlank(), editing = editing != null, busy = sending && vr.mode == 0, r = vr, onSend = { sendText() },

@@ -17,18 +17,22 @@ import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material3.CircularProgressIndicator
@@ -57,10 +61,13 @@ import java.io.File
 private const val NOTE_MAX_MS = 60_000L
 private const val NOTE_MIN_MS = 700L
 
+private fun fmt(ms: Long): String { val s = (ms / 1000).toInt(); return "%d:%02d".format(s / 60, s % 60) }
+
 /**
- * WhatsApp-style video-note recorder: a circular front-camera (selfie) preview, press-and-hold the
- * button to record (a red ring fills over up to 60s), release to send. A flip button swaps front/back.
- * Produces an .mp4 File and hands it back via [onRecorded]; the chat then sends it as a 'videonote'.
+ * WhatsApp-style video-note recorder: a circular front-camera (selfie) preview.
+ * Press-and-hold the button to record (a red ring fills over up to 60s); release to send.
+ * Slide up while holding to LOCK (hands-free) — then Delete / Stop / Send buttons appear.
+ * A flip button swaps front/back. Produces an .mp4 File handed back via [onRecorded].
  */
 @Composable
 fun VideoNoteRecorder(onCancel: () -> Unit, onRecorded: (File) -> Unit) {
@@ -77,12 +84,15 @@ fun VideoNoteRecorder(onCancel: () -> Unit, onRecorded: (File) -> Unit) {
 
     var front by remember { mutableStateOf(true) }
     var recording by remember { mutableStateOf(false) }
+    var locked by remember { mutableStateOf(false) }
+    var cancelArmed by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
+    var elapsed by remember { mutableStateOf(0L) }
     val previewView = remember { PreviewView(ctx).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
     var videoCapture by remember { mutableStateOf<VideoCapture<Recorder>?>(null) }
     var active by remember { mutableStateOf<Recording?>(null) }
+    var cancelled by remember { mutableStateOf(false) }
 
-    // Bind the camera (re-binds when permission is granted or the camera is flipped).
     DisposableEffect(hasCam, front) {
         if (hasCam) {
             val future = ProcessCameraProvider.getInstance(ctx)
@@ -106,6 +116,7 @@ fun VideoNoteRecorder(onCancel: () -> Unit, onRecorded: (File) -> Unit) {
     fun startRec() {
         val vc = videoCapture ?: return
         if (recording) return
+        cancelled = false; elapsed = 0L
         val file = File(File(ctx.cacheDir, "captures").apply { mkdirs() }, "note_" + System.currentTimeMillis() + ".mp4")
         val pending = vc.output.prepareRecording(ctx, FileOutputOptions.Builder(file).build())
             .let { if (hasMic) it.withAudioEnabled() else it }
@@ -114,45 +125,87 @@ fun VideoNoteRecorder(onCancel: () -> Unit, onRecorded: (File) -> Unit) {
             when (event) {
                 is VideoRecordEvent.Status -> {
                     val ms = event.recordingStats.recordedDurationNanos / 1_000_000L
-                    progress = (ms.toFloat() / NOTE_MAX_MS).coerceIn(0f, 1f)
+                    elapsed = ms; progress = (ms.toFloat() / NOTE_MAX_MS).coerceIn(0f, 1f)
                     if (ms >= NOTE_MAX_MS) active?.stop()
                 }
                 is VideoRecordEvent.Finalize -> {
-                    recording = false
+                    recording = false; locked = false; cancelArmed = false
                     val ms = event.recordingStats.recordedDurationNanos / 1_000_000L
-                    if (!event.hasError() && ms >= NOTE_MIN_MS) onRecorded(file)
-                    else { runCatching { file.delete() } }
+                    if (!cancelled && !event.hasError() && ms >= NOTE_MIN_MS) onRecorded(file)
+                    else runCatching { file.delete() }
                     active = null
                 }
                 else -> {}
             }
         }
     }
-    fun stopRec() { runCatching { active?.stop() } }
+    fun sendRec() { runCatching { active?.stop() } }
+    fun deleteRec() { cancelled = true; runCatching { active?.stop() } }
 
     Box(Modifier.fillMaxSize().background(Color(0xF2000000)), contentAlignment = Alignment.Center) {
-        Icon(Sym.Close, "Close", Modifier.align(Alignment.TopStart).padding(16.dp).size(28.dp).clickable { stopRec(); onCancel() }, tint = Color.White)
+        Icon(Sym.Close, "Close", Modifier.align(Alignment.TopStart).padding(16.dp).size(28.dp).clickable { deleteRec(); onCancel() }, tint = Color.White)
         if (!recording) Icon(Icons.Filled.Cameraswitch, "Flip camera", Modifier.align(Alignment.TopEnd).padding(16.dp).size(28.dp).clickable { front = !front }, tint = Color.White)
+        // Red timer pill while recording.
+        if (recording) Text(fmt(elapsed), Modifier.align(Alignment.TopCenter).padding(top = 18.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFE53935)).padding(horizontal = 12.dp, vertical = 4.dp),
+            color = Color.White, fontSize = 14.sp)
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(Modifier.size(292.dp), contentAlignment = Alignment.Center) {
                 Box(Modifier.size(280.dp).clip(CircleShape).background(Color(0xFF263238))) {
                     if (hasCam) AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize().clip(CircleShape))
                 }
-                if (recording) CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFFE53935), strokeWidth = 4.dp, trackColor = Color.Transparent)
+                if (recording) CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize().padding(1.dp),
+                    color = if (cancelArmed) Color.White else Color(0xFFE53935), strokeWidth = 4.dp, trackColor = Color.Transparent)
             }
-            Spacer(Modifier.height(26.dp))
-            Text(if (!hasCam) "Camera permission needed" else if (recording) "Release to send" else "Hold to record", color = Color.White, fontSize = 15.sp)
-            Spacer(Modifier.height(18.dp))
-            Box(Modifier.size(78.dp).clip(CircleShape).background(if (recording) Color(0xFFE53935) else Color.White)
-                .pointerInput(videoCapture) {
-                    awaitEachGesture {
-                        awaitFirstDown()
-                        if (videoCapture != null) { startRec(); waitForUpOrCancellation(); stopRec() }
+            Spacer(Modifier.height(24.dp))
+
+            when {
+                !hasCam -> Text("Camera permission needed", color = Color.White, fontSize = 15.sp)
+                recording && locked -> {
+                    // Hands-free: Delete · Stop · Send
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 36.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Sym.Delete, "Delete", Modifier.size(30.dp).clickable { deleteRec() }, tint = Color.White)
+                        Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White).clickable { sendRec() }, contentAlignment = Alignment.Center) {
+                            Box(Modifier.size(20.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE53935)))
+                        }
+                        Box(Modifier.size(56.dp).clip(CircleShape).background(Color(0xFF00A884)).clickable { sendRec() }, contentAlignment = Alignment.Center) {
+                            Icon(Sym.Send, "Send", tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
                     }
-                }, contentAlignment = Alignment.Center) {
-                Icon(Sym.Videocam, "Record", tint = if (recording) Color.White else Color(0xFFE53935), modifier = Modifier.size(34.dp))
+                }
+                recording && !locked -> {
+                    Icon(Sym.Lock, "Slide up to lock", Modifier.size(22.dp), tint = Color.White.copy(alpha = .9f))
+                    Spacer(Modifier.height(8.dp))
+                    Text(if (cancelArmed) "Release to cancel" else "‹ Slide to cancel", color = if (cancelArmed) Color(0xFFE53935) else Color.White, fontSize = 14.sp)
+                    Spacer(Modifier.height(14.dp))
+                    Box(Modifier.size(78.dp).clip(CircleShape).background(Color(0xFFE53935)), contentAlignment = Alignment.Center) {
+                        Icon(Sym.Videocam, null, tint = Color.White, modifier = Modifier.size(34.dp))
+                    }
+                }
+                else -> {
+                    Text("Hold to record", color = Color.White, fontSize = 15.sp)
+                    Spacer(Modifier.height(16.dp))
+                    Box(Modifier.size(78.dp).clip(CircleShape).background(Color.White)
+                        .pointerInput(videoCapture) {
+                            awaitEachGesture {
+                                val down = awaitFirstDown()
+                                if (videoCapture == null) return@awaitEachGesture
+                                startRec()
+                                while (true) {
+                                    val ev = awaitPointerEvent()
+                                    val ch = ev.changes.firstOrNull { it.id == down.id } ?: ev.changes.firstOrNull()
+                                    if (ch == null) { sendRec(); break }
+                                    val dx = ch.position.x - down.position.x
+                                    val dy = ch.position.y - down.position.y
+                                    cancelArmed = dx < -size.width.toFloat()
+                                    if (dy < -size.height.toFloat()) { locked = true; break }   // slid up → lock
+                                    if (!ch.pressed) { if (cancelArmed) deleteRec() else sendRec(); break }
+                                }
+                            }
+                        }, contentAlignment = Alignment.Center) {
+                        Icon(Sym.Videocam, "Record", tint = Color(0xFFE53935), modifier = Modifier.size(34.dp))
+                    }
+                }
             }
         }
     }
