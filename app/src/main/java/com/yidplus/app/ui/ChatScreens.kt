@@ -492,6 +492,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 DropdownMenu(menu, { menu = false }) {
                     ChMenuItem(Sym.Info, if (room.type == "private") "Contact info" else if (isGroup) "Group info" else "Channel info") { menu = false; Nav.open(ChInfo(room)) }
                     ChMenuItem(Sym.Search, "Search") { menu = false; searchOn = true }
+                    ChMenuItem(if (ClLocal.isFavorite(c, room.id)) Sym.StarFill else Sym.StarBorder, if (ClLocal.isFavorite(c, room.id)) "Remove from favorites" else "Add to favorites") { menu = false; val on = ClLocal.toggleFavorite(c, room.id); toast(c, if (on) "⭐ Added to favorites" else "Removed from favorites") }
                     if (me != null && (room.type == "private" || isGroup)) ChMenuItem(Sym.Videocam, "Video call") { menu = false; Nav.open(ChCall(room, "video")) }
                     if (me != null && info != null) ChMenuItem(if (info?.muted == true) Sym.Notifications else Sym.NotificationsOff, if (info?.muted == true) "Unmute notifications" else "Mute notifications") {
                         menu = false; val m0 = info!!.muted

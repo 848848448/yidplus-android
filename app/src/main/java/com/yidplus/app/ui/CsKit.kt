@@ -71,7 +71,7 @@ import org.json.JSONObject
 
 /** The site's _linkify: links (http and bare domains), @mentions (tap = open a DM), `code`, **bold**, _italic_, ~strike~. Links/mentions are tappable spans. */
 internal fun csFormat(t: String, onLink: (String) -> Unit, onMention: (String) -> Unit): AnnotatedString = buildAnnotatedString {
-    val token = Regex("""(https?://[^\s<>"]+)|((?:www\.)?[a-z0-9-]+\.(?:com|org|net|co|io|me|il|info|gov|edu|app|dev|tv|us|uk)(?:/[^\s<>"]*)?)|(@[A-Za-z0-9_]{2,32})|(`[^`\n]+`)|(\*\*[^\s*][^*]*?\*\*)|(~[^\s~][^~]*?~)|((?<=^|[\s(])_[^\s_][^_]*?_(?=[\s).,!?]|$))""", RegexOption.IGNORE_CASE)
+    val token = Regex("""(https?://[^\s<>"]+)|((?:www\.)?[a-z0-9-]+\.(?:com|org|net|co|io|me|il|info|gov|edu|app|dev|tv|us|uk)(?:/[^\s<>"]*)?)|(@[\p{L}0-9_]{2,32})|(`[^`\n]+`)|(\*\*[^\s*][^*]*?\*\*)|(~[^\s~][^~]*?~)|((?<=^|[\s(])_[^\s_][^_]*?_(?=[\s).,!?]|$))""", RegexOption.IGNORE_CASE)
     val linkStyle = TextLinkStyles(SpanStyle(color = Color(0xFF1E88E5), textDecoration = TextDecoration.Underline))
     var last = 0
     for (m in token.findAll(t)) {
@@ -420,7 +420,7 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
     var hd by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize(), color = Color.Black) {
-            Column(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize().imePadding().navigationBarsPadding()) {
                 var cur by remember { mutableStateOf(0) }
                 val shown = list.getOrNull(cur.coerceIn(0, (list.size - 1).coerceAtLeast(0)))
                 val isPhoto = shown != null && !shown.toString().lowercase().let { it.endsWith(".mp4") || it.contains("video") }
@@ -445,7 +445,7 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                     }
                 }
                 Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    TextField(cap, { cap = it }, Modifier.weight(1f).firstFocus(), placeholder = { Text("Add a caption…") }, maxLines = 4, shape = RoundedCornerShape(24.dp),
+                    TextField(cap, { cap = it }, Modifier.weight(1f), placeholder = { Text("Add a caption…") }, maxLines = 4, shape = RoundedCornerShape(24.dp),
                         textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent))
                     Spacer(Modifier.width(8.dp))

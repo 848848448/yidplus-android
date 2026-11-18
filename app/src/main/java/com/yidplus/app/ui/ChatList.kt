@@ -104,6 +104,7 @@ import org.json.JSONObject
 import com.yidplus.app.data.Res
 import com.yidplus.app.data.TgChannel
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.animation.AnimatedVisibility
@@ -430,7 +431,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
                 // The site shows "online" only to site admins (chat.js renderChatList: c.online && isAnyAdmin()).
                 val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 50.dp else 56.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
                 if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() }
-                else if (!selecting) Box(Modifier.clip(CircleShape).tap(CircleShape) { popup = true }) { av() }
+                else if (!selecting) Box(Modifier.clip(CircleShape).pointerInput(r.id) { detectTapGestures { popup = true } }) { av() }
                 else av()
                 if (selected) Box(Modifier.align(Alignment.BottomEnd).size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(1.dp).clip(CircleShape).background(ChatLook.unread), contentAlignment = Alignment.Center) {
                     Icon(Sym.Check, "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
