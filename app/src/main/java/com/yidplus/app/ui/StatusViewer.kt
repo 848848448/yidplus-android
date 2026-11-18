@@ -319,6 +319,16 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                                 })
                         }
                     }
+                } else if (Session.me != null) {
+                    Box {
+                        IconBtn(Sym.MoreVert, "More", { menu = true }, tint = Color.White)
+                        DropdownMenu(menu, { menu = false }) {
+                            val muted = Statuses.muteVersion.let { Statuses.isMuted(user.userId) }
+                            DropdownMenuItem(text = { Text(if (muted) "Unmute ${user.nick}" else "Mute ${user.nick}", fontSize = 16.sp) },
+                                leadingIcon = { Icon(Sym.NotificationsOff, null) },
+                                onClick = { menu = false; val nm = Statuses.toggleMute(user.userId); toast(c, if (nm) "Muted ${user.nick}'s updates" else "Unmuted") })
+                        }
+                    }
                 }
             }
         }
