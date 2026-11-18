@@ -202,3 +202,43 @@ class AdminAuditLogsPage : PageScreen() {
         }
     }
 }
+
+/** Sessions (admin.js "Sessions"): who is signed in right now, sign out one person or everyone. Native, same calls as the website admin. */
+class AdminSessionsPage : PageScreen() {
+    override val perfName get() = "AdminSessions"
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope()
+        val list = remember { mutableStateListOf<JSONObject>() }
+        var loaded by remember { mutableStateOf(false) }
+        var confirmAll by remember { mutableStateOf(false) }
+        suspend fun load() {
+            runCatching { Api.get("/api/admin/sessions-mgr") }.onSuccess { list.clear(); it.optJSONArray("sessions").objects().forEach { x -> list.add(x) } }
+            loaded = true
+        }
+        LaunchedEffect(Unit) { load() }
+        SettingsPage("Sessions", sub = "People signed in right now") {
+            if (loaded && list.isEmpty()) SettingsHint("No active sessions.")
+            if (list.isNotEmpty()) {
+                SettingsCard { SettingRow(Sym.Logout, "Sign out everyone", "Ends every session and marks all offline", danger = true) { confirmAll = true } }
+                SettingsCard {
+                    list.forEachIndexed { i, x ->
+                        if (i > 0) RowDivider(64.dp)
+                        val uid = x.optString("user_id"); val nick = x.optString("nickname").ifBlank { "?" }
+                        val sub = listOfNotNull(x.optString("email").ifBlank { null }, ago(x.optString("created_at").ifBlank { null })).joinToString(" · ")
+                        SettingRow(if (x.optBoolean("online")) Sym.RadioButtonChecked else Sym.Person, nick, sub, value = "Sign out") {
+                            scope.launch {
+                                runCatching { Api.delete("/api/admin/sessions-mgr?user_id=" + chEnc(uid)) }
+                                    .onSuccess { list.removeAll { row -> row.optString("user_id") == uid }; toast(c, "Signed out $nick") }
+                                    .onFailure { toast(c, Api.friendly(it)) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (confirmAll) SettingsConfirmDialog("Sign out everyone?", "Every person is signed out and marked offline.", "Sign out all", danger = true, onOk = {
+            confirmAll = false
+            scope.launch { runCatching { Api.delete("/api/admin/sessions-mgr?all=1") }.onSuccess { list.clear(); toast(c, "All sessions ended") }.onFailure { toast(c, Api.friendly(it)) } }
+        }, onDismiss = { confirmAll = false })
+    }
+}

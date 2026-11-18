@@ -46,7 +46,7 @@ private val webSections = listOf(
     Triple("support-chats", "Support chats", Sym.SupportAgent), Triple("feedback", "Feedback", Sym.Feedback),
     Triple("ads", "Ads", Sym.Sell), Triple("invite-codes", "Invite codes", Sym.ConfirmationNumber),
     Triple("badges", "Badges", Sym.MilitaryTech), Triple("maintenance", "Maintenance", Sym.Build),
-    Triple("audit-logs", "Audit logs", Sym.History),
+    Triple("audit-logs", "Audit logs", Sym.History), Triple("sessions", "Sessions", Sym.Devices),
 )
 
 class AdminPage : PageScreen() {
@@ -183,6 +183,7 @@ class AdminPage : PageScreen() {
                             "support-chats" -> AdminSupportPage()
                             "ads" -> AdminAdsPage()
                             "badges" -> AdminBadgesPage()
+                            "sessions" -> AdminSessionsPage()
                             else -> AdminWebPage(id)
                         })
                     }
