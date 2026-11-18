@@ -119,6 +119,16 @@ Add the missing bits:
 - 14c. **Emoji search** inside the emoji panel.
 - 14d. One **unified emoji/GIF/sticker panel** with tabs: search · emoji · GIF · sticker (matches WhatsApp layout).
 
+### 15. Group management parity (permissions / link / info)
+App already has: group edit, read-only (who can write), join requests (admin approval), member titles, invite link (copy/share/revoke), leave/report.
+Add/refine:
+- 15a. **Group permissions screen** laid out like WhatsApp — sections Joining / Messaging / Managing:
+  - Add new members (who), Require admin approval (toggle), Send new messages (everyone/admins), **Send message history** (new members see past messages), Edit group settings (who), Group admins list.
+- 15b. **Group link** extras: **QR code**, **Reset link**, **Send link via SMS**, Forward, Share.
+- 15c. **Create a similar group** (clone members/settings into a new group).
+- 15d. **Group info tabs**: Members / Media / Settings; and **"Created by …, date"** footer.
+- 15e. Add group to a community (communities exist — wire this entry).
+
 <!-- user is still sending more features; keep appending below -->
 
 
