@@ -94,8 +94,10 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import androidx.compose.material3.CircularProgressIndicator
 import com.yidplus.app.data.Api
 import com.yidplus.app.data.Disk
 import com.yidplus.app.data.Media
@@ -364,16 +366,45 @@ internal fun ChBubbleSkeleton() {
 @Composable
 private fun ChVideoNote(url: String) {
     val c = ctx()
-    val player = remember(url) {
-        Media.player(c).apply { setMediaItem(MediaItem.fromUri(url)); repeatMode = Player.REPEAT_MODE_ONE; volume = 0f; playWhenReady = true; prepare() }
+    var playing by remember(url) { mutableStateOf(false) }
+    var progress by remember(url) { mutableStateOf(0f) }
+    var bmp by remember(url) { mutableStateOf(ChatVideoThumbs.cached(url)) }
+    LaunchedEffect(url) { if (bmp == null) bmp = runCatching { ChatVideoThumbs.load(c, url) }.getOrNull() }
+    // One player, and only while actually playing — weak phones have few video decoders, and auto-playing every
+    // round message at once is exactly what made them fail to start. The local (content://) take needs a plain
+    // player; the uploaded http take goes through the authenticated cache source.
+    val player = remember(url, playing) {
+        if (!playing) null
+        else (if (url.startsWith("http")) Media.player(c) else ExoPlayer.Builder(c).build()).apply {
+            setMediaItem(MediaItem.fromUri(url)); repeatMode = Player.REPEAT_MODE_OFF; volume = 1f; playWhenReady = true; prepare()
+        }
     }
-    DisposableEffect(player) { onDispose { player.release() } }
-    Box(Modifier.padding(2.dp).size(200.dp).clip(CircleShape).background(Color(0xFF263238)), contentAlignment = Alignment.Center) {
-        AndroidView(factory = { ctx -> PlayerView(ctx).apply {
-            useController = false; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-            setShutterBackgroundColor(android.graphics.Color.TRANSPARENT); this.player = player
-        } }, modifier = Modifier.fillMaxSize())
-        Icon(Sym.Videocam, null, Modifier.align(Alignment.BottomCenter).padding(10.dp).size(18.dp), tint = Color.White.copy(alpha = .85f))
+    DisposableEffect(player) { onDispose { player?.release() } }
+    LaunchedEffect(player) {
+        val p = player ?: return@LaunchedEffect
+        while (true) {
+            val d = p.duration
+            progress = if (d > 0) (p.currentPosition.toFloat() / d).coerceIn(0f, 1f) else 0f
+            if (p.playbackState == Player.STATE_ENDED) { playing = false; break }
+            delay(80)
+        }
+    }
+    Box(Modifier.padding(2.dp).size(200.dp).clip(CircleShape).background(Color(0xFF263238))
+        .clickable { playing = !playing }, contentAlignment = Alignment.Center) {
+        if (playing && player != null) {
+            AndroidView(factory = { ctx -> PlayerView(ctx).apply {
+                useController = false; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
+            } }, update = { it.player = player }, modifier = Modifier.fillMaxSize())
+            CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize().padding(1.dp),
+                color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, trackColor = Color.White.copy(alpha = .25f))
+        } else {
+            bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
+            Box(Modifier.size(52.dp).clip(CircleShape).background(Color.Black.copy(alpha = .45f)), contentAlignment = Alignment.Center) {
+                Icon(Sym.PlayArrow, "Play video message", tint = Color.White, modifier = Modifier.size(32.dp))
+            }
+        }
+        Icon(Sym.Videocam, null, Modifier.align(Alignment.BottomEnd).padding(14.dp).size(16.dp), tint = Color.White.copy(alpha = .85f))
     }
 }
 
