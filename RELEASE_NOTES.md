@@ -2,6 +2,7 @@
 - Video notes now play reliably: a round video message shows its first frame and plays when you tap it, with sound and a progress ring around the circle. (They used to try to auto-play all at once and often never started on some phones.)
 - Cleaner notifications, like WhatsApp: message previews are now one tidy line instead of long multi-line text, and a video note shows "📹 Video message".
 - Add a chat to your home screen: open a chat → menu → Add to home screen to pin a shortcut that opens that chat directly.
+- Mute someone's status: long-press a person in the Updates (Status) screen → Mute. Muted people move to a "Muted updates" section at the bottom, like WhatsApp.
 
 ## New in 2.9.0
 - Storage and data: a new Settings → Storage and data screen shows how much space the downloaded photos, videos, GIFs and stickers take on your phone, with a one-tap "Clear media cache" to free it up (media downloads again when you reopen a chat; nothing is removed from your chats or the server).
