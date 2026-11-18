@@ -148,6 +148,13 @@ Add/refine:
 - 17d. Duration counts up while playing; shows total when idle.
 - 17e. **Background playback** of a voice message with a **media notification** (pause + progress + "Voice message from X"), so it keeps playing with the app backgrounded / screen off.
 
+### 18. Status viewer parity
+App already has: status viewer with progress, text reply, heart react, viewers list, mute (added).
+Add:
+- 18a. **Quick reaction emoji bar** (👍😂🙏) + heart at the bottom of the viewer.
+- 18b. **Reply with emoji/sticker/media/voice** (not just text) — full reply composer.
+- 18c. **Viewer overflow menu**: Message · Voice call · Video call · View contact · **Get notifications** (notify me when they post) · **Hide** · Report.
+
 <!-- user is still sending more features; keep appending below -->
 
 
