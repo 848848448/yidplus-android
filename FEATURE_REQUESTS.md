@@ -111,6 +111,14 @@ The branch already has a circular selfie recorder (hold-to-record, progress ring
 - 13b. Media picker: an **HD toggle** for high-quality send.
 - 13c. Rich **location picker**: Share live location, "current location · accurate to N m", and a **nearby places** list (not just a map link).
 
+### 14. Emoji / GIF / sticker panel parity (screenshots)
+App already has: emoji panel, stickers, reactions (6 + more), long-press actions (reply/star/copy/forward/delete/info/select/react/pin).
+Add the missing bits:
+- 14a. **Create sticker** button in the sticker panel (= sticker maker 4b).
+- 14b. **Sticker packs** — add/download sticker packs, with a "+" to add a pack.
+- 14c. **Emoji search** inside the emoji panel.
+- 14d. One **unified emoji/GIF/sticker panel** with tabs: search · emoji · GIF · sticker (matches WhatsApp layout).
+
 <!-- user is still sending more features; keep appending below -->
 
 
