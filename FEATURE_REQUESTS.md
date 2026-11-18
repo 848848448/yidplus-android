@@ -146,6 +146,7 @@ Add/refine:
 - 17b. **Draggable scrubber** on the waveform (seek to any point).
 - 17c. **Playback speed** toggle (1x / 1.5x / 2x).
 - 17d. Duration counts up while playing; shows total when idle.
+- 17e. **Background playback** of a voice message with a **media notification** (pause + progress + "Voice message from X"), so it keeps playing with the app backgrounded / screen off.
 
 <!-- user is still sending more features; keep appending below -->
 
