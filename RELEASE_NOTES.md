@@ -1,3 +1,16 @@
+## New in 2.17.0 (test build — a modern design pass across the app)
+A big "make it beautiful, not dry" update based on your screen recordings:
+- **Cleaner chat & channel lists:** removed the grey divider lines between rows (like modern WhatsApp), and the new-chat button now has a soft shadow so it floats.
+- **Channels now read the right way:** Yiddish/Hebrew channel names sit on the right, matching the chat list (no more left-forced names).
+- **Account switching refreshes everything:** switching to another account now reloads every screen for that account — no more leftover chats/channels/status from the previous one.
+- **Photos you send show instantly:** a just-sent photo no longer appears as a dark/blank block while it uploads — your own photo shows right away, with a light placeholder.
+- **Voice messages, WhatsApp-style:** a received voice note now shows the sender's photo with a little green mic badge.
+- **Prettier side menu:** a soft green gradient header and colourful rounded icon tiles (instead of thin grey icons).
+- **Group info buttons:** Message / Call / Video / Add are now soft green tiles, not flat grey boxes.
+- **Attach (+) panel:** a **Recent photos** strip at the top — tap one to send it straight away.
+- **Photo viewer:** a photo's caption now shows along the bottom, like WhatsApp.
+- **Status editor:** bigger, clearer colour dots; plus a **Share** option on a video's ⋯ menu.
+
 ## New in 2.16.0 (test build — status + video note, matched to WhatsApp)
 - **"Add status" is now WhatsApp's sheet:** tap Add status → a bottom sheet with **Text · Music · Layout · Voice · AI images**, then **Camera / Gallery** and a **Recents** row of your recent photos (tap one to post). (Music & AI images need server work — they say "coming soon".)
 - **Video-note recorder rebuilt to match WhatsApp:** light screen, big round selfie preview, red timer, green progress, **slide up to lock** (hands-free), "‹ Slide to cancel", flip camera, and Delete / Stop / Send when locked. Lock and slide-to-cancel now trigger reliably.
