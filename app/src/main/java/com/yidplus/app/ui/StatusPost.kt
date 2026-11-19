@@ -280,10 +280,10 @@ private fun PostStatus(startMode: String? = null, initialMedia: String? = null) 
         }
         // Bottom: colours, caption, who sees it, post
         Column(Modifier.fillMaxWidth().then(if (ime) Modifier else Modifier.navigationBarsPadding()).padding(bottom = 10.dp)) {
-            if (media == null) { if (!ime) LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (media == null) { if (!ime) LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 itemsIndexed(Statuses.BGS) { i, b ->
-                    Box(Modifier.size(30.dp).clip(CircleShape).background(Statuses.brush(b))
-                        .border(if (i == bg) 2.5.dp else 1.dp, if (i == bg) Color.White else Color.White.copy(alpha = .4f), CircleShape)
+                    Box(Modifier.size(if (i == bg) 40.dp else 36.dp).clip(CircleShape).background(Statuses.brush(b))
+                        .border(if (i == bg) 3.dp else 1.5.dp, if (i == bg) Color.White else Color.White.copy(alpha = .45f), CircleShape)
                         .tap(CircleShape) { bg = i })
                 }
             } } else TextField(caption, { caption = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp),
@@ -460,7 +460,7 @@ private fun AddStatusTile(modifier: Modifier, icon: androidx.compose.ui.graphics
 }
 
 /** Recent gallery image Uris (newest first) for the Add-status "Recents" row. */
-private fun statusRecentImages(c: Context): List<Uri> = runCatching {
+internal fun statusRecentImages(c: Context): List<Uri> = runCatching {
     val uris = ArrayList<Uri>()
     val col = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
     val proj = arrayOf(android.provider.MediaStore.Images.Media._ID)

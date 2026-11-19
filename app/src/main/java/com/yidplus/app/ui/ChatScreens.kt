@@ -657,7 +657,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         "poll" -> Nav.open(CsPollNew(room))
                         "options" -> optsOpen = true
                     }
-                })
+                }, onRecent = { u -> attachOpen = false; pendingMedia = pendingMedia + u })
                 if (gifOpen && !recording) GifPickerPanel(onPick = { url -> gifOpen = false; sendGif(url) }, onClose = { gifOpen = false })
             }
             spectating -> Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {

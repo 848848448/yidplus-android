@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -222,7 +223,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
 
 /** Attach menu: the site's Gallery, Camera, Video, Audio, Document, Poll, Schedule — plus WhatsApp's Video camera and Contact. */
 @Composable
-internal fun CsAttachSheet(onPick: (String) -> Unit) {
+internal fun CsAttachSheet(onPick: (String) -> Unit, onRecent: ((Uri) -> Unit)? = null) {
     val opts = listOf(Triple("gallery", "Gallery", Sym.Image to Color(0xFF7E57C2)), Triple("camera", "Camera", Sym.PhotoCamera to Color(0xFFE91E63)),
         Triple("videocam", "Record video", Sym.Videocam to Color(0xFFD81B60)), Triple("video", "Video", Sym.Movie to Color(0xFFEF6C00)),
         Triple("audio", "Audio", Sym.Headphones to Color(0xFFFF7043)), Triple("file", "Document", Sym.Description to Color(0xFF5C6BC0)),
@@ -230,7 +231,23 @@ internal fun CsAttachSheet(onPick: (String) -> Unit) {
         Triple("gif", "GIF", Sym.Gif to Color(0xFF8E24AA)), Triple("videonote", "Video note", Sym.Videocam to Color(0xFF00ACC1)),
         Triple("poll", "Poll", Sym.Poll to Color(0xFF00897B)), Triple("options", "Schedule", Sym.Schedule to Color(0xFF546E7A)))
     Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
-        Column(Modifier.fillMaxWidth().heightIn(max = 260.dp).verticalScroll(rememberScrollState()).padding(vertical = 6.dp)) {
+        Column(Modifier.fillMaxWidth().heightIn(max = 340.dp).verticalScroll(rememberScrollState()).padding(vertical = 6.dp)) {
+            // WhatsApp shows a strip of your recent photos at the top of the attach panel — tap one to send it straight away.
+            if (onRecent != null) {
+                val c = ctx()
+                var recents by remember { mutableStateOf<List<Uri>>(emptyList()) }
+                LaunchedEffect(Unit) { recents = withContext(Dispatchers.IO) { runCatching { statusRecentImages(c).take(20) }.getOrDefault(emptyList()) } }
+                if (recents.isNotEmpty()) {
+                    Text("Recent", Modifier.padding(start = 16.dp, top = 2.dp, bottom = 6.dp), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        recents.forEach { u ->
+                            AsyncImage(u, "Recent photo", contentScale = ContentScale.Crop,
+                                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(10.dp)) { onRecent(u) })
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
             opts.chunked(4).forEach { row ->
                 Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                     row.forEach { (k, label, ic) ->

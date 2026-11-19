@@ -643,6 +643,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                         DropdownMenuItem(text = { Text("Copy link") }, onClick = {
                             (c.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("YID PLUS", s.shareUrl))
                             toast(c, "Link copied"); menu = false })
+                        DropdownMenuItem(text = { Text("Share") }, onClick = { menu = false; share(c, listOf(s.caption.take(120), s.shareUrl).filter { it.isNotBlank() }.joinToString("\n")) })
                     }
                 }
             }
