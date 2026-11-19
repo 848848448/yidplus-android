@@ -290,3 +290,21 @@ RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there.
 ### More (from 3rd recording)
 - [ ] **Sent image renders as a solid dark/blank bubble** in the chat thread (sent a light screenshot, bubble shows dark grey) — likely a thumbnail/render bug; investigate.
 - [ ] Full-screen image viewer: images letterboxed with large black areas and inconsistent vertical alignment (some centered, some bottom) — center/fit consistently.
+
+---
+
+## 📊 NEXT UPDATE — Owner: app adoption analytics (requested 2026-11-19)
+Owner wants to see, in-app: how many people HAVE the native app, and how many USE it (active).
+- **App side (easy):** add tiles to Admin → Analytics "Totals" card: "App users", "Active (app) 7d/30d", maybe "Web vs App" and "On latest version". Read new fields from /api/admin/stats or /api/admin/insights; show 0/— gracefully if absent.
+- **Backend (REQUIRED — additive, draft PR on Yidplus web, needs owner OK to deploy to live site):**
+  the server already tracks devices/sessions (native Sessions + Banned devices exist). Add a count of distinct devices/sessions whose client is the native app, plus active-in-last-7/30-days, exposed on the admin stats endpoint. Likely the app should send a client marker (User-Agent already identifies it, or add a header) and the sessions table records platform.
+- Can't verify backend blind; ship app-side display + additive backend draft PR, goes live once owner merges.
+
+---
+
+## Batch from 2026-11-19 (screenshot of attach menu) — status
+- [DONE 2.19.0] Attach panel Recents not showing → now requests photo permission + shows the strip.
+- [DONE 2.19.0] Chat background "not nice/dry" → added a faint doodle texture behind messages (bubble colours were already WhatsApp-accurate: green out / white in).
+- [NEEDS ON-DEVICE] Text formatting while typing (bold etc.): RENDERING already works (*bold* _italic_ ~strike~ `code`). A one-tap formatting toolbar needs converting the composer field to TextFieldValue (selection tracking) — invasive on the most-used screen; do with on-device testing, not blind.
+- [NEEDS BACKEND+DEVICE — DO NOT ship blind] Switch account asks to re-sign-in: server supports multiple sessions (login doesn't revoke others), app stores per-account cookies. Likely the restored session is expired/invalidated server-side, or the Google token flow doesn't persist. Changing the core auth/session path blind risks locking users out — fix interactively with the owner testing. Possibly needs: longer session TTL, or app refreshing the token on switch.
+- [NEEDS SDK+SERVER+DEVICE — DO NOT ship blind] Google sign-in should be native (show Google accounts in-app, not hand off to web): needs Google Identity / Credential Manager SDK in the app + a server endpoint to accept a Google ID token (functions/api/auth/native-exchange.js / google-login.js exist for the web-handoff flow). Big; verify on a real device with real Google accounts.

@@ -1,3 +1,8 @@
+## New in 2.19.0 (test build — recents + chat texture)
+- **Recent photos in the attach panel:** tap 📎 and the app now asks for photo access and shows a **Recent** strip of your latest pictures right there — tap one to send it, like WhatsApp.
+- **Chat background isn't flat anymore:** a soft, faint WhatsApp-style doodle texture behind your messages (light and dark mode), so a chat feels less "dry".
+- (Tip: you can already make text **bold**, _italic_ or ~strike~ by wrapping it — `*word*`, `_word_`, `~word~`, `` `code` `` — and it shows formatted.)
+
 ## New in 2.18.0 (test build — more features + polish)
 - **Emoji search:** the emoji panel now has a search box — type a word (heart, fire, laugh, pray…) to find an emoji fast, like WhatsApp.
 - **Broadcast is clearer:** the people you picked show as removable avatar chips above the message box, so you see exactly who gets it.

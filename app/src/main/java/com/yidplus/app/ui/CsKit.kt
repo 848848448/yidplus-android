@@ -254,8 +254,14 @@ internal fun CsAttachSheet(onPick: (String) -> Unit, onRecent: ((Uri) -> Unit)? 
             // WhatsApp shows a strip of your recent photos at the top of the attach panel — tap one to send it straight away.
             if (onRecent != null) {
                 val c = ctx()
+                val perm = if (android.os.Build.VERSION.SDK_INT >= 33) android.Manifest.permission.READ_MEDIA_IMAGES else android.Manifest.permission.READ_EXTERNAL_STORAGE
+                fun granted() = androidx.core.content.ContextCompat.checkSelfPermission(c, perm) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                var hasPerm by remember { mutableStateOf(granted()) }
                 var recents by remember { mutableStateOf<List<Uri>>(emptyList()) }
-                LaunchedEffect(Unit) { recents = withContext(Dispatchers.IO) { runCatching { statusRecentImages(c).take(20) }.getOrDefault(emptyList()) } }
+                val permLauncher = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { ok -> hasPerm = ok }
+                // Ask for photo access the moment the panel opens (like WhatsApp), so Recents can appear.
+                LaunchedEffect(Unit) { if (!granted()) permLauncher.launch(perm) }
+                LaunchedEffect(hasPerm) { if (hasPerm) recents = withContext(Dispatchers.IO) { runCatching { statusRecentImages(c).take(20) }.getOrDefault(emptyList()) } }
                 if (recents.isNotEmpty()) {
                     Text("Recent", Modifier.padding(start = 16.dp, top = 2.dp, bottom = 6.dp), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -265,6 +271,12 @@ internal fun CsAttachSheet(onPick: (String) -> Unit, onRecent: ((Uri) -> Unit)? 
                         }
                     }
                     Spacer(Modifier.height(10.dp))
+                } else if (!hasPerm) {
+                    // Permission not granted yet: a tap-to-allow row so Recents can show.
+                    Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(10.dp)) { permLauncher.launch(perm) }.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Sym.Image, null, Modifier.size(20.dp), tint = ChatLook.accent)
+                        Text("  Allow photo access to show recent photos", fontSize = 13.sp, color = ChatLook.accent)
+                    }
                 }
             }
             opts.chunked(4).forEach { row ->

@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -95,6 +96,38 @@ fun Modifier.chatWallpaper(roomId: String? = null): Modifier = composed {
     val id = (roomId?.let { LookPrefs.roomWallpaper(it) }) ?: LookPrefs.wallpaper
     val w = if (ver >= 0) ChatWallpapers.firstOrNull { it.id == id && it.from != null } else null
     val from = w?.from; val to = w?.to
-    if (from != null && to != null) this.background(Brush.linearGradient(listOf(from, to), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)))
-    else this
+    when {
+        from != null && to != null -> this.background(Brush.linearGradient(listOf(from, to), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)))
+        // Default background: a faint WhatsApp-style doodle so the chat isn't a flat, "dry" colour.
+        else -> this.chatDoodle(isDark())
+    }
+}
+
+/** A subtle, evenly-tiled doodle (rings, dots, hearts) drawn very faintly behind the messages — WhatsApp's textured chat feel, no image asset needed. */
+private fun Modifier.chatDoodle(dark: Boolean): Modifier = this.drawBehind {
+    val ink = (if (dark) Color.White else Color(0xFF3A5A4A)).copy(alpha = if (dark) 0.035f else 0.05f)
+    val step = 112f
+    val sw = 2.2f
+    var row = 0
+    var y = 28f
+    while (y < size.height + step) {
+        val xOff = if (row % 2 == 0) 0f else step / 2f
+        var x = 20f + xOff
+        var col = 0
+        while (x < size.width + step) {
+            when ((row + col) % 3) {
+                0 -> drawCircle(ink, radius = 13f, center = Offset(x, y), style = androidx.compose.ui.graphics.drawscope.Stroke(width = sw))
+                1 -> drawCircle(ink, radius = 3.2f, center = Offset(x, y))
+                else -> { // tiny heart from two arcs + a point
+                    val p = androidx.compose.ui.graphics.Path().apply {
+                        moveTo(x, y + 10f); cubicTo(x - 16f, y - 4f, x - 6f, y - 14f, x, y - 4f)
+                        cubicTo(x + 6f, y - 14f, x + 16f, y - 4f, x, y + 10f); close()
+                    }
+                    drawPath(p, ink, style = androidx.compose.ui.graphics.drawscope.Stroke(width = sw))
+                }
+            }
+            x += step; col++
+        }
+        y += step; row++
+    }
 }
