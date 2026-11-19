@@ -318,8 +318,8 @@ fun StatusStrip() {
         LazyRow(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
             if (me != null) item(key = "me") {
                 StatusCircle("My status", me.photo, me.nickname, mine?.slides?.map { true } ?: emptyList(), mine = true, plus = true,
-                    onClick = { if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage()) },
-                    onLong = { Nav.open(PostStatusPage()) }, onPlus = { Nav.open(PostStatusPage()) })
+                    onClick = { if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(AddStatusPage()) },
+                    onLong = { Nav.open(AddStatusPage()) }, onPlus = { Nav.open(AddStatusPage()) })
             }
             items(others, key = { it.userId }) { u ->
                 StatusCircle(u.nick, u.photo, u.nick, u.slides.map { Statuses.seen(it.id) }, mine = false, plus = false,
@@ -388,11 +388,11 @@ class StatusUpdatesPage : PageScreen() {
             }
             // Camera + text-status buttons (WhatsApp's two FABs).
             Column(Modifier.align(Alignment.BottomEnd).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { Nav.open(PostStatusPage()) }, contentAlignment = Alignment.Center) {
+                Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { Nav.open(PostStatusPage("text")) }, contentAlignment = Alignment.Center) {
                     Icon(Sym.Edit, "Text status", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                 }
                 Spacer(Modifier.height(12.dp))
-                Box(Modifier.size(56.dp).clip(CircleShape).background(ChatLook.unread).tap(CircleShape) { Nav.open(PostStatusPage()) }, contentAlignment = Alignment.Center) {
+                Box(Modifier.size(56.dp).clip(CircleShape).background(ChatLook.unread).tap(CircleShape) { Nav.open(AddStatusPage()) }, contentAlignment = Alignment.Center) {
                     Icon(Sym.PhotoCamera, "Add status", tint = Color.White, modifier = Modifier.size(26.dp))
                 }
             }
@@ -409,7 +409,7 @@ private fun StatusHeader(text: String) {
 private fun StatusMyRow(me: com.yidplus.app.data.Me?, mine: StUser?) {
     me ?: return
     Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).tap(RoundedCornerShape(0.dp)) {
-        if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+        if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(AddStatusPage())
     }.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(58.dp)) {
             if (mine != null) StatusRing(mine.slides.map { true }, mine = true, Modifier.fillMaxSize())

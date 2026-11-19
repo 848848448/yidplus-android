@@ -146,15 +146,15 @@ import org.json.JSONObject
 /* ─────────────── Post a status ─────────────── */
 
 /** WhatsApp-style "post status": coloured text status (the site's 8 backgrounds) or a photo/video with a caption, and who sees it. */
-class PostStatusPage : PageScreen() {
+class PostStatusPage(val startMode: String? = null) : PageScreen() {
     override val perfName: String get() = "PostStatus"
     override val immersive: Boolean get() = true
-    @Composable override fun Content() { PostStatus() }
+    @Composable override fun Content() { PostStatus(startMode) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PostStatus() {
+private fun PostStatus(startMode: String? = null) {
     val c = ctx()
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
@@ -192,7 +192,15 @@ private fun PostStatus() {
     val micPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRec() else toast(c, "Allow the microphone to record a voice status") }
     fun askRec() { if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRec() else micPerm.launch(Manifest.permission.RECORD_AUDIO) }
     val isVideo = media?.let { (c.contentResolver.getType(it) ?: "").startsWith("video") } == true
-    LaunchedEffect(Unit) { kotlinx.coroutines.delay(250); runCatching { fr.requestFocus() } }
+    LaunchedEffect(Unit) {
+        when (startMode) {
+            "camera" -> shoot()
+            "voice" -> askRec()
+            "layout" -> runCatching { pickMany.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+            "gallery" -> runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }
+            else -> { kotlinx.coroutines.delay(250); runCatching { fr.requestFocus() } }
+        }
+    }
     BackHandler(enabled = media != null) { media = null }
     fun post() {
         if (posting) return
@@ -375,3 +383,59 @@ private fun csDecodeSampled(c: Context, uri: Uri, reqW: Int, reqH: Int): android
     while (reqW > 0 && reqH > 0 && o.outWidth / (s * 2) >= reqW && o.outHeight / (s * 2) >= reqH) s *= 2
     c.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = s }) }
 }.getOrNull()
+
+/* ─────────────── WhatsApp "Add status" sheet ─────────────── */
+
+/** WhatsApp's "Add status" bottom sheet: Text / Music / Layout / Voice / AI images, then Camera + Gallery. */
+class AddStatusPage : PageScreen() {
+    override val perfName: String get() = "AddStatus"
+    override val immersive: Boolean get() = true
+    @Composable override fun Content() {
+        val c = ctx()
+        fun go(mode: String?) { Nav.back(); Nav.open(PostStatusPage(mode)) }
+        Box(Modifier.fillMaxSize().background(Color(0x99000000)).pointerInput(Unit) { detectTapGestures { Nav.back() } }) {
+            Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth(), shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+                color = MaterialTheme.colorScheme.surface, tonalElevation = 4.dp) {
+                Column(Modifier.navigationBarsPadding().padding(bottom = 12.dp).pointerInput(Unit) { detectTapGestures {} }) {
+                    Row(Modifier.fillMaxWidth().padding(start = 6.dp, end = 12.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        IconBtn(Sym.Close, "Close", { Nav.back() })
+                        Text("Add status", Modifier.weight(1f).padding(start = 6.dp), fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                        AddStatusOpt(Sym.Edit, "Text", Color(0xFF7E57C2)) { go("text") }
+                        AddStatusOpt(Sym.MusicNote, "Music", Color(0xFFEC407A)) { toast(c, "Music status is coming soon") }
+                        AddStatusOpt(Sym.GridView, "Layout", Color(0xFF42A5F5)) { go("layout") }
+                        AddStatusOpt(Sym.Mic, "Voice", Color(0xFF26A69A)) { go("voice") }
+                        AddStatusOpt(Sym.Brush, "AI images", Color(0xFFFFA726)) { toast(c, "AI image status is coming soon") }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AddStatusTile(Modifier.weight(1f), Sym.PhotoCamera, "Camera") { go("camera") }
+                        AddStatusTile(Modifier.weight(1f), Sym.PhotoLibrary, "Gallery") { go("gallery") }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddStatusOpt(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, color: Color, onClick: () -> Unit) {
+    Column(Modifier.clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp), onClick = onClick).padding(horizontal = 6.dp, vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(52.dp).clip(CircleShape).background(color), contentAlignment = Alignment.Center) {
+            Icon(icon, label, tint = Color.White, modifier = Modifier.size(26.dp))
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(label, fontSize = 12.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurface)
+    }
+}
+
+@Composable
+private fun AddStatusTile(modifier: Modifier, icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    Row(modifier.height(64.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(14.dp), onClick = onClick),
+        horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, label, tint = ChatLook.accent, modifier = Modifier.size(26.dp))
+        Spacer(Modifier.width(10.dp))
+        Text(label, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
+    }
+}

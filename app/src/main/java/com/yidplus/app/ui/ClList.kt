@@ -348,7 +348,7 @@ internal fun ClStatusRow(all: List<StUser>) {
                 Text(when { unseen.isNotEmpty() -> "${unseen.size} new update" + (if (unseen.size > 1) "s" else ""); others.isNotEmpty() -> "Seen all updates"; else -> "Tap to add a status update" },
                     fontSize = 13.sp, color = if (unseen.isNotEmpty()) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
             }
-            Box(Modifier.size(40.dp).clip(CircleShape).tap(CircleShape) { Nav.open(PostStatusPage()) }.semantics { contentDescription = "Add status" }, contentAlignment = Alignment.Center) {
+            Box(Modifier.size(40.dp).clip(CircleShape).tap(CircleShape) { Nav.open(AddStatusPage()) }.semantics { contentDescription = "Add status" }, contentAlignment = Alignment.Center) {
                 Icon(Sym.PhotoCamera, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
