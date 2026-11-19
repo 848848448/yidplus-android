@@ -1,3 +1,9 @@
+## New in 2.18.0 (test build — more features + polish)
+- **Emoji search:** the emoji panel now has a search box — type a word (heart, fire, laugh, pray…) to find an emoji fast, like WhatsApp.
+- **Broadcast is clearer:** the people you picked show as removable avatar chips above the message box, so you see exactly who gets it.
+- **Status reactions easier to see:** the quick-reaction emojis in someone's status now sit on a soft dark pill, readable on bright photos.
+- **Default reactions look nicer:** the 6 quick-reaction slots are now soft green tiles with a little edit badge.
+
 ## New in 2.17.0 (test build — a modern design pass across the app)
 A big "make it beautiful, not dry" update based on your screen recordings:
 - **Cleaner chat & channel lists:** removed the grey divider lines between rows (like modern WhatsApp), and the new-chat button now has a soft shadow so it floats.

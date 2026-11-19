@@ -10,6 +10,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -183,8 +185,25 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
     var cat by remember { mutableStateOf(-1) } // -1 recent, 0..n categories, -2 stickers
     var custom by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var delFor by remember { mutableStateOf<JSONObject?>(null) }
+    var search by remember { mutableStateOf("") }
+    val found = remember(search) { chatEmojiSearch(search) }
     LaunchedEffect(cat, reloadKey) { if (cat == -2 && Session.me != null) runCatching { custom = withContext(Dispatchers.IO) { ChatApi.stickers() } } }
-    Column(Modifier.fillMaxWidth().height(240.dp).background(MaterialTheme.colorScheme.surface)) {
+    Column(Modifier.fillMaxWidth().height(286.dp).background(MaterialTheme.colorScheme.surface)) {
+        // WhatsApp-style emoji search box.
+        Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp).clip(RoundedCornerShape(22.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = 12.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Sym.Search, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            BasicTextField(search, { search = it }, Modifier.weight(1f).padding(horizontal = 8.dp, vertical = 10.dp), singleLine = true,
+                textStyle = TextStyle(fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface), cursorBrush = SolidColor(ChatLook.accent),
+                decorationBox = { inner -> if (search.isEmpty()) Text("Search emoji", fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant); inner() })
+            if (search.isNotEmpty()) Icon(Sym.Close, "Clear", Modifier.size(18.dp).tap(CircleShape) { search = "" }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (search.isNotEmpty()) {
+            if (found.isEmpty()) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No emoji found", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            else LazyVerticalGrid(GridCells.Adaptive(44.dp), Modifier.fillMaxSize()) {
+                gridItems(found) { e -> Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { CsRecent.add(e); onEmoji(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) } }
+            }
+            return@Column
+        }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
             @Composable fun tab(sel: Boolean, onClick: () -> Unit, content: @Composable () -> Unit) =
                 Box(Modifier.height(44.dp).widthIn(min = 44.dp).background(if (sel) ChatLook.accent.copy(alpha = .15f) else Color.Transparent).tap(RoundedCornerShape(8.dp), onClick = onClick).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) { content() }

@@ -353,7 +353,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
             } else if (Session.me != null) {
               Column {
                 // WhatsApp's quick status reactions.
-                if (!typing) Row(Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                if (!typing) Row(Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp).clip(RoundedCornerShape(30.dp)).background(Color.Black.copy(alpha = .28f)).padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     listOf("👍", "❤️", "😂", "😮", "😢", "🙏").forEach { e ->
                         Text(e, Modifier.clip(CircleShape).tap(CircleShape) {
                             scope.launch { try { Statuses.replyTo(user.userId, "$e (reacted to your status)"); toast(c, "$e Reacted!") } catch (ex: Exception) { toast(c, Api.friendly(ex)) } }

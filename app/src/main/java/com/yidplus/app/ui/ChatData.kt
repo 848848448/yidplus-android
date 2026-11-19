@@ -469,6 +469,51 @@ val CHAT_EMOJI_SETS: List<Pair<String, String>> = listOf(
 ).map { it.first to it.second }
 val CHAT_QUICK_REACTS = listOf("❤️", "😂", "😮", "😢", "👍", "🔥")
 
+/** Emoji search keywords (English) — enough to find the common ones by typing. Returns emojis whose keywords contain the query. */
+private val CHAT_EMOJI_KEYWORDS: List<Pair<String, String>> = listOf(
+    "😀" to "smile happy grin", "😃" to "smile happy", "😄" to "smile happy laugh", "😁" to "grin happy",
+    "😆" to "laugh haha", "😅" to "sweat laugh nervous", "😂" to "laugh cry joy funny lol", "🤣" to "rofl laugh funny lol",
+    "🙂" to "smile slight", "😉" to "wink", "😊" to "blush happy smile", "😇" to "angel innocent",
+    "😍" to "love heart eyes", "🥰" to "love hearts adore", "😘" to "kiss love", "😗" to "kiss",
+    "😋" to "yum tasty tongue", "😛" to "tongue", "😜" to "wink tongue silly", "🤪" to "crazy silly zany",
+    "🤨" to "eyebrow suspicious", "🧐" to "monocle thinking", "🤓" to "nerd geek", "😎" to "cool sunglasses",
+    "🥳" to "party celebrate", "😏" to "smirk", "😒" to "unamused meh", "😞" to "sad disappointed",
+    "😔" to "sad pensive", "😟" to "worried", "😕" to "confused", "🙁" to "frown sad",
+    "😣" to "persevere", "😖" to "confounded", "😫" to "tired", "😩" to "weary tired",
+    "🥺" to "pleading cute beg", "😢" to "cry sad tear", "😭" to "cry sob sad", "😤" to "angry steam",
+    "😠" to "angry mad", "😡" to "angry rage mad", "🤯" to "mind blown shocked", "😳" to "flushed shocked",
+    "🥵" to "hot sweat", "🥶" to "cold freezing", "😱" to "scream shocked fear", "😨" to "fear scared",
+    "😰" to "anxious sweat", "😥" to "sad relieved", "😓" to "sweat", "🤗" to "hug",
+    "🤔" to "thinking hmm", "🤭" to "giggle oops", "🤫" to "shh quiet", "🤥" to "lie pinocchio",
+    "😶" to "no mouth speechless", "😐" to "neutral", "😑" to "expressionless", "🙄" to "eye roll",
+    "😴" to "sleep tired zzz", "🤤" to "drool", "😷" to "mask sick", "🤒" to "sick ill fever",
+    "🤮" to "vomit sick", "🤢" to "nausea sick", "🥱" to "yawn bored tired",
+    "👍" to "thumbs up like good yes ok", "👎" to "thumbs down dislike no bad", "👌" to "ok perfect",
+    "✌️" to "peace victory", "🤞" to "fingers crossed luck", "🤟" to "love you", "🤘" to "rock",
+    "👏" to "clap applause", "🙌" to "praise hooray celebrate", "🙏" to "pray thanks please please god",
+    "💪" to "strong muscle flex", "👀" to "eyes look", "🫶" to "heart hands love",
+    "❤️" to "heart love red", "🧡" to "heart orange", "💛" to "heart yellow", "💚" to "heart green",
+    "💙" to "heart blue", "💜" to "heart purple", "🖤" to "heart black", "🤍" to "heart white",
+    "💔" to "broken heart sad", "💕" to "hearts love", "💖" to "sparkle heart love", "💯" to "hundred perfect",
+    "🔥" to "fire lit hot", "⭐" to "star", "🌟" to "star glow", "✨" to "sparkles",
+    "🎉" to "party celebrate tada", "🎊" to "confetti party", "🎁" to "gift present", "🏆" to "trophy win",
+    "✅" to "check yes done ok", "❌" to "cross no wrong", "❗" to "exclamation", "❓" to "question",
+    "🙏🏻" to "pray", "👋" to "wave hello hi bye", "🤝" to "handshake deal", "🤲" to "hands",
+    "🎵" to "music note", "🎶" to "music notes", "📞" to "phone call", "📱" to "phone mobile",
+    "☕" to "coffee tea", "🍕" to "pizza food", "🎂" to "cake birthday", "🍎" to "apple fruit",
+    "🚗" to "car", "✈️" to "plane travel flight", "🏠" to "home house", "🌍" to "earth world globe",
+    "☀️" to "sun sunny", "🌙" to "moon night", "☁️" to "cloud", "🌈" to "rainbow",
+    "💰" to "money cash", "💡" to "idea light bulb", "⏰" to "clock alarm time", "🔒" to "lock secure",
+    "🕎" to "menorah chanukah", "✡️" to "star david jewish", "🙏🏼" to "pray thanks",
+)
+
+/** Emojis matching a search query (by English keyword), most-relevant first. Empty query → empty list. */
+fun chatEmojiSearch(q: String): List<String> {
+    val s = q.trim().lowercase()
+    if (s.isEmpty()) return emptyList()
+    return CHAT_EMOJI_KEYWORDS.filter { it.second.split(' ').any { w -> w.startsWith(s) } || it.second.contains(s) }.map { it.first }.distinct()
+}
+
 /** The site's sticker set (Noto animated emoji, the same URLs the website sends). */
 val CHAT_STICKERS: List<String> = listOf("1f600", "1f602", "1f60d", "1f62d", "1f621", "1f973", "1f44f", "1f525", "2764_fe0f", "1f64f", "1f44d", "1f914", "1f389", "1f48b", "1f499", "2728").map { "https://fonts.gstatic.com/s/e/notoemoji/latest/$it/512.gif" }
 

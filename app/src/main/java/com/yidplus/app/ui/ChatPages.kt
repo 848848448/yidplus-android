@@ -15,6 +15,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -161,6 +162,20 @@ class ChNewBroadcast : PageScreen() {
                     val i = picked.indexOfFirst { it.id == mb.id }
                     if (i >= 0) picked.removeAt(i) else picked.add(mb)
                 })
+            }
+            // WhatsApp shows the chosen people as removable avatar chips above the message box.
+            if (picked.isNotEmpty()) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                picked.toList().forEach { mb ->
+                    Column(Modifier.width(60.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box {
+                            ChAvatar(mb.photo, mb.nick, mb.id, 46.dp)
+                            Box(Modifier.align(Alignment.TopEnd).size(18.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(1.dp).clip(CircleShape).background(Color(0xFF888888)).tap(CircleShape) { picked.removeAll { it.id == mb.id } }, contentAlignment = Alignment.Center) {
+                                Icon(Sym.Close, "Remove", Modifier.size(11.dp), tint = Color.White)
+                            }
+                        }
+                        Text(mb.nick, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                    }
+                }
             }
             if (picked.isNotEmpty()) Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(text, { text = it }, Modifier.weight(1f), placeholder = { Text("Message to ${picked.size}…") }, maxLines = 4, shape = RoundedCornerShape(24.dp),

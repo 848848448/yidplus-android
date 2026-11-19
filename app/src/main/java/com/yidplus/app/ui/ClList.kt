@@ -317,9 +317,15 @@ class ClChatSettings : PageScreen() {
                 Icon(Sym.AddReaction, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Column(Modifier.padding(start = 18.dp)) { Text("Default reactions", fontSize = 16.sp); Text("Tap one to change your quick-reaction set", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
-            Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 reacts.forEachIndexed { i, e ->
-                    Box(Modifier.weight(1f).heightIn(min = 48.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { editSlot = i }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) }
+                    Box(Modifier.weight(1f).heightIn(min = 54.dp).clip(RoundedCornerShape(14.dp)).background(ChatLook.accent.copy(alpha = if (isDark()) .20f else .10f))
+                        .border(1.dp, ChatLook.accent.copy(alpha = .30f), RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp)) { editSlot = i }, contentAlignment = Alignment.Center) {
+                        Text(e, fontSize = 26.sp)
+                        Box(Modifier.align(Alignment.BottomEnd).padding(3.dp).size(15.dp).clip(CircleShape).background(ChatLook.accent), contentAlignment = Alignment.Center) {
+                            Icon(Sym.Edit, "Change", Modifier.size(9.dp), tint = Color.White)
+                        }
+                    }
                 }
             }
             if (editSlot in reacts.indices) CsReactPicker(onPick = { e ->
