@@ -194,7 +194,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
             Icon(Sym.Search, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             BasicTextField(search, { search = it }, Modifier.weight(1f).padding(horizontal = 8.dp, vertical = 10.dp), singleLine = true,
                 textStyle = TextStyle(fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface), cursorBrush = SolidColor(ChatLook.accent),
-                decorationBox = { inner -> if (search.isEmpty()) Text("Search emoji", fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant); inner() })
+                decorationBox = { inner -> Box(contentAlignment = Alignment.CenterStart) { if (search.isEmpty()) Text("Search emoji", fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant); inner() } })
             if (search.isNotEmpty()) Icon(Sym.Close, "Clear", Modifier.size(18.dp).tap(CircleShape) { search = "" }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (search.isNotEmpty()) {
