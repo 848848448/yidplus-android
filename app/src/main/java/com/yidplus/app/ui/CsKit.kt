@@ -458,7 +458,36 @@ internal fun csRotateImage(c: Context, uri: Uri, degrees: Int): Uri {
     }.getOrDefault(uri)
 }
 
-/** Photos/videos before sending (WhatsApp's preview): the pictures, remove one, rotate a photo, a caption, Send. */
+/** Burn [text] onto a photo, centred (white bold with a soft shadow), and save a fresh JPEG; returns the original on failure or blank text. */
+internal fun csBurnText(c: Context, uri: Uri, text: String): Uri {
+    if (text.isBlank()) return uri
+    return runCatching {
+        val src = c.contentResolver.openInputStream(uri)!!.use { android.graphics.BitmapFactory.decodeStream(it) }!!
+        val bmp = src.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+        val canvas = android.graphics.Canvas(bmp)
+        val w = bmp.width
+        val size = (w / 14f).coerceAtLeast(28f)
+        val paint = android.text.TextPaint().apply {
+            color = android.graphics.Color.WHITE; textSize = size; isAntiAlias = true
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setShadowLayer(size / 5f, 0f, size / 16f, android.graphics.Color.argb(200, 0, 0, 0))
+        }
+        val lineW = (w * 0.86f).toInt().coerceAtLeast(1)
+        val layout = android.text.StaticLayout.Builder.obtain(text, 0, text.length, paint, lineW)
+            .setAlignment(android.text.Layout.Alignment.ALIGN_CENTER).build()
+        canvas.save()
+        canvas.translate((w - lineW) / 2f, ((bmp.height - layout.height) / 2f).coerceAtLeast(0f))
+        layout.draw(canvas)
+        canvas.restore()
+        val dir = java.io.File(c.cacheDir, "captures").apply { mkdirs() }
+        val out = java.io.File(dir, "txt_" + System.currentTimeMillis() + ".jpg")
+        java.io.FileOutputStream(out).use { bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 92, it) }
+        if (bmp !== src) src.recycle()
+        androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", out)
+    }.getOrDefault(uri)
+}
+
+/** Photos/videos before sending (WhatsApp's preview): the pictures, remove one, rotate a photo, add text, a caption, Send. */
 @Composable
 internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (List<Uri>, String, Boolean) -> Unit, onClose: () -> Unit) {
     var cap by remember { mutableStateOf("") }
@@ -466,6 +495,8 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
     val rotations = remember { mutableStateMapOf<Uri, Int>() }
     var sending by remember { mutableStateOf(false) }
     var hd by remember { mutableStateOf(false) }
+    val overlays = remember { mutableStateMapOf<Uri, String>() }
+    var editingText by remember { mutableStateOf<Uri?>(null) }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize(), color = Color.Black) {
             Column(Modifier.fillMaxSize().imePadding().navigationBarsPadding()) {
@@ -478,10 +509,15 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                     if (shown != null && isPhoto) Box(Modifier.clip(RoundedCornerShape(8.dp)).then(if (hd) Modifier.background(Color.White) else Modifier).tap(RoundedCornerShape(8.dp)) { hd = !hd }.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text("HD", color = if (hd) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     }
+                    if (shown != null && isPhoto) ChIcon(Sym.TextFields, "Add text", { editingText = shown }, tint = Color.White)
                     if (shown != null && isPhoto) ChIcon(Sym.RotateRight, "Rotate", { rotations[shown] = ((rotations[shown] ?: 0) + 90) % 360 }, tint = Color.White)
                 }
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     if (shown != null) AsyncImage(shown, "Preview", Modifier.fillMaxSize().padding(6.dp).rotate((rotations[shown] ?: 0).toFloat()))
+                    // The text sits centred over the photo (it's burned into the picture, centred, when you send).
+                    val ov = shown?.let { overlays[it] }.orEmpty()
+                    if (ov.isNotBlank()) Text(ov, Modifier.fillMaxWidth(0.86f), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center, style = TextStyle(textDirection = TextDirection.Content, shadow = androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f)))
                 }
                 if (list.size > 1) LazyRow(Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(list.size) { i ->
@@ -500,9 +536,9 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                     Box(Modifier.size(52.dp).clip(CircleShape).background(ChatLook.accent).tap(CircleShape) {
                         if (sending) return@tap
                         sending = true
-                        val snap = list.toList(); val rots = rotations.toMap(); val text = cap.trim()
+                        val snap = list.toList(); val rots = rotations.toMap(); val ovs = overlays.toMap(); val text = cap.trim()
                         scope.launch {
-                            val finals = withContext(Dispatchers.IO) { snap.map { csRotateImage(c, it, rots[it] ?: 0) } }
+                            val finals = withContext(Dispatchers.IO) { snap.map { u -> csBurnText(c, csRotateImage(c, u, rots[u] ?: 0), ovs[u] ?: "") } }
                             onSend(finals, text, hd)
                         }
                     }, contentAlignment = Alignment.Center) {
@@ -511,6 +547,15 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                 }
             }
         }
+    }
+    editingText?.let { u ->
+        var t by remember(u) { mutableStateOf(overlays[u] ?: "") }
+        AlertDialog(onDismissRequest = { editingText = null },
+            title = { Text("Add text to photo", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) },
+            text = { TextField(t, { t = it }, Modifier.fillMaxWidth(), placeholder = { Text("Type text…") }, maxLines = 3,
+                textStyle = TextStyle(textDirection = TextDirection.Content)) },
+            confirmButton = { TextButton({ if (t.isBlank()) overlays.remove(u) else overlays[u] = t.trim(); editingText = null }) { Text("Done") } },
+            dismissButton = { TextButton({ overlays.remove(u); editingText = null }) { Text("Remove") } })
     }
 }
 

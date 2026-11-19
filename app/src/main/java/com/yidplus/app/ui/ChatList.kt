@@ -340,6 +340,7 @@ fun ChatsScreen() {
                     ChMenuItem(Sym.Group, "New group") { fabMenu = false; Nav.open(ChNewGroup("group")) }
                     ChMenuItem(Sym.Campaign, "New channel") { fabMenu = false; Nav.open(ChNewGroup("channel")) }
                     ChMenuItem(Sym.Link, "Join by invite link") { fabMenu = false; Nav.open(ChJoinLink()) }
+                    ChMenuItem(Sym.QrCodeScanner, "Scan QR code") { fabMenu = false; Nav.open(QrPage(startScan = true)) }
                 }
             }
             }

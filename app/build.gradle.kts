@@ -107,4 +107,7 @@ dependencies {
 
     // Native WebRTC for voice/video calls (repackaged libwebrtc, package org.webrtc).
     implementation("io.getstream:stream-webrtc-android:1.3.9")
+
+    // QR codes (generate "My code" + decode a scanned camera frame). Pure-Java, no Android deps.
+    implementation("com.google.zxing:core:3.5.3")
 }

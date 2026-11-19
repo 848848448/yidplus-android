@@ -1,3 +1,7 @@
+## New in 2.21.0 (test build — QR codes + text on photos)
+- **QR code, like WhatsApp:** menu → **QR code** shows your own code (others scan it to start a chat with you) and a **Scan** tab to scan someone's. New chat (green button) → **Scan QR code** too.
+- **Text on photos:** in the send preview, tap the **text (Aa)** button to type words that get placed on the picture (centered) before you send.
+
 ## New in 2.19.0 (test build — recents + chat texture)
 - **Recent photos in the attach panel:** tap 📎 and the app now asks for photo access and shows a **Recent** strip of your latest pictures right there — tap one to send it, like WhatsApp.
 - **Chat background isn't flat anymore:** a soft, faint WhatsApp-style doodle texture behind your messages (light and dark mode), so a chat feels less "dry".

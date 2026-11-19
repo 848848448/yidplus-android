@@ -106,6 +106,7 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
             ClDrawerItem(Sym.Group, "New Group", tint = Color(0xFF009688)) { onClose(); Nav.open(ChNewGroup("group")) }
             ClDrawerItem(Sym.Campaign, "New Channel", tint = Color(0xFFFF7043)) { onClose(); Nav.open(ChNewGroup("channel")) }
             ClDrawerItem(Sym.Link, "Join by invite link", tint = Color(0xFF26A69A)) { onClose(); Nav.open(ChJoinLink()) }
+            ClDrawerItem(Sym.QrCode, "QR code", tint = Color(0xFF455A64)) { onClose(); Nav.open(QrPage()) }
             ClDrawerItem(Sym.Settings, "Chat settings", tint = Color(0xFF607D8B)) { onClose(); Nav.open(ClChatSettings()) }
             if (chIsSiteAdmin()) {
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
