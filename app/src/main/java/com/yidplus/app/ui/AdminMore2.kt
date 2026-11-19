@@ -155,6 +155,17 @@ class AdminAnalyticsPage : PageScreen() {
                     }
                 }
             }
+            // Native-app adoption (counts start from when the server change goes live; 0 until then).
+            SettingsCard("The app") {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Tile(now?.optInt("app_users") ?: 0, "Have the app", Modifier.weight(1f))
+                        Tile(now?.optInt("app_active_7d") ?: 0, "Active (7 days)", Modifier.weight(1f))
+                    }
+                    Text("How many people have the native app and use it. Counts begin once the server update is live.",
+                        fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
             val growth = now?.optJSONArray("growth").objects()
             if (growth.isNotEmpty()) SettingsCard("New members (14 days)") {
                 Box(Modifier.padding(12.dp)) { GrowthBars(growth) }
