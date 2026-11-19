@@ -461,7 +461,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
                 }
             }
         }
-        HorizontalDivider(Modifier.padding(start = if (compact) 82.dp else 88.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
+        // No row dividers — modern WhatsApp has none (cleaner, less "dry").
     }
     // WhatsApp avatar quick-preview popup: tap a chat's photo → enlarged photo + name + Message / Call / Info.
     if (popup) Dialog(onDismissRequest = { popup = false }) {

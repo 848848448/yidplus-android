@@ -101,6 +101,9 @@ fun AppRoot(onExit: () -> Unit) {
                 c.isAppearanceLightNavigationBars = !dark && !immersive
             }
         }
+        // Switching accounts rebuilds the whole UI subtree (keyed on the account id), so every screen drops its
+        // remembered data and reloads for the new account — no stale chats/channels/status from the previous one.
+        androidx.compose.runtime.key(Session.me?.id) {
         Box(Modifier.fillMaxSize().background(if (immersive) Color.Black else MaterialTheme.colorScheme.background)) {
         Box(Modifier.fillMaxWidth().height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()).background(barTop))
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
@@ -159,6 +162,7 @@ fun AppRoot(onExit: () -> Unit) {
         }
         CallHost()
         if (AppLock.locked) AppLockScreen()
+        }
         }
     }
 }

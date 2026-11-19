@@ -64,8 +64,8 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
         val acctVer = com.yidplus.app.data.Accounts.version
         val others = remember(acctVer, me?.id) { com.yidplus.app.data.Accounts.list().filter { it.id != me?.id } }
         Column(Modifier.fillMaxHeight().widthIn(max = 300.dp).fillMaxWidth(.82f).background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
-            Box(Modifier.fillMaxWidth().background(ChatLook.accent)) {
-                Column(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp)) {
+            Box(Modifier.fillMaxWidth().background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(ChatLook.accent, Color(0xFF017561))))) {
+                Column(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp).padding(top = 8.dp)) {
                     ChAvatar(me?.photo, me?.nickname ?: "User", me?.id ?: "me", 64.dp)
                     Spacer(Modifier.height(10.dp))
                     Text(me?.nickname ?: "User", color = barContent(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -97,28 +97,33 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
                     HorizontalDivider()
                 }
             }
-            ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true)) { onClose(); Nav.go(Tab.Profile) }
-            ClDrawerItem(Sym.RadioButtonChecked, "Status") { onClose(); Nav.open(StatusUpdatesPage()) }
-            ClDrawerItem(Sym.Call, "Calls") { onClose(); Nav.open(ChCalls()) }
-            ClDrawerItem(Sym.Bookmark, "Saved Messages") { onClose(); Nav.open(ChSaved()) }
-            ClDrawerItem(Sym.Folder, "Chat Folders") { onClose(); Nav.open(ClFolderManager()) }
-            ClDrawerItem(Sym.Group, "New Group") { onClose(); Nav.open(ChNewGroup("group")) }
-            ClDrawerItem(Sym.Campaign, "New Channel") { onClose(); Nav.open(ChNewGroup("channel")) }
-            ClDrawerItem(Sym.Link, "Join by invite link") { onClose(); Nav.open(ChJoinLink()) }
-            ClDrawerItem(Sym.Settings, "Chat settings") { onClose(); Nav.open(ClChatSettings()) }
+            Spacer(Modifier.height(6.dp))
+            ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true), tint = Color(0xFF00A884)) { onClose(); Nav.go(Tab.Profile) }
+            ClDrawerItem(Sym.RadioButtonChecked, "Status", tint = Color(0xFF1DA851)) { onClose(); Nav.open(StatusUpdatesPage()) }
+            ClDrawerItem(Sym.Call, "Calls", tint = Color(0xFF2196F3)) { onClose(); Nav.open(ChCalls()) }
+            ClDrawerItem(Sym.Bookmark, "Saved Messages", tint = Color(0xFFF4B400)) { onClose(); Nav.open(ChSaved()) }
+            ClDrawerItem(Sym.Folder, "Chat Folders", tint = Color(0xFF7E57C2)) { onClose(); Nav.open(ClFolderManager()) }
+            ClDrawerItem(Sym.Group, "New Group", tint = Color(0xFF009688)) { onClose(); Nav.open(ChNewGroup("group")) }
+            ClDrawerItem(Sym.Campaign, "New Channel", tint = Color(0xFFFF7043)) { onClose(); Nav.open(ChNewGroup("channel")) }
+            ClDrawerItem(Sym.Link, "Join by invite link", tint = Color(0xFF26A69A)) { onClose(); Nav.open(ChJoinLink()) }
+            ClDrawerItem(Sym.Settings, "Chat settings", tint = Color(0xFF607D8B)) { onClose(); Nav.open(ClChatSettings()) }
             if (chIsSiteAdmin()) {
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                ClDrawerItem(Sym.AdminPanelSettings, "Admin Panel") { onClose(); Nav.open(AdminPage()) }
+                ClDrawerItem(Sym.AdminPanelSettings, "Admin Panel", tint = Color(0xFFD32F2F)) { onClose(); Nav.open(AdminPage()) }
             }
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
 
 @Composable
-private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Row(modifier.fillMaxWidth().heightIn(min = 52.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
-        Text(text, Modifier.padding(start = 24.dp), fontSize = 16.sp)
+private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = Modifier, tint: Color = Color(0xFF00A884), onClick: () -> Unit) {
+    Row(modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+        // WhatsApp/modern: a soft rounded tile behind a colored icon, instead of a bare thin grey glyph.
+        Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp)).background(tint.copy(alpha = if (isDark()) .22f else .13f)), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = tint, modifier = Modifier.size(21.dp))
+        }
+        Text(text, Modifier.padding(start = 18.dp), fontSize = 16.sp, fontWeight = FontWeight.Medium)
     }
 }
 

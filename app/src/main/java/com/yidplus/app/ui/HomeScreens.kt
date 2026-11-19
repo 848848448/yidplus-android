@@ -124,7 +124,6 @@ fun HomeScreen() {
                                 if (view == 1) "You haven't joined a channel yet. Open one and tap Join." else "No channels found") }
                             items(shown, key = { it.username }) { ch ->
                                 ChannelRow(ch, Modifier.then(if (ch == shown.first() && !searching) Modifier.firstFocus() else Modifier))
-                                SoDivider(82.dp)
                             }
                         }
                     }
@@ -148,8 +147,8 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
         SoThumb(ch.photo, ch.title, 50.dp)
         Column(Modifier.weight(1f).padding(start = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Left-aligned even for a Yiddish name (like WhatsApp), so the name never runs into the time.
-                Text(ch.title, Modifier.weight(1f).padding(end = 8.dp), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
+                // Content-aligned like the chat list: a Yiddish/Hebrew name sits on the right, English on the left (weight(1f) keeps the time in place).
+                Text(ch.title, Modifier.weight(1f).padding(end = 8.dp), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Start),
                     color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (ch.lastAt != null) Text(ago(ch.lastAt), style = MaterialTheme.typography.bodySmall, maxLines = 1,
                     color = if (joined && ch.unread > 0) BadgeGreen else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -158,7 +157,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
                 val media = when (ch.lastMedia) { "photo" -> "📷 Photo"; "video", "animation" -> "🎬 Video"; "audio" -> "🎵 Audio"; "voice" -> "🎤 Voice message"; "" -> ""; else -> "📎 File" }
                 val text = ch.lastText.replace('\n', ' ').trim()
                 val prev = when { text.isNotEmpty() && media.isNotEmpty() -> media.substringBefore(' ') + " " + text; text.isNotEmpty() -> text; media.isNotEmpty() -> media; else -> soMembers(ch.members) }
-                Text(prev, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                Text(prev, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Start), maxLines = 1, overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (joined) SoBadge(ch.unread, Modifier.padding(start = 8.dp))
                 // A small outlined Join (like Telegram's), so the row keeps WhatsApp's height.

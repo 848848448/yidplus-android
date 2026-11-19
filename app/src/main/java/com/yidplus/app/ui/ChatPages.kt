@@ -72,8 +72,13 @@ import org.json.JSONObject
 
 @Composable
 internal fun InfoAction(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
-    Column(Modifier.width(72.dp).clip(RoundedCornerShape(12.dp)).border1().tap(RoundedCornerShape(12.dp), onClick = onClick).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.primary); Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+    // WhatsApp-style tonal action: a soft green rounded tile with the icon, label under it in the accent colour.
+    Column(Modifier.width(76.dp).clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp), onClick = onClick).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = if (isDark()) .22f else .12f)), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(23.dp))
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(label, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.primary, maxLines = 1, fontWeight = FontWeight.Medium)
     }
 }
 @Composable internal fun Modifier.border1(): Modifier = this.then(Modifier.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f)))

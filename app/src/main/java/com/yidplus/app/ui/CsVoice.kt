@@ -233,7 +233,15 @@ internal fun CsVoiceBubble(m: ChatMsg) {
     LaunchedEffect(me) { while (me) { ChatVoicePlayer.tick(); kotlinx.coroutines.delay(150) } }
     val peaks = remember(m.text) { m.text.substringAfter('|', "").split(',').mapNotNull { it.trim().toIntOrNull() }.ifEmpty { List(32) { i -> 20 + (i * 37 % 60) } } }
     val music = !m.isVoice
-    Row(Modifier.padding(4.dp).width(250.dp), verticalAlignment = Alignment.CenterVertically) {
+    val mine = m.senderId == com.yidplus.app.data.Session.me?.id
+    Row(Modifier.padding(4.dp).width(if (m.isVoice && !mine) 292.dp else 250.dp), verticalAlignment = Alignment.CenterVertically) {
+        // WhatsApp shows the sender's photo on a received voice note, with a small green mic badge at its corner.
+        if (m.isVoice && !mine) Box(Modifier.padding(end = 6.dp)) {
+            ChAvatar(m.photo, m.nick, m.senderId, 44.dp)
+            Box(Modifier.align(Alignment.BottomEnd).size(18.dp).clip(CircleShape).background(ChatLook.accent), contentAlignment = Alignment.Center) {
+                Icon(Sym.Mic, null, Modifier.size(11.dp), tint = Color.White)
+            }
+        }
         Box(Modifier.size(44.dp).clip(if (music) RoundedCornerShape(10.dp) else CircleShape).background(ChatLook.accent).tap(CircleShape) { (m.media ?: m.local)?.let { ChatVoicePlayer.toggle(c, m.id, it) } ?: toast(c, "Audio not available") }, contentAlignment = Alignment.Center) {
             Icon(if (me && !ChatVoicePlayer.paused) Sym.Pause else Sym.PlayArrow, if (me && !ChatVoicePlayer.paused) "Pause" else "Play", tint = Color.White)
         }
@@ -259,7 +267,6 @@ internal fun CsVoiceBubble(m: ChatMsg) {
                     .padding(horizontal = 8.dp, vertical = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ChatLook.accent)
             }
         }
-        if (m.isVoice && !me) Icon(Sym.Mic, null, Modifier.padding(start = 4.dp).size(18.dp), tint = ChatLook.accent)
     }
 }
 

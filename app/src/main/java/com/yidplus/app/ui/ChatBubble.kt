@@ -208,7 +208,8 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                     }
                     album != null && album.size > 1 -> CsAlbumGrid(album, maxW, onMedia)
                     m.isVideoNote -> ChVideoNote(m.media ?: m.local!!)
-                    m.isImage -> AsyncImage(m.media ?: m.local, "Photo", contentScale = ContentScale.Crop, modifier = Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF263238)))
+                    // Prefer my own local file so a just-sent photo shows instantly (no dark "still-uploading" block), and a light placeholder while it loads.
+                    m.isImage -> AsyncImage(if (mine) (m.local ?: m.media) else (m.media ?: m.local), "Photo", contentScale = ContentScale.Crop, modifier = Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp).clip(RoundedCornerShape(10.dp)).background(if (isDark()) Color(0xFF2A2F32) else Color(0xFFE9EDEF)))
                     m.isVideo -> ChVideoThumb(m.media ?: m.local!!, maxW)
                     m.isAudio -> CsVoiceBubble(m)
                     m.isVoiceText -> Row(Modifier.padding(4.dp).width(220.dp), verticalAlignment = Alignment.CenterVertically) {

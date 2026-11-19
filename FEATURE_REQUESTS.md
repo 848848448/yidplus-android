@@ -232,3 +232,61 @@ RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there.
 - Video-note recorder actually looks close to WhatsApp (round preview, red timer pill, slide-to-cancel, lock, flip, send) and the sent note plays as a round bubble. Need SPECIFICS from user on what "doesn't work well" (saw a tiny ✕ on one sent note = maybe pending/failed state). 
 - Status composer: user's reference = WhatsApp's "Add status" BOTTOM SHEET (Text/Music/Layout/Voice/AI images + Camera + recents grid). BUILT AddStatusPage to match (commit 6d5a35a). Recents inline grid still a follow-up (needs MediaStore+permission).
 - Updates LIST screen already very WhatsApp-like (Add status · "Last photo you took?", story rings, bottom tabs Chats/Updates/Communities/Calls).
+
+---
+
+## 🎨 DESIGN POLISH PASS (collected 2026-11-19, from screen-recording review) — NEXT UPDATE
+
+**Overall:** UI is flat/"dry" — grey text, thin divider lines, no elevation/shadows, cramped padding, floating loading spinners. Goal: modern 2026 design across EVERY screen (more whitespace, rounded cards, filled colored Material Symbols, unified avatar placeholders, real waveforms, WhatsApp wallpaper).
+
+### Bugs / broken-looking
+- [x] ~~Floating grey ring mid-screen~~ — NOT an app bug: it's the phone's "Show touches" developer overlay in the recording (moves to each finger position). Ignore.
+- [ ] **Channels list goes the WRONG direction** — must be RTL like the chats (tabs + list), currently reversed/LTR.
+- [ ] **Account switching doesn't refresh properly** — switching to another account leaves stale data in many places; must fully refresh all screens/state on switch.
+
+### Chat list
+- [ ] Rows cramped, thin grey divider lines — more padding, remove lines (WhatsApp style).
+- [ ] Time text + unread badge pale/flat — bolder round green unread badge.
+- [ ] New-chat FAB too small — full FAB with shadow.
+- [ ] Avatar placeholders inconsistent — unified gradient-initial placeholder.
+
+### Inside a chat
+- [ ] Flat cream background — add WhatsApp doodle wallpaper.
+- [ ] "Add an agent / Muse" card mid-conversation looks foreign — remove/redesign.
+- [ ] Voice notes: flat dotted "waveform" not a real waveform; no sender avatar; no blue unplayed dot (ties to #17).
+- [ ] System lines (Missed call / reacted) flat — smaller tonal pills.
+- [ ] **Attach (+) menu NOT like WhatsApp:** symbols plain, missing the nice options, missing a **Recent** row (recent photos/items). Rebuild the attach sheet with filled colored icons + Recents + Event/AI (ties to #13a).
+
+### Video context menu (⋯ on a video/short)
+- [ ] Missing many options vs WhatsApp/reference — fill out the ⋯ menu.
+
+### Drawer menu
+- [ ] Looks like old (2018) WhatsApp — flat green header, thin grey icons. Modernize: clean header, filled colored icons.
+
+### Group info
+- [ ] Message/Call/Video/Add = flat light-grey boxes — tonal colored pills (#16a).
+
+### Shorts
+- [ ] Category chips flat; side buttons need subtle bottom gradient for legibility.
+
+### Channels
+- [ ] Sub-lists flat with thin lines; account popup flat — rounded card w/ shadow.
+
+### Settings
+- [ ] Flat rows, thin icons, no card grouping — grouped rounded cards.
+- [ ] Color-theme = flat half-circles — round swatch buttons.
+
+### Status
+- [ ] Text composer color dots small/flat vs WhatsApp.
+- [ ] Voice-update viewer gradient too strong.
+
+(MORE COMING — user still sending items.)
+
+### More (from 2nd recording)
+- [ ] Selection mode top bar (star/pin/mute/archive/delete) = plain thin icons — make bold/clear.
+- [ ] Image viewer very flat (only X + share) — add WhatsApp bottom bar (reply/forward/star) + caption.
+- [ ] Filter chips (Status/All/Unread/Favorites/Private) flat; "Status" chip w/ ring on left looks odd.
+
+### More (from 3rd recording)
+- [ ] **Sent image renders as a solid dark/blank bubble** in the chat thread (sent a light screenshot, bubble shows dark grey) — likely a thumbnail/render bug; investigate.
+- [ ] Full-screen image viewer: images letterboxed with large black areas and inconsistent vertical alignment (some centered, some bottom) — center/fit consistently.
