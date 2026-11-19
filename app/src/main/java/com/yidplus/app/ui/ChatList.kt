@@ -66,6 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
@@ -332,7 +333,7 @@ fun ChatsScreen() {
             if (me != null && sel.isEmpty()) androidx.compose.animation.AnimatedVisibility(!compact || headerShown, Modifier.align(Alignment.BottomEnd),
                 enter = androidx.compose.animation.scaleIn() + androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.scaleOut() + androidx.compose.animation.fadeOut()) {
             Box(Modifier.padding(if (compact) 8.dp else 16.dp)) {
-                Box(Modifier.size(if (compact) 48.dp else 56.dp).clip(RoundedCornerShape(if (compact) 13.dp else 16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(if (compact) 13.dp else 16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
+                Box(Modifier.size(if (compact) 48.dp else 56.dp).shadow(6.dp, RoundedCornerShape(if (compact) 13.dp else 16.dp)).clip(RoundedCornerShape(if (compact) 13.dp else 16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(if (compact) 13.dp else 16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
                     contentAlignment = Alignment.Center) { Icon(Sym.Chat, null, tint = Color.White, modifier = Modifier.size(if (compact) 22.dp else 26.dp)) }
                 DropdownMenu(fabMenu, { fabMenu = false }) {
                     ChMenuItem(Sym.Person, "New chat") { fabMenu = false; Nav.open(ChNewChat()) }
