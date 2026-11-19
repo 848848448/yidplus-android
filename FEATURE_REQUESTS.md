@@ -226,3 +226,9 @@ RECOMMENDATION: test v2.13.0 on a real phone; most of the list is already there.
 - #4a/#4d Photo send preview: ❌ BLOCKING BUG — caption field auto-focuses so Gboard pops up and can't be dismissed, covering Send → can't send the photo. FIX: remove firstFocus auto-focus on caption, keep Send above keyboard (imePadding), make rotate/HD nicer.
 - #12 Video note recorder: ❌ mostly doesn't work well. REWORK to match WhatsApp's recorder look+behavior, the SEND, and the in-chat bubble. Make it nicer. (study WhatsApp both recording + the sent note)
 - #16c @mention green: ❌ does not work (mention not highlighting green / not detected). INVESTIGATE+FIX.
+
+## VIDEO REVIEW (user screen recording, 2026-11-18)
+- Message-yourself (#2d) ALREADY EXISTS and works ("@AVRUMY123 (You) · Message yourself" self-chat). Remove from backend-TODO.
+- Video-note recorder actually looks close to WhatsApp (round preview, red timer pill, slide-to-cancel, lock, flip, send) and the sent note plays as a round bubble. Need SPECIFICS from user on what "doesn't work well" (saw a tiny ✕ on one sent note = maybe pending/failed state). 
+- Status composer: user's reference = WhatsApp's "Add status" BOTTOM SHEET (Text/Music/Layout/Voice/AI images + Camera + recents grid). BUILT AddStatusPage to match (commit 6d5a35a). Recents inline grid still a follow-up (needs MediaStore+permission).
+- Updates LIST screen already very WhatsApp-like (Add status · "Last photo you took?", story rings, bottom tabs Chats/Updates/Communities/Calls).
