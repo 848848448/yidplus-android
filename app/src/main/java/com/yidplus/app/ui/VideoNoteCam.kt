@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -51,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -142,69 +144,75 @@ fun VideoNoteRecorder(onCancel: () -> Unit, onRecorded: (File) -> Unit) {
     fun sendRec() { runCatching { active?.stop() } }
     fun deleteRec() { cancelled = true; runCatching { active?.stop() } }
 
-    Box(Modifier.fillMaxSize().background(Color(0xF2000000)), contentAlignment = Alignment.Center) {
-        Icon(Sym.Close, "Close", Modifier.align(Alignment.TopStart).padding(16.dp).size(28.dp).clickable { deleteRec(); onCancel() }, tint = Color.White)
-        if (!recording) Icon(Icons.Filled.Cameraswitch, "Flip camera", Modifier.align(Alignment.TopEnd).padding(16.dp).size(28.dp).clickable { front = !front }, tint = Color.White)
-        // Red timer pill while recording.
-        if (recording) Text(fmt(elapsed), Modifier.align(Alignment.TopCenter).padding(top = 18.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFE53935)).padding(horizontal = 12.dp, vertical = 4.dp),
-            color = Color.White, fontSize = 14.sp)
+    val ink = Color(0xFF54656F)      // WhatsApp grey ink
+    val grey = Color(0xFFEDEDED)     // light control bg
+    Box(Modifier.fillMaxSize().background(Color(0xFFF7F7F7))) {
+        // Close (top-left) — only before recording.
+        if (!recording) Icon(Sym.Close, "Close", Modifier.align(Alignment.TopStart).padding(16.dp).size(28.dp).clickable { onCancel() }, tint = ink)
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(Modifier.size(292.dp), contentAlignment = Alignment.Center) {
-                Box(Modifier.size(280.dp).clip(CircleShape).background(Color(0xFF263238))) {
-                    if (hasCam) AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize().clip(CircleShape))
-                }
-                if (recording) CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize().padding(1.dp),
-                    color = if (cancelArmed) Color.White else Color(0xFFE53935), strokeWidth = 4.dp, trackColor = Color.Transparent)
+        // Red timer pill, top centre (recording).
+        if (recording) Row(Modifier.align(Alignment.TopCenter).padding(top = 42.dp).clip(RoundedCornerShape(20.dp)).background(Color(0xFFE53935)).padding(horizontal = 12.dp, vertical = 5.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(8.dp).clip(CircleShape).background(Color.White)); Spacer(Modifier.width(6.dp))
+            Text(fmt(elapsed), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        }
+
+        // Round selfie preview, upper centre, with the thin green progress arc at its top.
+        Box(Modifier.align(Alignment.TopCenter).padding(top = 100.dp).size(300.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(288.dp).clip(CircleShape).background(Color(0xFF1F2C34))) {
+                if (hasCam) AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize().clip(CircleShape))
             }
-            Spacer(Modifier.height(24.dp))
+            if (recording) CircularProgressIndicator(progress = { progress }, modifier = Modifier.size(300.dp),
+                color = Color(0xFF25D366), strokeWidth = 4.dp, trackColor = Color.Transparent)
+        }
+        if (!hasCam) Text("Camera permission needed", Modifier.align(Alignment.Center), color = ink, fontSize = 15.sp)
 
-            when {
-                !hasCam -> Text("Camera permission needed", color = Color.White, fontSize = 15.sp)
-                recording && locked -> {
-                    // Hands-free: Delete · Stop · Send
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 36.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Sym.Delete, "Delete", Modifier.size(30.dp).clickable { deleteRec() }, tint = Color.White)
-                        Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White).clickable { sendRec() }, contentAlignment = Alignment.Center) {
-                            Box(Modifier.size(20.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE53935)))
-                        }
-                        Box(Modifier.size(56.dp).clip(CircleShape).background(Color(0xFF00A884)).clickable { sendRec() }, contentAlignment = Alignment.Center) {
-                            Icon(Sym.Send, "Send", tint = Color.White, modifier = Modifier.size(26.dp))
-                        }
-                    }
+        // Right-edge "slide up to lock" pill (recording, not yet locked).
+        if (recording && !locked) Column(Modifier.align(Alignment.CenterEnd).padding(end = 14.dp).clip(RoundedCornerShape(22.dp)).background(grey).padding(horizontal = 8.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Sym.Lock, "Slide up to lock", Modifier.size(22.dp), tint = ink); Spacer(Modifier.height(8.dp)); Icon(Sym.ExpandLess, null, Modifier.size(22.dp), tint = ink)
+        }
+
+        // Bottom bar.
+        if (hasCam && recording && locked) {
+            // Hands-free: Delete · Stop · Send
+            Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal = 44.dp, vertical = 30.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Icon(Sym.Delete, "Delete", Modifier.size(30.dp).clickable { deleteRec() }, tint = ink)
+                Box(Modifier.size(52.dp).clip(CircleShape).background(grey).clickable { sendRec() }, contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(18.dp).clip(RoundedCornerShape(3.dp)).background(Color(0xFFE53935)))
                 }
-                recording && !locked -> {
-                    Icon(Sym.Lock, "Slide up to lock", Modifier.size(22.dp), tint = Color.White.copy(alpha = .9f))
-                    Spacer(Modifier.height(8.dp))
-                    Text(if (cancelArmed) "Release to cancel" else "‹ Slide to cancel", color = if (cancelArmed) Color(0xFFE53935) else Color.White, fontSize = 14.sp)
-                    Spacer(Modifier.height(14.dp))
-                    Box(Modifier.size(78.dp).clip(CircleShape).background(Color(0xFFE53935)), contentAlignment = Alignment.Center) {
-                        Icon(Sym.Videocam, null, tint = Color.White, modifier = Modifier.size(34.dp))
-                    }
+                Box(Modifier.size(58.dp).clip(CircleShape).background(Color(0xFF00A884)).clickable { sendRec() }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Send, "Send", tint = Color.White, modifier = Modifier.size(26.dp))
                 }
-                else -> {
-                    Text("Hold to record", color = Color.White, fontSize = 15.sp)
-                    Spacer(Modifier.height(16.dp))
-                    Box(Modifier.size(78.dp).clip(CircleShape).background(Color.White)
-                        .pointerInput(videoCapture) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown()
-                                if (videoCapture == null) return@awaitEachGesture
-                                startRec()
-                                while (true) {
-                                    val ev = awaitPointerEvent()
-                                    val ch = ev.changes.firstOrNull { it.id == down.id } ?: ev.changes.firstOrNull()
-                                    if (ch == null) { sendRec(); break }
-                                    val dx = ch.position.x - down.position.x
-                                    val dy = ch.position.y - down.position.y
-                                    cancelArmed = dx < -size.width.toFloat()
-                                    if (dy < -size.height.toFloat()) { locked = true; break }   // slid up → lock
-                                    if (!ch.pressed) { if (cancelArmed) deleteRec() else sendRec(); break }
-                                }
+            }
+        } else if (hasCam) {
+            // flip (left) · slide-to-cancel (centre) · record button (right)
+            Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal = 24.dp, vertical = 26.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(48.dp).clip(CircleShape).background(grey).clickable(enabled = !recording) { front = !front }, contentAlignment = Alignment.Center) {
+                    Icon(Icons.Filled.Cameraswitch, "Flip camera", tint = ink, modifier = Modifier.size(24.dp))
+                }
+                Text(if (recording) (if (cancelArmed) "Release to cancel" else "‹ Slide to cancel") else "Hold to record",
+                    color = if (cancelArmed) Color(0xFFE53935) else Color(0xFF667781), fontSize = 14.sp)
+                Box(Modifier.size(64.dp).clip(CircleShape).background(Color(0xFF00A884))
+                    .pointerInput(videoCapture) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown()
+                            if (videoCapture == null) return@awaitEachGesture
+                            startRec()
+                            val lockPx = 110.dp.toPx(); val cancelPx = 110.dp.toPx()
+                            while (true) {
+                                val ev = awaitPointerEvent()
+                                val ch = ev.changes.firstOrNull { it.id == down.id } ?: ev.changes.firstOrNull()
+                                if (ch == null) { sendRec(); break }
+                                val dx = ch.position.x - down.position.x
+                                val dy = ch.position.y - down.position.y
+                                cancelArmed = dx < -cancelPx
+                                if (dy < -lockPx) { locked = true; break }   // slid up → lock (hands-free)
+                                if (!ch.pressed) { if (cancelArmed) deleteRec() else sendRec(); break }
                             }
-                        }, contentAlignment = Alignment.Center) {
-                        Icon(Sym.Videocam, "Record", tint = Color(0xFFE53935), modifier = Modifier.size(34.dp))
-                    }
+                        }
+                    }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Videocam, "Record", tint = Color.White, modifier = Modifier.size(30.dp))
                 }
             }
         }

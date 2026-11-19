@@ -146,22 +146,22 @@ import org.json.JSONObject
 /* ─────────────── Post a status ─────────────── */
 
 /** WhatsApp-style "post status": coloured text status (the site's 8 backgrounds) or a photo/video with a caption, and who sees it. */
-class PostStatusPage(val startMode: String? = null) : PageScreen() {
+class PostStatusPage(val startMode: String? = null, val initialMedia: String? = null) : PageScreen() {
     override val perfName: String get() = "PostStatus"
     override val immersive: Boolean get() = true
-    @Composable override fun Content() { PostStatus(startMode) }
+    @Composable override fun Content() { PostStatus(startMode, initialMedia) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PostStatus(startMode: String? = null) {
+private fun PostStatus(startMode: String? = null, initialMedia: String? = null) {
     val c = ctx()
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var bg by remember { mutableIntStateOf(0) }
     var fontIdx by remember { mutableIntStateOf(0) }
     var privacy by remember { mutableStateOf("public") }
-    var media by remember { mutableStateOf<Uri?>(null) }
+    var media by remember { mutableStateOf(initialMedia?.let { runCatching { Uri.parse(it) }.getOrNull() }) }
     var caption by remember { mutableStateOf("") }
     var posting by remember { mutableStateOf(false) }
     val fr = remember { FocusRequester() }
@@ -392,7 +392,16 @@ class AddStatusPage : PageScreen() {
     override val immersive: Boolean get() = true
     @Composable override fun Content() {
         val c = ctx()
+        val scope = rememberCoroutineScope()
         fun go(mode: String?) { Nav.back(); Nav.open(PostStatusPage(mode)) }
+        fun pickRecent(u: Uri) { Nav.back(); Nav.open(PostStatusPage(null, u.toString())) }
+        val readPerm = if (android.os.Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_IMAGES else Manifest.permission.READ_EXTERNAL_STORAGE
+        var recents by remember { mutableStateOf<List<Uri>>(emptyList()) }
+        val permL = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) scope.launch { recents = withContext(Dispatchers.IO) { statusRecentImages(c) } } }
+        LaunchedEffect(Unit) {
+            if (ContextCompat.checkSelfPermission(c, readPerm) == PackageManager.PERMISSION_GRANTED) recents = withContext(Dispatchers.IO) { statusRecentImages(c) }
+            else permL.launch(readPerm)
+        }
         Box(Modifier.fillMaxSize().background(Color(0x99000000)).pointerInput(Unit) { detectTapGestures { Nav.back() } }) {
             Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth(), shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
                 color = MaterialTheme.colorScheme.surface, tonalElevation = 4.dp) {
@@ -412,6 +421,16 @@ class AddStatusPage : PageScreen() {
                     Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AddStatusTile(Modifier.weight(1f), Sym.PhotoCamera, "Camera") { go("camera") }
                         AddStatusTile(Modifier.weight(1f), Sym.PhotoLibrary, "Gallery") { go("gallery") }
+                    }
+                    if (recents.isNotEmpty()) {
+                        Text("Recents", Modifier.padding(start = 16.dp, top = 6.dp, bottom = 4.dp), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        LazyRow(Modifier.fillMaxWidth().height(92.dp).padding(horizontal = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(recents) { u ->
+                                Box(Modifier.size(88.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(10.dp)) { pickRecent(u) }) {
+                                    AsyncImage(u, "Recent photo", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -439,3 +458,16 @@ private fun AddStatusTile(modifier: Modifier, icon: androidx.compose.ui.graphics
         Text(label, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
     }
 }
+
+/** Recent gallery image Uris (newest first) for the Add-status "Recents" row. */
+private fun statusRecentImages(c: Context): List<Uri> = runCatching {
+    val uris = ArrayList<Uri>()
+    val col = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    val proj = arrayOf(android.provider.MediaStore.Images.Media._ID)
+    c.contentResolver.query(col, proj, null, null, android.provider.MediaStore.Images.Media.DATE_ADDED + " DESC")?.use { cur ->
+        val idx = cur.getColumnIndexOrThrow(android.provider.MediaStore.Images.Media._ID)
+        var n = 0
+        while (cur.moveToNext() && n < 30) { uris.add(android.content.ContentUris.withAppendedId(col, cur.getLong(idx))); n++ }
+    }
+    uris
+}.getOrDefault(emptyList())
