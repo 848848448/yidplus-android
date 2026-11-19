@@ -1,3 +1,7 @@
+## New in 2.16.0 (test build — status + video note, matched to WhatsApp)
+- **"Add status" is now WhatsApp's sheet:** tap Add status → a bottom sheet with **Text · Music · Layout · Voice · AI images**, then **Camera / Gallery** and a **Recents** row of your recent photos (tap one to post). (Music & AI images need server work — they say "coming soon".)
+- **Video-note recorder rebuilt to match WhatsApp:** light screen, big round selfie preview, red timer, green progress, **slide up to lock** (hands-free), "‹ Slide to cancel", flip camera, and Delete / Stop / Send when locked. Lock and slide-to-cancel now trigger reliably.
+
 ## New in 2.15.0 (test build — fixes from your testing)
 Fixes for the things you flagged:
 - **Sending a photo:** the keyboard no longer pops up and blocks the Send button — you can send right away (caption is optional).
