@@ -61,6 +61,17 @@ object ChatNotify {
     private fun me(c: Context): JSONObject? = runCatching { c.getSharedPreferences("session", Context.MODE_PRIVATE).getString("me", null)?.let { JSONObject(it) } }.getOrNull()
     private fun enc(s: String) = URLEncoder.encode(s, "UTF-8")
     fun shortcutId(roomId: String) = "chat_$roomId"
+
+    /** WhatsApp's "Add chat to home screen": pin a launcher shortcut that opens this chat directly. Returns false if the launcher doesn't support pinning. */
+    fun pinChat(c: Context, r: Room): Boolean {
+        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(c)) return false
+        val open = Intent(c, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_CHAT).putExtra("room", r.json().toString())
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val si = ShortcutInfoCompat.Builder(c, "pin_" + r.id)
+            .setShortLabel(r.name.ifBlank { "Chat" }.take(20)).setLongLabel(r.name.ifBlank { "Chat" }.take(40))
+            .setIcon(IconCompat.createWithResource(c, R.mipmap.ic_launcher)).setIntent(open).build()
+        return runCatching { ShortcutManagerCompat.requestPinShortcut(c, si, null) }.getOrDefault(false)
+    }
     /**
      * Each chat is its OWN group (no shared bundle, no summary). With one shared group + an InboxStyle summary, Android 11
      * puts the chats (conversations, they have a shortcut) in the Conversations section and the summary (no shortcut) in
@@ -134,7 +145,7 @@ object ChatNotify {
         val s = when (m.optString("type")) {
             "voice" -> "🎤 Voice message" + (m.optString("duration").takeIf { Regex("""^\d+:\d\d$""").matches(it) }?.let { " $it" } ?: "")
             "voice_text" -> "🎤 Voice message" + (t.substringBefore('|').takeIf { Regex("""^\d+:\d\d$""").matches(it) }?.let { " $it" } ?: "")
-            "video_msg" -> "📹 Video message"
+            "video_msg", "videonote" -> "📹 Video message"
             "sticker" -> "💟 Sticker"
             "gif" -> "GIF"
             "poll" -> "📊 Poll" + (m.optString("question").ifBlank { m.optJSONObject("poll")?.optString("question").orEmpty() }.takeIf { it.isNotBlank() }?.let { ": $it" } ?: "")
@@ -154,7 +165,8 @@ object ChatNotify {
                 else -> ""
             }
         }
-        return s.ifBlank { "New message" }.take(700)
+        // One tidy line like WhatsApp: collapse newlines/runs of spaces and keep it short (the system truncates anyway).
+        return s.replace(Regex("\\s+"), " ").trim().ifBlank { "New message" }.take(280)
     }
 
     private fun entry(m: JSONObject) = JSONObject().put("id", m.optString("id")).put("nick", m.optString("sender_nick"))
@@ -317,7 +329,7 @@ object ChatNotify {
         val sid = shortcutId(r.id)
         pushShortcut(c, r, large, open, if (group) null else lastSender)
         val last = (0 until msgs.length()).mapNotNull { msgs.optJSONObject(it) }.lastOrNull()
-        val b = NotificationCompat.Builder(c, NotifyWorker.CH_CHATS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF1F6F5C.toInt())
+        val b = NotificationCompat.Builder(c, NotifyWorker.CH_CHATS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF008069.toInt())
             .setStyle(style).setLargeIcon(large)
             .setContentTitle(r.name).setContentText(last?.let { (if (group && !it.optBoolean("mine")) it.optString("nick") + ": " else "") + it.optString("text") } ?: "New message")
             .setWhen(if (lastT > 0) lastT else System.currentTimeMillis()).setShowWhen(true)

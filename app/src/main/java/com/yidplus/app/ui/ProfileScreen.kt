@@ -169,6 +169,8 @@ fun ProfileScreen() {
                             RowDivider(64.dp)
                             SettingRow(Sym.NotificationsActive, "Notifications", "New messages, likes, followers, channel updates") { Nav.open(SettingsNotifPrefs()) }
                             RowDivider(64.dp)
+                            SettingRow(Sym.Storage, "Storage and data", "Manage the media kept on this phone, free up space") { Nav.open(SettingsStorage()) }
+                            RowDivider(64.dp)
                             val devs = SettingsProfile.res.data?.optJSONArray("sessions")?.length() ?: 0
                             SettingRow(Sym.Devices, "Devices", if (devs > 0) "$devs active · sign out other devices" else "Where you're signed in") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
@@ -276,6 +278,8 @@ private fun AppSettings() {
                 if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(c, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) askNotif.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+        RowDivider(64.dp)
+        SettingRow(Sym.PlayArrow, "Auto-play next Short", if (Prefs.autoAdvance) "A Short plays on to the next one by itself" else "A Short repeats until you swipe", switch = Prefs.autoAdvance) { Prefs.enableAutoAdvance(!Prefs.autoAdvance) }
         RowDivider(64.dp)
         SettingRow(Sym.SystemUpdate, "Check for updates", "Version ${BuildConfig.VERSION_NAME}" + (UpdateUi.status?.let { " · $it" } ?: "")) { UpdateUi.check(c, force = true, userAsked = true) }
         RowDivider(64.dp)

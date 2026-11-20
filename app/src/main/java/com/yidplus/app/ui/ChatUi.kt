@@ -116,6 +116,8 @@ import org.json.JSONObject
 
 internal object ChatLook {
     val bar: Color @Composable get() = topBarColor()
+    /** The brand green for accents inside chats (send/mic button, ticks, waveforms, links). Stays green even when the bar is white. */
+    val accent: Color @Composable get() = MaterialTheme.colorScheme.primary
     val unread = Color(0xFF25A45A)
     val tick = Color(0xFF53BDEB)  // WhatsApp 2024 read-tick blue (DS P8)
     @Composable fun dark() = MaterialTheme.colorScheme.surface.luminance() < 0.5f
@@ -322,8 +324,8 @@ internal fun ChActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                 Text(m.preview.ifBlank { "Message" }, Modifier.padding(horizontal = 18.dp, vertical = 6.dp), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis,
                     style = TextStyle(textDirection = TextDirection.Content))
                 if (signedIn && !m.failed) Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    CHAT_QUICK_REACTS.forEachIndexed { i, e ->
-                        Box(Modifier.size(44.dp).clip(CircleShape).background(if (myReact == e) ChatLook.bar.copy(alpha = .2f) else Color.Transparent).then(if (i == 0) Modifier.firstFocus(always = true) else Modifier)
+                    (ClLocal.reactVersion.let { ClLocal.quickReacts(ctx()) }).forEachIndexed { i, e ->
+                        Box(Modifier.size(44.dp).clip(CircleShape).background(if (myReact == e) ChatLook.accent.copy(alpha = .2f) else Color.Transparent).then(if (i == 0) Modifier.firstFocus(always = true) else Modifier)
                             .tap(CircleShape) { onAct("react:$e") }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) }
                     }
                 }
@@ -365,9 +367,9 @@ internal fun ChEmojiPanel(onSticker: ((String) -> Unit)? = null, onEmoji: (Strin
     Column(Modifier.fillMaxWidth().height(230.dp).background(MaterialTheme.colorScheme.surface)) {
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
             CHAT_EMOJI_SETS.forEachIndexed { i, (icon, _) ->
-                Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { cat = i }.background(if (i == cat) ChatLook.bar.copy(alpha = .15f) else Color.Transparent), contentAlignment = Alignment.Center) { Text(icon, fontSize = 20.sp) }
+                Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { cat = i }.background(if (i == cat) ChatLook.accent.copy(alpha = .15f) else Color.Transparent), contentAlignment = Alignment.Center) { Text(icon, fontSize = 20.sp) }
             }
-            if (onSticker != null) Box(Modifier.height(44.dp).tap(RoundedCornerShape(8.dp)) { cat = stickerTab }.background(if (cat == stickerTab) ChatLook.bar.copy(alpha = .15f) else Color.Transparent).padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
+            if (onSticker != null) Box(Modifier.height(44.dp).tap(RoundedCornerShape(8.dp)) { cat = stickerTab }.background(if (cat == stickerTab) ChatLook.accent.copy(alpha = .15f) else Color.Transparent).padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
                 Text("Stickers", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             }
         }

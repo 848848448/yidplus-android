@@ -51,6 +51,9 @@ object Api {
     fun session(): String? = jar.value("yp_session")
     fun setSession(token: String) = jar.put("yp_session", token)
     fun clearSession() = jar.clear()
+    // Multi-account: stash/restore the whole cookie set for account switching.
+    fun cookieSnapshot(): Map<String, String> = jar.snapshot()
+    fun restoreCookies(snap: Map<String, String>) = jar.restore(snap)
 
     fun abs(u: String?): String? {
         if (u.isNullOrBlank()) return null
@@ -286,6 +289,18 @@ class PrefsCookieJar(ctx: Context) : CookieJar {
         mem[name] = c; prefs.edit().putString(name, c.toString()).apply()
     }
     @Synchronized fun clear() { mem.clear(); prefs.edit().clear().apply() }
+
+    /** Multi-account: the whole cookie set as plain strings, to stash under one account and restore for another. */
+    @Synchronized fun snapshot(): Map<String, String> = prefs.all.mapNotNull { (k, v) -> (v as? String)?.let { k to it } }.toMap()
+    @Synchronized fun restore(snap: Map<String, String>) {
+        mem.clear()
+        val e = prefs.edit().clear()
+        for ((k, v) in snap) {
+            val c = Cookie.parse(base, v) ?: continue
+            if (c.expiresAt > System.currentTimeMillis()) { mem[k] = c; e.putString(k, v) }
+        }
+        e.apply()
+    }
 }
 
 /** Small JSON disk cache: every screen opens from here instantly, then refreshes from the network. */

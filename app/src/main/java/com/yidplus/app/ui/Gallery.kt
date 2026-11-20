@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -130,6 +131,11 @@ fun GalleryScreen(items: List<GItem>, start: Int) {
         Box(Modifier.align(Alignment.TopEnd).padding(6.dp)) { IconBtn(Sym.Share, "Share", { share(c, items[pager.currentPage].url) }, tint = Color.White) }
         if (items.size > 1) Text("${pager.currentPage + 1} / ${items.size}", color = Color.White, style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 14.dp).background(Color.Black.copy(alpha = .45f), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 3.dp))
+        // WhatsApp shows the photo's caption on a dark strip along the bottom.
+        val cap = items.getOrNull(pager.currentPage)?.title.orEmpty()
+        if (cap.isNotBlank() && dragY == 0f) Text(cap, color = Color.White,
+            style = MaterialTheme.typography.bodyMedium.copy(textDirection = androidx.compose.ui.text.style.TextDirection.Content),
+            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Color.Black.copy(alpha = .5f)).padding(horizontal = 16.dp, vertical = 12.dp))
     }
 }
 

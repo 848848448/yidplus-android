@@ -8,17 +8,26 @@ import androidx.compose.runtime.setValue
 object Prefs {
     private lateinit var ctx: Context
     private val p get() = ctx.getSharedPreferences("app", Context.MODE_PRIVATE)
-    /** 0 = follow the phone, 1 = light, 2 = dark */
+    /** 0 = follow the phone, 1 = light, 2 = dark, 3 = scheduled (dark between darkFrom and darkTo) */
     var theme by mutableStateOf(0)
+    /** For theme == 3: dark mode turns on at this hour (0-23) and off at darkTo. Default 19:00 → 07:00. */
+    var darkFrom by mutableStateOf(19)
+    var darkTo by mutableStateOf(7)
     var muted by mutableStateOf(false)
     var notify by mutableStateOf(true)
     var keypadHintSeen by mutableStateOf(false)
+    /** Shorts plays on to the next video by itself when one ends (like the website). On by default. */
+    var autoAdvance by mutableStateOf(true)
 
     fun init(c: Context) {
         ctx = c.applicationContext
         theme = p.getInt("theme", 0); muted = p.getBoolean("muted", false); notify = p.getBoolean("notify", true)
         keypadHintSeen = p.getBoolean("keypadHint", false)
+        autoAdvance = p.getBoolean("autoAdvance", true)
+        darkFrom = p.getInt("darkFrom", 19); darkTo = p.getInt("darkTo", 7)
     }
+    fun setDarkSchedule(from: Int, to: Int) { darkFrom = from.coerceIn(0, 23); darkTo = to.coerceIn(0, 23); p.edit().putInt("darkFrom", darkFrom).putInt("darkTo", darkTo).apply() }
+    fun enableAutoAdvance(v: Boolean) { autoAdvance = v; p.edit().putBoolean("autoAdvance", v).apply() }
     fun setThemeMode(v: Int) { theme = v; p.edit().putInt("theme", v).apply() }
     fun setMute(v: Boolean) { muted = v; p.edit().putBoolean("muted", v).apply() }
     fun enableNotify(v: Boolean) { notify = v; p.edit().putBoolean("notify", v).apply() }

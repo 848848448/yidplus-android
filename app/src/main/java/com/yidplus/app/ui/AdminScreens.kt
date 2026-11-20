@@ -46,7 +46,10 @@ private val webSections = listOf(
     Triple("support-chats", "Support chats", Sym.SupportAgent), Triple("feedback", "Feedback", Sym.Feedback),
     Triple("ads", "Ads", Sym.Sell), Triple("invite-codes", "Invite codes", Sym.ConfirmationNumber),
     Triple("badges", "Badges", Sym.MilitaryTech), Triple("maintenance", "Maintenance", Sym.Build),
-    Triple("audit-logs", "Audit logs", Sym.History),
+    Triple("audit-logs", "Audit logs", Sym.History), Triple("sessions", "Sessions", Sym.Devices),
+    Triple("banned-devices", "Banned devices", Sym.Block), Triple("ad-exempt", "Ad-Free", Sym.Sell),
+    Triple("diagnostics", "Health check", Sym.Insights), Triple("security", "Attacks", Sym.Shield),
+    Triple("ip-logs", "IP logs", Sym.Public),
 )
 
 class AdminPage : PageScreen() {
@@ -63,6 +66,12 @@ class AdminPage : PageScreen() {
         // null = still reading, false = the site didn't answer: the switches then stay locked, so nothing is saved from a wrong picture.
         var flagsOk by remember { mutableStateOf<Boolean?>(null) }
         var flagsTry by remember { mutableIntStateOf(0) }
+        // The outside-videos switch (admin.js src switch): GET /api/src-shorts?switch=1 → {enabled}; POST {enabled} to change. null = still reading.
+        var srcOn by remember { mutableStateOf<Boolean?>(null) }
+        LaunchedEffect(Unit) {
+            if (SettingsProfile.demo) { srcOn = true; return@LaunchedEffect }
+            runCatching { Api.get("/api/src-shorts?switch=1").optBoolean("enabled") }.onSuccess { srcOn = it }
+        }
         LaunchedEffect(Unit) {
             if (SettingsProfile.demo) {
                 statsRes.data = JSONObject().put("stats", JSONObject().put("users", 1834).put("new_today", 12).put("online", 47).put("shorts", 3120).put("messages", 98210).put("channels", 64).put("open_reports", 2))
@@ -146,14 +155,46 @@ class AdminPage : PageScreen() {
                         Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { allowFor = key }.padding(start = 64.dp, end = 16.dp, bottom = 10.dp),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                 }
+                if (owner) {
+                    RowDivider(64.dp)
+                    val so = srcOn
+                    SettingRow(Sym.Movie, "Outside videos", when (so) { null -> "Checking…"; true -> "Shown in Shorts (For You / Following)"; else -> "Off · only members' uploads show" }, switch = so == true) {
+                        if (so == null) { toast(c, "Still reading the current setting…"); return@SettingRow }
+                        val v = !so; srcOn = v
+                        scope.launch {
+                            runCatching { if (!SettingsProfile.demo) Api.post("/api/src-shorts", JSONObject().put("enabled", v)) }
+                                .onSuccess { toast(c, if (v) "✅ Outside videos on" else "🚫 Outside videos off") }
+                                .onFailure { srcOn = so; toast(c, Api.friendly(it)) }
+                        }
+                    }
+                }
             }
             if (flagsOk == false) SettingsHint("⚠ yidplus.com didn't send the current switches, so they're locked to avoid saving the wrong value. Tap a switch to try again.")
             SettingsHint("Off = the tab disappears from the bottom bar for everyone, on the site and in the app.")
             // ── Rare sections stay on the website's admin page ──
-            if (owner) SettingsCard("More on the website") {
+            if (owner) SettingsCard("More tools") {
                 webSections.forEachIndexed { i, (id, label, icon) ->
                     if (i > 0) RowDivider(64.dp)
-                    SettingRow(icon, label, null) { Nav.open(AdminWebPage(id)) }
+                    SettingRow(icon, label, null) {
+                        Nav.open(when (id) {
+                            "maintenance" -> AdminMaintenancePage()
+                            "announcements" -> AdminAnnouncementsPage()
+                            "invite-codes" -> AdminInviteCodesPage()
+                            "audit-logs" -> AdminAuditLogsPage()
+                            "analytics" -> AdminAnalyticsPage()
+                            "feedback" -> AdminFeedbackPage()
+                            "support-chats" -> AdminSupportPage()
+                            "ads" -> AdminAdsPage()
+                            "badges" -> AdminBadgesPage()
+                            "sessions" -> AdminSessionsPage()
+                            "banned-devices" -> AdminBannedDevicesPage()
+                            "ad-exempt" -> AdminAdFreePage()
+                            "diagnostics" -> AdminHealthPage()
+                            "security" -> AdminSecurityPage()
+                            "ip-logs" -> AdminIpLogsPage()
+                            else -> AdminWebPage(id)
+                        })
+                    }
                 }
                 RowDivider(64.dp)
                 SettingRow(Sym.OpenInNew, "Open the full admin panel", "Every section of the website's admin page") { Nav.open(AdminWebPage(null)) }
@@ -180,7 +221,7 @@ class AdminPage : PageScreen() {
 }
 
 @Composable
-private fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = false, live: Boolean = false) {
+internal fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = false, live: Boolean = false) {
     Column(modifier.clip(RoundedCornerShape(12.dp)).background(if (alert) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer).padding(vertical = 10.dp, horizontal = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(adminN(n), style = MaterialTheme.typography.titleLarge,
@@ -191,7 +232,7 @@ private fun Tile(n: Int, label: String, modifier: Modifier, alert: Boolean = fal
 
 /** New members per day (insights.growth: {day:'YYYY-MM-DD', count}), as small bars like the site's. */
 @Composable
-private fun GrowthBars(g: List<JSONObject>) {
+internal fun GrowthBars(g: List<JSONObject>) {
     val max = (g.maxOfOrNull { it.optInt("count") } ?: 1).coerceAtLeast(1)
     Column {
         Text("New members per day", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))

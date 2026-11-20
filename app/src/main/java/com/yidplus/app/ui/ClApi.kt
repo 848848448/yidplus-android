@@ -124,6 +124,44 @@ object ClLocal {
     fun setFont(c: Context, f: String) { p(c).edit().putString("font", f).apply(); fontVersion++ }
     var fontVersion by androidx.compose.runtime.mutableIntStateOf(0)
     fun fontScale(c: Context): Float = when (font(c)) { "sm" -> 0.88f; "lg" -> 1.12f; else -> 1f }
+    // Enter key sends the message (on) vs inserts a new line (off), like WhatsApp.
+    fun enterSends(c: Context): Boolean = p(c).getBoolean("enterSends", true)
+    fun setEnterSends(c: Context, on: Boolean) { p(c).edit().putBoolean("enterSends", on).apply(); enterVersion++ }
+    var enterVersion by androidx.compose.runtime.mutableIntStateOf(0)
+
+    // Archived chats (WhatsApp): hidden from the main list into an "Archived" section. On this phone only.
+    fun archived(c: Context): Set<String> = (p(c).getString("arch:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
+    fun isArchived(c: Context, id: String) = id in archived(c)
+    fun toggleArchive(c: Context, id: String): Boolean {
+        val l = archived(c).toMutableSet(); val on = l.add(id); if (!on) l.remove(id)
+        p(c).edit().putString("arch:" + me(), l.joinToString(",")).apply(); chListVersion++; return on
+    }
+    // Mark as unread (WhatsApp): a manual unread dot even with 0 server-unread; cleared when the chat is opened.
+    fun markedUnread(c: Context): Set<String> = (p(c).getString("munr:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
+    fun isMarkedUnread(c: Context, id: String) = id in markedUnread(c)
+    fun setMarkedUnread(c: Context, id: String, on: Boolean) {
+        val l = markedUnread(c).toMutableSet(); if (on) l.add(id) else l.remove(id)
+        p(c).edit().putString("munr:" + me(), l.joinToString(",")).apply(); chListVersion++
+    }
+    // Default (quick) reactions set (WhatsApp Chats → Default reactions): 6 emojis this phone uses on the long-press bar.
+    var reactVersion by androidx.compose.runtime.mutableIntStateOf(0)
+    fun quickReacts(c: Context): List<String> {
+        val s = p(c).getString("qreacts:" + me(), "") ?: ""
+        val l = s.split('\u0001').filter { it.isNotBlank() }
+        return if (l.size == 6) l else CHAT_QUICK_REACTS
+    }
+    fun setQuickReacts(c: Context, list: List<String>) {
+        if (list.size != 6) return
+        p(c).edit().putString("qreacts:" + me(), list.joinToString("\u0001")).apply(); reactVersion++
+    }
+    // Favorites (WhatsApp "Favourites"): a per-account set this phone keeps; shown under a Favorites filter chip.
+    fun favorites(c: Context): Set<String> = (p(c).getString("fav:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
+    fun isFavorite(c: Context, id: String) = id in favorites(c)
+    fun toggleFavorite(c: Context, id: String): Boolean {
+        val l = favorites(c).toMutableSet(); val on = l.add(id); if (!on) l.remove(id)
+        p(c).edit().putString("fav:" + me(), l.joinToString(",")).apply(); chListVersion++; return on
+    }
+    var chListVersion by androidx.compose.runtime.mutableIntStateOf(0)
 }
 
 /** chat.js _autoDeleteLabel */

@@ -86,6 +86,7 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("io.coil-kt:coil-gif:2.7.0")
 
     implementation("androidx.media3:media3-exoplayer:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")
@@ -93,6 +94,20 @@ dependencies {
     implementation("androidx.media3:media3-datasource-okhttp:1.4.1")
     implementation("androidx.media3:media3-database:1.4.1")
     implementation("com.google.guava:guava:33.3.1-android")
+
+    // CameraX for the WhatsApp-style video-note recorder (circular selfie preview, record to file).
+    implementation("androidx.camera:camera-core:1.3.4")
+    implementation("androidx.camera:camera-camera2:1.3.4")
+    implementation("androidx.camera:camera-lifecycle:1.3.4")
+    implementation("androidx.camera:camera-video:1.3.4")
+    implementation("androidx.camera:camera-view:1.3.4")
+
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-messaging")
+
+    // Native WebRTC for voice/video calls (repackaged libwebrtc, package org.webrtc).
+    implementation("io.getstream:stream-webrtc-android:1.3.9")
+
+    // QR codes (generate "My code" + decode a scanned camera frame). Pure-Java, no Android deps.
+    implementation("com.google.zxing:core:3.5.3")
 }

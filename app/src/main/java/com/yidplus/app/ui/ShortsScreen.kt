@@ -380,6 +380,8 @@ fun ShortsScreen() {
         onDispose { lifecycle.removeObserver(obs); player.release() }
     }
     LaunchedEffect(Prefs.muted) { player.volume = if (Prefs.muted) 0f else 1f }
+    // Auto-advance on: a finished video glides to the next one (REPEAT_OFF lets STATE_ENDED fire). Off: the video loops.
+    LaunchedEffect(Prefs.autoAdvance) { player.repeatMode = if (Prefs.autoAdvance) Player.REPEAT_MODE_OFF else Player.REPEAT_MODE_ONE }
     // Speed report: time from a swipe / key settling on a video to its first picture on screen.
     val swipeAt = remember { longArrayOf(0L) }
     // Buffering state drives the loading spinner: a settled page must never sit black and silent with no sign of life.
@@ -400,11 +402,25 @@ fun ShortsScreen() {
 
     val pager = rememberPagerState(pageCount = { items.size })
     var commentsFor by remember { mutableStateOf<Clip?>(null) }
+    var likersFor by remember { mutableStateOf<Clip?>(null) }
     val focus = remember { FocusRequester() }
     var showHint by remember { mutableStateOf(Keys.keypad && !Prefs.keypadHintSeen) }
 
     // Play the video on screen; warm up the next two.
     val itemsNow = rememberUpdatedState(items)
+    // When a video finishes (only fires while auto-advance is on), glide to the next; the last one replays.
+    DisposableEffect(player, pager) {
+        val l = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    val cur = pager.currentPage
+                    if (cur < itemsNow.value.size - 1) scope.launch { pager.animateScrollToPage(cur + 1) }
+                    else scope.launch { player.seekTo(0); player.play() }
+                }
+            }
+        }
+        player.addListener(l); onDispose { player.removeListener(l) }
+    }
     // A new tab/filter/creator entry starts on its first video.
     // The pager keys pages by clip key, so when a list grows ahead of the shown clip (Following fills per creator) the pager follows that clip.
     // Until the first key or touch after entry, a page other than the first is put back on the first video. Entry by startKey is not touched.
@@ -545,7 +561,7 @@ fun ShortsScreen() {
                         stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow))) { page ->
                 val s = items[page]
                 ShortPage(s, current = page == pager.settledPage, player = player, paused = paused, buffering = buffering,
-                    onTap = { togglePause() }, onLike = { like(s) }, onComments = { commentsFor = s }, onSave = { toggleSave(s) },
+                    onTap = { togglePause() }, onLike = { like(s) }, onComments = { commentsFor = s }, onSave = { toggleSave(s) }, onLikers = { likersFor = s },
                     speed = speed, onSpeed = { speed = it; player.setPlaybackParameters(PlaybackParameters(it)) },
                     onHide = { Feeds.hidden.add(s.creatorId); Feeds.persist(c); Feeds.forYou.items.removeAll { it.creatorId == s.creatorId }; toast(c, "You won't see ${s.creator} again") },
                     onCreator = { Nav.open(SoCreatorPage(s.creatorId, s.creator, s.avatar, s.verified, s.fromSrc)) },
@@ -568,13 +584,14 @@ fun ShortsScreen() {
     }
     commentsFor?.let { s -> SoShortCommentsSheet(s, onDismiss = { commentsFor = null; scope.launch { delay(100); runCatching { focus.requestFocus() } } },
         onCount = { n -> val u = s.copy(comments = n); if (s.fromSrc) Feeds.forYou.update(u) else Feeds.uploads.update(u) }) }
+    likersFor?.let { s -> SoLikersSheet(s, onDismiss = { likersFor = null; scope.launch { delay(100); runCatching { focus.requestFocus() } } }) }
 }
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplayer.ExoPlayer, paused: Boolean, buffering: Boolean = false, onTap: () -> Unit, onLike: () -> Unit,
                       onComments: () -> Unit, onSave: () -> Unit, speed: Float, onSpeed: (Float) -> Unit, onHide: () -> Unit,
-                      onCreator: () -> Unit = {}, onNotInterested: () -> Unit = {}, onDelete: (() -> Unit)? = null) {
+                      onCreator: () -> Unit = {}, onNotInterested: () -> Unit = {}, onDelete: (() -> Unit)? = null, onLikers: () -> Unit = {}) {
     val c = ctx()
     BoxWithConstraints(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
         // Letterbox on wide screens (tablets, landscape): the video keeps its upright 9:16 frame.
@@ -619,12 +636,14 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                         }
                         for (sp in listOf(0.5f, 1f, 1.5f, 2f)) DropdownMenuItem(text = { Text((if (sp == speed) "✓ " else "   ") + "Speed ${sp}×") }, onClick = { onSpeed(sp); menu = false })
                         DropdownMenuItem(text = { Text("@${s.creator.ifBlank { "yidplus" }}'s videos" + keyHint(8)) }, onClick = { menu = false; onCreator() })
+                        if (s.fromSrc && s.likes > 0) DropdownMenuItem(text = { Text("Who liked this") }, onClick = { menu = false; onLikers() })
                         if (s.fromSrc) DropdownMenuItem(text = { Text("Not interested in this video") }, onClick = { menu = false; onNotInterested() })
                         if (s.fromSrc) DropdownMenuItem(text = { Text("Hide ${s.creator}") }, onClick = { onHide(); menu = false })
                         if (onDelete != null) DropdownMenuItem(text = { Text("Delete my video", color = MaterialTheme.colorScheme.error) }, onClick = { menu = false; askDelete = true })
                         DropdownMenuItem(text = { Text("Copy link") }, onClick = {
                             (c.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("YID PLUS", s.shareUrl))
                             toast(c, "Link copied"); menu = false })
+                        DropdownMenuItem(text = { Text("Share") }, onClick = { menu = false; share(c, listOf(s.caption.take(120), s.shareUrl).filter { it.isNotBlank() }.joinToString("\n")) })
                     }
                 }
             }

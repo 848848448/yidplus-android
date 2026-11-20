@@ -135,12 +135,16 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var actionFor by remember { mutableStateOf<ChatMsg?>(null) }
     var emojiOpen by remember { mutableStateOf(false) }
     var attachOpen by remember { mutableStateOf(false) }
+    var gifOpen by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
     var searchOn by remember { mutableStateOf(false) }
     var sq by remember { mutableStateOf("") }
     var hit by remember { mutableStateOf(0) }
     var confirm by remember { mutableStateOf<Pair<String, suspend () -> Unit>?>(null) }
     var reportFor by remember { mutableStateOf<ChatMsg?>(null) }
+    var infoFor by remember { mutableStateOf<ChatMsg?>(null) }
+    var reactPickFor by remember { mutableStateOf<ChatMsg?>(null) }
+    var wallpaperOpen by remember { mutableStateOf(false) }
     var info by remember(room.id) { mutableStateOf(ChatApi.info(room.id)) }
     val roomsRes = ChatApi.rooms
     LaunchedEffect(roomsRes.data) { ChatApi.info(room.id)?.let { info = it } }
@@ -272,30 +276,46 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             finally { sending = false; file?.takeIf { it.name.startsWith("cam_") || it.name.startsWith("voice_") }?.delete() }
         }
     }
-    fun sendPhoto(uri: Uri?, bmp: Bitmap?, caption: String = "") {
+    fun sendPhoto(uri: Uri?, bmp: Bitmap?, caption: String = "", hd: Boolean = false) {
         scope.launch {
-            val f = runCatching { withContext(Dispatchers.IO) { java.io.File(c.cacheDir, "cam_" + System.nanoTime() + ".jpg").also { it.writeBytes(chShrink(c, uri, bmp)) } } }.getOrElse { toast(c, "Can't read the photo"); return@launch }
+            val f = runCatching { withContext(Dispatchers.IO) { java.io.File(c.cacheDir, "cam_" + System.nanoTime() + ".jpg").also { it.writeBytes(chShrink(c, uri, bmp, if (hd) 2560 else 1280)) } } }.getOrElse { toast(c, "Can't read the photo"); return@launch }
             sendFile(null, f, "media", "photo.jpg", "image/jpeg", caption, localPreview = Uri.fromFile(f).toString())
         }
     }
     /** Photos and videos picked or shot go to the preview first (caption, remove one), like WhatsApp; then each is sent the site's way. */
-    fun sendPicked(list: List<Uri>, caption: String) {
+    fun sendPicked(list: List<Uri>, caption: String, hd: Boolean = false) {
         list.forEachIndexed { i, u ->
             val mime = c.contentResolver.getType(u) ?: (if (u.toString().endsWith(".mp4")) "video/mp4" else "image/jpeg")
             val cap = if (i == 0) caption else ""
             if (mime.startsWith("video/")) { val n = ChatApi.nameOf(c, u).let { if (it.contains('.')) it else "$it.mp4" }; sendFile(u, null, "media", n, mime, cap, localPreview = u.toString()) }
-            else sendPhoto(u, null, cap)
+            else sendPhoto(u, null, cap, hd)
+        }
+    }
+    // A GIF picked from the GIF picker: download it once and send it as media (.gif renders animated, like WhatsApp).
+    fun sendGif(gifUrl: String) {
+        scope.launch {
+            val f = runCatching { withContext(Dispatchers.IO) {
+                val resp = Api.http.newCall(okhttp3.Request.Builder().url(gifUrl).build()).execute()
+                resp.use { val bytes = it.body?.bytes() ?: throw java.io.IOException("empty"); java.io.File(c.cacheDir, "gif_" + System.nanoTime() + ".gif").also { ff -> ff.writeBytes(bytes) } }
+            } }.getOrElse { toast(c, "Couldn't load that GIF"); return@launch }
+            sendFile(null, f, "media", "gif.gif", "image/gif", "", localPreview = Uri.fromFile(f).toString())
         }
     }
     val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { l: List<Uri> -> if (l.isNotEmpty()) pendingMedia = l.take(30) }
     // Full-size camera photo (the old preview-size picture was ~200 px): the camera writes into our FileProvider's captures/.
     var shotUri by remember { mutableStateOf<Uri?>(null) }
+    var noteCamOpen by remember { mutableStateOf(false) }
     fun newCapture(ext: String): Uri? = runCatching {
         val dir = java.io.File(c.cacheDir, "captures").apply { mkdirs() }
         androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", java.io.File(dir, "cam_" + System.currentTimeMillis() + ext))
     }.getOrNull()
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok: Boolean -> val u = shotUri; if (ok && u != null) pendingMedia = listOf(u) }
     val videoCam = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo()) { ok: Boolean -> val u = shotUri; if (ok && u != null) pendingMedia = listOf(u) }
+    // WhatsApp's round video message: record a short clip and send it as a 'videonote' (rendered in a circle).
+    val videoNoteCam = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo()) { ok: Boolean ->
+        val u = shotUri; if (ok && u != null) sendFile(u, null, "videonote", "videonote.mp4", "video/mp4", "", localPreview = u.toString())
+    }
+    fun shootNote() { noteCamOpen = true }
     fun shoot(video: Boolean) {
         val u = newCapture(if (video) ".mp4" else ".jpg") ?: run { toast(c, "Can't open the camera"); return }
         shotUri = u
@@ -325,6 +345,22 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             }
         }.getOrNull()
         if (card != null) { text = card; sendText() } else toast(c, "Couldn't read that contact")
+    }
+    // Share my location as a tappable Google-Maps link (no API key needed; the chat linkifies it).
+    fun doShareLocation() {
+        val lm = c.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+        val loc = runCatching {
+            lm?.let { m -> listOf(android.location.LocationManager.GPS_PROVIDER, android.location.LocationManager.NETWORK_PROVIDER)
+                .mapNotNull { p -> runCatching { m.getLastKnownLocation(p) }.getOrNull() }.maxByOrNull { it.time } }
+        }.getOrNull()
+        if (loc == null) { toast(c, "Couldn't get your location. Turn location on and try again."); return }
+        text = "📍 Location: https://maps.google.com/?q=${loc.latitude},${loc.longitude}"; sendText()
+    }
+    val locPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) doShareLocation() else toast(c, "Allow location to share where you are") }
+    fun shareLocation() {
+        if (ContextCompat.checkSelfPermission(c, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(c, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) doShareLocation()
+        else locPerm.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
     // Voice notes (helper CS 2.1): hold to record, release to send, slide left to cancel, slide up to lock;
     // tap (or OK on the keypad) = hands-free right away with Pause, Stop-to-listen, Delete and Send.
@@ -361,8 +397,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     val subtitle = when {
         spectating -> "👁 Viewing as Admin"
         typing.isNotEmpty() -> if (room.type == "private") "typing…" else typing.take(2).joinToString(", ") + if (typing.size == 1) " is typing…" else " are typing…"
-        // The site: "online" when the other person is online, else "last seen recently" (it sends no exact last-seen time).
-        room.type == "private" -> if (info?.online == true) "online" else "last seen recently"
+        // "online" when the other person is online, else the exact "last seen today at 2:40 PM" the site now sends.
+        room.type == "private" -> if (info?.online == true) "online" else lastSeenText(info?.lastSeen)
         room.type == "channel" -> if (room.members > 0) "${room.members} subscribers" else "Channel"
         else -> (info?.members?.size?.takeIf { it > 0 } ?: room.members).let { n -> if (n > 0) "$n members" + (info?.onlineCount?.takeIf { it > 0 }?.let { ", $it online" } ?: "") else "Group" }
     }
@@ -418,8 +454,8 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         }
     }
 
-    BackHandler(enabled = selecting || searchOn || emojiOpen || attachOpen || recording || editing != null || replyTo != null) {
-        when { selecting -> { selecting = false; selected.clear() }; recording -> stopRec(false); attachOpen -> attachOpen = false; emojiOpen -> emojiOpen = false; searchOn -> { searchOn = false; sq = "" }
+    BackHandler(enabled = selecting || searchOn || emojiOpen || attachOpen || gifOpen || recording || editing != null || replyTo != null) {
+        when { selecting -> { selecting = false; selected.clear() }; recording -> stopRec(false); gifOpen -> gifOpen = false; attachOpen -> attachOpen = false; emojiOpen -> emojiOpen = false; searchOn -> { searchOn = false; sq = "" }
             else -> { if (editing != null) text = ""; editing = null; replyTo = null } }
     }
     val csHeader: @Composable ColumnScope.() -> Unit = {
@@ -437,9 +473,9 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 onStar = if (me != null && one != null) ({ scope.launch { runCatching { ChatApi.save(one.id, room.id) }.onSuccess { toast(c, "⭐ Saved") }.onFailure { toast(c, Api.friendly(it)) } }; selecting = false; selected.clear() }) else null,
                 onMore = if (one != null) ({ actionFor = one; selecting = false; selected.clear() }) else null)
             if (one != null && me != null && !one.deleted) CsReactStrip(reacts[one.id]?.mine, onReact = { e -> reactTo(one, e); selecting = false; selected.clear() },
-                onMore = { actionFor = one; selecting = false; selected.clear() })
+                onMore = { reactPickFor = one; selecting = false; selected.clear() })
         } else if (searchOn) {
-            Surface(color = ChatLook.bar, contentColor = Color.White) {
+            Surface(color = ChatLook.accent, contentColor = Color.White) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f)) { ChSearchField(sq, { sq = it; hit = 0 }, "Search in this chat", { searchOn = false; sq = "" }) }
                     if (matches.isNotEmpty()) Text("${hit + 1}/${matches.size}", color = Color.White, fontSize = 13.sp)
@@ -456,6 +492,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 DropdownMenu(menu, { menu = false }) {
                     ChMenuItem(Sym.Info, if (room.type == "private") "Contact info" else if (isGroup) "Group info" else "Channel info") { menu = false; Nav.open(ChInfo(room)) }
                     ChMenuItem(Sym.Search, "Search") { menu = false; searchOn = true }
+                    ChMenuItem(if (ClLocal.isFavorite(c, room.id)) Sym.StarFill else Sym.StarBorder, if (ClLocal.isFavorite(c, room.id)) "Remove from favorites" else "Add to favorites") { menu = false; val on = ClLocal.toggleFavorite(c, room.id); toast(c, if (on) "⭐ Added to favorites" else "Removed from favorites") }
                     if (me != null && (room.type == "private" || isGroup)) ChMenuItem(Sym.Videocam, "Video call") { menu = false; Nav.open(ChCall(room, "video")) }
                     if (me != null && info != null) ChMenuItem(if (info?.muted == true) Sym.Notifications else Sym.NotificationsOff, if (info?.muted == true) "Unmute notifications" else "Mute notifications") {
                         menu = false; val m0 = info!!.muted
@@ -472,6 +509,33 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (msgs.isNotEmpty()) ChMenuItem(Sym.CheckCircle, "Select messages") { menu = false; selecting = true; selected.clear() }
                     if (info?.canManage == true && room.type != "private") ChMenuItem(Sym.Settings, if (isGroup) "Edit group" else "Edit channel") { menu = false; Nav.open(ChEditGroup(room)) }
                     if (me != null) ChMenuItem(Sym.Bookmark, "Saved messages") { menu = false; Nav.open(ChSaved()) }
+                    if (msgs.isNotEmpty()) ChMenuItem(Sym.Share, "Export chat") {
+                        menu = false
+                        val sb = StringBuilder(room.name).append("\n\n")
+                        var lastDay = ""
+                        msgs.sortedBy { it.createdAt ?: "" }.forEach { m ->
+                            val day = chatDay(m.createdAt)
+                            if (day != lastDay) { sb.append("— ").append(day).append(" —\n"); lastDay = day }
+                            sb.append("[").append(chatTime(m.createdAt)).append("] ").append(m.nick).append(": ").append(m.preview).append("\n")
+                        }
+                        share(c, sb.toString())
+                    }
+                    if (me != null) ChMenuItem(Sym.Home, "Add to home screen") {
+                        menu = false
+                        if (com.yidplus.app.ChatNotify.pinChat(c, room)) toast(c, "Added — check your home screen") else toast(c, "Your launcher doesn't support this")
+                    }
+                    ChMenuItem(Sym.Wallpaper, "Wallpaper") { menu = false; wallpaperOpen = true }
+                    if (me != null) { val lockVer2 = ChatLock.version; val locked = lockVer2 >= 0 && ChatLock.isLocked(room.id)
+                        ChMenuItem(Sym.Lock, if (locked) "Unlock chat" else "Lock chat") {
+                            menu = false
+                            if (locked) { ChatLock.unlock(room.id); toast(c, "Chat unlocked") }
+                            else {
+                                val km = c.getSystemService(android.app.KeyguardManager::class.java)
+                                if (km == null || !km.isDeviceSecure) toast(c, "Set a screen lock (PIN/fingerprint) on your phone first")
+                                else { ChatLock.lock(room.id); ChatLock.markUnlocked(room.id); toast(c, "🔒 Chat locked") }
+                            }
+                        }
+                    }
                     if (me != null && joinedOk && info != null) ChMenuItem(Sym.ExitToApp, if (room.type == "private") "Delete chat" else if (isGroup) "Leave group" else "Leave channel", Color(0xFFD32F2F)) {
                         menu = false
                         confirm = (if (room.type == "private") "Delete this chat from your list?" else "Leave \"${room.name}\"?") to suspend { ChatApi.leave(room.id); roomsRes.load(true); Nav.back(); Unit }
@@ -526,10 +590,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                             .tap(CircleShape) { scope.launch { state.animateScrollToItem(0) } }, contentAlignment = Alignment.Center) {
                             Icon(Sym.KeyboardArrowDown, if (newBelow > 0) "Newest, $newBelow new" else "Newest", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if (newBelow > 0) Text(if (newBelow > 99) "99+" else "$newBelow", Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-6).dp).clip(CircleShape).background(ChatLook.bar)
+                        if (newBelow > 0) Text(if (newBelow > 99) "99+" else "$newBelow", Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-6).dp).clip(CircleShape).background(ChatLook.accent)
                             .padding(horizontal = 6.dp, vertical = 1.dp), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
-                    if (loadingOlder) LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter), color = ChatLook.bar)
+                    if (loadingOlder) LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter), color = ChatLook.accent)
                     // WhatsApp's floating date while scrolled back: the day of the top visible message.
                     val topDay by remember(rows) { derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index?.let { i -> (rows.getOrNull(i) as? ChItem.M)?.m?.createdAt?.let { chatDay(it) } } ?: "" } }
                     // Solid chip with a shadow (WhatsApp): it never shows the bubble text through it.
@@ -545,7 +609,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             canWrite -> {
                 val ctxBar = editing ?: replyTo
                 if (ctxBar != null) Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(start = 12.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(if (editing != null) Sym.Edit else Sym.Reply, null, tint = ChatLook.bar, modifier = Modifier.size(20.dp))
+                    Icon(if (editing != null) Sym.Edit else Sym.Reply, null, tint = ChatLook.accent, modifier = Modifier.size(20.dp))
                     Box(Modifier.padding(start = 8.dp).width(3.dp).height(34.dp).background(ChatLook.nameColor(ctxBar.senderId)))
                     Column(Modifier.weight(1f).padding(start = 8.dp)) {
                         Text(if (editing != null) "Edit message" else "Reply to " + ctxBar.nick, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.nameColor(ctxBar.senderId), maxLines = 1)
@@ -566,9 +630,12 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         textStyle = TextStyle(fontSize = if (compact) 17.sp else 16.sp, textDirection = TextDirection.Content, color = MaterialTheme.colorScheme.onSurface), shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { sendText() }))
+                        keyboardOptions = KeyboardOptions(imeAction = if (ClLocal.enterSends(c)) ImeAction.Send else ImeAction.Default), keyboardActions = KeyboardActions(onSend = { sendText() }))
                     if (editing == null) ChIcon(Sym.AttachFile, "Attach", { attachOpen = !attachOpen; emojiOpen = false }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = attachFocus, leftTo = inputFocus)
-                    if (editing == null && text.isBlank()) ChIcon(Sym.PhotoCamera, "Camera", { shoot(false) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (editing == null && text.isBlank()) Box(Modifier.size(44.dp).clip(CircleShape)
+                        .combinedClickable(onClick = { shoot(false) }, onLongClick = { shootNote() }), contentAlignment = Alignment.Center) {
+                        Icon(Sym.PhotoCamera, "Camera (hold for a video note)", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
+                    }
                     }
                     Spacer(Modifier.width(2.dp))
                     CsMicButton(canSend = text.isNotBlank(), editing = editing != null, busy = sending && vr.mode == 0, r = vr, onSend = { sendText() },
@@ -584,10 +651,14 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         "gallery" -> pickPhoto.launch("image/*"); "camera" -> shoot(false); "videocam" -> shoot(true)
                         "video" -> pickVideo.launch("video/*"); "audio" -> pickAudio.launch("audio/*"); "file" -> pickDoc.launch("*/*")
                         "contact" -> runCatching { pickContact.launch(Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)) }.onFailure { toast(c, "No contacts app") }
+                        "location" -> shareLocation()
+                        "gif" -> gifOpen = true
+                        "videonote" -> shootNote()
                         "poll" -> Nav.open(CsPollNew(room))
                         "options" -> optsOpen = true
                     }
-                })
+                }, onRecent = { u -> attachOpen = false; pendingMedia = pendingMedia + u })
+                if (gifOpen && !recording) GifPickerPanel(onPick = { url -> gifOpen = false; sendGif(url) }, onClose = { gifOpen = false })
             }
             spectating -> Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 Icon(Sym.Visibility, null, Modifier.size(18.dp), tint = Color(0xFFB8860B))
@@ -624,6 +695,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 "save" -> scope.launch { runCatching { ChatApi.save(m.id, room.id) }.onSuccess { toast(c, "⭐ Saved") }.onFailure { toast(c, Api.friendly(it)) } }
                 "share" -> share(c, listOf(m.caption, m.media ?: "").filter { it.isNotBlank() }.joinToString("\n").ifBlank { m.text })
                 "report" -> reportFor = m
+                "info" -> infoFor = m
                 "select" -> { selecting = true; selected.clear(); selected.add(m.id) }
                 "delete" -> confirm = "Delete this message for everyone?" to suspend { ChatApi.delete(m.id); msgs.removeAll { it.id == m.id }; Unit }
                 "retry" -> { msgs.remove(m); if (m.type == "text") { text = m.text; sendText() } else Unit }
@@ -637,6 +709,17 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             scope.launch { runCatching { ChatApi.reportMsg(m, reason, details) }.onSuccess { toast(c, "✅ Report submitted. Thank you.") }.onFailure { toast(c, Api.friendly(it)) } } },
             onClose = { reportFor = null })
     }
+    infoFor?.let { m ->
+        AlertDialog(onDismissRequest = { infoFor = null }, confirmButton = { TextButton({ infoFor = null }) { Text("Close") } },
+            title = { Text("Message info", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }, text = {
+            Column {
+                Text("Sent · " + chatTime(m.createdAt), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(Modifier.height(6.dp))
+                if (room.type == "private") Text(if (m.read) "✓✓ Read" else "✓ Delivered", fontSize = 15.sp, color = if (m.read) ChatLook.tick else MaterialTheme.colorScheme.onSurfaceVariant)
+                else if (isGroup) Text("👁 Seen by " + m.seen, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        })
+    }
     if (optsOpen) CsMsgOptions(disappear, onSchedule = {
         optsOpen = false
         val cal = java.util.Calendar.getInstance()
@@ -649,7 +732,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }, onDisappear = { disappear = it }, onClose = { optsOpen = false })
     if (pinsOpen) CsPinnedList(room.id, onJump = { id -> pinsOpen = false; jumpTo(id) }, onClose = { pinsOpen = false })
     personFor?.let { p -> CsPersonCard(p, onMention = { text = (text.trimEnd() + " @" + p.nick + " ").trimStart(); runCatching { inputFocus.requestFocus() } }, onClose = { personFor = null }) }
-    if (pendingMedia.isNotEmpty()) CsMediaPreview(pendingMedia, onRemove = { u -> pendingMedia = pendingMedia - u }, onSend = { cap -> val l = pendingMedia; pendingMedia = emptyList(); sendPicked(l, cap) },
+    if (pendingMedia.isNotEmpty()) CsMediaPreview(pendingMedia, onRemove = { u -> pendingMedia = pendingMedia - u }, onSend = { uris, cap, hd -> pendingMedia = emptyList(); sendPicked(uris, cap, hd) },
         onClose = { pendingMedia = emptyList() })
     confirm?.let { (q, act) ->
         AlertDialog(onDismissRequest = { confirm = null }, text = { Text(q, fontSize = 16.sp) },
@@ -659,14 +742,14 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     }
     // ChatScreen is split into lambdas: one huge composable method failed ART verification after R8 (CI 43156298868, VerifyError on API 30).
     HideStatusBarWhile((compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)))
-    Column(Modifier.fillMaxSize().imePadding().background(ChatLook.wall()).chatWallpaper()) {
+    Column(Modifier.fillMaxSize().imePadding().background(ChatLook.wall()).chatWallpaper(room.id)) {
         csHeader()
         if (pinned != null) {
             Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).tap(RoundedCornerShape(0.dp)) { scrollTo(pinned.id) }.padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
                 verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(3.dp).height(32.dp).background(ChatLook.bar))
+                Box(Modifier.width(3.dp).height(32.dp).background(ChatLook.accent))
                 Column(Modifier.weight(1f).padding(start = 10.dp)) {
-                    Text("Pinned message", fontSize = 13.sp, color = ChatLook.bar.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it }, fontWeight = FontWeight.SemiBold)
+                    Text("Pinned message", fontSize = 13.sp, color = ChatLook.accent.let { if (ChatLook.dark()) Color(0xFF7FD6BC) else it }, fontWeight = FontWeight.SemiBold)
                     Text(pinned.preview, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                 }
                 ChIcon(Sym.ViewList, "All pinned messages", { pinsOpen = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -685,6 +768,36 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         csComposer()
     }
     csDialogs()
+    reactPickFor?.let { m -> CsReactPicker(onPick = { e -> reactTo(m, e); reactPickFor = null }, onClose = { reactPickFor = null }) }
+    if (wallpaperOpen) CsWallpaperPicker(LookPrefs.roomWallpaper(room.id) ?: LookPrefs.wallpaper, onPick = { id -> LookPrefs.putRoomWallpaper(room.id, id); toast(c, "Wallpaper set"); wallpaperOpen = false }, onClose = { wallpaperOpen = false })
+    // WhatsApp-style round video-note recorder: circular selfie preview, hold to record.
+    if (noteCamOpen) VideoNoteRecorder(
+        onCancel = { noteCamOpen = false },
+        onRecorded = { f -> noteCamOpen = false; sendFile(null, f, "videonote", "videonote.mp4", "video/mp4", localPreview = Uri.fromFile(f).toString()) }
+    )
+    // Chat lock: cover the conversation until the phone's fingerprint/PIN confirms it (WhatsApp's Chat lock).
+    val lockVer = ChatLock.version
+    if (lockVer >= 0 && ChatLock.needsUnlock(room.id)) {
+        LaunchedEffect(room.id) { ChatLock.onUnlockRequest?.invoke(room.id) }
+        ChatLockedCover(room.name) { ChatLock.onUnlockRequest?.invoke(room.id) }
+    }
+}
+
+/** Full-screen cover over a locked chat until the device credential confirms it. */
+@Composable
+private fun ChatLockedCover(name: String, onUnlock: () -> Unit) {
+    Box(Modifier.fillMaxSize().background(ChatLook.wall()).tap(RoundedCornerShape(0.dp)) {}, contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
+            Icon(Sym.Lock, null, tint = ChatLook.accent, modifier = Modifier.size(52.dp))
+            Spacer(Modifier.height(14.dp))
+            Text(name, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("This chat is locked", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(20.dp))
+            Box(Modifier.clip(RoundedCornerShape(24.dp)).background(ChatLook.accent).tap(RoundedCornerShape(24.dp)) { onUnlock() }.padding(horizontal = 28.dp, vertical = 12.dp)) {
+                Text("Unlock", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
 }
 
 private fun buildItems(rev: List<ChatMsg>): List<ChItem> {

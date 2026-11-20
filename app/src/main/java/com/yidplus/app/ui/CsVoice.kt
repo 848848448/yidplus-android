@@ -123,7 +123,7 @@ internal fun CsMicButton(size: androidx.compose.ui.unit.Dp = 48.dp, canSend: Boo
     val isBusy by rememberUpdatedState(busy)
     val doSend by rememberUpdatedState(onSend); val doStart by rememberUpdatedState(onStart)
     val doRelease by rememberUpdatedState(onRelease); val doCancel by rememberUpdatedState(onCancel)
-    Box(Modifier.size(size).clip(CircleShape).background(if (r.mode == 1) Color(0xFFE53935) else ChatLook.bar)
+    Box(Modifier.size(size).clip(CircleShape).background(if (r.mode == 1) Color(0xFFE53935) else ChatLook.accent)
         .then(if (focused) Modifier.border(2.dp, Color(0xFFFFD54F), CircleShape) else Modifier)
         .onKeyEvent { e -> if (e.type == KeyEventType.KeyUp && (e.key == Key.DirectionCenter || e.key == Key.Enter || e.key == Key.NumPadEnter)) { if (send) onSend() else if (!busy) onStart(true); true } else false }
         .focusable(interactionSource = src)
@@ -167,7 +167,7 @@ internal fun CsMeter(levels: List<Int>, modifier: Modifier = Modifier, color: Co
 internal fun CsHoldBar(r: CsRec) {
     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
         Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.End) {
-            Column(Modifier.padding(end = 14.dp).clip(RoundedCornerShape(16.dp)).background(if (r.lockNear) ChatLook.bar else MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = 10.dp, vertical = 6.dp),
+            Column(Modifier.padding(end = 14.dp).clip(RoundedCornerShape(16.dp)).background(if (r.lockNear) ChatLook.accent else MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = 10.dp, vertical = 6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Sym.Lock, null, Modifier.size(18.dp), tint = if (r.lockNear) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("Slide up to lock", fontSize = 11.sp, color = if (r.lockNear) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -203,11 +203,11 @@ internal fun CsLockedBar(r: CsRec, onDelete: () -> Unit, onSend: () -> Unit) {
                 val t = r.take
                 val playing = ChatVoicePlayer.playing == "cs-preview" && !ChatVoicePlayer.paused
                 LaunchedEffect(ChatVoicePlayer.playing) { while (ChatVoicePlayer.playing == "cs-preview") { ChatVoicePlayer.tick(); kotlinx.coroutines.delay(150) } }
-                ChIcon(if (playing) Sym.Pause else Sym.PlayArrow, if (playing) "Pause" else "Listen", { t?.let { ChatVoicePlayer.toggle(c, "cs-preview", Uri.fromFile(it.first).toString()) } }, tint = ChatLook.bar)
+                ChIcon(if (playing) Sym.Pause else Sym.PlayArrow, if (playing) "Pause" else "Listen", { t?.let { ChatVoicePlayer.toggle(c, "cs-preview", Uri.fromFile(it.first).toString()) } }, tint = ChatLook.accent)
                 val peaks = remember(t) { t?.second?.substringAfter('|', "")?.split(',')?.mapNotNull { it.toIntOrNull() } ?: emptyList() }
                 val done = if (ChatVoicePlayer.playing == "cs-preview") (ChatVoicePlayer.progress * peaks.size).toInt() else 0
                 Row(Modifier.weight(1f).height(28.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    peaks.forEachIndexed { i, v -> Box(Modifier.weight(1f).height((3 + v * 24 / 100).coerceIn(3, 27).dp).clip(RoundedCornerShape(2.dp)).background(if (i < done) ChatLook.bar else ChatLook.sub().copy(alpha = .45f))) }
+                    peaks.forEachIndexed { i, v -> Box(Modifier.weight(1f).height((3 + v * 24 / 100).coerceIn(3, 27).dp).clip(RoundedCornerShape(2.dp)).background(if (i < done) ChatLook.accent else ChatLook.sub().copy(alpha = .45f))) }
                 }
                 Text("  " + (t?.second?.substringBefore('|') ?: ""), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             } else {
@@ -217,7 +217,7 @@ internal fun CsLockedBar(r: CsRec, onDelete: () -> Unit, onSend: () -> Unit) {
                 if (android.os.Build.VERSION.SDK_INT >= 24) ChIcon(if (r.paused) Sym.CircleFill else Sym.Pause, if (r.paused) "Resume recording" else "Pause recording", { r.pauseResume() }, tint = Color(0xFFE53935))
                 ChIcon(Sym.Stop, "Stop and listen", { r.stopToListen() }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Box(Modifier.size(48.dp).clip(CircleShape).background(ChatLook.bar).focusRequester(sendFocus).tap(CircleShape) { onSend() }, contentAlignment = Alignment.Center) {
+            Box(Modifier.size(48.dp).clip(CircleShape).background(ChatLook.accent).focusRequester(sendFocus).tap(CircleShape) { onSend() }, contentAlignment = Alignment.Center) {
                 Icon(Sym.Send, "Send voice message", tint = Color.White)
             }
         }
@@ -233,8 +233,16 @@ internal fun CsVoiceBubble(m: ChatMsg) {
     LaunchedEffect(me) { while (me) { ChatVoicePlayer.tick(); kotlinx.coroutines.delay(150) } }
     val peaks = remember(m.text) { m.text.substringAfter('|', "").split(',').mapNotNull { it.trim().toIntOrNull() }.ifEmpty { List(32) { i -> 20 + (i * 37 % 60) } } }
     val music = !m.isVoice
-    Row(Modifier.padding(4.dp).width(250.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(44.dp).clip(if (music) RoundedCornerShape(10.dp) else CircleShape).background(ChatLook.bar).tap(CircleShape) { (m.media ?: m.local)?.let { ChatVoicePlayer.toggle(c, m.id, it) } ?: toast(c, "Audio not available") }, contentAlignment = Alignment.Center) {
+    val mine = m.senderId == com.yidplus.app.data.Session.me?.id
+    Row(Modifier.padding(4.dp).width(if (m.isVoice && !mine) 292.dp else 250.dp), verticalAlignment = Alignment.CenterVertically) {
+        // WhatsApp shows the sender's photo on a received voice note, with a small green mic badge at its corner.
+        if (m.isVoice && !mine) Box(Modifier.padding(end = 6.dp)) {
+            ChAvatar(m.photo, m.nick, m.senderId, 44.dp)
+            Box(Modifier.align(Alignment.BottomEnd).size(18.dp).clip(CircleShape).background(ChatLook.accent), contentAlignment = Alignment.Center) {
+                Icon(Sym.Mic, null, Modifier.size(11.dp), tint = Color.White)
+            }
+        }
+        Box(Modifier.size(44.dp).clip(if (music) RoundedCornerShape(10.dp) else CircleShape).background(ChatLook.accent).tap(CircleShape) { (m.media ?: m.local)?.let { ChatVoicePlayer.toggle(c, m.id, it) } ?: toast(c, "Audio not available") }, contentAlignment = Alignment.Center) {
             Icon(if (me && !ChatVoicePlayer.paused) Sym.Pause else Sym.PlayArrow, if (me && !ChatVoicePlayer.paused) "Pause" else "Play", tint = Color.White)
         }
         Column(Modifier.weight(1f).padding(start = 8.dp)) {
@@ -245,21 +253,20 @@ internal fun CsVoiceBubble(m: ChatMsg) {
             }
             if (music) {
                 Box(seekMod.fillMaxWidth().height(18.dp), contentAlignment = Alignment.CenterStart) {
-                    LinearProgressIndicator(progress = { if (me) ChatVoicePlayer.progress else 0f }, modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)), color = ChatLook.bar, trackColor = ChatLook.sub().copy(alpha = .25f))
+                    LinearProgressIndicator(progress = { if (me) ChatVoicePlayer.progress else 0f }, modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)), color = ChatLook.accent, trackColor = ChatLook.sub().copy(alpha = .25f))
                 }
             } else Row(seekMod.height(26.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                 val n = peaks.size.coerceAtMost(32); val done = if (me) (ChatVoicePlayer.progress * n).toInt() else 0
-                for (i in 0 until n) Box(Modifier.weight(1f).height((4 + peaks[i * peaks.size / n] * 22 / 100).coerceIn(3, 26).dp).clip(RoundedCornerShape(2.dp)).background(if (i < done) ChatLook.bar else ChatLook.sub().copy(alpha = .45f)))
+                for (i in 0 until n) Box(Modifier.weight(1f).height((4 + peaks[i * peaks.size / n] * 22 / 100).coerceIn(3, 26).dp).clip(RoundedCornerShape(2.dp)).background(if (i < done) ChatLook.accent else ChatLook.sub().copy(alpha = .45f)))
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val pos = ChatVoicePlayer.position
                 Text(if (me) "%d:%02d".format(pos / 60, pos % 60) else if (m.isVoice) m.voiceDur.ifBlank { "Voice message" } else m.fileName.substringAfterLast('.', "audio").uppercase().take(5),
                     Modifier.weight(1f), fontSize = 12.sp, color = ChatLook.sub(), maxLines = 1)
-                if (me) Text(ChatVoicePlayer.speedLabel(), Modifier.clip(RoundedCornerShape(10.dp)).background(ChatLook.bar.copy(alpha = .15f)).tap(RoundedCornerShape(10.dp)) { ChatVoicePlayer.cycleSpeed() }
-                    .padding(horizontal = 8.dp, vertical = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ChatLook.bar)
+                if (me) Text(ChatVoicePlayer.speedLabel(), Modifier.clip(RoundedCornerShape(10.dp)).background(ChatLook.accent.copy(alpha = .15f)).tap(RoundedCornerShape(10.dp)) { ChatVoicePlayer.cycleSpeed() }
+                    .padding(horizontal = 8.dp, vertical = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ChatLook.accent)
             }
         }
-        if (m.isVoice && !me) Icon(Sym.Mic, null, Modifier.padding(start = 4.dp).size(18.dp), tint = ChatLook.bar)
     }
 }
 

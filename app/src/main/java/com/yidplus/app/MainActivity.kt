@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
         const val ACTION_OPEN_NOTIFS = "com.yidplus.app.OPEN_NOTIFS"
         const val ACTION_OPEN_CHANNEL = "com.yidplus.app.OPEN_CHANNEL"
         const val ACTION_OPEN_TAB = "com.yidplus.app.OPEN_TAB"
+        const val ACTION_OPEN_CALL = "com.yidplus.app.OPEN_CALL"
         const val ACTION_INSTALL_UPDATE = "com.yidplus.app.INSTALL_UPDATE"
         private val DPAD = setOf(KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_CENTER)
 
@@ -85,6 +86,10 @@ class MainActivity : ComponentActivity() {
         val cfg = resources.configuration
         if (cfg.navigation == Configuration.NAVIGATION_DPAD || cfg.keyboard == Configuration.KEYBOARD_12KEY) Keys.keypad = true
         LookPrefs.init(this); UiPrefs.init(this)
+        com.yidplus.app.ui.AppLock.init(this)
+        com.yidplus.app.ui.AppLock.onUnlockRequest = { promptAppUnlock() }
+        com.yidplus.app.ui.ChatLock.init(this)
+        com.yidplus.app.ui.ChatLock.onUnlockRequest = { roomId -> promptChatUnlock(roomId) }
         YidMotion.system = runCatching { android.provider.Settings.Global.getFloat(contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) }.getOrDefault(1f)
         // Our own recomposer (same as Compose's window recomposer) so Reduce motion reaches every animation.
         val recomposer = Recomposer(AndroidUiDispatcher.CurrentThread + YidMotion)
@@ -131,6 +136,7 @@ class MainActivity : ComponentActivity() {
             ACTION_CHECK_UPDATE -> UpdateUi.check(this, force = true, userAsked = true)
             ACTION_OPEN_PLAYER -> Nav.open(Screen.Player)
             ACTION_OPEN_CHATS -> Nav.go(Tab.Chats)
+            ACTION_OPEN_CALL -> { CallPush.dismiss(this); lifecycleScope.launch { runCatching { com.yidplus.app.ui.CallKit.checkIncoming(applicationContext) } } }
             "com.yidplus.app.QA_PUSH_PROBE" -> Push.probe(this)
             // QA (helper DS): set a look setting exactly as Settings does, to prove it changes the screens.
             "com.yidplus.app.QA_LOOK" -> qaLook(i)
@@ -173,15 +179,35 @@ class MainActivity : ComponentActivity() {
         return super.dispatchKeyEvent(event)
     }
 
+    // App lock & chat lock: confirm with the phone's fingerprint/PIN. Always falls back to the device PIN, so no lockout.
+    private var pendingUnlock: (() -> Unit)? = null
+    private val appLockLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
+        if (r.resultCode == RESULT_OK) { val act = pendingUnlock; if (act != null) act() else com.yidplus.app.ui.AppLock.markUnlocked() }
+        pendingUnlock = null
+    }
+    private fun confirmCredential(onOk: () -> Unit) {
+        val km = getSystemService(android.app.KeyguardManager::class.java)
+        if (km == null || !km.isDeviceSecure) { onOk(); return }
+        pendingUnlock = onOk
+        val i = runCatching { @Suppress("DEPRECATION") km.createConfirmDeviceCredentialIntent("YID PLUS", "Unlock to continue") }.getOrNull()
+        if (i != null) runCatching { appLockLauncher.launch(i) }.onFailure { pendingUnlock = null; onOk() }
+        else { pendingUnlock = null; onOk() }
+    }
+    private fun promptAppUnlock() = confirmCredential { com.yidplus.app.ui.AppLock.markUnlocked() }
+    private fun promptChatUnlock(roomId: String) = confirmCredential { com.yidplus.app.ui.ChatLock.markUnlocked(roomId) }
+
     override fun onResume() {
         super.onResume()
         UpdateUi.onResume(this)
+        if (com.yidplus.app.ui.AppLock.enabled && com.yidplus.app.ui.AppLock.locked) promptAppUnlock()
         if (Session.me != null) lifecycleScope.launch { Session.refresh() }
         lifecycleScope.launch { com.yidplus.app.data.SiteConfig.refresh() }
     }
 
     override fun onStop() {
         super.onStop()
+        com.yidplus.app.ui.AppLock.onBackground()
+        com.yidplus.app.ui.ChatLock.relockAll()
         if (Session.me != null) NotifyWorker.schedule(this)
     }
 }

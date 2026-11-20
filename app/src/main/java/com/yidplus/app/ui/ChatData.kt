@@ -48,7 +48,7 @@ data class ChMember(val id: String, val nick: String, val photo: String?, val on
 data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean, val joined: Boolean, val isGroupAdmin: Boolean, val createdBy: String?,
                     val inviteCode: String?, val pinnedId: String?, val description: String, val visibility: String,
                     val members: List<ChMember>, val featured: Boolean, val rawPreview: String = "", val spectating: Boolean = false, val hasMessages: Boolean = true,
-                    val allowSaving: Boolean = true) {
+                    val allowSaving: Boolean = true, val lastSeen: String? = null) {
     val isGroup get() = room.type == "group"
     val isChannel get() = room.type == "channel"
     val isPrivate get() = room.type == "private"
@@ -60,7 +60,7 @@ data class ChatRoomInfo(val room: Room, val muted: Boolean, val online: Boolean,
             j.strOrNull("created_by"), j.strOrNull("invite_code"), j.strOrNull("pinned_message_id"), j.str("description"), j.str("visibility"),
             chObjs(j.optJSONArray("member_list")).map { m -> ChMember(m.str("id"), m.str("nickname"), Api.abs(m.strOrNull("photo_url")), m.optInt("online") == 1 || m.optBoolean("online"), m.str("role"), m.optInt("is_group_admin") == 1 || m.optBoolean("is_group_admin"), m.str("title")) },
             j.optBoolean("featured"), j.str("preview"), j.optBoolean("admin_spectating") || j.optInt("admin_spectating") == 1, j.opt("has_messages") != false,
-            !(j.has("allow_saving") && (j.opt("allow_saving") == false || j.optInt("allow_saving", 1) == 0)))
+            !(j.has("allow_saving") && (j.opt("allow_saving") == false || j.optInt("allow_saving", 1) == 0)), j.strOrNull("last_seen"))
         fun list(j: JSONObject) = chObjs(j.optJSONArray("rooms")).map(::from)
     }
 }
@@ -79,7 +79,9 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
     val stickerUrl get() = if (!isSticker) null else media ?: text.takeIf { it.startsWith("http") || it.startsWith("/") }?.let { Api.abs(it) }
     val isVoice get() = type == "voice"
     val isImage get() = !isSticker && (media != null || local != null) && (ext in setOf("jpg", "jpeg", "png", "gif", "webp", "heic", "avif") || (type == "media" && ext.isEmpty() && local == null))
-    val isVideo get() = (media != null || local != null) && ext in setOf("mp4", "mov", "webm", "3gp", "mkv", "m4v") && !isVoice
+    /** WhatsApp round video message. */
+    val isVideoNote get() = type == "videonote"
+    val isVideo get() = !isVideoNote && (media != null || local != null) && ext in setOf("mp4", "mov", "webm", "3gp", "mkv", "m4v") && !isVoice
     // local counts too: a voice note / music file just recorded on this phone renders as a playable bubble while it uploads.
     val isAudio get() = (media != null || local != null) && !isVideo && (isVoice || ext in setOf("mp3", "m4a", "ogg", "opus", "wav", "aac", "amr", "flac"))
     val isFile get() = media != null && !isImage && !isVideo && !isAudio && !isSticker
@@ -105,6 +107,7 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
         isPoll -> "📊 Poll"; isVoice -> "🎤 Voice message" + (voiceDur.takeIf { it.isNotBlank() }?.let { " $it" } ?: "")
         isVoiceText -> "🎤 Voice message" + (text.substringBefore('|').trim().takeIf { Regex("""\d+:\d\d""").matches(it) }?.let { " $it" } ?: "")
         isSticker -> "💟 Sticker"; isImage -> "📷 " + caption.ifBlank { "Photo" }
+        isVideoNote -> "📹 Video message"
         isVideo -> "🎬 " + caption.ifBlank { "Video" }; isMusic -> "🎵 " + fileName.substringBeforeLast('.'); isFile -> "📎 $fileName"
         isUnavailable -> "📎 " + caption.ifBlank { "Media" }
         else -> text.removeSuffix(" ↩ Forwarded").replace('\n', ' ').take(120)
@@ -149,6 +152,8 @@ object ChatApi {
     suspend fun react(msgId: String, emoji: String) = Api.post("/api/chat/reactions", JSONObject().put("message_id", msgId).put("emoji", emoji))
     suspend fun typing(roomId: String): List<String> = chObjs(Api.get("/api/chat/typing?room_id=" + chEnc(roomId)).optJSONArray("typing")).map { it.str("user_nick") }.filter { it.isNotBlank() }
     suspend fun sendTyping(roomId: String) = Api.post("/api/chat/typing", JSONObject().put("room_id", roomId))
+    /** Mark myself online (the site shows "online" when last_ping is within ~60s). The app pings while it's open. */
+    suspend fun ping(online: Boolean = true) = Api.post("/api/presence", JSONObject().put("online", online))
     suspend fun sendText(roomId: String, text: String, replyTo: String?, scheduledFor: String? = null, disappearSecs: Int = 0): ChatMsg? {
         val b = JSONObject().put("room_id", roomId).put("type", "text").put("text", text)
         if (replyTo != null) b.put("reply_to_id", replyTo)
@@ -307,6 +312,22 @@ fun chatTime(s: String?): String {
         else -> java.text.SimpleDateFormat(if (now.get(java.util.Calendar.YEAR) == c.get(java.util.Calendar.YEAR)) "MMM d" else "d/M/yy", java.util.Locale.US).format(c.time)
     }
 }
+/** WhatsApp chat header: "last seen today at 2:40 PM" / "…yesterday at…" / "…Monday at…" / "…Nov 3 at…". */
+fun lastSeenText(s: String?): String {
+    val t = parseTime(s) ?: return "last seen recently"
+    val now = java.util.Calendar.getInstance(); val c = java.util.Calendar.getInstance().apply { timeInMillis = t }
+    val days = ((startOfDay(now.timeInMillis) - startOfDay(t)) / 86_400_000L).toInt()
+    // Clocks can disagree by a few seconds; never show a future last-seen.
+    if (t > System.currentTimeMillis() + 60_000L) return "last seen recently"
+    val time = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US).format(c.time)
+    val day = when {
+        days <= 0 -> "today"
+        days == 1 -> "yesterday"
+        days < 7 -> java.text.SimpleDateFormat("EEEE", java.util.Locale.US).format(c.time)
+        else -> java.text.SimpleDateFormat(if (now.get(java.util.Calendar.YEAR) == c.get(java.util.Calendar.YEAR)) "MMM d" else "MMM d, yyyy", java.util.Locale.US).format(c.time)
+    }
+    return "last seen $day at $time"
+}
 /** Date chip between messages: Today / Yesterday / Monday / November 3. */
 fun chatDay(s: String?): String {
     val t = parseTime(s) ?: return ""
@@ -424,17 +445,17 @@ class ChatVoiceRecorder(private val ctx: Context) {
     }
 }
 
-/** Photos go out at 1280 px max, like the website. */
-fun chShrink(ctx: Context, uri: Uri?, bmpIn: Bitmap?): ByteArray {
+/** Photos go out at 1280 px max (Standard), or 2560 px (HD) when the user picks HD in the preview. */
+fun chShrink(ctx: Context, uri: Uri?, bmpIn: Bitmap?, maxPx: Int = 1280): ByteArray {
     val bmp = bmpIn ?: run {
         val o = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         ctx.contentResolver.openInputStream(uri!!)?.use { BitmapFactory.decodeStream(it, null, o) }
-        var s = 1; while (maxOf(o.outWidth, o.outHeight) / (s * 2) >= 1280) s *= 2
+        var s = 1; while (maxOf(o.outWidth, o.outHeight) / (s * 2) >= maxPx) s *= 2
         ctx.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = s }) } ?: error("Can't read the photo")
     }
-    val scale = 1280f / maxOf(bmp.width, bmp.height)
+    val scale = maxPx.toFloat() / maxOf(bmp.width, bmp.height)
     val out = if (scale < 1f) Bitmap.createScaledBitmap(bmp, (bmp.width * scale).toInt(), (bmp.height * scale).toInt(), true) else bmp
-    return java.io.ByteArrayOutputStream().use { out.compress(Bitmap.CompressFormat.JPEG, 82, it); it.toByteArray() }
+    return java.io.ByteArrayOutputStream().use { out.compress(Bitmap.CompressFormat.JPEG, if (maxPx > 1280) 92 else 82, it); it.toByteArray() }
 }
 
 /** Emoji panel sets (the site's categories). */
@@ -447,6 +468,51 @@ val CHAT_EMOJI_SETS: List<Pair<String, String>> = listOf(
     "🕎" to "🕎 ✡️ 🕍 📜 🍷 🕯️ 🍞 🥯 🍯 🍎 🫒 🌿 🎺 📖 🙏 💐 🎉 👑 🏛️ 🌟 ⭐ 🌙 🔯 🪔 🛡️ 🎭 🍇 🥂 🫓",
 ).map { it.first to it.second }
 val CHAT_QUICK_REACTS = listOf("❤️", "😂", "😮", "😢", "👍", "🔥")
+
+/** Emoji search keywords (English) — enough to find the common ones by typing. Returns emojis whose keywords contain the query. */
+private val CHAT_EMOJI_KEYWORDS: List<Pair<String, String>> = listOf(
+    "😀" to "smile happy grin", "😃" to "smile happy", "😄" to "smile happy laugh", "😁" to "grin happy",
+    "😆" to "laugh haha", "😅" to "sweat laugh nervous", "😂" to "laugh cry joy funny lol", "🤣" to "rofl laugh funny lol",
+    "🙂" to "smile slight", "😉" to "wink", "😊" to "blush happy smile", "😇" to "angel innocent",
+    "😍" to "love heart eyes", "🥰" to "love hearts adore", "😘" to "kiss love", "😗" to "kiss",
+    "😋" to "yum tasty tongue", "😛" to "tongue", "😜" to "wink tongue silly", "🤪" to "crazy silly zany",
+    "🤨" to "eyebrow suspicious", "🧐" to "monocle thinking", "🤓" to "nerd geek", "😎" to "cool sunglasses",
+    "🥳" to "party celebrate", "😏" to "smirk", "😒" to "unamused meh", "😞" to "sad disappointed",
+    "😔" to "sad pensive", "😟" to "worried", "😕" to "confused", "🙁" to "frown sad",
+    "😣" to "persevere", "😖" to "confounded", "😫" to "tired", "😩" to "weary tired",
+    "🥺" to "pleading cute beg", "😢" to "cry sad tear", "😭" to "cry sob sad", "😤" to "angry steam",
+    "😠" to "angry mad", "😡" to "angry rage mad", "🤯" to "mind blown shocked", "😳" to "flushed shocked",
+    "🥵" to "hot sweat", "🥶" to "cold freezing", "😱" to "scream shocked fear", "😨" to "fear scared",
+    "😰" to "anxious sweat", "😥" to "sad relieved", "😓" to "sweat", "🤗" to "hug",
+    "🤔" to "thinking hmm", "🤭" to "giggle oops", "🤫" to "shh quiet", "🤥" to "lie pinocchio",
+    "😶" to "no mouth speechless", "😐" to "neutral", "😑" to "expressionless", "🙄" to "eye roll",
+    "😴" to "sleep tired zzz", "🤤" to "drool", "😷" to "mask sick", "🤒" to "sick ill fever",
+    "🤮" to "vomit sick", "🤢" to "nausea sick", "🥱" to "yawn bored tired",
+    "👍" to "thumbs up like good yes ok", "👎" to "thumbs down dislike no bad", "👌" to "ok perfect",
+    "✌️" to "peace victory", "🤞" to "fingers crossed luck", "🤟" to "love you", "🤘" to "rock",
+    "👏" to "clap applause", "🙌" to "praise hooray celebrate", "🙏" to "pray thanks please please god",
+    "💪" to "strong muscle flex", "👀" to "eyes look", "🫶" to "heart hands love",
+    "❤️" to "heart love red", "🧡" to "heart orange", "💛" to "heart yellow", "💚" to "heart green",
+    "💙" to "heart blue", "💜" to "heart purple", "🖤" to "heart black", "🤍" to "heart white",
+    "💔" to "broken heart sad", "💕" to "hearts love", "💖" to "sparkle heart love", "💯" to "hundred perfect",
+    "🔥" to "fire lit hot", "⭐" to "star", "🌟" to "star glow", "✨" to "sparkles",
+    "🎉" to "party celebrate tada", "🎊" to "confetti party", "🎁" to "gift present", "🏆" to "trophy win",
+    "✅" to "check yes done ok", "❌" to "cross no wrong", "❗" to "exclamation", "❓" to "question",
+    "🙏🏻" to "pray", "👋" to "wave hello hi bye", "🤝" to "handshake deal", "🤲" to "hands",
+    "🎵" to "music note", "🎶" to "music notes", "📞" to "phone call", "📱" to "phone mobile",
+    "☕" to "coffee tea", "🍕" to "pizza food", "🎂" to "cake birthday", "🍎" to "apple fruit",
+    "🚗" to "car", "✈️" to "plane travel flight", "🏠" to "home house", "🌍" to "earth world globe",
+    "☀️" to "sun sunny", "🌙" to "moon night", "☁️" to "cloud", "🌈" to "rainbow",
+    "💰" to "money cash", "💡" to "idea light bulb", "⏰" to "clock alarm time", "🔒" to "lock secure",
+    "🕎" to "menorah chanukah", "✡️" to "star david jewish", "🙏🏼" to "pray thanks",
+)
+
+/** Emojis matching a search query (by English keyword), most-relevant first. Empty query → empty list. */
+fun chatEmojiSearch(q: String): List<String> {
+    val s = q.trim().lowercase()
+    if (s.isEmpty()) return emptyList()
+    return CHAT_EMOJI_KEYWORDS.filter { it.second.split(' ').any { w -> w.startsWith(s) } || it.second.contains(s) }.map { it.first }.distinct()
+}
 
 /** The site's sticker set (Noto animated emoji, the same URLs the website sends). */
 val CHAT_STICKERS: List<String> = listOf("1f600", "1f602", "1f60d", "1f62d", "1f621", "1f973", "1f44f", "1f525", "2764_fe0f", "1f64f", "1f44d", "1f914", "1f389", "1f48b", "1f499", "2728").map { "https://fonts.gstatic.com/s/e/notoemoji/latest/$it/512.gif" }

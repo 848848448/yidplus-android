@@ -66,6 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
@@ -104,6 +105,7 @@ import org.json.JSONObject
 import com.yidplus.app.data.Res
 import com.yidplus.app.data.TgChannel
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.animation.AnimatedVisibility
@@ -121,7 +123,7 @@ import androidx.compose.material3.Checkbox
 /* ═════════════════════════ Chat list ═════════════════════════ */
 
 // The site's tabs (All / Private Chats / Groups / Channels) plus WhatsApp's Unread chip; custom folders follow, then "+".
-private val CHAT_TABS = listOf("all" to "All", "unread" to "Unread", "private" to "Private", "groups" to "Groups", "channels" to "Channels")
+private val CHAT_TABS = listOf("all" to "All", "unread" to "Unread", "favorites" to "Favorites", "private" to "Private", "groups" to "Groups", "channels" to "Channels")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,6 +158,7 @@ fun ChatsScreen() {
     val sel = remember { mutableStateListOf<String>() }
     var muteAsk by remember { mutableStateOf<List<ChatRoomInfo>?>(null) }
     var delAsk by remember { mutableStateOf<List<ChatRoomInfo>?>(null) }
+    var showArchived by rememberSaveable { mutableStateOf(false) }
     val kb = LocalSoftwareKeyboardController.current
     val focusMgr = androidx.compose.ui.platform.LocalFocusManager.current
     // Gap 10: leaving search (✕ or Back) also closes the keyboard.
@@ -185,7 +188,9 @@ fun ChatsScreen() {
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         when {
-            sel.isNotEmpty() -> ClSelectBar(sel.size, selRooms.isNotEmpty() && selRooms.all { it.room.id in pins }, selRooms.isNotEmpty() && selRooms.all { it.muted }, sel.size == 1,
+            sel.isNotEmpty() -> ClSelectBar(sel.size, selRooms.isNotEmpty() && selRooms.all { it.room.id in pins }, selRooms.isNotEmpty() && selRooms.all { it.muted },
+                selRooms.isNotEmpty() && selRooms.all { ClLocal.isArchived(c, it.room.id) },
+                selRooms.isNotEmpty() && selRooms.all { ClLocal.isFavorite(c, it.room.id) }, sel.size == 1,
                 onClose = { sel.clear() },
                 onPin = {
                     val unpin = selRooms.all { it.room.id in pins }
@@ -199,7 +204,20 @@ fun ChatsScreen() {
                     } else muteAsk = selRooms
                 },
                 onRead = {
-                    scope.launch { selRooms.forEach { ri -> runCatching { ClApi.markRead(c, ri.room.id) } }; toast(c, "Marked as read"); sel.clear(); res.load(true) }
+                    scope.launch { selRooms.forEach { ri -> runCatching { ClApi.markRead(c, ri.room.id) }; ClLocal.setMarkedUnread(c, ri.room.id, false) }; toast(c, "Marked as read"); sel.clear(); res.load(true) }
+                },
+                onMarkUnread = {
+                    selRooms.forEach { ClLocal.setMarkedUnread(c, it.room.id, true) }; toast(c, "Marked as unread"); sel.clear()
+                },
+                onArchive = {
+                    val unarch = selRooms.all { ClLocal.isArchived(c, it.room.id) }
+                    selRooms.forEach { if (ClLocal.isArchived(c, it.room.id) == unarch) ClLocal.toggleArchive(c, it.room.id) }
+                    toast(c, if (unarch) "Unarchived" else "Archived"); sel.clear()
+                },
+                onFavorite = {
+                    val unfav = selRooms.all { ClLocal.isFavorite(c, it.room.id) }
+                    selRooms.forEach { if (ClLocal.isFavorite(c, it.room.id) == unfav) ClLocal.toggleFavorite(c, it.room.id) }
+                    toast(c, if (unfav) "Removed from favorites" else "Added to favorites"); sel.clear()
                 },
                 onDelete = { delAsk = selRooms },
                 onInfo = { selRooms.firstOrNull()?.let { Nav.open(ChInfo(it.room)) }; sel.clear() })
@@ -231,7 +249,7 @@ fun ChatsScreen() {
             if (compact && tab == "all" && folder == null) ClStatusChip(stUsers.orEmpty())
             CHAT_TABS.forEach { (k, label) ->
                 val n = list?.let { l -> l.filter { matchTab(it, k) && !it.muted }.sumOf { it.room.unread } } ?: 0
-                ClChip(label, folder == null && tab == k, if (k == "unread") 0 else n) { setTab(k) }
+                ClChip(label, folder == null && tab == k, if (k == "unread" || k == "favorites") 0 else n) { setTab(k) }
             }
             folders.forEach { f ->
                 val n = list?.let { l -> l.filter { it.room.id in f.roomIds && !it.muted }.sumOf { it.room.unread } } ?: 0
@@ -265,14 +283,32 @@ fun ChatsScreen() {
                     list == null -> ChSkeleton()
                     else -> {
                         val f = folders.firstOrNull { it.id == folder }
-                        val shown = remember(list, tab, f, pins) {
-                            list.filter { ri -> (if (f != null) ri.room.id in f.roomIds else matchTab(ri, tab)) && !(ri.isPrivate && !ri.hasMessages && ri.room.unread == 0) }
+                        val cv = ClLocal.chListVersion
+                        val archSet = remember(list, cv) { ClLocal.archived(c) }
+                        val favSet = remember(list, cv) { ClLocal.favorites(c) }
+                        val shown = remember(list, tab, f, pins, showArchived, cv) {
+                            list.filter { ri -> (if (f != null) ri.room.id in f.roomIds else matchTab(ri, tab)) && !(ri.isPrivate && !ri.hasMessages && ri.room.unread == 0)
+                                && (tab != "favorites" || ri.room.id in favSet)
+                                && ((ri.room.id in archSet) == showArchived) }
                                 .sortedBy { val p = pins.indexOf(it.room.id); if (p < 0) Int.MAX_VALUE else p }
                         }
                         val tg = if (f == null && (tab == "all" || tab == "channels" || tab == "unread")) tgRes.data.orEmpty().filter { (it.joined || me == null) && (tab != "unread" || it.unread > 0) }.sortedByDescending { it.lastAt ?: "" } else emptyList()
                         LazyColumn(Modifier.fillMaxSize().nestedScroll(pillScroll), state = listState, contentPadding = fabSafePadding(hasFab = me != null)) {
-                            if (me != null && tab == "all" && f == null && q.isBlank() && !compact) item(key = "nw-status") { StatusStrip() }
-                            if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank() && !compact) item(key = "nw-ai") { AiChatRow(compact) { Nav.open(AiChatPage()) } }
+                            if (me != null && showArchived) item(key = "arch-hdr") {
+                                Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { showArchived = false }.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Sym.ArrowBack, "Back", Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurface)
+                                    Text("Archived", Modifier.padding(start = 20.dp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                            }
+                            if (me != null && !showArchived && tab == "all" && f == null && q.isBlank() && archSet.isNotEmpty()) item(key = "arch-row") {
+                                Row(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { showArchived = true }.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Sym.Archive, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Archived", Modifier.weight(1f).padding(start = 24.dp), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                                    Text("${archSet.size}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                            if (me != null && tab == "all" && f == null && q.isBlank() && !compact && !showArchived) item(key = "nw-status") { StatusStrip() }
+                            if (me != null && (tab == "all" || tab == "private") && f == null && q.isBlank() && !compact && !showArchived) item(key = "nw-ai") { AiChatRow(compact) { Nav.open(AiChatPage()) } }
                             if (shown.isEmpty() && tg.isEmpty()) item {
                                 if (me == null) ChEmpty(Sym.Forum, "No public groups right now")
                                 else if (f != null) ChEmpty(Sym.Folder, "No chats in this folder", action = "Edit folders") { Nav.open(ClFolderManager()) }
@@ -297,13 +333,14 @@ fun ChatsScreen() {
             if (me != null && sel.isEmpty()) androidx.compose.animation.AnimatedVisibility(!compact || headerShown, Modifier.align(Alignment.BottomEnd),
                 enter = androidx.compose.animation.scaleIn() + androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.scaleOut() + androidx.compose.animation.fadeOut()) {
             Box(Modifier.padding(if (compact) 8.dp else 16.dp)) {
-                Box(Modifier.size(if (compact) 48.dp else 56.dp).clip(RoundedCornerShape(if (compact) 13.dp else 16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(if (compact) 13.dp else 16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
+                Box(Modifier.size(if (compact) 48.dp else 56.dp).shadow(6.dp, RoundedCornerShape(if (compact) 13.dp else 16.dp)).clip(RoundedCornerShape(if (compact) 13.dp else 16.dp)).background(ChatLook.unread).tap(RoundedCornerShape(if (compact) 13.dp else 16.dp)) { fabMenu = true }.semantics { contentDescription = "Start new chat" },
                     contentAlignment = Alignment.Center) { Icon(Sym.Chat, null, tint = Color.White, modifier = Modifier.size(if (compact) 22.dp else 26.dp)) }
                 DropdownMenu(fabMenu, { fabMenu = false }) {
                     ChMenuItem(Sym.Person, "New chat") { fabMenu = false; Nav.open(ChNewChat()) }
                     ChMenuItem(Sym.Group, "New group") { fabMenu = false; Nav.open(ChNewGroup("group")) }
                     ChMenuItem(Sym.Campaign, "New channel") { fabMenu = false; Nav.open(ChNewGroup("channel")) }
                     ChMenuItem(Sym.Link, "Join by invite link") { fabMenu = false; Nav.open(ChJoinLink()) }
+                    ChMenuItem(Sym.QrCodeScanner, "Scan QR code") { fabMenu = false; Nav.open(QrPage(startScan = true)) }
                 }
             }
             }
@@ -365,6 +402,7 @@ private fun ClFreshStrip(res: Res<List<ChatRoomInfo>>, onRetry: () -> Unit) {
 
 private fun matchTab(r: ChatRoomInfo, tab: String) = when (tab) {
     "private" -> r.isPrivate; "groups" -> r.isGroup; "channels" -> r.isChannel; "unread" -> r.room.unread > 0; else -> true
+    // "favorites" is handled in the list filter (needs the per-account set); matchTab lets it through here.
 }
 
 @Composable
@@ -379,45 +417,83 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
                        ring: Boolean = false, ringSeen: Boolean = false, onRing: () -> Unit = {}, onLong: (() -> Unit)? = null, onToggle: () -> Unit = {}) {
     val r = ri.room
     val c = ctx()
-    val open = { if (selecting) onToggle() else { Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) } }
+    val markedUnread = ClLocal.chListVersion.let { ClLocal.isMarkedUnread(c, r.id) }
+    val open = { if (selecting) onToggle() else { ClLocal.setMarkedUnread(c, r.id, false); Nav.lastOpened = "room:" + r.id; Nav.open(Screen.Chat(r)) } }
+    var popup by remember { mutableStateOf(false) }
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
     val sel = Nav.chatDetail?.room?.id == r.id
     Column(Modifier.background(when { selected -> ChatLook.unread.copy(alpha = .16f); sel -> MaterialTheme.colorScheme.primaryContainer; else -> Color.Transparent })) {
-        Row(modifier.fillMaxWidth().height(if (compact) 66.dp else 72.dp).restoreFocus("room:" + r.id)
+        Row(modifier.fillMaxWidth().height(if (compact) 70.dp else 78.dp).restoreFocus("room:" + r.id)
             .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold) else Modifier)
             .onPreviewKeyEvent { e -> if (e.type == KeyEventType.KeyUp && e.key == Key.Menu && onLong != null) { onLong(); true } else false }
             .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onLongClick = onLong, onClick = open)
             .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box {
                 // The site shows "online" only to site admins (chat.js renderChatList: c.online && isAnyAdmin()).
-                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 46.dp else 50.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
-                if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() } else av()
+                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 50.dp else 56.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
+                if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() }
+                else if (!selecting) Box(Modifier.clip(CircleShape).pointerInput(r.id) { detectTapGestures { popup = true } }) { av() }
+                else av()
                 if (selected) Box(Modifier.align(Alignment.BottomEnd).size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(1.dp).clip(CircleShape).background(ChatLook.unread), contentAlignment = Alignment.Center) {
                     Icon(Sym.Check, "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
                 }
             }
-            Column(Modifier.weight(1f).padding(start = 14.dp)) {
+            Column(Modifier.weight(1f).padding(start = 16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // Title takes the room it has and ellipsizes; the time always keeps its place at the far end (RTL names can't push it away).
-                    Text(r.name, Modifier.weight(1f).padding(end = 10.dp), fontSize = if (compact) 16.sp else 16.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    Text(r.name, Modifier.weight(1f).padding(end = 10.dp), fontSize = if (compact) 16.5.sp else 17.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
-                    Text(chatTime(r.lastTime), fontSize = 12.sp, color = if (r.unread > 0 && !ri.muted) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                    Text(chatTime(r.lastTime), fontSize = 12.5.sp, color = if ((r.unread > 0 || markedUnread) && !ri.muted) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
-                Spacer(Modifier.height(if (compact) 2.dp else 3.dp))
+                Spacer(Modifier.height(if (compact) 3.dp else 4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val draft = remember(r.id, Nav.stack.size) { ChDrafts.get(c, r.id) }
                     val v = ChatCache.version
+                    val lockV = ChatLock.version
+                    val locked = lockV >= 0 && ChatLock.isLocked(r.id)
                     val pv = remember(ri, v) { chatPreview(ri) }
-                    Text(if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
+                    Text(if (locked) "🔒 Locked chat" else if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        fontSize = if (compact) 14.sp else 15.sp, color = if (draft.isNotBlank()) Color(0xFF25A45A) else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                     if (ri.muted) Icon(Sym.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (pinned) Icon(Sym.PushPinFill, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.width(4.dp)); ChBadge(r.unread, ri.muted)
+                    Spacer(Modifier.width(4.dp))
+                    if (markedUnread && r.unread == 0) Box(Modifier.size(11.dp).clip(CircleShape).background(if (ri.muted) MaterialTheme.colorScheme.onSurfaceVariant else ChatLook.unread))
+                    else ChBadge(r.unread, ri.muted)
                 }
             }
         }
-        HorizontalDivider(Modifier.padding(start = if (compact) 76.dp else 80.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
+        // No row dividers — modern WhatsApp has none (cleaner, less "dry").
+    }
+    // WhatsApp avatar quick-preview popup: tap a chat's photo → enlarged photo + name + Message / Call / Info.
+    if (popup) Dialog(onDismissRequest = { popup = false }) {
+        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 6.dp) {
+            Column(Modifier.padding(22.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.clip(CircleShape).tap(CircleShape) { popup = false; r.photo?.let { Nav.open(Screen.Photo(it)) } }) {
+                    ChAvatar(r.photo, r.name, r.otherUserId ?: r.id, 150.dp)
+                }
+                Spacer(Modifier.height(14.dp))
+                Text(r.name, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, textAlign = TextAlign.Center, style = TextStyle(textDirection = TextDirection.Content))
+                Spacer(Modifier.height(18.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ClPopupAction(Sym.Chat, "Message") { popup = false; open() }
+                    if (ri.isPrivate || ri.isGroup) ClPopupAction(Sym.Call, "Call") { popup = false; Nav.open(ChCall(r, "audio")) }
+                    ClPopupAction(Sym.Info, "Info") { popup = false; Nav.open(ChInfo(r)) }
+                }
+            }
+        }
+    }
+}
+
+/** One action in the chat-avatar quick-preview popup: a round-tinted icon with a label under it. */
+@Composable
+private fun ClPopupAction(icon: ImageVector, label: String, onClick: () -> Unit) {
+    Column(Modifier.padding(horizontal = 16.dp).clip(RoundedCornerShape(12.dp)).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(horizontal = 8.dp, vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(48.dp).clip(CircleShape).background(ChatLook.accent.copy(alpha = .14f)), contentAlignment = Alignment.Center) {
+            Icon(icon, label, tint = ChatLook.accent, modifier = Modifier.size(24.dp))
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 

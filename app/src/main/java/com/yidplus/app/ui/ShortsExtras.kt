@@ -373,3 +373,39 @@ internal fun SoShortCommentsSheet(s: Clip, onDismiss: () -> Unit, onCount: (Int)
         }
     }
 }
+
+/** Who liked one video — avatars and names, newest first. Source videos only (/api/src-react?likers). */
+private data class SoLiker(val id: String, val nick: String, val photo: String?, val verified: Boolean)
+
+@Composable
+internal fun SoLikersSheet(s: Clip, onDismiss: () -> Unit) {
+    val c = ctx()
+    val list = remember(s.key) { mutableStateListOf<SoLiker>() }
+    var loading by remember { mutableStateOf(true) }
+    LaunchedEffect(s.key) {
+        loading = true
+        try {
+            val j = Api.get("/api/src-react?likers=" + URLEncoder.encode(s.key, "UTF-8"))
+            list.clear(); list.addAll(j.optJSONArray("likers").objects().map {
+                SoLiker(it.str("id"), it.str("nickname"), Api.abs(it.strOrNull("photo_url")), it.optBoolean("verified"))
+            })
+        } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { loading = false }
+    }
+    SoCommentsPanel(if (list.isEmpty()) "Likes" else if (list.size == 1) "1 like" else "${list.size} likes", onDismiss) {
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            if (loading && list.isEmpty()) SoSkeleton(rows = 5, avatar = 40.dp)
+            else if (list.isEmpty()) SoEmpty(Sym.FavoriteBorder, "No likes yet.")
+            else LazyColumn {
+                items(list, key = { it.id }) { u ->
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Avatar(u.photo, u.nick, 40.dp)
+                        Text(u.nick, Modifier.weight(1f, fill = false).padding(horizontal = 12.dp),
+                            style = MaterialTheme.typography.titleSmall.copy(textDirection = TextDirection.Content),
+                            color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (u.verified) Icon(Sym.Verified, null, tint = Gold, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+        }
+    }
+}

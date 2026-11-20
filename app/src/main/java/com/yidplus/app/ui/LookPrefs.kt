@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -20,7 +21,7 @@ data class ColorPreset(val name: String, val accent: Color, val accentLight: Col
 
 /** The site's 7 colour themes (js/theme.js THEME_PRESETS), in the same order. */
 val ColorPresets = listOf(
-    ColorPreset("Emerald Teal", Color(0xFF1F6F5C), Color(0xFF2B8A73), Color(0xFFFAFAF8), Color(0xFFF1F0ED), Color(0xFF14151A)),
+    ColorPreset("Emerald Teal", Color(0xFF008069), Color(0xFF00A884), Color(0xFFFAFAF8), Color(0xFFF1F0ED), Color(0xFF14151A)),
     ColorPreset("Ocean Blue", Color(0xFF1565C0), Color(0xFF42A5F5), Color(0xFFFAFAFB), Color(0xFFF0F4FA), Color(0xFF14151A)),
     ColorPreset("Forest", Color(0xFF2E7D32), Color(0xFF66BB6A), Color(0xFFFAFBFA), Color(0xFFF0F8F0), Color(0xFF14151A)),
     ColorPreset("Crimson", Color(0xFFC62828), Color(0xFFEF5350), Color(0xFFFBFAFA), Color(0xFFFAF0F0), Color(0xFF14151A)),
@@ -50,8 +51,8 @@ object LookPrefs {
     var reduceMotion by mutableStateOf(false); private set
     var wallpaper by mutableStateOf("default"); private set
     var silentCalls by mutableStateOf(false); private set
-    /** Top bar style: false = the brand-green bar (default), true = WhatsApp-2024 light bar with a coloured title. */
-    var lightBar by mutableStateOf(false); private set
+    /** Top bar style: true = WhatsApp-2024 white bar with a green title (default), false = the solid green bar. */
+    var lightBar by mutableStateOf(true); private set
 
     fun init(c: Context) {
         if (ctx != null) return
@@ -62,7 +63,7 @@ object LookPrefs {
         reduceMotion = s.getBoolean("reduceMotion", false)
         wallpaper = s.getString("wallpaper", "default") ?: "default"
         silentCalls = s.getBoolean("silentCalls", false)
-        lightBar = s.getBoolean("lightBar", false)
+        lightBar = s.getBoolean("lightBar", true)
     }
     fun putColor(i: Int) { colorTheme = i.coerceIn(0, ColorPresets.size - 1); p()?.edit()?.putInt("colorTheme", colorTheme)?.apply() }
     fun putHighContrast(v: Boolean) { highContrast = v; p()?.edit()?.putBoolean("highContrast", v)?.apply() }
@@ -70,6 +71,15 @@ object LookPrefs {
     fun putWallpaper(id: String) { wallpaper = id; p()?.edit()?.putString("wallpaper", id)?.apply() }
     fun putLightBar(v: Boolean) { lightBar = v; p()?.edit()?.putBoolean("lightBar", v)?.apply() }
     fun putSilentCalls(v: Boolean) { silentCalls = v; p()?.edit()?.putBoolean("silentCalls", v)?.apply() }
+
+    // Per-chat wallpaper (WhatsApp): a single chat can override the app-wide wallpaper. Stored on-device.
+    var rwVersion by mutableStateOf(0); private set
+    fun roomWallpaper(id: String): String? = p()?.getString("rw:$id", null)
+    fun putRoomWallpaper(id: String, wallpaperId: String?) {
+        val e = p()?.edit() ?: return
+        if (wallpaperId == null || wallpaperId == "default") e.remove("rw:$id") else e.putString("rw:$id", wallpaperId)
+        e.apply(); rwVersion++
+    }
 
     /** The chosen colour theme. Theme.kt: primary = preset.accent (light) / preset.accentLight (dark); Midnight forces dark. */
     val preset: ColorPreset get() = ColorPresets[colorTheme]
@@ -81,9 +91,43 @@ object LookPrefs {
  * The chosen chat wallpaper (js/theme.js applyChatWallpaper: a 160° gradient behind the messages). Put it on the
  * message list's container in the chat screen: `Modifier.fillMaxSize().chatWallpaper()`. Default = no change.
  */
-fun Modifier.chatWallpaper(): Modifier = composed {
-    val w = LookPrefs.chatWallpaper
+fun Modifier.chatWallpaper(roomId: String? = null): Modifier = composed {
+    val ver = LookPrefs.rwVersion // recompose when a per-chat wallpaper changes
+    val id = (roomId?.let { LookPrefs.roomWallpaper(it) }) ?: LookPrefs.wallpaper
+    val w = if (ver >= 0) ChatWallpapers.firstOrNull { it.id == id && it.from != null } else null
     val from = w?.from; val to = w?.to
-    if (from != null && to != null) this.background(Brush.linearGradient(listOf(from, to), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)))
-    else this
+    when {
+        from != null && to != null -> this.background(Brush.linearGradient(listOf(from, to), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)))
+        // Default background: a faint WhatsApp-style doodle so the chat isn't a flat, "dry" colour.
+        else -> this.chatDoodle(isDark())
+    }
+}
+
+/** A subtle, evenly-tiled doodle (rings, dots, hearts) drawn very faintly behind the messages — WhatsApp's textured chat feel, no image asset needed. */
+private fun Modifier.chatDoodle(dark: Boolean): Modifier = this.drawBehind {
+    val ink = (if (dark) Color.White else Color(0xFF3A5A4A)).copy(alpha = if (dark) 0.035f else 0.05f)
+    val step = 112f
+    val sw = 2.2f
+    var row = 0
+    var y = 28f
+    while (y < size.height + step) {
+        val xOff = if (row % 2 == 0) 0f else step / 2f
+        var x = 20f + xOff
+        var col = 0
+        while (x < size.width + step) {
+            when ((row + col) % 3) {
+                0 -> drawCircle(ink, radius = 13f, center = Offset(x, y), style = androidx.compose.ui.graphics.drawscope.Stroke(width = sw))
+                1 -> drawCircle(ink, radius = 3.2f, center = Offset(x, y))
+                else -> { // tiny heart from two arcs + a point
+                    val p = androidx.compose.ui.graphics.Path().apply {
+                        moveTo(x, y + 10f); cubicTo(x - 16f, y - 4f, x - 6f, y - 14f, x, y - 4f)
+                        cubicTo(x + 6f, y - 14f, x + 16f, y - 4f, x, y + 10f); close()
+                    }
+                    drawPath(p, ink, style = androidx.compose.ui.graphics.drawscope.Stroke(width = sw))
+                }
+            }
+            x += step; col++
+        }
+        y += step; row++
+    }
 }

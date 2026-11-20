@@ -139,7 +139,7 @@ import org.json.JSONObject
 /* ─────────────── Statuses (stories): the site's /api/statuses (home.js loadStatuses / openSV / submitStatus) ─────────────── */
 
 data class StSlide(val id: String, val type: String, val text: String, val bg: String, val color: String, val media: String?, val video: Boolean,
-                   val createdAt: String?, val views: Int, val reacted: Boolean)
+                   val createdAt: String?, val views: Int, val reacted: Boolean, val font: String? = null, val audio: Boolean = false)
 data class StUser(val userId: String, val nick: String, val photo: String?, val slides: List<StSlide>)
 
 object Statuses {
@@ -148,6 +148,21 @@ object Statuses {
         "linear-gradient(135deg,#1a1a2e,#16213e)", "linear-gradient(135deg,#0f3460,#533483)", "linear-gradient(135deg,#1b4332,#40916c)",
         "linear-gradient(135deg,#7b2d8b,#e040fb)", "linear-gradient(135deg,#b5179e,#f72585)", "linear-gradient(135deg,#e85d04,#faa307)",
         "linear-gradient(135deg,#03045e,#0096c7)", "linear-gradient(135deg,#2d3436,#636e72)")
+    /** Text-status fonts, cycled with the "Aa" button. Keys are kept stable so already-posted
+     *  statuses keep their look. Unlike Android's built-in Serif/Monospace/Cursive families —
+     *  which have no distinct Hebrew/Yiddish glyphs, so every option looked the same on Yiddish —
+     *  these map to bundled Hebrew-capable fonts, so the font actually changes on Yiddish text.
+     *  Any glyph a bundled font lacks (Latin, emoji) falls back to the system font automatically. */
+    val FONTS = listOf("default", "serif", "mono", "cursive")
+    private val famSerif by lazy { androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.yidplus.app.R.font.yid_serif)) }
+    private val famDisplay by lazy { androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.yidplus.app.R.font.yid_display)) }
+    private val famHand by lazy { androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.yidplus.app.R.font.yid_hand)) }
+    fun fontFamily(name: String?): androidx.compose.ui.text.font.FontFamily = when (name) {
+        "serif" -> famSerif          // Frank Ruhl Libre — classic Hebrew serif
+        "mono" -> famDisplay         // Suez One — heavy display
+        "cursive" -> famHand         // Gveret Levin — Hebrew handwriting
+        else -> androidx.compose.ui.text.font.FontFamily.SansSerif
+    }
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     val res get() = Store.res("/api/statuses") { parse(it) }
 
@@ -155,13 +170,16 @@ object Statuses {
         val j = j0
         val me = Session.me?.id
         val vid = Regex("\\.(mp4|webm|mov|avi|3gp|mkv)(\\?|$)", RegexOption.IGNORE_CASE)
+        val aud = Regex("\\.(m4a|aac|mp3|ogg|oga|opus|wav)(\\?|$)", RegexOption.IGNORE_CASE)
         val list = j.optJSONArray("statuses").objects().mapNotNull { s ->
             val slides = s.optJSONArray("slides").objects().map { sl ->
                 val type = sl.str("type")
                 val media = Api.abs(sl.strOrNull("media_url"))
+                val mk = sl.str("media_key")
                 StSlide(sl.str("id"), type, sl.str("text").ifBlank { sl.str("caption") }, sl.str("bg"), sl.str("color"), media,
-                    type == "video" || sl.optBoolean("is_video") || vid.containsMatchIn(sl.str("media_key")) || (media != null && vid.containsMatchIn(media)),
-                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"))
+                    type == "video" || sl.optBoolean("is_video") || vid.containsMatchIn(mk) || (media != null && vid.containsMatchIn(media)),
+                    sl.strOrNull("created_at"), sl.optInt("views", 0), sl.optBoolean("i_reacted"), sl.strOrNull("font"),
+                    type == "voice" || aud.containsMatchIn(mk) || (media != null && aud.containsMatchIn(media)))
             }.filter { it.text.isNotBlank() || it.media != null }
             val uid = s.str("user_id").ifBlank { s.str("owner_id") }
             if (slides.isEmpty() || uid.isBlank()) null else StUser(uid, s.str("nickname").ifBlank { s.str("nick").ifBlank { "User" } }, Api.abs(s.strOrNull("photo_url")), slides)
@@ -184,6 +202,21 @@ object Statuses {
         val keep = seenIds.toList().takeLast(600)
         Disk.write(SEEN, JSONObject().put("ids", JSONArray(keep)))
         return true
+    }
+
+    // Muted people's updates (WhatsApp "Mute"): kept on this phone; moved to a "Muted updates" section.
+    private const val MUTED = "nw|status-muted"
+    private val mutedIds: MutableSet<String> by lazy {
+        val a = Disk.read(MUTED)?.optJSONArray("ids")
+        HashSet<String>().apply { if (a != null) for (i in 0 until a.length()) add(a.optString(i)) }
+    }
+    var muteVersion by mutableIntStateOf(0); private set
+    fun isMuted(userId: String) = userId in mutedIds
+    fun toggleMute(userId: String): Boolean {
+        val nowMuted = if (userId in mutedIds) { mutedIds.remove(userId); false } else { mutedIds.add(userId); true }
+        muteVersion++
+        Disk.write(MUTED, JSONObject().put("ids", JSONArray(mutedIds.toList())))
+        return nowMuted
     }
 
     /** Mine first, then people with something new, then the ones already watched (WhatsApp's Updates order). */
@@ -216,8 +249,9 @@ object Statuses {
     /** Who viewed my slide: PUT /api/statuses {viewers:true,id} → {viewers:[{nickname,photo_url,verified,viewed_at}]}. */
     suspend fun viewers(id: String): List<JSONObject> = Api.put("/api/statuses", JSONObject().put("viewers", true).put("id", id)).optJSONArray("viewers").objects()
     /** A text status: POST /api/statuses {type:'text', text, bg, privacy}. */
-    suspend fun postText(text: String, bg: String, privacy: String) =
-        Api.post("/api/statuses", JSONObject().put("type", "text").put("text", text).put("bg", bg).put("privacy", privacy))
+    suspend fun postText(text: String, bg: String, privacy: String, font: String? = null) =
+        Api.post("/api/statuses", JSONObject().put("type", "text").put("text", text).put("bg", bg).put("privacy", privacy)
+            .apply { if (!font.isNullOrBlank() && font != "default") put("font", font) })
     /** Reply / react: the site opens the private chat (POST /api/chat/rooms) and sends a text line in it (POST /api/chat). */
     suspend fun replyTo(userId: String, text: String) {
         val r = Api.post("/api/chat/rooms", JSONObject().put("type", "private").put("other_user_id", userId))
@@ -249,6 +283,27 @@ object Statuses {
             j ?: JSONObject().put("ok", true)
         }
     }
+
+    /** A voice status: upload the recorded .m4a as a media status (filename keeps the .m4a so viewers show a player, not a broken image). */
+    suspend fun postVoice(file: java.io.File, privacy: String): JSONObject = withContext(Dispatchers.IO) {
+        val mime = "audio/mp4"
+        val body0 = object : RequestBody() {
+            override fun contentType() = mime.toMediaType()
+            override fun contentLength() = file.length()
+            override fun writeTo(sink: BufferedSink) { file.source().use { sink.writeAll(it) } }
+        }
+        val body = MultipartBody.Builder().setType(MultipartBody.FORM)
+            .addFormDataPart("type", "voice").addFormDataPart("media", "status.m4a", body0)
+            .addFormDataPart("caption", "").addFormDataPart("privacy", privacy).build()
+        val req = Request.Builder().url(Api.abs("/api/statuses")!!).post(body).header("Accept", "application/json").build()
+        Fixture.answer(req)?.let { return@withContext it }
+        Api.http.newCall(req).execute().use { r ->
+            val t = r.body?.string().orEmpty()
+            val j = runCatching { JSONObject(t) }.getOrNull()
+            if (!r.isSuccessful) throw Api.ApiError(r.code, j?.strOrNull("error") ?: "The site answered ${r.code}", j)
+            j ?: JSONObject().put("ok", true)
+        }
+    }
 }
 
 /* ─────────────── The strip of circles above the chat list ─────────────── */
@@ -270,8 +325,8 @@ fun StatusStrip() {
         LazyRow(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
             if (me != null) item(key = "me") {
                 StatusCircle("My status", me.photo, me.nickname, mine?.slides?.map { true } ?: emptyList(), mine = true, plus = true,
-                    onClick = { if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage()) },
-                    onLong = { Nav.open(PostStatusPage()) }, onPlus = { Nav.open(PostStatusPage()) })
+                    onClick = { if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(AddStatusPage()) },
+                    onLong = { Nav.open(AddStatusPage()) }, onPlus = { Nav.open(AddStatusPage()) })
             }
             items(others, key = { it.userId }) { u ->
                 StatusCircle(u.nick, u.photo, u.nick, u.slides.map { Statuses.seen(it.id) }, mine = false, plus = false,
@@ -306,6 +361,103 @@ private fun StatusCircle(label: String, photo: String?, colorName: String, seen:
         Text(label, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
             fontWeight = if (!mine && seen.any { !it }) FontWeight.SemiBold else FontWeight.Normal,
             style = TextStyle(textDirection = TextDirection.Content), modifier = Modifier.fillMaxWidth().padding(horizontal = 3.dp))
+    }
+}
+
+/* ─────────────── The dedicated WhatsApp "Updates" screen (vertical list) ─────────────── */
+
+/** WhatsApp's Status/Updates screen: My status, then Recent updates and Viewed updates as a vertical list, plus a camera to post. */
+class StatusUpdatesPage : PageScreen() {
+    override val perfName get() = "Status"
+    @Composable override fun Content() {
+        val me = Session.me
+        val res = Statuses.res
+        LaunchedEffect(me?.id) { res.load() }
+        @Suppress("UNUSED_VARIABLE") val v = Statuses.seenVersion
+        @Suppress("UNUSED_VARIABLE") val v2 = Statuses.muteVersion
+        val all = res.data.orEmpty()
+        val mine = all.firstOrNull { it.userId == me?.id }
+        val everyone = Statuses.ordered(all).filter { it.userId != me?.id }
+        val others = everyone.filter { !Statuses.isMuted(it.userId) }
+        val muted = everyone.filter { Statuses.isMuted(it.userId) }
+        val unseen = others.filter { !Statuses.allSeen(it) }
+        val seenList = others.filter { Statuses.allSeen(it) }
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            Column(Modifier.fillMaxSize()) {
+                ChBar("Status", onBack = { Nav.back() })
+                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 90.dp)) {
+                    item(key = "mine") { StatusMyRow(me, mine) }
+                    if (unseen.isNotEmpty()) { item(key = "h1") { StatusHeader("Recent updates") }; items(unseen, key = { it.userId }) { StatusUserRow(it) } }
+                    if (seenList.isNotEmpty()) { item(key = "h2") { StatusHeader("Viewed updates") }; items(seenList, key = { it.userId }) { StatusUserRow(it) } }
+                    if (muted.isNotEmpty()) { item(key = "h3") { StatusHeader("Muted updates") }; items(muted, key = { it.userId }) { StatusUserRow(it) } }
+                    if (everyone.isEmpty()) item(key = "empty") { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text("No recent updates to show.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) } }
+                }
+            }
+            // Camera + text-status buttons (WhatsApp's two FABs).
+            Column(Modifier.align(Alignment.BottomEnd).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).tap(CircleShape) { Nav.open(PostStatusPage("text")) }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Edit, "Text status", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.height(12.dp))
+                Box(Modifier.size(56.dp).clip(CircleShape).background(ChatLook.unread).tap(CircleShape) { Nav.open(AddStatusPage()) }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.PhotoCamera, "Add status", tint = Color.White, modifier = Modifier.size(26.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusHeader(text: String) {
+    Text(text, Modifier.fillMaxWidth().padding(start = 16.dp, top = 14.dp, bottom = 6.dp), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable
+private fun StatusMyRow(me: com.yidplus.app.data.Me?, mine: StUser?) {
+    me ?: return
+    Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).tap(RoundedCornerShape(0.dp)) {
+        if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(AddStatusPage())
+    }.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(58.dp)) {
+            if (mine != null) StatusRing(mine.slides.map { true }, mine = true, Modifier.fillMaxSize())
+            Box(Modifier.align(Alignment.Center).size(50.dp).clip(CircleShape)) { Avatar(me.photo, me.nickname, 50.dp) }
+            Box(Modifier.align(Alignment.BottomEnd).size(22.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(2.dp).clip(CircleShape).background(BadgeGreen), contentAlignment = Alignment.Center) {
+                Icon(Sym.Add, null, tint = Color.White, modifier = Modifier.size(14.dp))
+            }
+        }
+        Column(Modifier.weight(1f).padding(start = 14.dp)) {
+            Text("My status", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(if (mine != null) "Tap to view your update" else "Tap to add status update", fontSize = 13.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+    HorizontalDivider(Modifier.padding(start = 88.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun StatusUserRow(u: StUser) {
+    val c = ctx()
+    var menu by remember { mutableStateOf(false) }
+    val muted = Statuses.muteVersion.let { Statuses.isMuted(u.userId) }
+    Box {
+        Row(Modifier.fillMaxWidth().heightIn(min = 72.dp)
+            .combinedClickable(onClick = { Nav.open(StatusViewerPage(u.userId)) }, onLongClick = { menu = true })
+            .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(58.dp)) {
+                StatusRing(u.slides.map { Statuses.seen(it.id) }, mine = false, Modifier.fillMaxSize())
+                Box(Modifier.align(Alignment.Center).size(50.dp).clip(CircleShape)) { Avatar(u.photo, u.nick, 50.dp) }
+            }
+            Column(Modifier.weight(1f).padding(start = 14.dp)) {
+                Text(u.nick, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                Text(if (muted) "Muted" else chatTime(u.slides.firstOrNull()?.createdAt), fontSize = 13.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        DropdownMenu(menu, { menu = false }) {
+            DropdownMenuItem(text = { Text(if (muted) "Unmute ${u.nick}" else "Mute ${u.nick}") }, onClick = {
+                menu = false; val nm = Statuses.toggleMute(u.userId); toast(c, if (nm) "Muted ${u.nick}'s updates" else "Unmuted")
+            })
+            DropdownMenuItem(text = { Text("View") }, onClick = { menu = false; Nav.open(StatusViewerPage(u.userId)) })
+        }
     }
 }
 

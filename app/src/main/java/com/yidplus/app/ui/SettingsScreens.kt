@@ -173,7 +173,7 @@ object SettingsProfile {
     fun sample(): JSONObject = JSONObject().put("ok", true).put("profile", JSONObject()
         .put("id", "demo").put("nickname", "Yanky Weiss").put("email", "yanky@example.com").put("bio", "Sample profile shown in the emulator test")
         .put("location", "Brooklyn, NY").put("website", "https://yidplus.com").put("instagram", "").put("youtube", "").put("birthday", "")
-        .put("profile_color", "#1F6F5C").put("verified", 0).put("role", "user").put("privacy_profile", "public").put("privacy_messages", "everyone")
+        .put("profile_color", "#008069").put("verified", 0).put("role", "user").put("privacy_profile", "public").put("privacy_messages", "everyone")
         .put("is_private", 0).put("show_online", 1).put("read_receipts", 1).put("notif_messages", 1).put("notif_likes", 1).put("notif_followers", 1).put("notif_channels", 0))
         .put("stats", JSONObject().put("shorts", 12).put("music", 3).put("messages", 1480).put("profile_views", 236).put("followers", 58))
         .put("sessions", JSONArray().put(JSONObject().put("id", "sh_1").put("created_at", "2026-11-11T06:00:00")).put(JSONObject().put("id", "sh_2").put("created_at", "2026-11-02T18:30:00")))
@@ -320,7 +320,7 @@ private fun Stat(n: Int, label: String) {
 
 // ── Edit profile ──────────────────────────────────────────────────────────────
 
-private val profileColors = listOf("#1F6F5C", "#2B7A9B", "#4767A8", "#7056A8", "#AD4F7E", "#C0564A", "#C7822A", "#6D7F2B", "#37474F", "#000000")
+private val profileColors = listOf("#008069", "#2B7A9B", "#4767A8", "#7056A8", "#AD4F7E", "#C0564A", "#C7822A", "#6D7F2B", "#37474F", "#000000")
 
 class SettingsEditProfile : PageScreen() {
     override val perfName = "EditProfile"
@@ -336,7 +336,7 @@ class SettingsEditProfile : PageScreen() {
         var website by remember(p) { mutableStateOf(SettingsProfile.text("website")) }
         var instagram by remember(p) { mutableStateOf(SettingsProfile.text("instagram")) }
         var youtube by remember(p) { mutableStateOf(SettingsProfile.text("youtube")) }
-        var color by remember(p) { mutableStateOf(SettingsProfile.text("profile_color").ifBlank { "#1F6F5C" }) }
+        var color by remember(p) { mutableStateOf(SettingsProfile.text("profile_color").ifBlank { "#008069" }) }
         var busy by remember { mutableStateOf(false) }
         var err by remember { mutableStateOf<String?>(null) }
         var uploading by remember { mutableStateOf<String?>(null) }
@@ -524,6 +524,16 @@ class SettingsSecurity : PageScreen() {
                 SettingRow(Sym.Password, "Change password", "You'll confirm your current password first", modifier = Modifier.firstFocus()) { askPw = true }
                 RowDivider(64.dp)
                 SettingRow(Sym.Security, "Two-step verification", when (twofa) { true -> "On · a code from your authenticator app"; false -> "Off"; null -> "…" }) { if (twofa != null) show2fa = true }
+            }
+            SettingsCard("App lock") {
+                SettingRow(Sym.Lock, "Lock YID PLUS", if (AppLock.enabled) "On · asks for your fingerprint or PIN to open" else "Off · open without unlocking",
+                    switch = AppLock.enabled) {
+                    if (!AppLock.enabled) {
+                        val km = c.getSystemService(android.app.KeyguardManager::class.java)
+                        if (km == null || !km.isDeviceSecure) toast(c, "Set a screen lock (PIN, pattern or fingerprint) on your phone first")
+                        else { AppLock.enable(true); toast(c, "App lock on") }
+                    } else { AppLock.enable(false); toast(c, "App lock off") }
+                }
             }
             SettingsCard("Devices (${sessions.size} signed in)") {
                 sessions.take(10).forEachIndexed { i, s ->

@@ -58,48 +58,90 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
     }
     AnimatedVisibility(open, enter = slideInHorizontally { -it }, exit = slideOutHorizontally { -it }) {
         val me = Session.me
+        val scope = rememberCoroutineScope()
+        val c = ctx()
+        var acctsOpen by remember { mutableStateOf(false) }
+        val acctVer = com.yidplus.app.data.Accounts.version
+        val others = remember(acctVer, me?.id) { com.yidplus.app.data.Accounts.list().filter { it.id != me?.id } }
         Column(Modifier.fillMaxHeight().widthIn(max = 300.dp).fillMaxWidth(.82f).background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
-            Column(Modifier.fillMaxWidth().background(ChatLook.bar).tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp)) {
-                ChAvatar(me?.photo, me?.nickname ?: "User", me?.id ?: "me", 64.dp)
-                Spacer(Modifier.height(10.dp))
-                Text(me?.nickname ?: "User", color = barContent(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(textDirection = TextDirection.Content))
-                Text("@" + (me?.nickname ?: "user"), color = barContent().copy(alpha = .8f), fontSize = 14.sp, maxLines = 1, style = TextStyle(textDirection = TextDirection.Content))
+            Box(Modifier.fillMaxWidth().background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(ChatLook.accent, Color(0xFF017561))))) {
+                Column(Modifier.fillMaxWidth().tap(RoundedCornerShape(0.dp)) { onClose(); Nav.go(Tab.Profile) }.padding(16.dp).padding(top = 8.dp)) {
+                    ChAvatar(me?.photo, me?.nickname ?: "User", me?.id ?: "me", 64.dp)
+                    Spacer(Modifier.height(10.dp))
+                    Text(me?.nickname ?: "User", color = barContent(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = TextStyle(textDirection = TextDirection.Content))
+                    Text("@" + (me?.nickname ?: "user"), color = barContent().copy(alpha = .8f), fontSize = 14.sp, maxLines = 1, style = TextStyle(textDirection = TextDirection.Content))
+                }
+                // Switch / add account (WhatsApp's account chevron)
+                if (me != null) Box(Modifier.align(Alignment.TopEnd).padding(6.dp).size(40.dp).clip(CircleShape).tap(CircleShape) { acctsOpen = !acctsOpen }
+                    .semantics { contentDescription = "Switch account" }, contentAlignment = Alignment.Center) {
+                    Icon(if (acctsOpen) Sym.ExpandLess else Sym.ExpandMore, null, tint = barContent(), modifier = Modifier.size(26.dp))
+                }
             }
-            ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true)) { onClose(); Nav.go(Tab.Profile) }
-            ClDrawerItem(Sym.Bookmark, "Saved Messages") { onClose(); Nav.open(ChSaved()) }
-            ClDrawerItem(Sym.Folder, "Chat Folders") { onClose(); Nav.open(ClFolderManager()) }
-            ClDrawerItem(Sym.Group, "New Group") { onClose(); Nav.open(ChNewGroup("group")) }
-            ClDrawerItem(Sym.Campaign, "New Channel") { onClose(); Nav.open(ChNewGroup("channel")) }
-            ClDrawerItem(Sym.Link, "Join by invite link") { onClose(); Nav.open(ChJoinLink()) }
-            ClDrawerItem(Sym.Settings, "Chat settings") { onClose(); Nav.open(ClChatSettings()) }
+            AnimatedVisibility(acctsOpen) {
+                Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f))) {
+                    for (a in others) Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp)) {
+                        acctsOpen = false; onClose()
+                        scope.launch { if (!Session.switchTo(a.id)) { toast(c, "Please sign in to this account again"); Session.beginAddAccount(); Nav.go(Tab.Profile) } else Nav.go(Tab.Chats) }
+                    }.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        ChAvatar(a.photo, a.nick, a.id, 40.dp)
+                        Text(a.nick, Modifier.weight(1f).padding(start = 16.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                        Icon(Sym.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                    }
+                    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).tap(RoundedCornerShape(0.dp)) {
+                        acctsOpen = false; onClose(); Session.beginAddAccount(); Nav.go(Tab.Profile)
+                    }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = .15f)), contentAlignment = Alignment.Center) { Icon(Sym.Add, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp)) }
+                        Text("Add account", Modifier.weight(1f).padding(start = 16.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
+                    }
+                    HorizontalDivider()
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true), tint = Color(0xFF00A884)) { onClose(); Nav.go(Tab.Profile) }
+            ClDrawerItem(Sym.RadioButtonChecked, "Status", tint = Color(0xFF1DA851)) { onClose(); Nav.open(StatusUpdatesPage()) }
+            ClDrawerItem(Sym.Call, "Calls", tint = Color(0xFF2196F3)) { onClose(); Nav.open(ChCalls()) }
+            ClDrawerItem(Sym.Bookmark, "Saved Messages", tint = Color(0xFFF4B400)) { onClose(); Nav.open(ChSaved()) }
+            ClDrawerItem(Sym.Folder, "Chat Folders", tint = Color(0xFF7E57C2)) { onClose(); Nav.open(ClFolderManager()) }
+            ClDrawerItem(Sym.Group, "New Group", tint = Color(0xFF009688)) { onClose(); Nav.open(ChNewGroup("group")) }
+            ClDrawerItem(Sym.Campaign, "New Channel", tint = Color(0xFFFF7043)) { onClose(); Nav.open(ChNewGroup("channel")) }
+            ClDrawerItem(Sym.Link, "Join by invite link", tint = Color(0xFF26A69A)) { onClose(); Nav.open(ChJoinLink()) }
+            ClDrawerItem(Sym.QrCode, "QR code", tint = Color(0xFF455A64)) { onClose(); Nav.open(QrPage()) }
+            ClDrawerItem(Sym.Settings, "Chat settings", tint = Color(0xFF607D8B)) { onClose(); Nav.open(ClChatSettings()) }
             if (chIsSiteAdmin()) {
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                ClDrawerItem(Sym.AdminPanelSettings, "Admin Panel") { onClose(); Nav.open(AdminPage()) }
+                ClDrawerItem(Sym.AdminPanelSettings, "Admin Panel", tint = Color(0xFFD32F2F)) { onClose(); Nav.open(AdminPage()) }
             }
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
 
 @Composable
-private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Row(modifier.fillMaxWidth().heightIn(min = 52.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
-        Text(text, Modifier.padding(start = 24.dp), fontSize = 16.sp)
+private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = Modifier, tint: Color = Color(0xFF00A884), onClick: () -> Unit) {
+    Row(modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+        // WhatsApp/modern: a soft rounded tile behind a colored icon, instead of a bare thin grey glyph.
+        Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp)).background(tint.copy(alpha = if (isDark()) .22f else .13f)), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = tint, modifier = Modifier.size(21.dp))
+        }
+        Text(text, Modifier.padding(start = 18.dp), fontSize = 16.sp, fontWeight = FontWeight.Medium)
     }
 }
 
 /** WhatsApp's selection bar (long-press a chat): count, then Pin, Mute, Mark as read, Delete, Info. */
 @Composable
-internal fun ClSelectBar(n: Int, allPinned: Boolean, allMuted: Boolean, single: Boolean, onClose: () -> Unit, onPin: () -> Unit, onMute: () -> Unit,
-                         onRead: () -> Unit, onDelete: () -> Unit, onInfo: () -> Unit) {
+internal fun ClSelectBar(n: Int, allPinned: Boolean, allMuted: Boolean, allArchived: Boolean, allFav: Boolean, single: Boolean, onClose: () -> Unit, onPin: () -> Unit, onMute: () -> Unit,
+                         onRead: () -> Unit, onMarkUnread: () -> Unit, onArchive: () -> Unit, onFavorite: () -> Unit, onDelete: () -> Unit, onInfo: () -> Unit) {
     Surface(color = ChatLook.bar, contentColor = barContent(), shadowElevation = 2.dp) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 2.dp), verticalAlignment = Alignment.CenterVertically) {
             ChIcon(Sym.Close, "Cancel selection", onClose)
-            Text("$n", Modifier.weight(1f).padding(start = 8.dp), color = LocalContentColor.current, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+            Text("$n", Modifier.weight(1f).padding(start = 6.dp), color = LocalContentColor.current, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+            ChIcon(if (allFav) Sym.StarFill else Sym.StarBorder, if (allFav) "Remove from favorites" else "Add to favorites", onFavorite)
+            ChIcon(if (allArchived) Sym.Unarchive else Sym.Archive, if (allArchived) "Unarchive" else "Archive", onArchive)
             ChIcon(if (allPinned) Sym.PushPinFill else Sym.PushPin, if (allPinned) "Unpin" else "Pin", onPin)
             ChIcon(if (allMuted) Sym.Notifications else Sym.NotificationsOff, if (allMuted) "Unmute" else "Mute", onMute)
             ChIcon(Sym.MarkChatRead, "Mark as read", onRead)
+            ChIcon(Sym.MarkChatUnread, "Mark as unread", onMarkUnread)
             ChIcon(Sym.Delete, "Delete", onDelete)
             if (single) ChIcon(Sym.Info, "Info", onInfo)
         }
@@ -228,6 +270,7 @@ class ClChatSettings : PageScreen() {
         val c = ctx()
         var font by remember { mutableStateOf(ClLocal.font(c)) }
         var receipts by remember { mutableStateOf(ClLocal.receipts(c)) }
+        var enterSends by remember { mutableStateOf(ClLocal.enterSends(c)) }
         val dark = com.yidplus.app.data.Prefs.theme == 2
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
             ChBar("Chat settings", onBack = { Nav.back() })
@@ -260,6 +303,36 @@ class ClChatSettings : PageScreen() {
                 Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Read receipts", fontSize = 16.sp); Text("Let others see when you've read their messages", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 Switch(receipts, null)
             }
+            HorizontalDivider()
+            Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).tap(RoundedCornerShape(0.dp)) {
+                enterSends = !enterSends; ClLocal.setEnterSends(c, enterSends); toast(c, if (enterSends) "Enter key sends" else "Enter key makes a new line")
+            }.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Sym.Keyboard, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.weight(1f).padding(start = 18.dp)) { Text("Enter key sends", fontSize = 16.sp); Text("Off = Enter adds a new line", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                Switch(enterSends, null)
+            }
+            HorizontalDivider()
+            var reacts by remember { mutableStateOf(ClLocal.quickReacts(c)) }
+            var editSlot by remember { mutableIntStateOf(-1) }
+            Row(Modifier.padding(start = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Sym.AddReaction, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.padding(start = 18.dp)) { Text("Default reactions", fontSize = 16.sp); Text("Tap one to change your quick-reaction set", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            }
+            Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                reacts.forEachIndexed { i, e ->
+                    Box(Modifier.weight(1f).heightIn(min = 54.dp).clip(RoundedCornerShape(14.dp)).background(ChatLook.accent.copy(alpha = if (isDark()) .20f else .10f))
+                        .border(1.dp, ChatLook.accent.copy(alpha = .30f), RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp)) { editSlot = i }, contentAlignment = Alignment.Center) {
+                        Text(e, fontSize = 26.sp)
+                        Box(Modifier.align(Alignment.BottomEnd).padding(3.dp).size(15.dp).clip(CircleShape).background(ChatLook.accent), contentAlignment = Alignment.Center) {
+                            Icon(Sym.Edit, "Change", Modifier.size(9.dp), tint = Color.White)
+                        }
+                    }
+                }
+            }
+            if (editSlot in reacts.indices) CsReactPicker(onPick = { e ->
+                val nl = reacts.toMutableList(); nl[editSlot] = e; reacts = nl; ClLocal.setQuickReacts(c, nl); editSlot = -1
+            }, onClose = { editSlot = -1 })
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
@@ -273,8 +346,7 @@ internal fun ClStatusRow(all: List<StUser>) {
     val unseen = others.filter { !Statuses.allSeen(it) }
     Column {
         Row(Modifier.fillMaxWidth().height(56.dp).tap(RoundedCornerShape(0.dp)) {
-            val first = unseen.firstOrNull() ?: others.firstOrNull()
-            if (first != null) Nav.open(StatusViewerPage(first.userId)) else if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+            Nav.open(StatusUpdatesPage())
         }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.width(if (others.isEmpty()) 40.dp else (40 + 14 * (others.size.coerceAtMost(3) - 1)).dp).height(40.dp)) {
                 if (others.isEmpty()) Box(Modifier.size(40.dp).clip(CircleShape).background(ChatLook.unread.copy(alpha = .15f)), contentAlignment = Alignment.Center) {
@@ -288,7 +360,7 @@ internal fun ClStatusRow(all: List<StUser>) {
                 Text(when { unseen.isNotEmpty() -> "${unseen.size} new update" + (if (unseen.size > 1) "s" else ""); others.isNotEmpty() -> "Seen all updates"; else -> "Tap to add a status update" },
                     fontSize = 13.sp, color = if (unseen.isNotEmpty()) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
             }
-            Box(Modifier.size(40.dp).clip(CircleShape).tap(CircleShape) { Nav.open(PostStatusPage()) }.semantics { contentDescription = "Add status" }, contentAlignment = Alignment.Center) {
+            Box(Modifier.size(40.dp).clip(CircleShape).tap(CircleShape) { Nav.open(AddStatusPage()) }.semantics { contentDescription = "Add status" }, contentAlignment = Alignment.Center) {
                 Icon(Sym.PhotoCamera, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -345,8 +417,7 @@ internal fun ClStatusChip(all: List<StUser>) {
     val unseen = others.filter { !Statuses.allSeen(it) }
     val shape = RoundedCornerShape(16.dp)
     Row(Modifier.height(25.dp).clip(shape).background(MaterialTheme.colorScheme.surfaceVariant).tap(shape) {
-            val first = unseen.firstOrNull() ?: others.firstOrNull()
-            if (first != null) Nav.open(StatusViewerPage(first.userId)) else if (mine != null) Nav.open(StatusViewerPage(me.id)) else Nav.open(PostStatusPage())
+            Nav.open(StatusUpdatesPage())
         }.semantics { contentDescription = "Status" + if (unseen.isNotEmpty()) ", ${unseen.size} new" else "" }.padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(14.dp).clip(CircleShape).border(2.dp, if (unseen.isNotEmpty()) ChatLook.unread else MaterialTheme.colorScheme.outline, CircleShape))

@@ -153,7 +153,7 @@ fun SoVideoPoster(url: String?, title: String, duration: Int, modifier: Modifier
     val c = ctx()
     var failed by remember(url) { mutableStateOf(url.isNullOrBlank()) }
     var loaded by remember(url) { mutableStateOf(false) }
-    Box(modifier.background(Brush.linearGradient(listOf(Color(0xFF1F6F5C), Color(0xFF173F4A)))), contentAlignment = Alignment.Center) {
+    Box(modifier.background(Brush.linearGradient(listOf(Color(0xFF008069), Color(0xFF173F4A)))), contentAlignment = Alignment.Center) {
         if (!failed) AsyncImage(model = ImageRequest.Builder(c).data(url).crossfade(150).build(), contentDescription = null, contentScale = fit,
             modifier = Modifier.fillMaxWidth().then(if (loaded) Modifier else Modifier.heightIn(min = 160.dp)),
             onSuccess = { loaded = true }, onError = { failed = true })

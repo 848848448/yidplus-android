@@ -4,9 +4,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.core.content.ContextCompat
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
@@ -143,27 +146,61 @@ import org.json.JSONObject
 /* ─────────────── Post a status ─────────────── */
 
 /** WhatsApp-style "post status": coloured text status (the site's 8 backgrounds) or a photo/video with a caption, and who sees it. */
-class PostStatusPage : PageScreen() {
+class PostStatusPage(val startMode: String? = null, val initialMedia: String? = null) : PageScreen() {
     override val perfName: String get() = "PostStatus"
     override val immersive: Boolean get() = true
-    @Composable override fun Content() { PostStatus() }
+    @Composable override fun Content() { PostStatus(startMode, initialMedia) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PostStatus() {
+private fun PostStatus(startMode: String? = null, initialMedia: String? = null) {
     val c = ctx()
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var bg by remember { mutableIntStateOf(0) }
+    var fontIdx by remember { mutableIntStateOf(0) }
     var privacy by remember { mutableStateOf("public") }
-    var media by remember { mutableStateOf<Uri?>(null) }
+    var media by remember { mutableStateOf(initialMedia?.let { runCatching { Uri.parse(it) }.getOrNull() }) }
     var caption by remember { mutableStateOf("") }
     var posting by remember { mutableStateOf(false) }
     val fr = remember { FocusRequester() }
+    val recorder = remember { ChatVoiceRecorder(c) }
+    var recording by remember { mutableStateOf(false) }
+    var recSec by remember { mutableIntStateOf(0) }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u -> if (u != null) media = u }
+    var shotUri by remember { mutableStateOf<Uri?>(null) }
+    val takePic = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) shotUri?.let { media = it } }
+    fun shoot() {
+        val f = java.io.File(java.io.File(c.cacheDir, "captures").apply { mkdirs() }, "status_" + System.currentTimeMillis() + ".jpg")
+        val u = runCatching { androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", f) }.getOrNull() ?: return
+        shotUri = u; runCatching { takePic.launch(u) }.onFailure { toast(c, "No camera app found") }
+    }
+    var composingLayout by remember { mutableStateOf(false) }
+    val pickMany = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(4)) { list ->
+        when {
+            list.size >= 2 -> { composingLayout = true; scope.launch {
+                val f = withContext(Dispatchers.IO) { csComposeCollage(c, list.take(4)) }
+                composingLayout = false
+                if (f != null) media = runCatching { androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", f) }.getOrNull()
+                else toast(c, "Couldn't make the layout")
+            } }
+            list.size == 1 -> media = list[0]
+        }
+    }
+    fun startRec() { if (recorder.start()) { recording = true } else toast(c, "Couldn't start recording") }
+    val micPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRec() else toast(c, "Allow the microphone to record a voice status") }
+    fun askRec() { if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRec() else micPerm.launch(Manifest.permission.RECORD_AUDIO) }
     val isVideo = media?.let { (c.contentResolver.getType(it) ?: "").startsWith("video") } == true
-    LaunchedEffect(Unit) { kotlinx.coroutines.delay(250); runCatching { fr.requestFocus() } }
+    LaunchedEffect(Unit) {
+        when (startMode) {
+            "camera" -> shoot()
+            "voice" -> askRec()
+            "layout" -> runCatching { pickMany.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+            "gallery" -> runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }
+            else -> { kotlinx.coroutines.delay(250); runCatching { fr.requestFocus() } }
+        }
+    }
     BackHandler(enabled = media != null) { media = null }
     fun post() {
         if (posting) return
@@ -173,13 +210,35 @@ private fun PostStatus() {
         posting = true
         scope.launch {
             try {
-                if (m == null) Statuses.postText(text.trim(), Statuses.BGS[bg], privacy) else Statuses.postMedia(c, m, caption.trim(), privacy)
+                if (m == null) Statuses.postText(text.trim(), Statuses.BGS[bg], privacy, Statuses.FONTS[fontIdx]) else Statuses.postMedia(c, m, caption.trim(), privacy)
                 toast(c, "Status posted")
                 Statuses.scope.launch { Statuses.res.load(true) }
                 Nav.back()
             } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { posting = false }
         }
     }
+    fun stopRec(keep: Boolean) {
+        val res = recorder.stop(keep); recording = false; recSec = 0
+        if (keep && res != null) {
+            if (Session.me == null) { toast(c, "Please sign in first."); return }
+            posting = true
+            scope.launch {
+                try {
+                    Statuses.postVoice(res.first, privacy)
+                    toast(c, "Voice status posted")
+                    Statuses.scope.launch { Statuses.res.load(true) }
+                    Nav.back()
+                } catch (e: Exception) { toast(c, Api.friendly(e)) } finally { posting = false }
+            }
+        } else if (keep) toast(c, "Too short — hold to record")
+    }
+    // Tick the timer while recording; auto-stop and post at 60s (WhatsApp's status cap).
+    LaunchedEffect(recording) {
+        if (!recording) return@LaunchedEffect
+        while (recording) { recSec = recorder.seconds(); if (recSec >= 60) { stopRec(true); break }; kotlinx.coroutines.delay(200) }
+    }
+    BackHandler(enabled = recording) { stopRec(false) }
+    DisposableEffect(Unit) { onDispose { runCatching { recorder.stop(false) } } }
     val fieldColors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
         focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = Color.White,
         focusedTextColor = Color.White, unfocusedTextColor = Color.White)
@@ -190,7 +249,16 @@ private fun PostStatus() {
         Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
             IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
             Spacer(Modifier.weight(1f))
+            if (media == null) Box(Modifier.size(48.dp).clip(CircleShape).tap(CircleShape) { fontIdx = (fontIdx + 1) % Statuses.FONTS.size }, contentAlignment = Alignment.Center) {
+                // Hebrew sample so the font change is visible on the button itself (these are Hebrew fonts).
+                Text("א", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, fontFamily = Statuses.fontFamily(Statuses.FONTS[fontIdx]), style = TextStyle(textDirection = TextDirection.Rtl))
+            }
             if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.Mic, "Voice status", { askRec() }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.PhotoCamera, "Camera", { shoot() }, tint = Color.White, size = 48.dp)
+            if (media == null) IconBtn(Sym.GridView, "Layout (collage)", {
+                runCatching { pickMany.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }.onFailure { toast(c, "No photo app found") }
+            }, tint = Color.White, size = 48.dp)
             IconBtn(Sym.PhotoLibrary, "Photo or video", {
                 runCatching { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }.onFailure { toast(c, "No photo app found") }
             }, tint = Color.White, size = 48.dp)
@@ -205,7 +273,7 @@ private fun PostStatus() {
                 TextField(text, { if (it.length <= 700) text = it }, Modifier.fillMaxWidth().padding(horizontal = 20.dp).focusRequester(fr).onFocusChanged { fieldFocused = it.isFocused },
                     placeholder = { if (!fieldFocused) Text("Type a status", Modifier.fillMaxWidth(), color = Color.White.copy(alpha = .6f), fontSize = big, textAlign = TextAlign.Center) },
                     textStyle = TextStyle(fontSize = if (text.length > 120) 18.sp else big, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center,
-                        textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
+                        fontFamily = Statuses.fontFamily(Statuses.FONTS[fontIdx]), textDirection = TextDirection.Content), colors = fieldColors, maxLines = 10)
             } else if (isVideo) Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Sym.PlayCircle, null, tint = Color.White, modifier = Modifier.size(72.dp))
                 Text("Video ready to post", color = Color.White, fontSize = 16.sp)
@@ -213,10 +281,10 @@ private fun PostStatus() {
         }
         // Bottom: colours, caption, who sees it, post
         Column(Modifier.fillMaxWidth().then(if (ime) Modifier else Modifier.navigationBarsPadding()).padding(bottom = 10.dp)) {
-            if (media == null) { if (!ime) LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (media == null) { if (!ime) LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 itemsIndexed(Statuses.BGS) { i, b ->
-                    Box(Modifier.size(30.dp).clip(CircleShape).background(Statuses.brush(b))
-                        .border(if (i == bg) 2.5.dp else 1.dp, if (i == bg) Color.White else Color.White.copy(alpha = .4f), CircleShape)
+                    Box(Modifier.size(if (i == bg) 40.dp else 36.dp).clip(CircleShape).background(Statuses.brush(b))
+                        .border(if (i == bg) 3.dp else 1.5.dp, if (i == bg) Color.White else Color.White.copy(alpha = .45f), CircleShape)
                         .tap(CircleShape) { bg = i })
                 }
             } } else TextField(caption, { caption = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp),
@@ -243,5 +311,164 @@ private fun PostStatus() {
             }
         }
       }
+      // Voice-status recording overlay (WhatsApp-style): big mic + timer, Cancel / Send.
+      if (recording) Box(Modifier.fillMaxSize().background(Color(0xE6000000)), contentAlignment = Alignment.Center) {
+          Column(horizontalAlignment = Alignment.CenterHorizontally) {
+              Box(Modifier.size(140.dp).clip(CircleShape).background(BadgeGreen.copy(alpha = .18f)), contentAlignment = Alignment.Center) {
+                  Box(Modifier.size(96.dp).clip(CircleShape).background(BadgeGreen), contentAlignment = Alignment.Center) {
+                      Icon(Sym.Mic, null, tint = Color.White, modifier = Modifier.size(48.dp))
+                  }
+              }
+              Spacer(Modifier.height(24.dp))
+              Text("%d:%02d".format(recSec / 60, recSec % 60), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+              Spacer(Modifier.height(6.dp))
+              Text("Recording voice status…", color = Color.White.copy(alpha = .7f), fontSize = 14.sp)
+              Spacer(Modifier.height(40.dp))
+              Row(horizontalArrangement = Arrangement.spacedBy(44.dp)) {
+                  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      Box(Modifier.size(64.dp).clip(CircleShape).background(Color(0x33FFFFFF)).tap(CircleShape) { stopRec(false) }, contentAlignment = Alignment.Center) {
+                          Icon(Icons.Filled.Delete, "Cancel", tint = Color.White, modifier = Modifier.size(30.dp))
+                      }
+                      Spacer(Modifier.height(6.dp)); Text("Cancel", color = Color.White, fontSize = 13.sp)
+                  }
+                  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      Box(Modifier.size(64.dp).clip(CircleShape).background(if (posting) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { stopRec(true) }, contentAlignment = Alignment.Center) {
+                          Icon(Sym.Send, "Send", tint = Color.White, modifier = Modifier.size(30.dp))
+                      }
+                      Spacer(Modifier.height(6.dp)); Text("Send", color = Color.White, fontSize = 13.sp)
+                  }
+              }
+          }
+      }
+      if (composingLayout) Box(Modifier.fillMaxSize().background(Color(0x99000000)), contentAlignment = Alignment.Center) {
+          Text("Making layout…", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+      }
     }
 }
+
+/** Compose 2–4 photos into one status image (WhatsApp "Layout"): clean 2/3/4 templates, each cell centre-cropped. */
+internal fun csComposeCollage(c: Context, uris: List<Uri>): java.io.File? = runCatching {
+    val n = uris.size.coerceIn(1, 4)
+    val W = 1080f; val H = 1350f
+    val out = android.graphics.Bitmap.createBitmap(W.toInt(), H.toInt(), android.graphics.Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(out)
+    canvas.drawColor(android.graphics.Color.BLACK)
+    val rects: List<android.graphics.RectF> = when (n) {
+        2 -> listOf(android.graphics.RectF(0f, 0f, W / 2, H), android.graphics.RectF(W / 2, 0f, W, H))
+        3 -> listOf(android.graphics.RectF(0f, 0f, W / 2, H), android.graphics.RectF(W / 2, 0f, W, H / 2), android.graphics.RectF(W / 2, H / 2, W, H))
+        4 -> listOf(android.graphics.RectF(0f, 0f, W / 2, H / 2), android.graphics.RectF(W / 2, 0f, W, H / 2), android.graphics.RectF(0f, H / 2, W / 2, H), android.graphics.RectF(W / 2, H / 2, W, H))
+        else -> listOf(android.graphics.RectF(0f, 0f, W, H))
+    }
+    val gap = 6f
+    for (i in 0 until n) {
+        val r = rects[i]
+        val cell = android.graphics.RectF(r.left + (if (r.left > 0f) gap / 2 else 0f), r.top + (if (r.top > 0f) gap / 2 else 0f),
+            r.right - (if (r.right < W) gap / 2 else 0f), r.bottom - (if (r.bottom < H) gap / 2 else 0f))
+        val bmp = csDecodeSampled(c, uris[i], cell.width().toInt(), cell.height().toInt()) ?: continue
+        val scale = maxOf(cell.width() / bmp.width, cell.height() / bmp.height)
+        val sw = cell.width() / scale; val sh = cell.height() / scale
+        val sx = ((bmp.width - sw) / 2f).toInt(); val sy = ((bmp.height - sh) / 2f).toInt()
+        canvas.drawBitmap(bmp, android.graphics.Rect(sx, sy, sx + sw.toInt(), sy + sh.toInt()), cell, null)
+        bmp.recycle()
+    }
+    val f = java.io.File(java.io.File(c.cacheDir, "captures").apply { mkdirs() }, "collage_" + System.currentTimeMillis() + ".jpg")
+    java.io.FileOutputStream(f).use { out.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, it) }
+    out.recycle()
+    f
+}.getOrNull()
+
+private fun csDecodeSampled(c: Context, uri: Uri, reqW: Int, reqH: Int): android.graphics.Bitmap? = runCatching {
+    val o = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    c.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, o) }
+    var s = 1
+    while (reqW > 0 && reqH > 0 && o.outWidth / (s * 2) >= reqW && o.outHeight / (s * 2) >= reqH) s *= 2
+    c.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = s }) }
+}.getOrNull()
+
+/* ─────────────── WhatsApp "Add status" sheet ─────────────── */
+
+/** WhatsApp's "Add status" bottom sheet: Text / Music / Layout / Voice / AI images, then Camera + Gallery. */
+class AddStatusPage : PageScreen() {
+    override val perfName: String get() = "AddStatus"
+    override val immersive: Boolean get() = true
+    @Composable override fun Content() {
+        val c = ctx()
+        val scope = rememberCoroutineScope()
+        fun go(mode: String?) { Nav.back(); Nav.open(PostStatusPage(mode)) }
+        fun pickRecent(u: Uri) { Nav.back(); Nav.open(PostStatusPage(null, u.toString())) }
+        val readPerm = if (android.os.Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_IMAGES else Manifest.permission.READ_EXTERNAL_STORAGE
+        var recents by remember { mutableStateOf<List<Uri>>(emptyList()) }
+        val permL = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) scope.launch { recents = withContext(Dispatchers.IO) { statusRecentImages(c) } } }
+        LaunchedEffect(Unit) {
+            if (ContextCompat.checkSelfPermission(c, readPerm) == PackageManager.PERMISSION_GRANTED) recents = withContext(Dispatchers.IO) { statusRecentImages(c) }
+            else permL.launch(readPerm)
+        }
+        Box(Modifier.fillMaxSize().background(Color(0x99000000)).pointerInput(Unit) { detectTapGestures { Nav.back() } }) {
+            Surface(Modifier.align(Alignment.BottomCenter).fillMaxWidth(), shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+                color = MaterialTheme.colorScheme.surface, tonalElevation = 4.dp) {
+                Column(Modifier.navigationBarsPadding().padding(bottom = 12.dp).pointerInput(Unit) { detectTapGestures {} }) {
+                    Row(Modifier.fillMaxWidth().padding(start = 6.dp, end = 12.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        IconBtn(Sym.Close, "Close", { Nav.back() })
+                        Text("Add status", Modifier.weight(1f).padding(start = 6.dp), fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                        AddStatusOpt(Sym.Edit, "Text", Color(0xFF7E57C2)) { go("text") }
+                        AddStatusOpt(Sym.MusicNote, "Music", Color(0xFFEC407A)) { toast(c, "Music status is coming soon") }
+                        AddStatusOpt(Sym.GridView, "Layout", Color(0xFF42A5F5)) { go("layout") }
+                        AddStatusOpt(Sym.Mic, "Voice", Color(0xFF26A69A)) { go("voice") }
+                        AddStatusOpt(Sym.Brush, "AI images", Color(0xFFFFA726)) { toast(c, "AI image status is coming soon") }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AddStatusTile(Modifier.weight(1f), Sym.PhotoCamera, "Camera") { go("camera") }
+                        AddStatusTile(Modifier.weight(1f), Sym.PhotoLibrary, "Gallery") { go("gallery") }
+                    }
+                    if (recents.isNotEmpty()) {
+                        Text("Recents", Modifier.padding(start = 16.dp, top = 6.dp, bottom = 4.dp), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        LazyRow(Modifier.fillMaxWidth().height(92.dp).padding(horizontal = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(recents) { u ->
+                                Box(Modifier.size(88.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(10.dp)) { pickRecent(u) }) {
+                                    AsyncImage(u, "Recent photo", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddStatusOpt(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, color: Color, onClick: () -> Unit) {
+    Column(Modifier.clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp), onClick = onClick).padding(horizontal = 6.dp, vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(52.dp).clip(CircleShape).background(color), contentAlignment = Alignment.Center) {
+            Icon(icon, label, tint = Color.White, modifier = Modifier.size(26.dp))
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(label, fontSize = 12.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurface)
+    }
+}
+
+@Composable
+private fun AddStatusTile(modifier: Modifier, icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    Row(modifier.height(64.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(14.dp), onClick = onClick),
+        horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, label, tint = ChatLook.accent, modifier = Modifier.size(26.dp))
+        Spacer(Modifier.width(10.dp))
+        Text(label, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
+    }
+}
+
+/** Recent gallery image Uris (newest first) for the Add-status "Recents" row. */
+internal fun statusRecentImages(c: Context): List<Uri> = runCatching {
+    val uris = ArrayList<Uri>()
+    val col = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    val proj = arrayOf(android.provider.MediaStore.Images.Media._ID)
+    c.contentResolver.query(col, proj, null, null, android.provider.MediaStore.Images.Media.DATE_ADDED + " DESC")?.use { cur ->
+        val idx = cur.getColumnIndexOrThrow(android.provider.MediaStore.Images.Media._ID)
+        var n = 0
+        while (cur.moveToNext() && n < 30) { uris.add(android.content.ContentUris.withAppendedId(col, cur.getLong(idx))); n++ }
+    }
+    uris
+}.getOrDefault(emptyList())

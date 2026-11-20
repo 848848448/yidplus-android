@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -68,6 +69,18 @@ fun AppRoot(onExit: () -> Unit) {
         val twoPane = cfg.screenWidthDp >= 840 || (cfg.screenWidthDp >= 600 && cfg.screenWidthDp > cfg.screenHeightDp)
         Nav.wide = twoPane
         LaunchedEffect(Unit) { Session.refresh() }
+        // Ring in: while signed in, watch for an incoming call (the CallHost overlay shows it).
+        val callCtx = androidx.compose.ui.platform.LocalContext.current
+        LaunchedEffect(Session.me?.id) { while (Session.me != null) { CallKit.checkIncoming(callCtx); kotlinx.coroutines.delay(5000) } }
+        // Presence: tell the server I'm online every ~25 s while the app is open, so others really see "online"
+        // (not the stale flag). When the app goes to the background, mark offline so it clears within a minute.
+        val presenceLifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current
+        LaunchedEffect(Session.me?.id) {
+            while (Session.me != null) {
+                if (presenceLifecycle.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) runCatching { ChatApi.ping(true) }
+                kotlinx.coroutines.delay(25_000)
+            }
+        }
         // A feature the owner switched off on the site disappears here too (and its screen closes).
         LaunchedEffect(SiteConfig.s) { if (!SiteConfig.visible(Nav.tab)) Nav.go(Nav.start) }
         BackHandler { if (!Nav.back()) onExit() }
@@ -88,6 +101,9 @@ fun AppRoot(onExit: () -> Unit) {
                 c.isAppearanceLightNavigationBars = !dark && !immersive
             }
         }
+        // Switching accounts rebuilds the whole UI subtree (keyed on the account id), so every screen drops its
+        // remembered data and reloads for the new account — no stale chats/channels/status from the previous one.
+        androidx.compose.runtime.key(Session.me?.id) {
         Box(Modifier.fillMaxSize().background(if (immersive) Color.Black else MaterialTheme.colorScheme.background)) {
         Box(Modifier.fillMaxWidth().height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()).background(barTop))
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
@@ -144,6 +160,26 @@ fun AppRoot(onExit: () -> Unit) {
                     actionColor = Color(0xFF25D366), modifier = Modifier.padding(horizontal = 8.dp))
             }
         }
+        CallHost()
+        if (AppLock.locked) AppLockScreen()
+        }
+        }
+    }
+}
+
+/** Full-screen lock cover shown until the phone's fingerprint/PIN confirms it's you. */
+@Composable
+private fun AppLockScreen() {
+    Box(Modifier.fillMaxSize().background(Color(0xFF008069)).tap(RoundedCornerShape(0.dp)) {}, contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Sym.Lock, null, tint = Color.White, modifier = Modifier.size(56.dp))
+            Spacer(Modifier.height(16.dp))
+            Text("YID PLUS is locked", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(24.dp))
+            Box(Modifier.clip(RoundedCornerShape(24.dp)).background(Color.White).tap(RoundedCornerShape(24.dp)) { AppLock.onUnlockRequest?.invoke() }
+                .padding(horizontal = 28.dp, vertical = 12.dp)) {
+                Text("Unlock", color = Color(0xFF008069), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }
@@ -180,7 +216,7 @@ private fun GuestGate() {
 
 @Composable
 private fun Notice(text: String) {
-    Box(Modifier.fillMaxWidth().background(Color(0xFF1F6F5C)).padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().background(Color(0xFF008069)).padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
         Text(text, color = Color.White, style = MaterialTheme.typography.labelMedium, maxLines = 2)
     }
 }

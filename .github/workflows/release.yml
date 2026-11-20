@@ -14,6 +14,10 @@ on:
       version:
         description: 'Version to release, e.g. 1.0.1'
         required: true
+      prerelease:
+        description: 'Test build only: publish as a pre-release (NOT offered to users by the in-app updater; download manually).'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -242,4 +246,5 @@ jobs:
           files: |
             dist/YIDPLUS.apk
             dist/version.json
-          make_latest: true
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          make_latest: ${{ github.event.inputs.prerelease != 'true' }}

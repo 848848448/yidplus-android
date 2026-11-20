@@ -116,6 +116,7 @@ import com.yidplus.app.data.Disk
 import com.yidplus.app.data.Fixture
 import com.yidplus.app.data.Media
 import com.yidplus.app.data.Prefs
+import com.yidplus.app.data.Room
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.SiteConfig
 import com.yidplus.app.data.Store
@@ -268,12 +269,13 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                 }) { ch, d -> ch.consume(); dx += d.x; dy += d.y }
             }, contentAlignment = Alignment.Center) {
             when {
+                slide.media != null && slide.audio -> StAudio(slide.media, user.nick, user.photo, paused, onDur = { durMs = it.coerceIn(1500L, 60_000L) }, onReady = { ready = true })
                 slide.media != null && slide.video -> StVideo(slide.media, paused, onDur = { durMs = it.coerceIn(1500L, 60_000L) }, onReady = { ready = true })
                 slide.media != null -> AsyncImage(slide.media, slide.text.ifBlank { "Status photo" }, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize(),
                     onSuccess = { ready = true }, onError = { ready = true })
                 else -> Box(Modifier.fillMaxSize().background(Statuses.brush(slide.bg)).padding(28.dp), contentAlignment = Alignment.Center) {
                     Text(slide.text, color = Statuses.textColor(slide.color), fontSize = if (slide.text.length > 120) 20.sp else 26.sp, fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center, lineHeight = if (slide.text.length > 120) 28.sp else 36.sp, style = TextStyle(textDirection = TextDirection.Content))
+                        fontFamily = Statuses.fontFamily(slide.font), textAlign = TextAlign.Center, lineHeight = if (slide.text.length > 120) 28.sp else 36.sp, style = TextStyle(textDirection = TextDirection.Content))
                 }
             }
             if (slide.media != null && slide.text.isNotBlank()) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()
@@ -319,6 +321,23 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                                 })
                         }
                     }
+                } else if (Session.me != null) {
+                    Box {
+                        IconBtn(Sym.MoreVert, "More", { menu = true }, tint = Color.White)
+                        DropdownMenu(menu, { menu = false }) {
+                            fun goDm(then: (Room) -> Unit) { menu = false; scope.launch { runCatching { val rid = ChatApi.openDm(user.userId); ChatApi.info(rid)?.room ?: ChatApi.roomOf(rid, "private", user.nick, user.photo, user.userId) }.onSuccess { Nav.back(); then(it) }.onFailure { toast(c, Api.friendly(it)) } } }
+                            DropdownMenuItem(text = { Text("Message", fontSize = 16.sp) }, leadingIcon = { Icon(Sym.Chat, null) },
+                                onClick = { goDm { Nav.open(Screen.Chat(it)) } })
+                            DropdownMenuItem(text = { Text("Voice call", fontSize = 16.sp) }, leadingIcon = { Icon(Sym.Call, null) },
+                                onClick = { goDm { Nav.open(ChCall(it, "audio")) } })
+                            DropdownMenuItem(text = { Text("Video call", fontSize = 16.sp) }, leadingIcon = { Icon(Sym.Videocam, null) },
+                                onClick = { goDm { Nav.open(ChCall(it, "video")) } })
+                            val muted = Statuses.muteVersion.let { Statuses.isMuted(user.userId) }
+                            DropdownMenuItem(text = { Text(if (muted) "Unmute ${user.nick}" else "Mute ${user.nick}", fontSize = 16.sp) },
+                                leadingIcon = { Icon(Sym.NotificationsOff, null) },
+                                onClick = { menu = false; val nm = Statuses.toggleMute(user.userId); toast(c, if (nm) "Muted ${user.nick}'s updates" else "Unmuted") })
+                        }
+                    }
                 }
             }
         }
@@ -332,6 +351,15 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                     Text("${slide.views} views", color = Color.White, fontSize = 15.sp)
                 }
             } else if (Session.me != null) {
+              Column {
+                // WhatsApp's quick status reactions.
+                if (!typing) Row(Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp).clip(RoundedCornerShape(30.dp)).background(Color.Black.copy(alpha = .28f)).padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    listOf("👍", "❤️", "😂", "😮", "😢", "🙏").forEach { e ->
+                        Text(e, Modifier.clip(CircleShape).tap(CircleShape) {
+                            scope.launch { try { Statuses.replyTo(user.userId, "$e (reacted to your status)"); toast(c, "$e Reacted!") } catch (ex: Exception) { toast(c, Api.friendly(ex)) } }
+                        }.padding(4.dp), fontSize = 30.sp)
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextField(reply, { reply = it }, Modifier.weight(1f).onFocusChanged { typing = it.isFocused },
                         placeholder = { Text("Reply…", color = Color.White.copy(alpha = .75f)) }, singleLine = true, shape = RoundedCornerShape(24.dp),
@@ -354,6 +382,7 @@ private fun StatusPlayer(users: List<StUser>, meId: String?, onDeleted: (String,
                         if (liked) scope.launch { try { Statuses.replyTo(user.userId, "❤️ (reacted to your status)"); toast(c, "❤️ Reacted!") } catch (e: Exception) { toast(c, Api.friendly(e)) } }
                     }, tint = if (liked) Color(0xFFFF4D67) else Color.White, size = 48.dp)
                 }
+              }
             }
         }
         if (sheet) StViewersSheet(slide) { sheet = false }
@@ -412,4 +441,33 @@ private fun StVideo(url: String, paused: Boolean, onDur: (Long) -> Unit, onReady
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         this.player = player; useController = false; setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
     } }, modifier = Modifier.fillMaxSize())
+}
+
+/** A voice status: plays the audio (always audible) over a gradient, WhatsApp-style, with the poster's avatar and a mic badge. */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+@Composable
+private fun StAudio(url: String, nick: String, photo: String?, paused: Boolean, onDur: (Long) -> Unit, onReady: () -> Unit) {
+    val c = ctx()
+    val player = remember(url) { Media.player(c).apply { setMediaItem(MediaItem.fromUri(url)); prepare(); playWhenReady = true; volume = 1f } }
+    DisposableEffect(player) {
+        val l = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_READY) { if (player.duration > 0) onDur(player.duration); onReady() } }
+            override fun onPlayerError(error: PlaybackException) { onReady() }
+        }
+        player.addListener(l)
+        onDispose { player.removeListener(l); player.release() }
+    }
+    LaunchedEffect(paused) { player.playWhenReady = !paused }
+    Box(Modifier.fillMaxSize().background(Statuses.brush("linear-gradient(135deg,#0f3460,#533483)")), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(contentAlignment = Alignment.BottomEnd) {
+                ChAvatar(photo, nick, nick, 128.dp)
+                Box(Modifier.size(44.dp).clip(CircleShape).background(BadgeGreen), contentAlignment = Alignment.Center) {
+                    Icon(Sym.Mic, "Voice status", tint = Color.White, modifier = Modifier.size(26.dp))
+                }
+            }
+            Spacer(Modifier.height(20.dp))
+            Text("Voice update", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        }
+    }
 }

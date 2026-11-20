@@ -107,7 +107,7 @@ data class CsPollNew(val room: Room) : PageScreen() {
                 val ts = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content)
                 OutlinedTextField(question, { if (it.length <= 200) question = it }, Modifier.fillMaxWidth().firstFocus(), label = { Text("Ask a question") }, textStyle = ts)
                 OutlinedTextField(desc, { if (it.length <= 300) desc = it }, Modifier.fillMaxWidth().padding(top = 6.dp), label = { Text("Description (optional)") }, textStyle = ts)
-                Text("Options", Modifier.padding(top = 14.dp, bottom = 2.dp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.bar)
+                Text("Options", Modifier.padding(top = 14.dp, bottom = 2.dp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.accent)
                 opts.forEachIndexed { i, s ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (quiz) Box(Modifier.size(36.dp).clip(CircleShape).background(if (i in correct) Color(0xFF2E7D32) else MaterialTheme.colorScheme.surfaceVariant)
@@ -151,8 +151,8 @@ internal fun CsPollBubble(id: String) {
     val p = poll
     Column(Modifier.padding(6.dp).widthIn(min = 230.dp, max = 300.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Sym.Poll, null, Modifier.size(16.dp), tint = ChatLook.bar)
-            Text(" POLL" + if (p?.optBoolean("quiz_mode") == true) " · QUIZ" else "", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ChatLook.bar)
+            Icon(Sym.Poll, null, Modifier.size(16.dp), tint = ChatLook.accent)
+            Text(" POLL" + if (p?.optBoolean("quiz_mode") == true) " · QUIZ" else "", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ChatLook.accent)
         }
         if (p == null) { Text("Loading poll…", fontSize = 14.sp, color = ChatLook.sub()); return@Column }
         Text(p.str("question"), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.ink(), style = TextStyle(textDirection = TextDirection.Content))
@@ -166,7 +166,7 @@ internal fun CsPollBubble(id: String) {
             val pct = o.optInt("pct"); val my = o.optBoolean("my_vote")
             val hasC = quiz && o.has("is_correct") && !o.isNull("is_correct"); val ok = o.optBoolean("is_correct")
             val clickable = !closed && Session.me != null && !(!revote && voted && !my)
-            val tint = when { hasC && ok -> Color(0xFF2E7D32); hasC && my && !ok -> Color(0xFFD32F2F); else -> ChatLook.bar }
+            val tint = when { hasC && ok -> Color(0xFF2E7D32); hasC && my && !ok -> Color(0xFFD32F2F); else -> ChatLook.accent }
             Column(Modifier.fillMaxWidth().padding(top = 6.dp).clip(RoundedCornerShape(8.dp)).tap(RoundedCornerShape(8.dp), enabled = clickable) {
                 // The site's castPollVote: several answers toggle this option in my set; one answer replaces it.
                 val mine = opts.filter { it.optBoolean("my_vote") }.map { it.opt("id") }

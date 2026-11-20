@@ -8,8 +8,18 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- Full-screen incoming-call notification (ring over the lock screen) -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Share my location in a chat (optional; only when the user taps Location) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -102,6 +112,8 @@
             tools:node="remove" />
 
         <receiver android:name=".InstallResultReceiver" android:exported="false" />
+        <!-- Decline from a full-screen incoming-call notification -->
+        <receiver android:name=".CallDeclineReceiver" android:exported="false" />
         <!-- Chats (Helper A): inline Reply / Mark as read on chat notifications, and the QA sample (adb only: DUMP). -->
         <receiver android:name=".ChatReplyReceiver" android:exported="false" />
         <receiver android:name=".ChatQaReceiver" android:exported="true" android:permission="android.permission.DUMP">

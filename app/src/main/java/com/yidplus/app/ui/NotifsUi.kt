@@ -90,7 +90,7 @@ fun notifsRes() = Store.res("/api/notifications") { j -> j.optJSONArray("notific
 private fun notifBadge(t: String): Pair<ImageVector, Color> = when (t) {
     "like" -> Sym.Favorite to Color(0xFFE53958)
     "follow", "follow_request", "follow_accept" -> Sym.PersonAdd to Color(0xFF2E7D9A)
-    "comment", "reply" -> Sym.ChatBubble to Color(0xFF1F6F5C)
+    "comment", "reply" -> Sym.ChatBubble to Color(0xFF008069)
     "mention" -> Sym.AlternateEmail to Color(0xFF7B5EA7)
     "channel_post" -> Sym.Campaign to Color(0xFFB7892B)
     "verified", "verify" -> Sym.Verified to Color(0xFF25A36F)

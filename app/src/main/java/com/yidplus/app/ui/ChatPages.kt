@@ -15,6 +15,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -72,8 +73,13 @@ import org.json.JSONObject
 
 @Composable
 internal fun InfoAction(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
-    Column(Modifier.width(72.dp).clip(RoundedCornerShape(12.dp)).border1().tap(RoundedCornerShape(12.dp), onClick = onClick).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.primary); Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+    // WhatsApp-style tonal action: a soft green rounded tile with the icon, label under it in the accent colour.
+    Column(Modifier.width(76.dp).clip(RoundedCornerShape(14.dp)).tap(RoundedCornerShape(14.dp), onClick = onClick).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = if (isDark()) .22f else .12f)), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(23.dp))
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(label, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.primary, maxLines = 1, fontWeight = FontWeight.Medium)
     }
 }
 @Composable internal fun Modifier.border1(): Modifier = this.then(Modifier.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f)))
@@ -120,8 +126,64 @@ class ChNewChat : PageScreen() {
             }, header = {
                 ChRow("New group", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Group, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("group")) }
                 ChRow("New channel", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Campaign, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewGroup("channel")) }
+                ChRow("New broadcast", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Campaign, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChNewBroadcast()) }
                 ChRow("Join by invite link", null, { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Icon(Sym.Link, null, tint = Color.White) } }) { Nav.back(); Nav.open(ChJoinLink()) }
             })
+        }
+    }
+}
+
+/** New broadcast (WhatsApp): pick people, type one message; it's sent to each person privately (their own DM). */
+class ChNewBroadcast : PageScreen() {
+    override val perfName get() = "NewBroadcast"
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope()
+        val picked = remember { mutableStateListOf<ChMember>() }
+        var text by remember { mutableStateOf("") }
+        var sending by remember { mutableStateOf(false) }
+        fun send() {
+            if (sending) return
+            val list = picked.toList(); val t = text.trim()
+            if (list.isEmpty()) { toast(c, "Pick at least one person"); return }
+            if (t.isBlank()) { toast(c, "Type a message first"); return }
+            sending = true
+            scope.launch {
+                var ok = 0
+                for (m in list) runCatching { val rid = ChatApi.openDm(m.id); ChatApi.sendText(rid, t, null) }.onSuccess { ok++ }
+                sending = false
+                toast(c, if (ok == list.size) "✅ Sent to $ok ${if (ok == 1) "person" else "people"}" else "Sent to $ok of ${list.size}")
+                ChatApi.rooms.load(true); Nav.back()
+            }
+        }
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            ChBar("New broadcast", sub = if (picked.isEmpty()) "Pick who gets it" else "${picked.size} selected", onBack = { Nav.back() })
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                UserSearch("Search people", selected = picked.map { it.id }.toSet(), onUser = { mb ->
+                    val i = picked.indexOfFirst { it.id == mb.id }
+                    if (i >= 0) picked.removeAt(i) else picked.add(mb)
+                })
+            }
+            // WhatsApp shows the chosen people as removable avatar chips above the message box.
+            if (picked.isNotEmpty()) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                picked.toList().forEach { mb ->
+                    Column(Modifier.width(60.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box {
+                            ChAvatar(mb.photo, mb.nick, mb.id, 46.dp)
+                            Box(Modifier.align(Alignment.TopEnd).size(18.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(1.dp).clip(CircleShape).background(Color(0xFF888888)).tap(CircleShape) { picked.removeAll { it.id == mb.id } }, contentAlignment = Alignment.Center) {
+                                Icon(Sym.Close, "Remove", Modifier.size(11.dp), tint = Color.White)
+                            }
+                        }
+                        Text(mb.nick, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                    }
+                }
+            }
+            if (picked.isNotEmpty()) Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(text, { text = it }, Modifier.weight(1f), placeholder = { Text("Message to ${picked.size}…") }, maxLines = 4, shape = RoundedCornerShape(24.dp),
+                    textStyle = TextStyle(textDirection = TextDirection.Content))
+                Box(Modifier.padding(start = 8.dp).size(52.dp).clip(CircleShape).background(if (sending) BadgeGreen.copy(alpha = .5f) else BadgeGreen).tap(CircleShape) { send() }, contentAlignment = Alignment.Center) {
+                    Icon(Sym.Send, "Send broadcast", tint = Color.White)
+                }
+            }
         }
     }
 }
@@ -312,6 +374,29 @@ data class ChCall(val room: Room, val kind: String) : PageScreen() {
     @SuppressLint("SetJavaScriptEnabled")
     @Composable override fun Content() {
         val c = ctx()
+        // Native 1-on-1 call (WebRTC via CallKit). The global CallHost overlay draws the call;
+        // this page just asks for the mic/camera, starts the call, and steps aside.
+        val callee = room.otherUserId
+        val privateCall = room.type == "private" && callee != null
+        run {
+            val needCam = kind == "video"
+            val perms = if (needCam) arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA) else arrayOf(Manifest.permission.RECORD_AUDIO)
+            fun begin() {
+                if (privateCall) CallKit.startCall(c, callee!!, room.name, room.photo, needCam)
+                else GroupCallKit.join(c, room, needCam)
+            }
+            val launch = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                if (ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) begin()
+                else toast(c, "Allow the microphone to make calls")
+                Nav.back()
+            }
+            LaunchedEffect(Unit) {
+                if (perms.all { ContextCompat.checkSelfPermission(c, it) == PackageManager.PERMISSION_GRANTED }) { begin(); Nav.back() }
+                else launch.launch(perms)
+            }
+            Column(Modifier.fillMaxSize().background(Color.Black)) {}
+            return
+        }
         var allowed by remember { mutableStateOf(ContextCompat.checkSelfPermission(c, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) }
         val perm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> allowed = ok; if (!ok) toast(c, "Allow the microphone to make calls") }
         LaunchedEffect(Unit) { if (!allowed) perm.launch(Manifest.permission.RECORD_AUDIO) }
