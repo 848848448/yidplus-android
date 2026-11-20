@@ -250,7 +250,8 @@ private fun PostStatus(startMode: String? = null, initialMedia: String? = null) 
             IconBtn(Sym.Close, "Close", { if (media != null) media = null else Nav.back() }, tint = Color.White, size = 48.dp)
             Spacer(Modifier.weight(1f))
             if (media == null) Box(Modifier.size(48.dp).clip(CircleShape).tap(CircleShape) { fontIdx = (fontIdx + 1) % Statuses.FONTS.size }, contentAlignment = Alignment.Center) {
-                Text("Aa", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = Statuses.fontFamily(Statuses.FONTS[fontIdx]))
+                // Hebrew sample so the font change is visible on the button itself (these are Hebrew fonts).
+                Text("א", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, fontFamily = Statuses.fontFamily(Statuses.FONTS[fontIdx]), style = TextStyle(textDirection = TextDirection.Rtl))
             }
             if (media == null) IconBtn(Sym.Palette, "Change colour", { bg = (bg + 1) % Statuses.BGS.size }, tint = Color.White, size = 48.dp)
             if (media == null) IconBtn(Sym.Mic, "Voice status", { askRec() }, tint = Color.White, size = 48.dp)

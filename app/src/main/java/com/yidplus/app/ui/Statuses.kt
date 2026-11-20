@@ -148,12 +148,19 @@ object Statuses {
         "linear-gradient(135deg,#1a1a2e,#16213e)", "linear-gradient(135deg,#0f3460,#533483)", "linear-gradient(135deg,#1b4332,#40916c)",
         "linear-gradient(135deg,#7b2d8b,#e040fb)", "linear-gradient(135deg,#b5179e,#f72585)", "linear-gradient(135deg,#e85d04,#faa307)",
         "linear-gradient(135deg,#03045e,#0096c7)", "linear-gradient(135deg,#2d3436,#636e72)")
-    /** WhatsApp's text-status fonts. Built-in families only (no bundled font files), cycled with the "Aa" button. */
+    /** Text-status fonts, cycled with the "Aa" button. Keys are kept stable so already-posted
+     *  statuses keep their look. Unlike Android's built-in Serif/Monospace/Cursive families —
+     *  which have no distinct Hebrew/Yiddish glyphs, so every option looked the same on Yiddish —
+     *  these map to bundled Hebrew-capable fonts, so the font actually changes on Yiddish text.
+     *  Any glyph a bundled font lacks (Latin, emoji) falls back to the system font automatically. */
     val FONTS = listOf("default", "serif", "mono", "cursive")
+    private val famSerif by lazy { androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.yidplus.app.R.font.yid_serif)) }
+    private val famDisplay by lazy { androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.yidplus.app.R.font.yid_display)) }
+    private val famHand by lazy { androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.yidplus.app.R.font.yid_hand)) }
     fun fontFamily(name: String?): androidx.compose.ui.text.font.FontFamily = when (name) {
-        "serif" -> androidx.compose.ui.text.font.FontFamily.Serif
-        "mono" -> androidx.compose.ui.text.font.FontFamily.Monospace
-        "cursive" -> androidx.compose.ui.text.font.FontFamily.Cursive
+        "serif" -> famSerif          // Frank Ruhl Libre — classic Hebrew serif
+        "mono" -> famDisplay         // Suez One — heavy display
+        "cursive" -> famHand         // Gveret Levin — Hebrew handwriting
         else -> androidx.compose.ui.text.font.FontFamily.SansSerif
     }
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)

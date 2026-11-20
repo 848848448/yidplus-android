@@ -1,3 +1,7 @@
+## New in 2.22.0 (status fonts you can actually see)
+- **Status fonts now really change on Yiddish text:** until now the "Aa" font button cycled through the phone's built-in fonts, which have no Yiddish/Hebrew letter shapes — so every "font" looked the same alef-beis. Now the app ships its own Hebrew fonts, so tapping the font button on a text status gives a clearly different look each time: a classic serif (Frank Ruhl), a bold display face, and a handwriting style.
+- The font button itself now shows a Hebrew **א** so you can see the font before you pick it. Statuses you already posted keep their chosen font.
+
 ## New in 2.21.0 (test build — QR codes + text on photos)
 - **QR code, like WhatsApp:** menu → **QR code** shows your own code (others scan it to start a chat with you) and a **Scan** tab to scan someone's. New chat (green button) → **Scan QR code** too.
 - **Text on photos:** in the send preview, tap the **text (Aa)** button to type words that get placed on the picture (centered) before you send.
