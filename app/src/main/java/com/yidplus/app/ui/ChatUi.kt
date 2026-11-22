@@ -231,7 +231,7 @@ fun chCopy(c: Context, s: String) {
 
 /** A list row: 56-72 dp, 16 dp side padding, divider inset after the avatar. */
 @OptIn(ExperimentalFoundationApi::class) @Composable
-internal fun ChRow(title: String, sub: String?, lead: @Composable () -> Unit, modifier: Modifier = Modifier, trail: @Composable RowScope.() -> Unit = {}, titleColor: Color = Color.Unspecified, onClick: () -> Unit, onLong: (() -> Unit)? = null) {
+internal fun ChRow(title: String, sub: String?, lead: @Composable () -> Unit, modifier: Modifier = Modifier, trail: @Composable RowScope.() -> Unit = {}, titleColor: Color = Color.Unspecified, onLong: (() -> Unit)? = null, onClick: () -> Unit) {
     Column(modifier) {
         Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).then(if (onLong != null) Modifier.combinedClickable(onClick = onClick, onLongClick = onLong) else Modifier.tap(RoundedCornerShape(0.dp), onClick = onClick)).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             lead()
