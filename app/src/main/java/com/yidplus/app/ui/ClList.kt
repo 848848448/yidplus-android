@@ -101,7 +101,7 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
             ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true), tint = Color(0xFF00A884)) { onClose(); Nav.go(Tab.Profile) }
             ClDrawerItem(Sym.RadioButtonChecked, "Status", tint = Color(0xFF1DA851)) { onClose(); Nav.open(StatusUpdatesPage()) }
             ClDrawerItem(Sym.Call, "Calls", tint = Color(0xFF2196F3)) { onClose(); Nav.open(ChCalls()) }
-            ClDrawerItem(Sym.Bookmark, "Saved Messages", tint = Color(0xFFF4B400)) { onClose(); Nav.open(ChSaved()) }
+            ClDrawerItem(Sym.Bookmark, "Saved messages", tint = Color(0xFFF4B400)) { onClose(); Nav.open(ChSaved()) }
             ClDrawerItem(Sym.Folder, "Chat Folders", tint = Color(0xFF7E57C2)) { onClose(); Nav.open(ClFolderManager()) }
             ClDrawerItem(Sym.Group, "New Group", tint = Color(0xFF009688)) { onClose(); Nav.open(ChNewGroup("group")) }
             ClDrawerItem(Sym.Campaign, "New Channel", tint = Color(0xFFFF7043)) { onClose(); Nav.open(ChNewGroup("channel")) }
