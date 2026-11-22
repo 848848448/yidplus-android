@@ -160,7 +160,9 @@ private fun PostStatus(startMode: String? = null, initialMedia: String? = null) 
     var text by remember { mutableStateOf("") }
     var bg by remember { mutableIntStateOf(0) }
     var fontIdx by remember { mutableIntStateOf(0) }
-    var privacy by remember { mutableStateOf("public") }
+    var privacyTouched by remember { mutableStateOf(false) }
+    var privacy by remember { mutableStateOf(SettingsProfile.text("privacy_status").ifBlank { "public" }) }
+    LaunchedEffect(Unit) { SettingsProfile.load(); if (!privacyTouched) privacy = SettingsProfile.text("privacy_status").ifBlank { "public" } }
     var media by remember { mutableStateOf(initialMedia?.let { runCatching { Uri.parse(it) }.getOrNull() }) }
     var caption by remember { mutableStateOf("") }
     var posting by remember { mutableStateOf(false) }
@@ -298,7 +300,7 @@ private fun PostStatus(startMode: String? = null, initialMedia: String? = null) 
                 LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp), contentPadding = PaddingValues(end = 8.dp)) {
                     items(listOf("public" to "Everyone", "followers" to "Followers", "private" to "Only me")) { (k, label) ->
                         val on = privacy == k
-                        Box(Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) Color.White else Color(0x4D000000)).tap(RoundedCornerShape(16.dp)) { privacy = k }
+                        Box(Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) Color.White else Color(0x4D000000)).tap(RoundedCornerShape(16.dp)) { privacy = k; privacyTouched = true }
                             .padding(horizontal = 12.dp, vertical = 7.dp)) {
                             Text(label, color = if (on) Color.Black else Color.White, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1)
                         }
