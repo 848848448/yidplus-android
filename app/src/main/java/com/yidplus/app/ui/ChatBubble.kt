@@ -76,6 +76,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -114,6 +115,16 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 
+/** A shared phone contact arrives as plain text "👤 Name\n📞 Number" — parse it back into a card. */
+internal fun chContactOf(text: String): Pair<String, String>? {
+    if (!text.startsWith("👤 ")) return null
+    val lines = text.split("\n")
+    if (lines.size < 2 || !lines[1].startsWith("📞 ")) return null
+    val name = lines[0].removePrefix("👤 ").trim()
+    val number = lines[1].removePrefix("📞 ").trim()
+    return if (name.isNotBlank() && number.isNotBlank()) name to number else null
+}
+
 /* ═════════════════════════ One message bubble: every type the site draws, swipe to reply, link cards ═════════════════════════ */
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -127,6 +138,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
     val bg = if (mine) ChatLook.mine() else ChatLook.theirs()
     val fg = ChatLook.ink()
     val link = remember(m.text) { if (m.isCentred || m.deleted || m.isSticker || m.isVoice || m.isVoiceText) null else urlRegex.find(m.text)?.value?.trimEnd('.', ',', ')', '!', '?') }
+    val contact = remember(m.text) { if (m.type == "text") chContactOf(m.text) else null }
     val compact = LocalConfiguration.current.screenHeightDp < 600
     val maxW = (LocalConfiguration.current.screenWidthDp * (if (compact) 0.86f else 0.82f)).dp.coerceAtMost(440.dp)
     // WhatsApp: ~8dp corners; the first bubble of a run has a square top corner plus a small drawn tail (csTail).
@@ -227,13 +239,14 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                             Text(m.fileName.substringAfterLast('.', "file").uppercase().take(5) + " · tap to open", color = ChatLook.sub(), fontSize = 12.sp)
                         }
                     }
+                    contact != null -> CsContactCard(contact.first, contact.second)
                 }
                 val cap = if (m.deleted) "" else m.caption
                 val bigEmoji = cap.length <= 8 && cap.isNotBlank() && cap.none { it.isLetterOrDigit() } && m.media == null
                 // Yiddish/Hebrew text sits at the start of its own direction (right), like the site's dir=auto.
-                if (cap.isNotBlank()) Text(csFormat(cap, { u -> chOpenLink(c, u) }, onMention), Modifier.align(if (csIsRtl(cap)) Alignment.End else Alignment.Start).padding(horizontal = 6.dp, vertical = 2.dp), color = fg,
+                if (cap.isNotBlank() && contact == null) Text(csFormat(cap, { u -> chOpenLink(c, u) }, onMention), Modifier.align(if (csIsRtl(cap)) Alignment.End else Alignment.Start).padding(horizontal = 6.dp, vertical = 2.dp), color = fg,
                     fontSize = if (bigEmoji) 34.sp else if (compact) 17.sp else 16.sp, lineHeight = if (bigEmoji) 40.sp else if (compact) 23.sp else 21.sp, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
-                else if (!m.deleted && !hasMedia && !m.isSticker && !m.isAudio && !m.isPoll && !m.isFile && !m.isUnavailable && !m.isVoiceText)
+                else if (!m.deleted && !hasMedia && !m.isSticker && !m.isAudio && !m.isPoll && !m.isFile && !m.isUnavailable && !m.isVoiceText && contact == null)
                     Text("💬 Message", Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = ChatLook.sub(), fontSize = 15.sp)
                 if (link != null) ChLinkCard(link, mine, onJoin)
                 Row(Modifier.align(Alignment.End).padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -297,6 +310,24 @@ internal fun chLinkify(t: String): androidx.compose.ui.text.AnnotatedString = an
         append(mt.value); pop(); last = mt.range.last + 1
     }
     if (last < t.length) append(t.substring(last))
+}
+
+@Composable
+internal fun CsContactCard(name: String, number: String) {
+    val ctx = LocalContext.current
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 2.dp).tap(RoundedCornerShape(8.dp)) {
+            runCatching { ctx.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + number.filter { it.isDigit() || it == '+' })).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ChAvatar(null, name, name, 44.dp)
+        Column(Modifier.padding(start = 10.dp)) {
+            Text(name, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            Text(number, fontSize = 13.sp)
+            Text("Tap to call", fontSize = 11.sp)
+        }
+    }
 }
 
 /** WhatsApp/Telegram link card: picture, site, title, description (the site's /api/link-preview); a YID PLUS invite shows the group's photo, name, members and Join. */
