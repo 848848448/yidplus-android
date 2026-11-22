@@ -177,6 +177,28 @@ internal object CsRecent {
     fun add(e: String) { list = (listOf(e) + list.filter { it != e }).take(24); ctx?.getSharedPreferences("chat_ui", Context.MODE_PRIVATE)?.edit()?.putString(K, list.joinToString(" "))?.apply() }
 }
 
+/** Skin tones for the emoji panel: the 5 modifiers, and the toneable base emojis (as they appear in CHAT_EMOJI_SETS). */
+internal val CS_TONES = listOf("🏻", "🏼", "🏽", "🏾", "🏿")
+internal val CS_TONEABLE = setOf("👍", "👎", "👌", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "👇", "☝️", "✋", "🤚", "🖐️", "🖖", "👋", "👏", "🙌", "👐", "🤲", "🤝", "🙏", "✍️", "💪", "👶", "🧒", "👦", "👧", "🧑", "👨", "👩", "🧔", "👴", "👵", "🙋", "🙇", "🤦", "🤷", "💁", "🙆", "🙅")
+internal fun csToneable(e: String): Boolean = e in CS_TONEABLE
+/** e + tone, with the modifier placed after the first code point and any variation selector (U+FE0F) removed — "✌️"+"🏽" -> "✌🏽". */
+internal fun csToned(e: String, tone: String): String {
+    val clean = e.replace("️", "")
+    val n = Character.charCount(clean.codePointAt(0))
+    return clean.substring(0, n) + tone + clean.substring(n)
+}
+internal fun csVariants(e: String): List<String> = listOf(e) + CS_TONES.map { csToned(e, it) }
+
+/** The skin tone last picked per base emoji, kept in the chat_ui prefs as newline-joined "base=variant" lines. */
+internal object CsEmojiTone {
+    private const val K = "cs_emoji_tones"
+    var map by mutableStateOf<Map<String, String>>(emptyMap()); private set
+    private var ctx: Context? = null
+    fun init(c: Context) { if (ctx != null) return; ctx = c.applicationContext; map = c.getSharedPreferences("chat_ui", Context.MODE_PRIVATE).getString(K, null)?.split('\n')?.mapNotNull { line -> val i = line.indexOf('='); if (i > 0) line.substring(0, i) to line.substring(i + 1) else null }?.toMap() ?: emptyMap() }
+    fun get(base: String): String = map[base] ?: base
+    fun set(base: String, variant: String) { map = map + (base to variant); ctx?.getSharedPreferences("chat_ui", Context.MODE_PRIVATE)?.edit()?.putString(K, map.entries.joinToString("\n") { "${it.key}=${it.value}" })?.apply() }
+}
+
 /** Recent stickers (cs_sticker_recent: 24 kept, newest first). Identifier is the sticker URL string passed to onSticker. */
 internal object CsStickerRecent {
         private const val K = "cs_sticker_recent"
@@ -207,11 +229,12 @@ internal object CsStickerFav {
 @Composable
 internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit, reloadKey: Int, onEmoji: (String) -> Unit) {
     val c = ctx(); val scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) { CsRecent.init(c); CsStickerRecent.init(c); CsStickerFav.init(c) }
+    LaunchedEffect(Unit) { CsEmojiTone.init(c); CsRecent.init(c); CsStickerRecent.init(c); CsStickerFav.init(c) }
     var cat by remember { mutableStateOf(-1) } // -1 recent, 0..n categories, -2 stickers
     var custom by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var delFor by remember { mutableStateOf<JSONObject?>(null) }
-        var favFor by remember { mutableStateOf<String?>(null) }
+        var favFor by remember { mutableStateOf<String?>(null) }    
+    var toneFor by remember { mutableStateOf<String?>(null) }
     var search by remember { mutableStateOf("") }
     val found = remember(search) { chatEmojiSearch(search) }
     LaunchedEffect(cat, reloadKey) { if (cat == -2 && Session.me != null) runCatching { custom = withContext(Dispatchers.IO) { ChatApi.stickers() } } }
@@ -227,7 +250,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         if (search.isNotEmpty()) {
             if (found.isEmpty()) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No emoji found", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             else LazyVerticalGrid(GridCells.Adaptive(44.dp), Modifier.fillMaxSize()) {
-                gridItems(found) { e -> Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { CsRecent.add(e); onEmoji(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) } }
+                gridItems(found) { e -> Box(Modifier.size(44.dp).combinedClickable(onClick = { val v = CsEmojiTone.get(e); CsRecent.add(v); onEmoji(v) }, onLongClick = { if (csToneable(e)) toneFor = e }), contentAlignment = Alignment.Center) { Text(CsEmojiTone.get(e), fontSize = 24.sp) } }
             }
             return@Column
         }
@@ -263,7 +286,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
             else -> {
                 val list = if (cat == -1) CsRecent.list else remember(cat) { CHAT_EMOJI_SETS[cat].second.split(' ').filter { it.isNotBlank() } }
                 LazyVerticalGrid(GridCells.Adaptive(44.dp), Modifier.fillMaxSize()) {
-                    gridItems(list) { e -> Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { CsRecent.add(e); onEmoji(e) }, contentAlignment = Alignment.Center) { Text(e, fontSize = 24.sp) } }
+                    gridItems(list) { e -> Box(Modifier.size(44.dp).combinedClickable(onClick = { val v = CsEmojiTone.get(e); CsRecent.add(v); onEmoji(v) }, onLongClick = { if (csToneable(e)) toneFor = e }), contentAlignment = Alignment.Center) { Text(CsEmojiTone.get(e), fontSize = 24.sp) } }
                 }
             }
         }
@@ -277,7 +300,16 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
                     AlertDialog(onDismissRequest = { favFor = null}, text = { Text(if (CsStickerFav.contains(u)) "Remove this sticker from favorites?" else "Add this sticker to favorites?")},
                                             confirmButton = { TextButton({ CsStickerFav.toggle(u); favFor = null}) { Text(if (CsStickerFav.contains(u)) "⭐ Remove from favorites" else "⭐ Add to favorites")}},
                                             dismissButton = { TextButton({ favFor = null}) { Text("Cancel")}})
-        }
+    }
+    toneFor?.let { base ->
+        AlertDialog(onDismissRequest = { toneFor = null }, confirmButton = {}, title = { Text("Skin tone", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }, text = {
+            Row {
+                csVariants(base).forEach { v ->
+                    Box(Modifier.size(44.dp).tap(RoundedCornerShape(8.dp)) { CsEmojiTone.set(base, v); CsRecent.add(v); onEmoji(v); toneFor = null }, contentAlignment = Alignment.Center) { Text(v, fontSize = 24.sp) }
+                }
+            }
+        })
+    }
 }
 
 /** Attach menu: the site's Gallery, Camera, Video, Audio, Document, Poll, Schedule — plus WhatsApp's Video camera and Contact. */
