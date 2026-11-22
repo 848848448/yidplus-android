@@ -1,3 +1,12 @@
+## New in 2.23.0 (the green list: stickers, camera, cards and polish)
+- **Stickers:** the sticker picker now has Recent and Favorites sections — long-press a sticker to favorite it, and your last-used stickers sit right at the top.
+- **Status privacy:** a new "Who can see my status" setting (Settings → Privacy) picks the default audience for new statuses; you can still change it for each status as you post.
+- **Contact and location cards:** shared contacts and locations now appear as proper tappable cards in the chat — tap a contact to call it, tap a location to open it in Maps.
+- **In-app camera:** the camera button now opens the app's own camera (front/back flip, big shutter) instead of the phone's camera app, and the photo lands in the usual preview so you can add a caption before sending. Long-press the button for a video note, as before.
+- **Emoji skin tones:** long-press a hand or person emoji to pick a skin tone — the app remembers your choice for each emoji.
+- **Forward to several chats:** in the forward screen, long-press chats to select several of them, then tap "Forward to N chats" to send to all of them at once.
+- **Polish:** the status and search screens now show loading skeletons instead of a blank screen or a premature "nothing found", empty screens have proper icons, in-chat search says "No results" when there are none, and the chat menu has a "Media, links and docs" shortcut.
+
 ## New in 2.22.0 (status fonts you can actually see)
 - **Status fonts now really change on Yiddish text:** until now the "Aa" font button cycled through the phone's built-in fonts, which have no Yiddish/Hebrew letter shapes — so every "font" looked the same alef-beis. Now the app ships its own Hebrew fonts, so tapping the font button on a text status gives a clearly different look each time: a classic serif (Frank Ruhl), a bold display face, and a handwriting style.
 - The font button itself now shows a Hebrew **א** so you can see the font before you pick it. Statuses you already posted keep their chosen font.
