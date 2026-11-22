@@ -305,6 +305,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     // Full-size camera photo (the old preview-size picture was ~200 px): the camera writes into our FileProvider's captures/.
     var shotUri by remember { mutableStateOf<Uri?>(null) }
     var noteCamOpen by remember { mutableStateOf(false) }
+    var photoCamOpen by remember { mutableStateOf(false) }
     fun newCapture(ext: String): Uri? = runCatching {
         val dir = java.io.File(c.cacheDir, "captures").apply { mkdirs() }
         androidx.core.content.FileProvider.getUriForFile(c, c.packageName + ".files", java.io.File(dir, "cam_" + System.currentTimeMillis() + ext))
@@ -634,7 +635,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                         keyboardOptions = KeyboardOptions(imeAction = if (ClLocal.enterSends(c)) ImeAction.Send else ImeAction.Default), keyboardActions = KeyboardActions(onSend = { sendText() }))
                     if (editing == null) ChIcon(Sym.AttachFile, "Attach", { attachOpen = !attachOpen; emojiOpen = false }, tint = MaterialTheme.colorScheme.onSurfaceVariant, focus = attachFocus, leftTo = inputFocus)
                     if (editing == null && text.isBlank()) Box(Modifier.size(44.dp).clip(CircleShape)
-                        .combinedClickable(onClick = { shoot(false) }, onLongClick = { shootNote() }), contentAlignment = Alignment.Center) {
+                        .combinedClickable(onClick = { photoCamOpen = true }, onLongClick = { shootNote() }), contentAlignment = Alignment.Center) {
                         Icon(Sym.PhotoCamera, "Camera (hold for a video note)", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
                     }
                     }
@@ -649,7 +650,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                 if (attachOpen && !recording) CsAttachSheet(onPick = { what ->
                     attachOpen = false
                     when (what) {
-                        "gallery" -> pickPhoto.launch("image/*"); "camera" -> shoot(false); "videocam" -> shoot(true)
+                        "gallery" -> pickPhoto.launch("image/*"); "camera" -> photoCamOpen = true; "videocam" -> shoot(true)
                         "video" -> pickVideo.launch("video/*"); "audio" -> pickAudio.launch("audio/*"); "file" -> pickDoc.launch("*/*")
                         "contact" -> runCatching { pickContact.launch(Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)) }.onFailure { toast(c, "No contacts app") }
                         "location" -> shareLocation()
@@ -776,6 +777,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         onCancel = { noteCamOpen = false },
         onRecorded = { f -> noteCamOpen = false; sendFile(null, f, "videonote", "videonote.mp4", "video/mp4", localPreview = Uri.fromFile(f).toString()) }
     )
+    if (photoCamOpen) PhotoCamera(onCancel = { photoCamOpen = false }, onPhoto = { f -> photoCamOpen = false; pendingMedia = listOf(Uri.fromFile(f)) })
     // Chat lock: cover the conversation until the phone's fingerprint/PIN confirms it (WhatsApp's Chat lock).
     val lockVer = ChatLock.version
     if (lockVer >= 0 && ChatLock.needsUnlock(room.id)) {
