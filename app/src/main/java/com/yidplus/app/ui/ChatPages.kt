@@ -324,7 +324,7 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
                 items(l, key = { it.room.id }) { r ->
                     ChRow(r.room.name, if (r.room.id in sent) "Sent ✓" else when (r.room.type) { "private" -> "Private chat"; "channel" -> "Channel"; else -> "Group" },
                         { ChAvatar(r.room.photo, r.room.name, r.room.otherUserId ?: r.room.id, 44.dp) }, modifier = if (r === l.first()) Modifier.firstFocus() else Modifier,
-                        trail = { if (r.room.id in sent) Icon(Sym.CheckCircle, null, tint = ChatLook.unread) else if (r.room.id in picked) Icon(Sym.CheckCircle, "Selected", tint = ChatLook.accent) else Icon(Sym.Send, "Send", tint = MaterialTheme.colorScheme.primary) }, onLong = { if (r.room.id in picked) picked.remove(r.room.id) else picked.add(r.room.id) }) { forward(r) }
+                        trail = { if (r.room.id in sent) Icon(Sym.CheckCircle, null, tint = ChatLook.unread) else if (r.room.id in picked) Icon(Sym.CheckCircle, "Selected", tint = ChatLook.accent) else Icon(Sym.Send, "Send", tint = MaterialTheme.colorScheme.primary) }, onLong = { if (r.room.id in picked) picked.remove(r.room.id) else picked.add(r.room.id) }, onClick = { forward(r) })
                 }
             }
             if (picked.isNotEmpty()) {
