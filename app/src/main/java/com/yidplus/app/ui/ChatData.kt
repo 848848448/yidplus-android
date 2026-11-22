@@ -92,7 +92,7 @@ data class ChatMsg(val id: String, val roomId: String, val senderId: String, val
     /** A voice note saved without its audio (the site's "voice_text": the text is only its length). */
     val isVoiceText get() = type == "voice_text"
     /** A photo / file / voice whose file never arrived: the site shows "Media unavailable", never an empty bubble. */
-    val isUnavailable get() = type in setOf("media", "file", "voice") && media == null && local == null
+    val isUnavailable get() = type in setOf("media", "file", "voice", "videonote") && media == null && local == null
     val isMusic get() = isAudio && !isVoice
     /** Centred lines with no bubble: system notes and call logs. */
     val isCentred get() = isSystem || isCall
