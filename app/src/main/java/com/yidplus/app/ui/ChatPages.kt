@@ -330,6 +330,7 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
             if (picked.isNotEmpty()) {
                 Button(onClick = { scope.launch { val ids = picked.toList(); for (id in ids) { while (busy) delay(50); val r = (res.data ?: emptyList()).find { it.room.id == id } ?: continue; forward(r); while (busy) delay(50) }; picked.clear() } }, modifier = Modifier.fillMaxWidth().padding(12.dp)) { Text("Forward to ${picked.size} chat" + if (picked.size == 1) "" else "s") }
         }
+        }
     }
 }
 
