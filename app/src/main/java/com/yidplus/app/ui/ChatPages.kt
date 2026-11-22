@@ -29,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
@@ -296,6 +297,7 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
         var q by remember { mutableStateOf("") }
         var busy by remember { mutableStateOf(false) }
         val sent = remember { mutableStateListOf<String>() }
+        val picked = remember { mutableStateListOf<String>() }
         fun forward(to: ChatRoomInfo) {
             if (busy || to.room.id in sent) return
             busy = true
@@ -317,13 +319,15 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
             OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), singleLine = true, placeholder = { Text("Search chats") },
                 leadingIcon = { Icon(Sym.Search, null) }, shape = RoundedCornerShape(24.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
             val l = (res.data ?: emptyList()).filter { it.joined && (!it.room.readOnly || it.canManage) && (q.isBlank() || it.room.name.contains(q.trim(), true)) }
-            LazyColumn(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
                 items(l, key = { it.room.id }) { r ->
                     ChRow(r.room.name, if (r.room.id in sent) "Sent ✓" else when (r.room.type) { "private" -> "Private chat"; "channel" -> "Channel"; else -> "Group" },
                         { ChAvatar(r.room.photo, r.room.name, r.room.otherUserId ?: r.room.id, 44.dp) }, modifier = if (r === l.first()) Modifier.firstFocus() else Modifier,
-                        trail = { if (r.room.id in sent) Icon(Sym.CheckCircle, null, tint = ChatLook.unread) else Icon(Sym.Send, "Send", tint = MaterialTheme.colorScheme.primary) }) { forward(r) }
+                        trail = { if (r.room.id in sent) Icon(Sym.CheckCircle, null, tint = ChatLook.unread) else if (r.room.id in picked) Icon(Sym.CheckCircle, "Selected", tint = ChatLook.accent) else Icon(Sym.Send, "Send", tint = MaterialTheme.colorScheme.primary) }, onLong = { if (r.room.id in picked) picked.remove(r.room.id) else picked.add(r.room.id) }) { forward(r) }
                 }
             }
+            if (picked.isNotEmpty()) {
+                Button(onClick = { scope.launch { val ids = picked.toList(); for (id in ids) { while (busy) delay(50); val r = (res.data ?: emptyList()).find { it.room.id == id } ?: continue; forward(r); while (busy) delay(50) }; picked.clear() } }, modifier = Modifier.fillMaxWidth().padding(12.dp)) { Text("Forward to ${picked.size} chat" + if (picked.size == 1) "" else "s") }
         }
     }
 }
