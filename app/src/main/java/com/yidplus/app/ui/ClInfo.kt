@@ -37,8 +37,8 @@ private val URL_RX = Regex("""https?://[^\s<>"]+""")
 
 /** media-history.js: the info page's four tabs, paged with ?before=&before_id= ("Load more" until has_more is false). */
 @Composable
-internal fun ClMediaTabs(roomId: String) {
-    var tab by remember { mutableStateOf(0) }
+internal fun ClMediaTabs(roomId: String, initialTab: Int = 0) {
+    var tab by remember { mutableStateOf(initialTab) }
     val msgs = remember(roomId) { mutableStateListOf<ChatMsg>() }
     var more by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(true) }
