@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -176,15 +177,41 @@ internal object CsRecent {
     fun add(e: String) { list = (listOf(e) + list.filter { it != e }).take(24); ctx?.getSharedPreferences("chat_ui", Context.MODE_PRIVATE)?.edit()?.putString(K, list.joinToString(" "))?.apply() }
 }
 
+/** Recent stickers (cs_sticker_recent: 24 kept, newest first). Identifier is the sticker URL string passed to onSticker. */
+internal object CsStickerRecent {
+        private const val K = "cs_sticker_recent"
+        var list by mutableStateOf<List<String>>(emptyList()); private set
+        private var ctx: Context? = null
+        fun init(c: Context) { if (ctx != null) return; ctx = c.applicationContext; list = c.getSharedPreferences("chat_ui", Context.MODE_PRIVATE).getString(K, null)?.split(' ')?.filter { it.isNotBlank() } ?: emptyList() }
+            fun add(id: String) { list = (listOf(id) + list.filter { it != id }).take(24); ctx?.getSharedPreferences("chat_ui", Context.MODE_PRIVATE)?.edit()?.putString(K, list.joinToString(" "))?.apply() }
+}
+
+/** Favorite stickers (cs_sticker_favs: 60 kept, newest first). Identifier is the sticker URL string passed to onSticker. */
+internal object CsStickerFav {
+        private const val K = "cs_sticker_favs"
+        var list by mutableStateOf<List<String>>(emptyList()); private set
+        private var ctx: Context? = null
+        fun init(c: Context) { if (ctx != null) return; ctx = c.applicationContext; list = c.getSharedPreferences("chat_ui", Context.MODE_PRIVATE).getString(K, null)?.split(' ')?.filter { it.isNotBlank() } ?: emptyList() }
+            fun contains(id: String) = id in list
+        fun toggle(id: String): Boolean { list = if (id in list) list - id else (listOf(id) + list).take(60); ctx?.getSharedPreferences("chat_ui", Context.MODE_PRIVATE)?.edit()?.putString(K, list.joinToString(" "))?.apply(); return id in list }
+}
+@Composable
+private fun CsStickerCell(url: String, onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
+        Box(Modifier.size(76.dp).combinedClickable(onClick = { CsStickerRecent.add(url); onClick() }, onLongClick = onLongClick).padding(6.dp), contentAlignment = Alignment.Center) {
+                    AsyncImage(Api.abs(url) ?: url, "Sticker", Modifier.fillMaxSize())
+        }
+}
+
 /** Emoji + stickers panel (the site's): Recent first, every category, Stickers = built-in + everyone's custom stickers, "+" to add your own, long-press to delete yours. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit, reloadKey: Int, onEmoji: (String) -> Unit) {
     val c = ctx(); val scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) { CsRecent.init(c) }
+    LaunchedEffect(Unit) { CsRecent.init(c); CsStickerRecent.init(c); CsStickerFav.init(c) }
     var cat by remember { mutableStateOf(-1) } // -1 recent, 0..n categories, -2 stickers
     var custom by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var delFor by remember { mutableStateOf<JSONObject?>(null) }
+        var favFor by remember { mutableStateOf<String?>(null) }
     var search by remember { mutableStateOf("") }
     val found = remember(search) { chatEmojiSearch(search) }
     LaunchedEffect(cat, reloadKey) { if (cat == -2 && Session.me != null) runCatching { custom = withContext(Dispatchers.IO) { ChatApi.stickers() } } }
@@ -214,16 +241,24 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         HorizontalDivider(thickness = 0.5.dp)
         when (cat) {
             -2 -> LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.fillMaxSize()) {
+                            if (CsStickerFav.list.isNotEmpty() {
+                                                item(span = { GridItemSpan(maxLineSpan)}) { Text("⭐ Favorites", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
+                                                                gridItems(CsStickerFav.list) { u -> CsStickerCell(u, onClick = { onSticker(u)}, onLongClick = { favFor = u})}
+                            }
+                                        if (CsStickerRecent.list.isNotEmpty() {
+                                                            item(span = { GridItemSpan(maxLineSpan)}) { Text("🕐 Recent", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
+                                                                            gridItems(CsStickerRecent.list) { u -> CsStickerCell(u, onClick = { onSticker(u)}, onLongClick = { favFor = u})}
+                                        }
                 if (Session.me != null) item { Box(Modifier.size(76.dp).padding(6.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(10.dp)) { onPickSticker() }, contentAlignment = Alignment.Center) {
                     Icon(Sym.AddPhotoAlternate, "Add sticker", tint = ChatLook.accent) } }
                 gridItems(custom) { s ->
                     val url = Api.abs(s.str("url")) ?: ""
                     val mineS = s.str("owner_id") == Session.me?.id || chIsSiteAdmin()
-                    Box(Modifier.size(76.dp).combinedClickable(onClick = { onSticker(s.str("url")) }, onLongClick = { if (mineS) delFor = s }).padding(6.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(76.dp).combinedClickable(onClick = { CsStickerRecent.add(s.str("url")); onSticker(s.str("url")) }, onLongClick = { if (mineS) delFor = s else favFor = s.str("url"))}).padding(6.dp), contentAlignment = Alignment.Center) {
                         AsyncImage(url, "Sticker", Modifier.fillMaxSize())
                     }
                 }
-                gridItems(CHAT_STICKERS) { s -> Box(Modifier.size(76.dp).tap(RoundedCornerShape(10.dp)) { onSticker(s) }.padding(6.dp), contentAlignment = Alignment.Center) { AsyncImage(s, "Sticker", Modifier.fillMaxSize()) } }
+                        gridItems(CHAT_STICKERS) { s -> CsStickerCell(s, onClick = { onSticker(s)}, onLongClick = { favFor = s})}
             }
             else -> {
                 val list = if (cat == -1) CsRecent.list else remember(cat) { CHAT_EMOJI_SETS[cat].second.split(' ').filter { it.isNotBlank() } }
@@ -234,10 +269,15 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         }
     }
     delFor?.let { s ->
-        AlertDialog(onDismissRequest = { delFor = null }, text = { Text("Delete this sticker?") },
+        AlertDialog(onDismissRequest = { delFor = null }, text = { Column { Text("Delete this sticker?"); TextButton({ val u = s.str("url")); CsStickerFav.toggle(u); delFor = null}) { Text(if (CsStickerFav.contains(s.str("url"))) "⭐ Remove from favorites" else "⭐ Add to favorites") }}},
             confirmButton = { TextButton({ delFor = null; scope.launch { runCatching { ChatApi.deleteSticker(s.str("id")) }.onSuccess { toast(c, "✅ Deleted"); custom = custom - s }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = Color(0xFFD32F2F)) } },
             dismissButton = { TextButton({ delFor = null }) { Text("Cancel") } })
     }
+        favFor?.let { u ->
+                    AlertDialog(onDismissRequest = { favFor = null}, text = { Text(if (CsStickerFav.contains(u)) "Remove this sticker from favorites?" else "Add this sticker to favorites?")},
+                                            confirmButton = { TextButton({ CsStickerFav.toggle(u); favFor = null}) { Text(if (CsStickerFav.contains(u)) "⭐ Remove from favorites" else "⭐ Add to favorites")}},
+                                            dismissButton = { TextButton({ favFor = null}) { Text("Cancel")}})
+        }
 }
 
 /** Attach menu: the site's Gallery, Camera, Video, Audio, Document, Poll, Schedule — plus WhatsApp's Video camera and Contact. */
