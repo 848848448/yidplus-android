@@ -209,8 +209,8 @@ internal fun ClSearchScreen(rooms: List<ChatRoomInfo>, onClose: () -> Unit) {
                 }
             }
             val nothing = chatHits.isEmpty() && people.isEmpty() && groups.isEmpty() && tg.isEmpty() && shownMsgs.isEmpty()
-            if (nothing && !busy && (t.length >= 2 || filter != null)) item {
-                ChEmpty(Sym.SearchOff, if (t.isNotEmpty()) "No results found for “$t”" else "Nothing here yet. Type to search " + (CL_FILTERS.firstOrNull { it.first == filter }?.second?.lowercase() ?: "") )
+            if (nothing && (t.length >= 2 || filter != null)) item {
+                if (busy) ChSkeleton() else ChEmpty(Sym.SearchOff, if (t.isNotEmpty()) "No results found for “$t”" else "Nothing here yet. Type to search " + (CL_FILTERS.firstOrNull { it.first == filter }?.second?.lowercase() ?: "") )
             }
         }
     }
