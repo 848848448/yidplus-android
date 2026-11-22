@@ -68,7 +68,7 @@ import org.json.JSONObject
 /* CL: the chat / group / channel info page (moved out of ChatPages.kt). */
 
 /** Group / channel / contact info: photo, name, description, mute, invite link, members (admins can add, remove, make admin), media, leave. */
-data class ChInfo(val room: Room) : PageScreen() {
+data class ChInfo(val room: Room, val startTab: Int = 0) : PageScreen() {
     override val perfName get() = "ChatInfo"
     @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope(); val me = Session.me
@@ -151,7 +151,7 @@ data class ChInfo(val room: Room) : PageScreen() {
                     }
                     HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
                 }
-                ClMediaTabs(room.id)
+                ClMediaTabs(room.id, startTab)
                 HorizontalDivider(thickness = 6.dp, color = MaterialTheme.colorScheme.surfaceVariant)
                 if (info != null && !isPrivate && info.members.isNotEmpty()) {
                     ChSection("${info.members.size} members" + (if (seeOnline) info.onlineCount.takeIf { it > 0 }?.let { " · $it online" } ?: "" else ""))
