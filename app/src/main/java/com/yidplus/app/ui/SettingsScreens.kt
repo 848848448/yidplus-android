@@ -173,7 +173,7 @@ object SettingsProfile {
     fun sample(): JSONObject = JSONObject().put("ok", true).put("profile", JSONObject()
         .put("id", "demo").put("nickname", "Yanky Weiss").put("email", "yanky@example.com").put("bio", "Sample profile shown in the emulator test")
         .put("location", "Brooklyn, NY").put("website", "https://yidplus.com").put("instagram", "").put("youtube", "").put("birthday", "")
-        .put("profile_color", "#008069").put("verified", 0).put("role", "user").put("privacy_profile", "public").put("privacy_messages", "everyone")
+        .put("profile_color", "#008069").put("verified", 0).put("role", "user").put("privacy_profile", "public").put("privacy_messages", "everyone").put("privacy_status", "public")
         .put("is_private", 0).put("show_online", 1).put("read_receipts", 1).put("notif_messages", 1).put("notif_likes", 1).put("notif_followers", 1).put("notif_channels", 0))
         .put("stats", JSONObject().put("shorts", 12).put("music", 3).put("messages", 1480).put("profile_views", 236).put("followers", 58))
         .put("sessions", JSONArray().put(JSONObject().put("id", "sh_1").put("created_at", "2026-11-11T06:00:00")).put(JSONObject().put("id", "sh_2").put("created_at", "2026-11-02T18:30:00")))
@@ -433,10 +433,12 @@ private fun Field(label: String, value: String, onChange: (String) -> Unit, line
 
 private val seeOpts = listOf("public" to "Everyone", "friends" to "Friends only", "private" to "Only me")
 private val msgOpts = listOf("everyone" to "Everyone", "friends" to "Friends only", "nobody" to "Nobody")
+private val statusOpts = listOf("public" to "Everyone", "followers" to "Followers", "private" to "Only me")
 
 class SettingsPrivacy : PageScreen() {
     override val perfName = "Privacy"
     @Composable override fun Content() {
+        
         val c = ctx()
         val scope = rememberCoroutineScope()
         LaunchedEffect(Unit) { SettingsProfile.load(force = true) }
@@ -455,6 +457,9 @@ class SettingsPrivacy : PageScreen() {
                 RowDivider(64.dp)
                 val msg = SettingsProfile.text("privacy_messages").ifBlank { "everyone" }
                 SettingRow(Sym.Chat, "Who can message me", value = msgOpts.firstOrNull { it.first == msg }?.second ?: "Everyone") { pick = "privacy_messages" }
+                RowDivider(64.dp)
+                val st = SettingsProfile.text("privacy_status").ifBlank { "public" }
+                SettingRow(Sym.Visibility, "Who can see my status", "Default for new statuses; you can still change it per status", value = statusOpts.firstOrNull { it.first == st }?.second ?: "Everyone") { pick = "privacy_status" }
             }
             SettingsCard("Activity") {
                 SettingRow(Sym.RadioButtonChecked, "Active status", "Let others see when you're online", switch = SettingsProfile.on("show_online")) {
@@ -476,10 +481,10 @@ class SettingsPrivacy : PageScreen() {
                 { set("privacy_profile", seeOpts[it].first) }, { pick = null })
             "privacy_messages" -> SettingsChoiceDialog("Who can message me", msgOpts.map { it.second }, msgOpts.indexOfFirst { it.first == SettingsProfile.text("privacy_messages").ifBlank { "everyone" } },
                 { set("privacy_messages", msgOpts[it].first) }, { pick = null })
-        }
-    }
-}
-
+                "privacy_status" -> SettingsChoiceDialog("Who can see my status", statusOpts.map { it.second }, statusOpts.indexOfFirst { it.first == SettingsProfile.text("privacy_status").ifBlank { "public" } },
+                                                         { set("privacy_status", statusOpts[it].first) }, { pick = null })
+        } 
+        
 // ── The site's notification choices (what yidplus.com notifies you about) ─────
 
 class SettingsNotifPrefs : PageScreen() {
