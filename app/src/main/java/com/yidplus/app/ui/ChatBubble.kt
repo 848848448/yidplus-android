@@ -125,6 +125,15 @@ internal fun chContactOf(text: String): Pair<String, String>? {
     return if (name.isNotBlank() && number.isNotBlank()) name to number else null
 }
 
+/** A shared location arrives as plain text "📍 Location: https://maps.google.com/?q=lat,lng" — parse it into url + coords. */
+internal fun chLocationOf(text: String): Pair<String, String>? {
+    if (!text.startsWith("📍 Location: ")) return null
+    val url = text.removePrefix("📍 Location: ").trim()
+    if (!url.startsWith("https://maps.google.com/?q=")) return null
+    val coords = url.substringAfter("?q=").substringBefore("&").trim()
+    return if (coords.isNotBlank()) url to coords else null
+}
+
 /* ═════════════════════════ One message bubble: every type the site draws, swipe to reply, link cards ═════════════════════════ */
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -139,6 +148,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
     val fg = ChatLook.ink()
     val link = remember(m.text) { if (m.isCentred || m.deleted || m.isSticker || m.isVoice || m.isVoiceText) null else urlRegex.find(m.text)?.value?.trimEnd('.', ',', ')', '!', '?') }
     val contact = remember(m.text) { if (m.type == "text") chContactOf(m.text) else null }
+    val location = remember(m.text) { if (m.type == "text") chLocationOf(m.text) else null }
     val compact = LocalConfiguration.current.screenHeightDp < 600
     val maxW = (LocalConfiguration.current.screenWidthDp * (if (compact) 0.86f else 0.82f)).dp.coerceAtMost(440.dp)
     // WhatsApp: ~8dp corners; the first bubble of a run has a square top corner plus a small drawn tail (csTail).
@@ -240,15 +250,16 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                         }
                     }
                     contact != null -> CsContactCard(contact.first, contact.second)
+        location != null -> CsLocationCard(location.first, location.second)
                 }
                 val cap = if (m.deleted) "" else m.caption
                 val bigEmoji = cap.length <= 8 && cap.isNotBlank() && cap.none { it.isLetterOrDigit() } && m.media == null
                 // Yiddish/Hebrew text sits at the start of its own direction (right), like the site's dir=auto.
-                if (cap.isNotBlank() && contact == null) Text(csFormat(cap, { u -> chOpenLink(c, u) }, onMention), Modifier.align(if (csIsRtl(cap)) Alignment.End else Alignment.Start).padding(horizontal = 6.dp, vertical = 2.dp), color = fg,
+                if (cap.isNotBlank() && contact == null && location == null) Text(csFormat(cap, { u -> chOpenLink(c, u) }, onMention), Modifier.align(if (csIsRtl(cap)) Alignment.End else Alignment.Start).padding(horizontal = 6.dp, vertical = 2.dp), color = fg,
                     fontSize = if (bigEmoji) 34.sp else if (compact) 17.sp else 16.sp, lineHeight = if (bigEmoji) 40.sp else if (compact) 23.sp else 21.sp, style = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Start))
-                else if (!m.deleted && !hasMedia && !m.isSticker && !m.isAudio && !m.isPoll && !m.isFile && !m.isUnavailable && !m.isVoiceText && contact == null)
+                else if (!m.deleted && !hasMedia && !m.isSticker && !m.isAudio && !m.isPoll && !m.isFile && !m.isUnavailable && !m.isVoiceText && contact == null && location == null)
                     Text("💬 Message", Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = ChatLook.sub(), fontSize = 15.sp)
-                if (link != null) ChLinkCard(link, mine, onJoin)
+                if (link != null && location == null) ChLinkCard(link, mine, onJoin)
                 Row(Modifier.align(Alignment.End).padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (m.edited && !m.deleted) Text("edited  ", fontSize = 12.sp, color = ChatLook.sub())
                     Text(if (m.pending) "Sending…" else if (m.failed) "Not sent · tap" else clock(m.createdAt), fontSize = 12.sp, color = if (m.failed) Color(0xFFD32F2F) else ChatLook.sub())
@@ -326,6 +337,24 @@ internal fun CsContactCard(name: String, number: String) {
             Text(name, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
             Text(number, fontSize = 13.sp)
             Text("Tap to call", fontSize = 11.sp)
+        }
+    }
+}
+
+@Composable
+internal fun CsLocationCard(url: String, coords: String) {
+    val ctx = LocalContext.current
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 2.dp).tap(RoundedCornerShape(8.dp)) { openUrl(ctx, url) },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(Modifier.size(44.dp).clip(RoundedCornerShape(22.dp)).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
+            Icon(Sym.LocationOn, "Location", tint = Color.White, modifier = Modifier.size(24.dp))
+        }
+        Column(Modifier.padding(start = 10.dp)) {
+            Text("Location", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            Text(coords, fontSize = 13.sp)
+            Text("Tap to open in Maps", fontSize = 11.sp)
         }
     }
 }
