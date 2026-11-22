@@ -51,8 +51,8 @@ object LookPrefs {
     var reduceMotion by mutableStateOf(false); private set
     var wallpaper by mutableStateOf("default"); private set
     var silentCalls by mutableStateOf(false); private set
-    /** Top bar style: true = WhatsApp-2024 white bar with a green title (default), false = the solid green bar. */
-    var lightBar by mutableStateOf(true); private set
+    /** Top bar style: true = WhatsApp-2024 white bar with a green title, false = the solid green bar (default). */
+    var lightBar by mutableStateOf(false); private set
 
     fun init(c: Context) {
         if (ctx != null) return
@@ -63,7 +63,7 @@ object LookPrefs {
         reduceMotion = s.getBoolean("reduceMotion", false)
         wallpaper = s.getString("wallpaper", "default") ?: "default"
         silentCalls = s.getBoolean("silentCalls", false)
-        lightBar = s.getBoolean("lightBar", true)
+        lightBar = s.getBoolean("lightBar", false)
     }
     fun putColor(i: Int) { colorTheme = i.coerceIn(0, ColorPresets.size - 1); p()?.edit()?.putInt("colorTheme", colorTheme)?.apply() }
     fun putHighContrast(v: Boolean) { highContrast = v; p()?.edit()?.putBoolean("highContrast", v)?.apply() }
