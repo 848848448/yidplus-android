@@ -95,7 +95,8 @@ internal fun ChDialogRow(text: String, color: Color = Color.Unspecified, onClick
 internal fun UserSearch(hint: String, onUser: (ChMember) -> Unit, selected: Set<String> = emptySet(), header: @Composable () -> Unit = {}) {
     var q by remember { mutableStateOf("") }
     var users by remember { mutableStateOf<List<ChMember>?>(null) }
-    LaunchedEffect(q) { delay(if (q.isBlank()) 0 else 350); users = runCatching { withContext(Dispatchers.IO) { ChatApi.users(q.trim()) } }.getOrElse { emptyList() } }
+    var busy by remember { mutableStateOf(false) }
+    LaunchedEffect(q) { busy = true; delay(if (q.isBlank()) 0 else 350); try { users = runCatching { withContext(Dispatchers.IO) { ChatApi.users(q.trim()) } }.getOrElse { emptyList() } } finally { busy = false } }
     OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp).firstFocus(), singleLine = true, placeholder = { Text(hint) },
         leadingIcon = { Icon(Sym.Search, null) }, textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content), shape = RoundedCornerShape(24.dp))
     LazyColumn(Modifier.fillMaxSize()) {
@@ -103,7 +104,7 @@ internal fun UserSearch(hint: String, onUser: (ChMember) -> Unit, selected: Set<
         val u = users
         when {
             u == null -> item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
-            u.isEmpty() -> item { ChEmpty(Sym.PersonSearch, if (q.isBlank()) "Type a name to find people" else "No one found for “$q”") }
+            u.isEmpty() -> item { if (busy) ChSkeleton(5) else ChEmpty(Sym.PersonSearch, if (q.isBlank()) "Type a name to find people" else "No one found for “$q”") }
             else -> items(u, key = { it.id }) { mb ->
                 ChRow(mb.nick, mb.title.ifBlank { null }, { ChAvatar(mb.photo, mb.nick, mb.id, 44.dp) },
                     trail = { if (mb.id in selected) Icon(Sym.CheckCircle, "Selected", tint = ChatLook.unread) }) { onUser(mb) }
