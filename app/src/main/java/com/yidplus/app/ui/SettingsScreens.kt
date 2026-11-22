@@ -437,8 +437,7 @@ private val statusOpts = listOf("public" to "Everyone", "followers" to "Follower
 
 class SettingsPrivacy : PageScreen() {
     override val perfName = "Privacy"
-    @Composable override fun Content() {
-        
+    @Composable override fun Content() {        
         val c = ctx()
         val scope = rememberCoroutineScope()
         LaunchedEffect(Unit) { SettingsProfile.load(force = true) }
@@ -484,6 +483,8 @@ class SettingsPrivacy : PageScreen() {
                 "privacy_status" -> SettingsChoiceDialog("Who can see my status", statusOpts.map { it.second }, statusOpts.indexOfFirst { it.first == SettingsProfile.text("privacy_status").ifBlank { "public" } },
                                                          { set("privacy_status", statusOpts[it].first) }, { pick = null })
         } 
+    }
+}
         
 // ── The site's notification choices (what yidplus.com notifies you about) ─────
 
