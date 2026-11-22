@@ -390,7 +390,8 @@ class StatusUpdatesPage : PageScreen() {
                     if (unseen.isNotEmpty()) { item(key = "h1") { StatusHeader("Recent updates") }; items(unseen, key = { it.userId }) { StatusUserRow(it) } }
                     if (seenList.isNotEmpty()) { item(key = "h2") { StatusHeader("Viewed updates") }; items(seenList, key = { it.userId }) { StatusUserRow(it) } }
                     if (muted.isNotEmpty()) { item(key = "h3") { StatusHeader("Muted updates") }; items(muted, key = { it.userId }) { StatusUserRow(it) } }
-                    if (everyone.isEmpty()) item(key = "empty") { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text("No recent updates to show.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) } }
+                    if (res.data == null) item(key = "loading") { ChSkeleton(6) }
+                    if (res.data != null && everyone.isEmpty()) item(key = "empty") { ChEmpty(Sym.History, "No recent updates to show.") }
                 }
             }
             // Camera + text-status buttons (WhatsApp's two FABs).
