@@ -669,6 +669,7 @@ data class CsForwardMany(val list: List<ChatMsg>) : PageScreen() {
       if (picked.isNotEmpty()) {
           Button(onClick = { if (busy) return@Button; busy = true; scope.launch { var rooms = 0; for (id in picked.toList()) { val ok = sendAllTo(id); sent.add(id); rooms++ }; picked.clear(); busy = false; toast(c, "✅ Forwarded to $rooms chats") } }, modifier = Modifier.fillMaxWidth().padding(12.dp)) { Text("Forward to ${picked.size} chat" + if (picked.size == 1) "" else "s") }
         }
+        }
     }
 }
 
