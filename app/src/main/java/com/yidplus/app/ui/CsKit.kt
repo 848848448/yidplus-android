@@ -634,37 +634,40 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
 /** Forward several messages (select mode): pick chats, each message goes the site's way (text as text, media by its stored key, no re-upload). */
 data class CsForwardMany(val list: List<ChatMsg>) : PageScreen() {
     override val perfName get() = "ForwardMany"
-    @Composable override fun Content() {
+    @OptIn(ExperimentalFoundationApi::class) @Composable override fun Content() {
         val c = ctx(); val scope = rememberCoroutineScope()
         val res = ChatApi.rooms
         LaunchedEffect(Unit) { res.load() }
         var q by remember { mutableStateOf("") }
         var busy by remember { mutableStateOf(false) }
+        val picked = remember { mutableStateListOf<String>() }
         val sent = remember { mutableStateListOf<String>() }
+        suspend fun sendAllTo(roomId: String): Int { var ok = 0; for (m in list) runCatching { if (m.media != null && !m.isSticker && m.mediaKey.isNotBlank()) ChatApi.forwardMedia(roomId, m) else ChatApi.forwardText(roomId, m) }.onSuccess { ok++ }; return ok }
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
             ChBar("Forward ${list.size} message" + (if (list.size == 1) "" else "s"), sub = "to…", onBack = { Nav.back() })
             if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), singleLine = true, placeholder = { Text("Search chats") },
                 leadingIcon = { Icon(Sym.Search, null) }, shape = RoundedCornerShape(24.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
             val l = (res.data ?: emptyList()).filter { it.joined && (!it.room.readOnly || it.canManage) && (q.isBlank() || it.room.name.contains(q.trim(), true)) }
-            LazyColumn(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
                 items(l, key = { it.room.id }) { r ->
-                    Row(Modifier.fillMaxWidth().then(if (r === l.first()) Modifier.firstFocus() else Modifier).tap {
-                        if (busy || r.room.id in sent) return@tap
+                    Row(Modifier.fillMaxWidth().then(if (r === l.first()) Modifier.firstFocus() else Modifier).combinedClickable(onClick = {
+                        if (busy || r.room.id in sent) return@combinedClickable
                         busy = true
                         scope.launch {
-                            var ok = 0
-                            for (m in list) runCatching { if (m.media != null && !m.isSticker && m.mediaKey.isNotBlank()) ChatApi.forwardMedia(r.room.id, m) else ChatApi.forwardText(r.room.id, m) }.onSuccess { ok++ }
+                            val ok = sendAllTo(r.room.id)
                             busy = false; sent.add(r.room.id)
                             toast(c, if (ok == list.size) "✅ Forwarded to ${r.room.name}" else "Forwarded $ok of ${list.size} to ${r.room.name}")
                         }
-                    }.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    }, onLongClick = { if (r.room.id in picked) picked.remove(r.room.id) else picked.add(r.room.id) }).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         ChAvatar(r.room.photo, r.room.name, r.room.otherUserId ?: r.room.id, 44.dp)
                         Text(r.room.name, Modifier.weight(1f).padding(start = 12.dp), fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        if (r.room.id in sent) Icon(Sym.Check, "Sent", tint = ChatLook.accent)
+                        if (r.room.id in sent) Icon(Sym.Check, "Sent", tint = ChatLook.accent) else if (r.room.id in picked) Icon(Sym.CheckCircle, "Selected", tint = ChatLook.accent)
                     }
                 }
             }
+      if (picked.isNotEmpty()) {
+          Button(onClick = { if (busy) return@Button; busy = true; scope.launch { var rooms = 0; for (id in picked.toList()) { val ok = sendAllTo(id); sent.add(id); rooms++ }; picked.clear(); busy = false; toast(c, "✅ Forwarded to $rooms chats") } }, modifier = Modifier.fillMaxWidth().padding(12.dp)) { Text("Forward to ${picked.size} chat" + if (picked.size == 1) "" else "s") }
         }
     }
 }
