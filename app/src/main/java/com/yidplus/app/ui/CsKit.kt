@@ -196,7 +196,7 @@ internal object CsStickerFav {
         fun toggle(id: String): Boolean { list = if (id in list) list - id else (listOf(id) + list).take(60); ctx?.getSharedPreferences("chat_ui", Context.MODE_PRIVATE)?.edit()?.putString(K, list.joinToString(" "))?.apply(); return id in list }
 }
 @Composable
-private fun CsStickerCell(url: String, onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
+@OptIn(ExperimentalFoundationApi::class) private fun CsStickerCell(url: String, onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
         Box(Modifier.size(76.dp).combinedClickable(onClick = { CsStickerRecent.add(url); onClick() }, onLongClick = onLongClick).padding(6.dp), contentAlignment = Alignment.Center) {
                     AsyncImage(Api.abs(url) ?: url, "Sticker", Modifier.fillMaxSize())
         }
@@ -241,11 +241,11 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         HorizontalDivider(thickness = 0.5.dp)
         when (cat) {
             -2 -> LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.fillMaxSize()) {
-                            if (CsStickerFav.list.isNotEmpty() {
+                            if (CsStickerFav.list.isNotEmpty()) {
                                                 item(span = { GridItemSpan(maxLineSpan)}) { Text("⭐ Favorites", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
                                                                 gridItems(CsStickerFav.list) { u -> CsStickerCell(u, onClick = { onSticker(u)}, onLongClick = { favFor = u})}
                             }
-                                        if (CsStickerRecent.list.isNotEmpty() {
+                                        if (CsStickerRecent.list.isNotEmpty()) {
                                                             item(span = { GridItemSpan(maxLineSpan)}) { Text("🕐 Recent", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
                                                                             gridItems(CsStickerRecent.list) { u -> CsStickerCell(u, onClick = { onSticker(u)}, onLongClick = { favFor = u})}
                                         }
@@ -254,7 +254,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
                 gridItems(custom) { s ->
                     val url = Api.abs(s.str("url")) ?: ""
                     val mineS = s.str("owner_id") == Session.me?.id || chIsSiteAdmin()
-                    Box(Modifier.size(76.dp).combinedClickable(onClick = { CsStickerRecent.add(s.str("url")); onSticker(s.str("url")) }, onLongClick = { if (mineS) delFor = s else favFor = s.str("url"))}).padding(6.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(76.dp).combinedClickable(onClick = { CsStickerRecent.add(s.str("url")); onSticker(s.str("url")) }, onLongClick = { if (mineS) delFor = s else favFor = s.str("url") }).padding(6.dp), contentAlignment = Alignment.Center) {
                         AsyncImage(url, "Sticker", Modifier.fillMaxSize())
                     }
                 }
@@ -269,7 +269,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         }
     }
     delFor?.let { s ->
-        AlertDialog(onDismissRequest = { delFor = null }, text = { Column { Text("Delete this sticker?"); TextButton({ val u = s.str("url")); CsStickerFav.toggle(u); delFor = null}) { Text(if (CsStickerFav.contains(s.str("url"))) "⭐ Remove from favorites" else "⭐ Add to favorites") }}},
+        AlertDialog(onDismissRequest = { delFor = null }, text = { Column { Text("Delete this sticker?"); TextButton({ val u = s.str("url"); CsStickerFav.toggle(u); delFor = null}) { Text(if (CsStickerFav.contains(s.str("url"))) "⭐ Remove from favorites" else "⭐ Add to favorites") }}},
             confirmButton = { TextButton({ delFor = null; scope.launch { runCatching { ChatApi.deleteSticker(s.str("id")) }.onSuccess { toast(c, "✅ Deleted"); custom = custom - s }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = Color(0xFFD32F2F)) } },
             dismissButton = { TextButton({ delFor = null }) { Text("Cancel") } })
     }
