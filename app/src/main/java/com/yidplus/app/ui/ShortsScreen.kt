@@ -550,6 +550,8 @@ fun ShortsScreen() {
                     Modifier.align(Alignment.Center).padding(32.dp), color = Color.White)
             items.isEmpty() && (feed.loading || (tab == ShortsTab.Following && followLoading) || (tab != ShortsTab.Saved && tab != ShortsTab.Following)) -> Loading()
             items.isEmpty() -> Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    val emptyIcon = if (tab == ShortsTab.Saved) Sym.Bookmark else if (tab == ShortsTab.Following && followFailed > 0 && Feeds.follows.isNotEmpty()) null else if (tab == ShortsTab.Following) Sym.People else Sym.PlayCircle
+                if (emptyIcon != null) Icon(emptyIcon, null, tint = Color.White, modifier = Modifier.size(56.dp).padding(bottom = 16.dp))
                 Text(if (tab == ShortsTab.Saved) "Nothing saved yet. Press Save (or key 4) on a video." else if (tab == ShortsTab.Following && followFailed > 0 && Feeds.follows.isNotEmpty()) "Could not load the videos of $followFailed of the people you follow." else if (tab == ShortsTab.Following && Feeds.follows.isNotEmpty()) "No videos yet from the people you follow." else "Follow creators to see their videos here.", color = Color.White, textAlign = TextAlign.Center)
                 if (tab == ShortsTab.Following && followFailed > 0 && Feeds.follows.isNotEmpty()) SoPill("Try again", true, { Feeds.followFetched.clear(); followRetry++ }, Modifier.padding(top = 16.dp).firstFocus())
                 else if (tab == ShortsTab.Following) SoPill("Find people to follow", true, { Nav.open(SoFollowPeoplePage()) }, Modifier.padding(top = 16.dp).firstFocus(), icon = Sym.PersonAdd)
