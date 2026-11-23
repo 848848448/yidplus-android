@@ -98,19 +98,19 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
                 }
             }
             Spacer(Modifier.height(6.dp))
-            ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true), tint = Color(0xFF00A884)) { onClose(); Nav.go(Tab.Profile) }
-            ClDrawerItem(Sym.RadioButtonChecked, "Status", tint = Color(0xFF1DA851)) { onClose(); Nav.open(StatusUpdatesPage()) }
-            ClDrawerItem(Sym.Call, "Calls", tint = Color(0xFF2196F3)) { onClose(); Nav.open(ChCalls()) }
-            ClDrawerItem(Sym.Bookmark, "Saved messages", tint = Color(0xFFF4B400)) { onClose(); Nav.open(ChSaved()) }
-            ClDrawerItem(Sym.Folder, "Chat Folders", tint = Color(0xFF7E57C2)) { onClose(); Nav.open(ClFolderManager()) }
-            ClDrawerItem(Sym.Group, "New Group", tint = Color(0xFF009688)) { onClose(); Nav.open(ChNewGroup("group")) }
-            ClDrawerItem(Sym.Campaign, "New Channel", tint = Color(0xFFFF7043)) { onClose(); Nav.open(ChNewGroup("channel")) }
-            ClDrawerItem(Sym.Link, "Join by invite link", tint = Color(0xFF26A69A)) { onClose(); Nav.open(ChJoinLink()) }
-            ClDrawerItem(Sym.QrCode, "QR code", tint = Color(0xFF455A64)) { onClose(); Nav.open(QrPage()) }
-            ClDrawerItem(Sym.Settings, "Chat settings", tint = Color(0xFF607D8B)) { onClose(); Nav.open(ClChatSettings()) }
+            ClDrawerItem(Sym.Person, "My Profile", Modifier.firstFocus(always = true), tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.go(Tab.Profile) }
+            ClDrawerItem(Sym.RadioButtonChecked, "Status", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(StatusUpdatesPage()) }
+            ClDrawerItem(Sym.Call, "Calls", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChCalls()) }
+            ClDrawerItem(Sym.Bookmark, "Saved messages", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChSaved()) }
+            ClDrawerItem(Sym.Folder, "Chat Folders", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ClFolderManager()) }
+            ClDrawerItem(Sym.Group, "New Group", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChNewGroup("group")) }
+            ClDrawerItem(Sym.Campaign, "New Channel", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChNewGroup("channel")) }
+            ClDrawerItem(Sym.Link, "Join by invite link", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChJoinLink()) }
+            ClDrawerItem(Sym.QrCode, "QR code", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(QrPage()) }
+            ClDrawerItem(Sym.Settings, "Chat settings", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ClChatSettings()) }
             if (chIsSiteAdmin()) {
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                ClDrawerItem(Sym.AdminPanelSettings, "Admin Panel", tint = Color(0xFFD32F2F)) { onClose(); Nav.open(AdminPage()) }
+                ClDrawerItem(Sym.AdminPanelSettings, "Admin Panel", tint = MaterialTheme.colorScheme.error) { onClose(); Nav.open(AdminPage()) }
             }
             Spacer(Modifier.height(10.dp))
         }
@@ -118,7 +118,7 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
 }
 
 @Composable
-private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = Modifier, tint: Color = Color(0xFF00A884), onClick: () -> Unit) {
+private fun ClDrawerItem(icon: ImageVector, text: String, modifier: Modifier = Modifier, tint: Color = MaterialTheme.colorScheme.onSurfaceVariant, onClick: () -> Unit) {
     Row(modifier.fillMaxWidth().heightIn(min = 56.dp).tap(RoundedCornerShape(0.dp), onClick = onClick).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
         // WhatsApp/modern: a soft rounded tile behind a colored icon, instead of a bare thin grey glyph.
         Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp)).background(tint.copy(alpha = if (isDark()) .22f else .13f)), contentAlignment = Alignment.Center) {
