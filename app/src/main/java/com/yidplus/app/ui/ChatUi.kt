@@ -118,7 +118,7 @@ internal object ChatLook {
     val bar: Color @Composable get() = topBarColor()
     /** The brand green for accents inside chats (send/mic button, ticks, waveforms, links). Stays green even when the bar is white. */
     val accent: Color @Composable get() = MaterialTheme.colorScheme.primary
-    val unread = Color(0xFF25A45A)
+    val unread = Color(0xFF25D366)
     val tick = Color(0xFF53BDEB)  // WhatsApp 2024 read-tick blue (DS P8)
     @Composable fun dark() = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     @Composable fun wall() = if (dark()) Color(0xFF0B141A) else Color(0xFFEDE7DE)
