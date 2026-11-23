@@ -196,11 +196,11 @@ fun SettingsPage(title: String, sub: String? = null, content: @Composable () -> 
     }
 }
 
-/** A white card that groups rows, like Telegram's settings sections. */
+/** A flat section: rows sit on the page background under a section title, like WhatsApp. */
 @Composable
 fun SettingsCard(title: String? = null, content: @Composable () -> Unit) {
     if (title != null) SectionTitle(title) else Spacer(Modifier.height(12.dp))
-    Surface(color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) { Column { content() } }
+    Column { content() }
 }
 
 @Composable
