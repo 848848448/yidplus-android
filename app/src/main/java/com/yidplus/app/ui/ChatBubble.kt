@@ -152,7 +152,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
     val compact = LocalConfiguration.current.screenHeightDp < 600
     val maxW = (LocalConfiguration.current.screenWidthDp * (if (compact) 0.86f else 0.82f)).dp.coerceAtMost(440.dp)
     // WhatsApp: ~8dp corners; the first bubble of a run has a square top corner plus a small drawn tail (csTail).
-    val tail = 0.dp; val r = 10.dp
+    val tail = 0.dp; val r = 8.dp
     val shape = if (mine) RoundedCornerShape(r, if (first) tail else r, r, r) else RoundedCornerShape(if (first) tail else r, r, r, r)
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
