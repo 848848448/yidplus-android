@@ -125,22 +125,47 @@ fun AppRoot(onExit: () -> Unit) {
                         }
                         // WhatsApp-style entry: the opened screen slides in a little from the side and fades up (180 ms).
                         // It runs through YidMotion, so Reduce motion (or the phone's "remove animations") makes it instant.
+                        // Back is the same slide in reverse: the screen that was on top slides back out the way it came in
+                        // (180 ms, same easing) while the screen below stays put. back() still pops at once, so
+                        // back(); open(...) and the system Back button behave exactly as before.
                         val enter = remember { androidx.compose.animation.core.Animatable(0f) }
                         val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
-                        LaunchedEffect(Nav.stack.size, top) { if (top != null && !immersive) { enter.snapTo(1f); enter.animateTo(0f, androidx.compose.animation.core.tween(180)) } else enter.snapTo(0f) }
-                        if (top != null) Box(Modifier.fillMaxSize().graphicsLayer { translationX = enter.value * 56.dp.toPx() * (if (rtl) -1f else 1f); alpha = 1f - enter.value * 0.5f }
-                            .background(if (immersive) Color.Black else MaterialTheme.colorScheme.background)) {
-                            androidx.compose.runtime.key(Nav.stack.size, top) {
-                                when (top) {
-                                    is Screen.Channel -> ChannelScreen(top.ch)
-                                    is Screen.Chat -> ChatScreen(top.room)
-                                    is Screen.Video -> VideoScreen(top.url, top.title)
-                                    is Screen.Photo -> PhotoScreen(top.url)
-                                    is Screen.Gallery -> GalleryScreen(top.items, top.start)
-                                    is Screen.Web -> WebScreen(top.url)
+                        val leaving = remember { androidx.compose.runtime.mutableStateOf<Screen?>(null) }
+                        val prevTop = remember { androidx.compose.runtime.mutableStateOf<Screen?>(null) }
+                        val prevSize = remember { androidx.compose.runtime.mutableStateOf(0) }
+                        val prevTab = remember { androidx.compose.runtime.mutableStateOf(Nav.tab) }
+                        val shown = leaving.value ?: top
+                        val shownImmersive = shown is Screen.Video || shown is Screen.Photo || shown is Screen.Gallery || (shown is PageScreen && shown.immersive) || shown is Screen.Player
+                        LaunchedEffect(Nav.stack.size, top, Nav.tab) {
+                            val wasTop = prevTop.value
+                            val wasSize = prevSize.value
+                            val wasTab = prevTab.value
+                            prevTop.value = top; prevSize.value = Nav.stack.size; prevTab.value = Nav.tab
+                            val popped = wasTop != null && wasTop != top && Nav.stack.size < wasSize && Nav.tab == wasTab
+                            if (popped) {
+                                if (leaving.value == null) leaving.value = wasTop
+                                val gone = leaving.value
+                                val goneImmersive = gone is Screen.Video || gone is Screen.Photo || gone is Screen.Gallery || (gone is PageScreen && gone.immersive) || gone is Screen.Player
+                                if (!goneImmersive) enter.animateTo(1f, androidx.compose.animation.core.tween(180)) else enter.snapTo(1f)
+                                leaving.value = null; enter.snapTo(0f)
+                            } else {
+                                leaving.value = null
+                                if (top != null && !immersive && top != wasTop) { enter.snapTo(1f); enter.animateTo(0f, androidx.compose.animation.core.tween(180)) } else enter.snapTo(0f)
+                            }
+                        }
+                        if (shown != null) Box(Modifier.fillMaxSize().graphicsLayer { translationX = enter.value * 56.dp.toPx() * (if (rtl) -1f else 1f); alpha = 1f - enter.value * 0.5f }
+                            .background(if (shownImmersive) Color.Black else MaterialTheme.colorScheme.background)) {
+                            androidx.compose.runtime.key(Nav.stack.size, shown) {
+                                when (shown) {
+                                    is Screen.Channel -> ChannelScreen(shown.ch)
+                                    is Screen.Chat -> ChatScreen(shown.room)
+                                    is Screen.Video -> VideoScreen(shown.url, shown.title)
+                                    is Screen.Photo -> PhotoScreen(shown.url)
+                                    is Screen.Gallery -> GalleryScreen(shown.items, shown.start)
+                                    is Screen.Web -> WebScreen(shown.url)
                                     Screen.Player -> PlayerScreen()
                                     Screen.Notifications -> NotificationsScreen()
-                                    is PageScreen -> top.Content()
+                                    is PageScreen -> shown.Content()
                                 }
                             }
                         }
