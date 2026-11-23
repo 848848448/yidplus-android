@@ -467,18 +467,18 @@ private fun StatusUserRow(u: StUser) {
 private fun StatusRing(seen: List<Boolean>, mine: Boolean, modifier: Modifier) {
     if (seen.isEmpty()) return
     val unseenC = Color(0xFF25D366)
-    val seenC = MaterialTheme.colorScheme.outline.copy(alpha = .55f)
+    val seenC = Color(0xFFB0BEC5)
     val mineC = Color(0xFF2B8A73)
     Canvas(modifier) {
         val stroke = 2.6.dp.toPx()
         val n = seen.size
-        val gap = if (n > 1) (if (n > 12) 3f else 7f) else 0f
+        val gap = if (n > 1) 8f else 0f
         val sweep = 360f / n
         for (i in 0 until n) {
             val col = if (mine) mineC else if (seen[i]) seenC else unseenC
             drawArc(col, startAngle = -90f + i * sweep + gap / 2, sweepAngle = sweep - gap, useCenter = false,
                 topLeft = Offset(stroke / 2, stroke / 2), size = Size(size.width - stroke, size.height - stroke),
-                style = Stroke(width = if (!mine && seen[i]) stroke * 0.75f else stroke, cap = StrokeCap.Round))
+                style = Stroke(width = stroke, cap = StrokeCap.Round))
         }
     }
 }
