@@ -136,6 +136,9 @@ internal fun chLocationOf(text: String): Pair<String, String>? {
 
 /* ═════════════════════════ One message bubble: every type the site draws, swipe to reply, link cards ═════════════════════════ */
 
+/** Search/jump highlight: pale yellow in light mode, deep amber in dark mode. */
+@Composable
+private fun csHighlightColor() = if (ChatLook.dark()) Color(0xFF8D6E00).copy(alpha = .55f) else Color(0xFFFFF59D)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean, reacts: ChReact?, reply: ChatMsg?, highlight: Boolean, privateChat: Boolean, modifier: Modifier,
@@ -200,7 +203,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
             if (selected != null) Icon(if (selected) Sym.CheckCircle else Sym.RadioButtonUnchecked, if (selected) "Selected" else "Not selected",
                 Modifier.padding(end = 6.dp, top = 6.dp).size(22.dp).clickable { onSelect?.invoke() }, tint = if (selected) ChatLook.accent else ChatLook.sub())
             if (!mine && group) { if (first) ChAvatar(m.photo, m.nick, m.senderId, 30.dp) else Spacer(Modifier.width(30.dp)); Spacer(Modifier.width(6.dp)) }
-            Column(modifier.widthIn(min = 72.dp, max = maxW).csTail(first && !m.isSticker && !highlight && selected != true, mine, bg).clip(shape).background(if (highlight) Color(0xFFFFF59D) else if (m.isSticker) Color.Transparent else bg)
+            Column(modifier.widthIn(min = 72.dp, max = maxW).csTail(first && !m.isSticker && !highlight && selected != true, mine, bg).clip(shape).background(if (highlight) csHighlightColor() else if (m.isSticker) Color.Transparent else bg)
                 .then(if (focused && Keys.keypad) Modifier.border(2.dp, Gold, shape) else Modifier)
                 .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onClick = { if (onSelect != null && selected != null) onSelect() else open() }, onLongClick = { if (onSelect != null && selected != null) onSelect() else onLong() },
                     onDoubleClick = if (selected == null && !m.pending && !m.failed && !m.deleted) ({ onReact("❤️") }) else null)

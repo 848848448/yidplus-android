@@ -840,6 +840,6 @@ private fun ChDayChip(t: String) {
 
 
 
-/** WhatsApp's date chip: light #FFFFFF with shadow on the wallpaper / dark #182229 — opaque, never see-through. */
+/** WhatsApp's date chip: light theme surface with shadow on the wallpaper / dark #182229 — opaque, never see-through. */
 @Composable
-private fun csDayChipColor() = if (ChatLook.dark()) Color(0xFF182229) else Color(0xFFFFFFFF)
+private fun csDayChipColor() = if (ChatLook.dark()) Color(0xFF182229) else MaterialTheme.colorScheme.surface
