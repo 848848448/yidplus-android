@@ -434,28 +434,25 @@ private fun ChVideoNote(url: String) {
     var progress by remember(url) { mutableStateOf(0f) }
     var bmp by remember(url) { mutableStateOf(ChatVideoThumbs.cached(url)) }
     LaunchedEffect(url) { if (bmp == null) bmp = runCatching { ChatVideoThumbs.load(c, url) }.getOrNull() }
-    // One player, and only while actually playing — weak phones have few video decoders, and auto-playing every
+    // One player per bubble, kept while the bubble is composed; weak phones have few video decoders, and auto-playing every
     // round message at once is exactly what made them fail to start. The local (content://) take needs a plain
     // player; the uploaded http take goes through the authenticated cache source.
-    val player = remember(url, playing) {
-        if (!playing) null
-        else (if (url.startsWith("http")) Media.player(c) else ExoPlayer.Builder(c).build()).apply {
-            setMediaItem(MediaItem.fromUri(url)); repeatMode = Player.REPEAT_MODE_OFF; volume = 1f; playWhenReady = true; prepare()
+    val player = remember(url) {
+        (if (url.startsWith("http")) Media.player(c) else ExoPlayer.Builder(c).build()).apply {
+            setMediaItem(MediaItem.fromUri(url)); repeatMode = Player.REPEAT_MODE_ONE; volume = 1f; playWhenReady = false
         }
     }
-    DisposableEffect(player) { onDispose { player?.release() } }
+    DisposableEffect(url) { onDispose { player.release() } }
     LaunchedEffect(player) {
-        val p = player ?: return@LaunchedEffect
         while (true) {
-            val d = p.duration
-            progress = if (d > 0) (p.currentPosition.toFloat() / d).coerceIn(0f, 1f) else 0f
-            if (p.playbackState == Player.STATE_ENDED) { playing = false; break }
+            val d = player.duration
+            progress = if (d > 0) (player.currentPosition.toFloat() / d).coerceIn(0f, 1f) else 0f
             delay(80)
         }
     }
     Box(Modifier.padding(2.dp).size(200.dp).clip(CircleShape).background(Color(0xFF263238))
-        .clickable { playing = !playing }, contentAlignment = Alignment.Center) {
-        if (playing && player != null) {
+        .clickable { playing = !playing; if (playing) player.play() else player.pause() }, contentAlignment = Alignment.Center) {
+        if (playing) {
             AndroidView(factory = { ctx -> PlayerView(ctx).apply {
                 useController = false; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                 setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
