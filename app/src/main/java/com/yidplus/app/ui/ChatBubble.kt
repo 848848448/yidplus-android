@@ -424,6 +424,13 @@ internal fun ChBubbleSkeleton() {
     }
 }
 
+/** Video-note length as M:SS, or null while the player has not prepared yet. */
+private fun chVideoNoteDuration(durationMs: Long): String? {
+    if (durationMs <= 0) return null
+    val totalSeconds = (durationMs / 1000).toInt()
+    return "${totalSeconds / 60}:${"%02d".format(totalSeconds % 60)}"
+}
+
 /** Video message: a real frame from the video with a play button (never a black box). */
 /** WhatsApp round video message: plays inline in a circle, muted and looping; tap opens it full screen with sound. */
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
@@ -432,6 +439,7 @@ private fun ChVideoNote(url: String) {
     val c = ctx()
     var playing by remember(url) { mutableStateOf(false) }
     var progress by remember(url) { mutableStateOf(0f) }
+    var durationMs by remember(url) { mutableStateOf(0L) }
     var bmp by remember(url) { mutableStateOf(ChatVideoThumbs.cached(url)) }
     LaunchedEffect(url) { if (bmp == null) bmp = runCatching { ChatVideoThumbs.load(c, url) }.getOrNull() }
     // One player per bubble, kept while the bubble is composed; weak phones have few video decoders, and auto-playing every
@@ -446,6 +454,7 @@ private fun ChVideoNote(url: String) {
     LaunchedEffect(player) {
         while (true) {
             val d = player.duration
+            durationMs = if (d > 0) d else 0L
             progress = if (d > 0) (player.currentPosition.toFloat() / d).coerceIn(0f, 1f) else 0f
             delay(80)
         }
@@ -461,6 +470,9 @@ private fun ChVideoNote(url: String) {
                 color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, trackColor = Color.White.copy(alpha = .25f))
         } else {
             bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
+            chVideoNoteDuration(durationMs)?.let {
+                Text(it, Modifier.align(Alignment.BottomStart).padding(14.dp).clip(RoundedCornerShape(8.dp)).background(Color.Black.copy(alpha= .45f)).padding(horizontal = 6.dp, vertical = 2.dp), color = Color.White, fontSize = 12.sp)
+            }
             Box(Modifier.size(52.dp).clip(CircleShape).background(Color.Black.copy(alpha = .45f)), contentAlignment = Alignment.Center) {
                 Icon(Sym.PlayArrow, "Play video message", tint = Color.White, modifier = Modifier.size(32.dp))
             }
