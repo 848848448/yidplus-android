@@ -14,8 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-/** A screen's data: shown from the disk cache at once, then refreshed from yidplus.com. */
-class Res<T>(val path: String, private val parse: (JSONObject) -> T) {
+/** One remote list, cached on disk and in memory, refreshed at most every 45 s. */
+class Res<T>(val path: String, val parse: (JSONObject) -> T) {
     var data by mutableStateOf<T?>(null)
     var loading by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
@@ -55,17 +55,34 @@ object Store {
     fun clear() { synchronized(map) { map.clear() } }
 }
 
+/** Which network the phone is on, for the media auto-download rules. */
+enum class NetKind { Wifi, Mobile, Roaming, Offline, Unknown }
+
 /** Is the phone online? Screens refresh by themselves when it comes back. */
 object Net {
     var online by mutableStateOf(true)
+    /** The kind of network in use right now; read by Prefs.autoDownload. */
+    var kind by mutableStateOf(NetKind.Unknown) private set
     fun init(ctx: Context) {
         val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         online = runCatching { cm.getNetworkCapabilities(cm.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true }.getOrDefault(true)
+        refreshKind(cm)
         runCatching {
             cm.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) { android.os.Handler(android.os.Looper.getMainLooper()).post { online = true } }
-                override fun onLost(network: Network) { android.os.Handler(android.os.Looper.getMainLooper()).post { online = false } }
+                override fun onAvailable(network: Network) { android.os.Handler(android.os.Looper.getMainLooper()).post { online = true; refreshKind(cm) } }
+                override fun onLost(network: Network) { android.os.Handler(android.os.Looper.getMainLooper()).post { online = false; kind = NetKind.Offline } }
             })
+        }
+    }
+
+    private fun refreshKind(cm: ConnectivityManager) {
+        val caps = runCatching { cm.getNetworkCapabilities(cm.activeNetwork) }.getOrNull()
+        kind = when {
+            caps == null || !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> NetKind.Offline
+            !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING) -> NetKind.Roaming
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> NetKind.Wifi
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> NetKind.Mobile
+            else -> NetKind.Unknown
         }
     }
 }
