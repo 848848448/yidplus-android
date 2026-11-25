@@ -261,7 +261,7 @@ class SettingsStorage : PageScreen() {
                     "Frees space now; media downloads again the next time you open a chat",
                     danger = !clearing) { if (!clearing) confirm = true }
             }
-            SettingsHint("This only clears copies saved on your phone — your messages, photos and videos stay in your chats and on the server.")
+            DlSection()
         }
         if (confirm) AlertDialog(onDismissRequest = { confirm = false },
             title = { Text("Clear media cache?") },
@@ -316,4 +316,30 @@ fun ShareProfileCard() {
         RowDivider(64.dp)
         SettingRow(Sym.Link, "Copy link", null) { settingsCopy(c, link) }
     }
+}
+
+/** Media auto-download rules under the media-cache card: one card per media type, with a switch for mobile data, Wi-Fi and roaming. The media-cache hint is rendered first so it stays directly under that card. */
+@Composable
+private fun DlSection() {
+  SettingsHint("This only clears copies saved on your phone — your messages, photos and videos stay in your chats and on the server.")
+  DlCard(Prefs.DlMedia.Photo, Sym.Photo, "Photos")
+  DlCard(Prefs.DlMedia.Video, Sym.Videocam, "Videos")
+  DlCard(Prefs.DlMedia.Audio, Sym.Mic, "Audio")
+  SettingsHint("Photos, videos and voice notes download on their own only on the networks you allow here. Anything else still loads when you tap it. Files are never downloaded on their own — they open when you tap them.")
+}
+
+@Composable
+private fun DlCard(media: Prefs.DlMedia, icon: androidx.compose.ui.graphics.vector.ImageVector, title: String) {
+  SettingsCard(title) {
+    DlRow(media, Prefs.DlNet.Mobile, Icons.Filled.SignalCellularAlt, "Mobile data")
+    RowDivider(64.dp)
+    DlRow(media, Prefs.DlNet.Wifi, Icons.Filled.Wifi, "Wi-Fi")
+    RowDivider(64.dp)
+    DlRow(media, Prefs.DlNet.Roaming, Icons.Filled.Flight, "Roaming")
+  }
+}
+
+@Composable
+private fun DlRow(media: Prefs.DlMedia, net: Prefs.DlNet, icon: androidx.compose.ui.graphics.vector.ImageVector, title: String) {
+  SettingRow(icon, title, switch = Prefs.autoDownloadValue(media, net)) { Prefs.setAutoDownload(media, net, !Prefs.autoDownloadValue(media, net)) }
 }
