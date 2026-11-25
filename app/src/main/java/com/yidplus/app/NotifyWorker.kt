@@ -79,7 +79,6 @@ class NotifyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
                 nm.createNotificationChannel(NotificationChannel(CH_CHANNELS, "New channel posts", NotificationManager.IMPORTANCE_DEFAULT).apply { setShowBadge(true) })
             }
             watchApp(ctx)
-        
         }
 
         /** Knows when the app is on screen: the fast poll runs only after it leaves (the app's own screens refresh themselves). */
