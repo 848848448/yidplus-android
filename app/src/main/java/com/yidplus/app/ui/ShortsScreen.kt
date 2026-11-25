@@ -714,7 +714,7 @@ private fun ScrubBar(player: Player, modifier: Modifier) {
 }
 
 /** 64-bit difference hash of a poster (from the image cache the feed already uses). */
-suspend fun posterPrint(ctx: android.content.Context, url: String): Long? = withContext(Dispatchers.IO) {
+suspend fun posterPrint(ctx: android.content.Context, url: String): Long? = withContext(Dispatchers.IO) { if (!Prefs.autoDownload(Prefs.DlMedia.Photo)) return@withContext null
     runCatching {
         val r = coil.Coil.imageLoader(ctx).execute(coil.request.ImageRequest.Builder(ctx).data(url).size(72, 64).allowHardware(false).build())
         val bmp = (r.drawable as? android.graphics.drawable.BitmapDrawable)?.bitmap ?: return@runCatching null
