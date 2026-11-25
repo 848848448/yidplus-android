@@ -5,12 +5,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -81,6 +83,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.yidplus.app.CallPush
+import com.yidplus.app.NotifyWorker
 import com.yidplus.app.data.Api
 import com.yidplus.app.data.Fixture
 import com.yidplus.app.data.Res
@@ -495,6 +499,11 @@ class SettingsNotifPrefs : PageScreen() {
         val scope = rememberCoroutineScope()
         LaunchedEffect(Unit) { SettingsProfile.load() }
         fun flip(k: String) = scope.launch { SettingsProfile.save(JSONObject().put(k, if (SettingsProfile.on(k)) 0 else 1))?.let { toast(c, it) } }
+        fun openChannel(channelId: String) {
+            val i = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, c.packageName).putExtra(Settings.EXTRA_CHANNEL_ID, channelId)
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            runCatching { c.startActivity(i) }.onFailure { toast(c, "Couldn't open the phone's notification settings") }
+        }
         SettingsPage("Notifications") {
             SettingsCard("Notify me about") {
                 SettingRow(Sym.Mail, "New messages", switch = SettingsProfile.on("notif_messages"), modifier = Modifier.firstFocus()) { flip("notif_messages") }
@@ -506,6 +515,14 @@ class SettingsNotifPrefs : PageScreen() {
                 SettingRow(Sym.Campaign, "Channel updates", switch = SettingsProfile.on("notif_channels")) { flip("notif_channels") }
             }
             SettingsHint("These are saved on your yidplus.com account, so the website follows them too. The phone's own on/off switch is on the Settings page.")
+            SettingsCard("Sound and vibration") {
+                SettingRow(Sym.Mail, "Messages", "Tone and vibration for private messages") { openChannel(NotifyWorker.CH_CHATS) }
+                RowDivider(64.dp)
+                SettingRow(Sym.Group, "Group messages", "Tone and vibration for group messages") { openChannel(NotifyWorker.CH_GROUPS) }
+                RowDivider(64.dp)
+                SettingRow(Sym.Call, "Calls", "Ringtone and vibration for incoming calls") { openChannel(CallPush.CH_CALLS) }
+            }
+            SettingsHint("Tap a row to set its tone and vibration in the phone's settings. Messages, group messages and calls each have their own channel.")
         }
     }
 }
