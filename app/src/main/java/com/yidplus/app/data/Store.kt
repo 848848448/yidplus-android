@@ -14,8 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-/** One remote list, cached on disk and in memory, refreshed at most every 45 s. */
-class Res<T>(val path: String, val parse: (JSONObject) -> T) {
+/** A screen's data: shown from the disk cache at once, then refreshed from yidplus.com. */
+class Res<T>(val path: String, private val parse: (JSONObject) -> T) {
     var data by mutableStateOf<T?>(null)
     var loading by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
