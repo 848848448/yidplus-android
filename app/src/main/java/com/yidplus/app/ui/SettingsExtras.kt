@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 import com.yidplus.app.data.Api
 import com.yidplus.app.data.Prefs
 import com.yidplus.app.data.Session
@@ -203,7 +203,7 @@ class SettingsChat : PageScreen() {
     override fun equals(other: Any?) = other is SettingsChat
     override fun hashCode() = 321
     @Composable override fun Content() {
-        SettingsPage("Chat settings") {
+        val c = ctx(); var font by remember { mutableStateOf(ClLocal.font(c)) }; var enterSends by remember { mutableStateOf(ClLocal.enterSends(c)) }; SettingsPage("Chat settings") {
             SettingsCard("Chat wallpaper") {
                 Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     ChatWallpapers.chunked(4).forEach { row ->
@@ -228,6 +228,12 @@ class SettingsChat : PageScreen() {
                 SettingRow(Sym.NotificationsOff, "Muted chats", "Chats you silenced") { Nav.open(SettingsMutedChats()) }
                 RowDivider(64.dp)
                 SettingRow(Sym.PhoneDisabled, "Silent calls", "Incoming calls don't ring", switch = LookPrefs.silentCalls) { LookPrefs.putSilentCalls(!LookPrefs.silentCalls) }
+                RowDivider(64.dp)
+                SettingRow(Sym.Keyboard, "Enter key sends", "Off = Enter adds a new line", switch = enterSends) { enterSends = !enterSends; ClLocal.setEnterSends(c, enterSends); toast(c, if (enterSends) "Enter key sends" else "Enter key makes a new line") }
+                RowDivider(64.dp)
+                Row(Modifier.padding(start = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Sym.FormatSize, null, tint = MaterialTheme.colorScheme.onSurfaceVariant); Text("Message text size", Modifier.padding(start = 18.dp), fontSize = 16.sp) }
+                Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf("sm" to "Small", "md" to "Medium", "lg" to "Large").forEach { (k, label) -> val on = font == k; Box(Modifier.weight(1f).clip(RoundedCornerShape(18.dp)).background(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(18.dp)) { font = k; ClLocal.setFont(c, k); toast(c, "Font size: $label") }.padding(vertical = 10.dp), contentAlignment = Alignment.Center) { Text(label, color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, fontSize = when (k) { "sm" -> 14.sp; "lg" -> 18.sp; else -> 16.sp }) } } }
+                Text("Hello! Messages will look like this.", Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).clip(RoundedCornerShape(10.dp)).background(ChatLook.mine()).padding(10.dp), color = ChatLook.ink(), fontSize = (15f * ClLocal.fontScale(c)).sp)
             }
             SettingsHint("Wallpaper and silent calls are kept on this phone, like on the website.")
         }
