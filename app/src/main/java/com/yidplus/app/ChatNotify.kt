@@ -329,7 +329,7 @@ object ChatNotify {
         val sid = shortcutId(r.id)
         pushShortcut(c, r, large, open, if (group) null else lastSender)
         val last = (0 until msgs.length()).mapNotNull { msgs.optJSONObject(it) }.lastOrNull()
-        val b = NotificationCompat.Builder(c, NotifyWorker.CH_CHATS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF008069.toInt())
+        val b = NotificationCompat.Builder(c, if (group) NotifyWorker.CH_GROUPS else NotifyWorker.CH_CHATS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF008069.toInt())
             .setStyle(style).setLargeIcon(large)
             .setContentTitle(r.name).setContentText(last?.let { (if (group && !it.optBoolean("mine")) it.optString("nick") + ": " else "") + it.optString("text") } ?: "New message")
             .setWhen(if (lastT > 0) lastT else System.currentTimeMillis()).setShowWhen(true)
