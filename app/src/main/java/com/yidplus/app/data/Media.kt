@@ -24,32 +24,29 @@ import java.io.File
 /** Video plumbing: one disk cache for all videos, and a pre-loader that fetches the start of the next Clip. */
 @OptIn(UnstableApi::class)
 object Media {
-    private var cache: SimpleCache? = null
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var prefetchJob: Job? = null
-
-    @Synchronized fun cache(ctx: Context): SimpleCache = cache ?: SimpleCache(File(ctx.cacheDir, "video"), LeastRecentlyUsedCacheEvictor(150L * 1024 * 1024),
-        StandaloneDatabaseProvider(ctx)).also { cache = it }
-
-    fun dataSource(ctx: Context): CacheDataSource.Factory = CacheDataSource.Factory()
-        .setCache(cache(ctx))
-        .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(Api.http))
-        .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-
-    /** A light player for weak phones: small buffers so the first frame comes fast. */
-    fun player(ctx: Context): ExoPlayer {
-        val load = DefaultLoadControl.Builder().setBufferDurationsMs(2500, 15000, 700, 1500).setPrioritizeTimeOverSizeThresholds(true).build()
-        return ExoPlayer.Builder(ctx).setMediaSourceFactory(DefaultMediaSourceFactory(dataSource(ctx))).setLoadControl(load).build()
+  private var cache: SimpleCache? = null
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  private var prefetchJob: Job? = null
+  @Synchronized fun cache(ctx: Context): SimpleCache = cache ?: SimpleCache(File(ctx.cacheDir, "video"), LeastRecentlyUsedCacheEvictor(150L * 1024 * 1024),
+    StandaloneDatabaseProvider(ctx)).also { cache = it }
+  fun dataSource(ctx: Context): CacheDataSource.Factory = CacheDataSource.Factory()
+    .setCache(cache(ctx))
+    .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(Api.http))
+    .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+  /** A light player for weak phones: small buffers so the first frame comes fast. */
+  fun player(ctx: Context): ExoPlayer {
+    val load = DefaultLoadControl.Builder().setBufferDurationsMs(2500, 15000, 700, 1500).setPrioritizeTimeOverSizeThresholds(true).build()
+    return ExoPlayer.Builder(ctx).setMediaSourceFactory(DefaultMediaSourceFactory(dataSource(ctx))).setLoadControl(load).build()
+  }
+  /** Download the first ~700 KB of the next videos into the cache so they start at once. Only when the video auto-download rule allows it on this network; the video in view still plays on demand. */
+  fun prefetch(ctx: Context, urls: List<String>) {
+    prefetchJob?.cancel()
+    if (!Prefs.autoDownload(Prefs.DlMedia.Video)) return
+    prefetchJob = scope.launch {
+      for (u in urls) runCatching {
+        val spec = DataSpec.Builder().setUri(Uri.parse(u)).setPosition(0).setLength(700L * 1024).build()
+        CacheWriter(dataSource(ctx).createDataSource(), spec, null, null).cache()
+      }
     }
-
-    /** Download the first ~700 KB of the next videos into the cache so they start at once. */
-    fun prefetch(ctx: Context, urls: List<String>) {
-        prefetchJob?.cancel()
-        prefetchJob = scope.launch {
-            for (u in urls) runCatching {
-                val spec = DataSpec.Builder().setUri(Uri.parse(u)).setPosition(0).setLength(700L * 1024).build()
-                CacheWriter(dataSource(ctx).createDataSource(), spec, null, null).cache()
-            }
-        }
-    }
+  }
 }
