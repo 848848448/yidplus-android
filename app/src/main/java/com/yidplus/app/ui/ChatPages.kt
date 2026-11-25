@@ -459,3 +459,51 @@ private fun Modifier.joinFirstFocus(): Modifier {
     }
     return this.focusRequester(fr).onFocusChanged { if (it.isFocused || it.hasFocus) got = true }
 }
+
+/** Archived chats (WhatsApp): the chats hidden from the main list. Tap opens one;
+ *  long-press selects it, then the Unarchive action in the bar puts it back. */
+class ChArchived : PageScreen() {
+    override val perfName get() = "Archived"
+    @Composable override fun Content() {
+        val c = ctx()
+        val me = Session.me
+        val res = ChatApi.rooms
+        LaunchedEffect(Unit) { res.load() }
+        val sel = remember { mutableStateListOf<String>() }
+        val pins = remember(ClLocal.pinVersion, me?.id) { ClLocal.pins(c) }
+        val cv = ClLocal.chListVersion
+        val archSet = remember(res.data, cv) { ClLocal.archived(c) }
+        val archived = remember(res.data, archSet, pins) {
+            (res.data ?: emptyList()).filter { it.room.id in archSet }.sortedBy {
+                val p = pins.indexOf(it.room.id); if (p < 0) Int.MAX_VALUE else p
+            }
+        }
+        fun unarchiveSelected() {
+            val ids = sel.toList()
+            ids.forEach { if (ClLocal.isArchived(c, it)) ClLocal.toggleArchive(c, it) }
+            toast(c, if (ids.size == 1) "Unarchived" else "Unarchived ${ids.size} chats")
+            sel.clear()
+        }
+                Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            if (sel.isEmpty()) ChBar("Archived", onBack = { Nav.back() })
+            else ChBar("${sel.size} selected", sub = "Archived", onBack = { sel.clear() }) {
+                ChIcon(Sym.Unarchive, "Unarchive", { unarchiveSelected() })
+            }
+            val l = res.data
+            when {
+                l == null -> ChSkeleton(5)
+                archived.isEmpty() -> ChEmpty(Sym.Archive, "No archived chats yet. Long-press a chat → Archive")
+                else -> LazyColumn(Modifier.fillMaxSize()) {
+                    items(archived, key = { it.room.id }) { ri ->
+                        ChRoomRow(ri, Modifier, pinned = ri.room.id in pins, selected = ri.room.id in sel,
+                            selecting = sel.isNotEmpty(),
+                            onLong = { if (ri.room.id !in sel) sel.add(ri.room.id) },
+                            onToggle = {
+                                if (ri.room.id in sel) sel.remove(ri.room.id) else sel.add(ri.room.id)
+                            })
+                    }
+                }
+            }
+        }
+    }
+}
