@@ -102,6 +102,7 @@ internal fun ClDrawer(open: Boolean, onClose: () -> Unit) {
             ClDrawerItem(Sym.RadioButtonChecked, "Status", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(StatusUpdatesPage()) }
             ClDrawerItem(Sym.Call, "Calls", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChCalls()) }
             ClDrawerItem(Sym.Bookmark, "Saved messages", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChSaved()) }
+            ClDrawerItem(Sym.Archive, "Archived", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChArchived()) }
             ClDrawerItem(Sym.Folder, "Chat Folders", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ClFolderManager()) }
             ClDrawerItem(Sym.Group, "New Group", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChNewGroup("group")) }
             ClDrawerItem(Sym.Campaign, "New Channel", tint = MaterialTheme.colorScheme.onSurfaceVariant) { onClose(); Nav.open(ChNewGroup("channel")) }
