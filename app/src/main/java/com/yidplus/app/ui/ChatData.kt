@@ -16,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.yidplus.app.data.Api
+import com.yidplus.app.data.Prefs
+import com.yidplus.app.data.refs
 import com.yidplus.app.data.Room
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.Store
@@ -349,7 +351,7 @@ object ChatVideoThumbs {
     private val cache = LruCache<String, Bitmap>(24)
     private val gate = Semaphore(2)
     fun cached(url: String): Bitmap? = cache.get(url)
-    suspend fun load(ctx: Context, url: String): Bitmap? = cache.get(url) ?: gate.withPermit {
+    suspend fun load(ctx: Context, url: String): Bitmap? = if (!url.startsWith("content:") && !url.startsWith("file:") && !Prefs.autoDownload(Prefs.DlMedia.Video)) null else cache.get(url) ?: gate.withPermit {
         cache.get(url) ?: withContext(Dispatchers.IO) {
             val r = MediaMetadataRetriever()
             try {
