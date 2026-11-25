@@ -203,11 +203,11 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
             if (selected != null) Icon(if (selected) Sym.CheckCircle else Sym.RadioButtonUnchecked, if (selected) "Selected" else "Not selected",
                 Modifier.padding(end = 6.dp, top = 6.dp).size(22.dp).clickable { onSelect?.invoke() }, tint = if (selected) ChatLook.accent else ChatLook.sub())
             if (!mine && group) { if (first) ChAvatar(m.photo, m.nick, m.senderId, 30.dp) else Spacer(Modifier.width(30.dp)); Spacer(Modifier.width(6.dp)) }
-            Column(modifier.widthIn(min = 72.dp, max = maxW).csTail(first && !m.isSticker && !highlight && selected != true, mine, bg).clip(shape).background(if (highlight) csHighlightColor() else if (m.isSticker) Color.Transparent else bg)
+            Column(modifier.widthIn(min = 72.dp, max = maxW).csTail(first && !m.isSticker && !m.isVideoNote && !highlight && selected != true, mine, bg).clip(shape).background(if (highlight) csHighlightColor() else if (m.isSticker || m.isVideoNote) Color.Transparent else bg)
                 .then(if (focused && Keys.keypad) Modifier.border(2.dp, Gold, shape) else Modifier)
                 .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onClick = { if (onSelect != null && selected != null) onSelect() else open() }, onLongClick = { if (onSelect != null && selected != null) onSelect() else onLong() },
                     onDoubleClick = if (selected == null && !m.pending && !m.failed && !m.deleted) ({ onReact("❤️") }) else null)
-                .padding(horizontal = 4.dp, vertical = 4.dp)) {
+                .padding(horizontal = if (m.isVideoNote) 0.dp else 4.dp, vertical = if (m.isVideoNote) 0.dp else 4.dp)) {
                 if (!mine && group && first) Row(Modifier.padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(m.nick, Modifier.weight(1f, fill = false).then(if (onNick != null) Modifier.clickable(onClick = onNick) else Modifier), fontSize = if (compact) 14.5.sp else 14.sp, fontWeight = FontWeight.SemiBold, color = ChatLook.nameColor(m.senderId), maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                     if (m.title.isNotBlank()) Text(m.title, Modifier.padding(start = 6.dp).clip(RoundedCornerShape(8.dp)).background(ChatLook.accent.copy(alpha = .12f)).padding(horizontal = 6.dp), fontSize = 11.sp, color = ChatLook.accent, maxLines = 1)
@@ -263,7 +263,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                 else if (!m.deleted && !hasMedia && !m.isSticker && !m.isAudio && !m.isPoll && !m.isFile && !m.isUnavailable && !m.isVoiceText && contact == null && location == null)
                     Text("💬 Message", Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = ChatLook.sub(), fontSize = 15.sp)
                 if (link != null && location == null) ChLinkCard(link, mine, onJoin)
-                Row(Modifier.align(Alignment.End).padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.align(Alignment.End).then(if (m.isVideoNote) Modifier.clip(RoundedCornerShape(8.dp)).background(bg).padding(horizontal = 6.dp, vertical = 2.dp) else Modifier.padding(horizontal = 6.dp)), verticalAlignment = Alignment.CenterVertically) {
                     if (m.edited && !m.deleted) Text("edited  ", fontSize = 12.sp, color = ChatLook.sub())
                     Text(if (m.pending) "Sending…" else if (m.failed) "Not sent · tap" else clock(m.createdAt), fontSize = 12.sp, color = if (m.failed) Color(0xFFD32F2F) else ChatLook.sub())
                     if (mine && !m.pending && !m.failed && !m.deleted) {
