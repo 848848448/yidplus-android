@@ -334,6 +334,60 @@ data class ChForward(val m: ChatMsg) : PageScreen() {
     }
 }
 
+/** Share into YidPlus from another app (ACTION_SEND / ACTION_SEND_MULTIPLE): pick a chat, the shared text and/or photos/videos are sent into it with the composer's send paths, then that chat opens. */
+data class ChShare(val text: String?, val uris: List<Uri>) : PageScreen() {
+    override val perfName get() = "Share"
+    @Composable override fun Content() {
+        val c = ctx(); val scope = rememberCoroutineScope()
+        val res = ChatApi.rooms
+        LaunchedEffect(Unit) { res.load() }
+        var q by remember { mutableStateOf("") }
+        var busy by remember { mutableStateOf(false) }
+        val summary = when {
+            !text.isNullOrBlank() -> text.take(120)
+            uris.size == 1 -> "1 photo or video"
+            else -> uris.size.toString() + " photos or videos"
+        }
+        fun share(to: ChatRoomInfo) {
+            if (busy) return
+            busy = true
+            scope.launch {
+                try {
+                    val t = text?.trim().orEmpty()
+                    if (t.isNotEmpty()) ChatApi.sendText(to.room.id, t, null)
+                    for (u in uris) {
+                        val mime = c.contentResolver.getType(u) ?: "image/*"
+                        if (mime.startsWith("video/")) {
+                            ChatApi.upload(c, to.room.id, u, null, "media", nameOf(c, u), mime, "", null)
+                        } else {
+                            // Photos go out the same way as the composer's photo picker (sendPhoto in ChatScreens.kt): shrunk to a JPEG in the cache, then uploaded.
+                            val bytes = withContext(Dispatchers.IO) { chShrink(c, u, null) }
+                            val f = java.io.File(c.cacheDir, "share_" + System.nanoTime() + ".jpg")
+                            try {
+                                withContext(Dispatchers.IO) { f.writeBytes(bytes) }
+                                ChatApi.upload(c, to.room.id, null, f, "media", "photo.jpg", "image/jpeg", "", null)
+                            } finally { f.delete() }
+                        }
+                    }
+                    toast(c, "✅ Shared to " + to.room.name)
+                    Nav.go(Tab.Chats); Nav.open(Screen.Chat(to.room))
+                } catch (e: Exception) { toast(c, "Share failed: " + Api.friendly(e)) } finally { busy = false }
+            }
+        }
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            ChBar("Share to…", sub = summary, onBack = { Nav.back() })
+            if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+            OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), singleLine = true, placeholder = { Text("Search chats") }, leadingIcon = { Icon(Sym.Search, null) }, shape = RoundedCornerShape(24.dp), textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content))
+            val l = (res.data ?: emptyList()).filter { it.joined && (!it.room.readOnly || it.canManage) && (q.isBlank() || it.room.name.contains(q.trim(), true)) }
+            LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
+                items(l, key = { it.room.id }) { r ->
+                    ChRow(r.room.name, when (r.room.type) { "private" -> "Private chat"; "channel" -> "Channel"; else -> "Group" }, { ChAvatar(r.room.photo, r.room.name, r.room.otherUserId ?: r.room.id, 44.dp) }, modifier = if (r == l.first()) Modifier.firstFocus() else Modifier) { share(r) }
+                }
+            }
+        }
+    }
+}
+
 /** New poll (the site's poll: a question, 2-12 options, one or several answers). */
 data class ChPollNew(val room: Room) : PageScreen() {
     override val perfName get() = "NewPoll"

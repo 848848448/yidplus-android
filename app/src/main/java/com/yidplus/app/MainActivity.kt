@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
@@ -21,6 +22,7 @@ import com.yidplus.app.data.Room
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.TgChannel
 import com.yidplus.app.ui.AppRoot
+import com.yidplus.app.ui.ChShare
 import com.yidplus.app.ui.Keys
 import com.yidplus.app.ui.Music
 import com.yidplus.app.ui.Nav
@@ -128,6 +130,17 @@ class MainActivity : ComponentActivity() {
         android.util.Log.i("YidLook", "color=${LookPrefs.colorTheme} text=${UiPrefs.textSize} contrast=${LookPrefs.highContrast} reduceMotion=${LookPrefs.reduceMotion} motionScale=${YidMotion.scaleFactor} lightBar=${LookPrefs.lightBar}")
     }
 
+    /** Content Uris shared into the app: a single Uri for ACTION_SEND, a list for ACTION_SEND_MULTIPLE (some senders put a list in a plain SEND too). */
+    private fun sharedUris(i: Intent): List<Uri> {
+        if (Build.VERSION.SDK_INT >= 33) {
+            i.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)?.let { return it.filterNotNull() }
+            return listOfNotNull(i.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java))
+        }
+        @Suppress("DEPRECATION")
+        i.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { return it.filterNotNull() }
+        @Suppress("DEPRECATION")
+        return listOfNotNull(i.getParcelableExtra<Uri>(Intent.EXTRA_STREAM))
+    }
     private fun handle(i: Intent?) {
         i ?: return
         // QA actions and extras are honoured only in a QA build (-Pqa=true); the shipped app ignores them, including from other apps.
@@ -152,6 +165,13 @@ class MainActivity : ComponentActivity() {
             ACTION_OPEN_CHAT -> i.getStringExtra("room")?.let { runCatching { Room.from(JSONObject(it)) }.getOrNull() }?.let { Nav.go(Tab.Chats); Nav.open(Screen.Chat(it)) }
             ACTION_OPEN_CHANNEL -> i.getStringExtra("username")?.let { u ->
                 Nav.go(Tab.Home); Nav.open(Screen.Channel(TgChannel(u, i.getStringExtra("title") ?: u, null, 0, "", "", null, 0, true)))
+            }
+            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> {
+                // Share into YidPlus from another app: text and/or photos/videos. The sender grants this activity temporary read access to the shared content Uris, so they are handed to the room picker; ChShare sends them with the composer's send paths and then opens the chat.
+                val text = i.getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() }
+                val uris = sharedUris(i)
+                if (text == null && uris.isEmpty()) return
+                Nav.go(Tab.Chats); Nav.open(ChShare(text, uris))
             }
             Intent.ACTION_VIEW -> {
                 val d = i.data ?: return
