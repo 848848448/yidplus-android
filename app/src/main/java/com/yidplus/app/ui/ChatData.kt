@@ -224,10 +224,10 @@ object ChatApi {
     fun roomOf(id: String, type: String, name: String, photo: String? = null, other: String? = null) = Room(id, type, name, photo, "", "", 0, null, type == "channel", false, 0, other)
 
     /** Streams a file straight from the phone to the site's chat (no copy in memory; the same raw upload the website uses). */
-    suspend fun upload(ctx: Context, roomId: String, uri: Uri?, file: File?, type: String, name: String, mime: String, text: String = "", replyTo: String? = null): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun upload(ctx: Context, roomId: String, uri: Uri?, file: File?, type: String, name: String, mime: String, text: String = "", replyTo: String? = null, viewOnce: Boolean = false): JSONObject = withContext(Dispatchers.IO) {
         // Exactly the site's _sendChatMedia: ?room_id&type&text&filename&ct, the bytes as application/octet-stream (the real type rides in ct).
         val url = "${Api.BASE}/api/chat?room_id=" + chEnc(roomId) + "&type=" + chEnc(type) + "&text=" + chEnc(text) + "&filename=" + chEnc(name) + "&ct=" + chEnc(mime) +
-            (if (replyTo != null) "&reply_to_id=" + chEnc(replyTo) else "")
+            (if (replyTo != null) "&reply_to_id=" + chEnc(replyTo) else "") + (if (viewOnce) "&view_once=1" else "")
         val len = file?.length() ?: uri?.let { u -> runCatching { ctx.contentResolver.openAssetFileDescriptor(u, "r")?.use { it.length } }.getOrNull() } ?: -1L
         // The site's checkFileSize(file, 500): nothing over 500 MB.
         if (len > 500L * 1024 * 1024) throw Api.ApiError(413, "That file is too big (max 500 MB)", JSONObject())
@@ -240,7 +240,7 @@ object ChatApi {
             return@withContext JSONObject().put("ok", true).put("id", "fx-" + System.nanoTime())
         }
         // Over 80 MB the site switches to its multipart upload (/api/chat/mpu, 48 MB parts), then posts the message with media_key.
-        if (len > 80L * 1024 * 1024) return@withContext uploadBig(ctx, roomId, uri, file, type, name, mime, text, replyTo)
+        if (len > 80L * 1024 * 1024) return@withContext uploadBig(ctx, roomId, uri, file, type, name, mime, text, replyTo, viewOnce)
         val body = object : RequestBody() {
             override fun contentType() = "application/octet-stream".toMediaTypeOrNull()
             override fun contentLength() = if (len > 0) len else -1L
@@ -258,7 +258,7 @@ object ChatApi {
     }
 
     /** The site's _sendChatMedia big path: mpu create → parts → complete → POST /api/chat {room_id,type,text,media_key}; abort on any error. */
-    private suspend fun uploadBig(ctx: Context, roomId: String, uri: Uri?, file: File?, type: String, name: String, mime: String, text: String, replyTo: String?): JSONObject {
+    private suspend fun uploadBig(ctx: Context, roomId: String, uri: Uri?, file: File?, type: String, name: String, mime: String, text: String, replyTo: String?, viewOnce: Boolean = false): JSONObject {
         val cr = Api.post("/api/chat/mpu?action=create", JSONObject().put("room_id", roomId).put("type", type).put("filename", name).put("content_type", mime))
         val key = cr.str("key"); val up = cr.str("upload_id")
         try {
@@ -284,7 +284,7 @@ object ChatApi {
             }
             Api.post("/api/chat/mpu?action=complete", JSONObject().put("key", key).put("upload_id", up).put("parts", parts))
             val b = JSONObject().put("room_id", roomId).put("type", type).put("text", text).put("media_key", key)
-            if (replyTo != null) b.put("reply_to_id", replyTo)
+    if (replyTo != null) b.put("reply_to_id", replyTo); if (viewOnce) b.put("view_once", 1)
             return Api.post("/api/chat", b)
         } catch (e: Exception) {
             runCatching { Api.post("/api/chat/mpu?action=abort", JSONObject().put("key", key).put("upload_id", up)) }
