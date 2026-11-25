@@ -104,6 +104,7 @@ import com.yidplus.app.data.Disk
 import com.yidplus.app.data.Media
 import com.yidplus.app.data.Net
 import com.yidplus.app.data.Perf
+import com.yidplus.app.data.Prefs
 import com.yidplus.app.data.Room
 import com.yidplus.app.data.Session
 import com.yidplus.app.data.Store
@@ -231,10 +232,10 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                         Icon(if (m.isVoice) Sym.MicOff else Sym.BrokenImage, null, Modifier.size(20.dp), tint = ChatLook.sub())
                         Text("  " + if (m.isVoice) "Voice message unavailable" else m.caption.ifBlank { "Media unavailable" }, fontSize = 14.sp, color = ChatLook.sub(), style = TextStyle(textDirection = TextDirection.Content))
                     }
-                    album != null && album.size > 1 -> CsAlbumGrid(album, maxW, onMedia)
+                    album != null && album.size > 1 -> ChAlbumBubble(album, maxW, onMedia)
                     m.isVideoNote -> ChVideoNote(m.media ?: m.local!!)
                     // Prefer my own local file so a just-sent photo shows instantly (no dark "still-uploading" block), and a light placeholder while it loads.
-                    m.isImage -> AsyncImage(if (mine) (m.local ?: m.media) else (m.media ?: m.local), "Photo", contentScale = ContentScale.Crop, modifier = Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp).clip(RoundedCornerShape(10.dp)).background(if (isDark()) Color(0xFF2A2F32) else Color(0xFFE9EDEF)))
+                    m.isImage -> ChPhotoBubble(m, maxW, mine)
                     m.isVideo -> ChVideoThumb(m.media ?: m.local!!, maxW)
                     m.isAudio -> CsVoiceBubble(m)
                     m.isVoiceText -> Row(Modifier.padding(4.dp).width(220.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -556,4 +557,50 @@ internal fun csIsRtl(s: String): Boolean {
         if (d == Character.DIRECTIONALITY_LEFT_TO_RIGHT) return false
     }
     return false
+}
+
+/** A chat photo: it loads on its own only when the photo auto-download rule allows it on this network. Otherwise a tap-to-download placeholder; tapping it loads the photo in place. */
+@Composable
+private fun ChPhotoBubble(m: ChatMsg, maxW: Dp, mine: Boolean) {
+  var tapToLoad by remember(m.id) { mutableStateOf(false) }
+  if (m.local != null || tapToLoad || Prefs.autoDownload(Prefs.DlMedia.Photo)) {
+    AsyncImage(if (mine) (m.local ?: m.media) else (m.media ?: m.local), "Photo", contentScale = ContentScale.Crop, modifier = Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp).clip(RoundedCornerShape(10.dp)).background(if (isDark()) Color(0xFF2A2F32) else Color(0xFFE9EDEF)))
+  } else {
+    Box(
+      Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp)
+        .clip(RoundedCornerShape(10.dp))
+        .background(if (isDark()) Color(0xFF2A2F32) else Color(0xFFE9EDEF))
+        .clickable { tapToLoad = true },
+      contentAlignment = Alignment.Center
+    ) {
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Sym.Download, "Download", Modifier.size(28.dp), tint = ChatLook.sub())
+        Text("Photo", fontSize = 15.sp, color = ChatLook.sub())
+        Text("Tap to download", fontSize = 12.sp, color = ChatLook.sub())
+      }
+    }
+  }
+}
+
+/** A photo album: the same rule as a single photo, for the whole album. Tapping the placeholder loads the album in place. */
+@Composable
+private fun ChAlbumBubble(album: List<ChatMsg>, maxW: Dp, onMedia: (String) -> Unit) {
+  var tapToLoad by remember(album.firstOrNull()?.id) { mutableStateOf(false) }
+  if (tapToLoad || Prefs.autoDownload(Prefs.DlMedia.Photo) || album.all { it.local != null }) {
+    CsAlbumGrid(album, maxW, onMedia)
+  } else {
+    Box(
+      Modifier.widthIn(min = 180.dp, max = maxW.coerceAtMost(300.dp)).heightIn(min = 120.dp, max = 320.dp)
+        .clip(RoundedCornerShape(10.dp))
+        .background(if (isDark()) Color(0xFF2A2F32) else Color(0xFFE9EDEF))
+        .clickable { tapToLoad = true },
+      contentAlignment = Alignment.Center
+    ) {
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Sym.Download, "Download", Modifier.size(28.dp), tint = ChatLook.sub())
+        Text("Photos", fontSize = 15.sp, color = ChatLook.sub())
+        Text("Tap to download", fontSize = 12.sp, color = ChatLook.sub())
+      }
+    }
+  }
 }
