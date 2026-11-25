@@ -561,12 +561,13 @@ internal fun csBurnText(c: Context, uri: Uri, text: String): Uri {
 
 /** Photos/videos before sending (WhatsApp's preview): the pictures, remove one, rotate a photo, add text, a caption, Send. */
 @Composable
-internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (List<Uri>, String, Boolean) -> Unit, onClose: () -> Unit) {
+internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (List<Uri>, String, Boolean, Boolean) -> Unit, onClose: () -> Unit) {
     var cap by remember { mutableStateOf("") }
     val c = ctx(); val scope = rememberCoroutineScope()
     val rotations = remember { mutableStateMapOf<Uri, Int>() }
     var sending by remember { mutableStateOf(false) }
     var hd by remember { mutableStateOf(false) }
+var viewOnce by remember { mutableStateOf(false) }
     val overlays = remember { mutableStateMapOf<Uri, String>() }
     var editingText by remember { mutableStateOf<Uri?>(null) }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
@@ -578,7 +579,10 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                 Row(Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     ChIcon(Sym.Close, "Cancel", onClose, tint = Color.White)
                     Text(if (list.size == 1) "1 item" else "${list.size} items", Modifier.weight(1f).padding(start = 8.dp), color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                    if (shown != null && isPhoto) Box(Modifier.clip(RoundedCornerShape(8.dp)).then(if (hd) Modifier.background(Color.White) else Modifier).tap(RoundedCornerShape(8.dp)) { hd = !hd }.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                    Box(Modifier.clip(RoundedCornerShape(8.dp)).then(if (viewOnce) Modifier.background(Color.White) else Modifier).tap(RoundedCornerShape(8.dp)) { viewOnce = !viewOnce }.padding(horizontal = 10.dp, vertical = 6.dp)) {
+            Text("👁 View once", color = if (viewOnce) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        }
+        if (shown != null && isPhoto) Box(Modifier.clip(RoundedCornerShape(8.dp)).then(if (hd) Modifier.background(Color.White) else Modifier).tap(RoundedCornerShape(8.dp)) { hd = !hd }.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text("HD", color = if (hd) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     }
                     if (shown != null && isPhoto) ChIcon(Sym.TextFields, "Add text", { editingText = shown }, tint = Color.White)
@@ -611,7 +615,7 @@ internal fun CsMediaPreview(list: List<Uri>, onRemove: (Uri) -> Unit, onSend: (L
                         val snap = list.toList(); val rots = rotations.toMap(); val ovs = overlays.toMap(); val text = cap.trim()
                         scope.launch {
                             val finals = withContext(Dispatchers.IO) { snap.map { u -> csBurnText(c, csRotateImage(c, u, rots[u] ?: 0), ovs[u] ?: "") } }
-                            onSend(finals, text, hd)
+                            onSend(finals, text, hd, viewOnce)
                         }
                     }, contentAlignment = Alignment.Center) {
                         if (sending) CircularProgressIndicator(Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
