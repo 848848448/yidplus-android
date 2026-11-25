@@ -66,15 +66,15 @@ class NotifyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
     companion object {
         const val TAG = "YidNotify"
         const val CH_CHATS = "chats"; const val CH_ACTIVITY = "activity"; const val CH_CHANNELS = "channels"; const val CH_GROUPS = "group-chats"
-        private const val GROUP_ACTIVITY = "com.yidplus.app.ACTIVITY"
         @Volatile var foreground = false; private set
+        private const val GROUP_ACTIVITY = "com.yidplus.app.ACTIVITY"
         @Volatile private var watching = false
 
         fun channels(ctx: Context) {
             if (Build.VERSION.SDK_INT >= 26) {
                 val nm = ctx.getSystemService(NotificationManager::class.java)
                 nm.createNotificationChannel(NotificationChannel(CH_CHATS, "Messages", NotificationManager.IMPORTANCE_HIGH).apply { setShowBadge(true) })
-                nm.createNotificationChannel(NotificationChannel(CH_GROUPS, "Group messages", NotificationManager.IMPORTANCE_HIGH)).apply { setShowBadge(true) })
+                nm.createNotificationChannel(NotificationChannel(CH_GROUPS, "Group messages", NotificationManager.IMPORTANCE_HIGH).apply { setShowBadge(true) })
                 nm.createNotificationChannel(NotificationChannel(CH_ACTIVITY, "Likes, comments, follows", NotificationManager.IMPORTANCE_DEFAULT).apply { setShowBadge(true
                 nm.createNotificationChannel(NotificationChannel(CH_CHANNELS, "New channel posts", NotificationManager.IMPORTANCE_DEFAULT).apply { setShowBadge(true) })
             }
