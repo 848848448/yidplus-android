@@ -358,7 +358,7 @@ data class ChShare(val text: String?, val uris: List<Uri>) : PageScreen() {
                     for (u in uris) {
                         val mime = c.contentResolver.getType(u) ?: "image/*"
                         if (mime.startsWith("video/")) {
-                            ChatApi.upload(c, to.room.id, u, null, "media", nameOf(c, u), mime, "", null)
+                            ChatApi.upload(c, to.room.id, u, null, "media", ChatApi.nameOf(c, u), mime, "", null)
                         } else {
                             // Photos go out the same way as the composer's photo picker (sendPhoto in ChatScreens.kt): shrunk to a JPEG in the cache, then uploaded.
                             val bytes = withContext(Dispatchers.IO) { chShrink(c, u, null) }
