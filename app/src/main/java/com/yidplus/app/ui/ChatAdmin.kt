@@ -133,7 +133,7 @@ data class ChEditGroup(val room: Room) : PageScreen() {
                     requests.forEach { r ->
                         ChRow(r.chStr("nickname"), chatTime(r.chStr("created_at")), { ChAvatar(Api.abs(r.chStr("photo_url").ifBlank { null }), r.chStr("nickname"), r.chStr("user_id"), 44.dp) }, trail = {
                             ChIcon(Sym.Done, "Approve ${r.chStr("nickname")}", { scope.launch { runCatching { ClApi.answerJoin(r.opt("id"), true) }.onSuccess { toast(c, "✅ Approved") }.onFailure { toast(c, Api.friendly(it)) }; loadReq(); ChatApi.rooms.load(true) } }, tint = ChatLook.unread)
-                            ChIcon(Sym.Close, "Decline ${r.chStr("nickname")}", { scope.launch { runCatching { ClApi.answerJoin(r.opt("id"), false) }.onFailure { toast(c, Api.friendly(it)) }; loadReq() } }, tint = Color(0xFFD32F2F))
+                            ChIcon(Sym.Close, "Decline ${r.chStr("nickname")}", { scope.launch { runCatching { ClApi.answerJoin(r.opt("id"), false) }.onFailure { toast(c, Api.friendly(it)) }; loadReq() } }, tint = MaterialTheme.colorScheme.error)
                         }) { }
                     }
                 }
