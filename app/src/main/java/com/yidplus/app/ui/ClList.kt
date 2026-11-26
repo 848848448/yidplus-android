@@ -231,7 +231,7 @@ class ClFolderManager : PageScreen() {
                 else if (l.isEmpty()) item { Text("No folders yet", Modifier.padding(horizontal = 16.dp, vertical = 8.dp), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 else items(l, key = { "f" + it.id }) { f ->
                     ChRow(f.name, if (f.roomIds.isEmpty()) "No chats" else "${f.roomIds.size} chats", { Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = .14f)), contentAlignment = Alignment.Center) { Icon(Sym.Folder, null, tint = MaterialTheme.colorScheme.primary) } },
-                        trail = { ChIcon(Sym.Delete, "Delete folder ${f.name}", { ask = f }, tint = Color(0xFFD32F2F)) }) { ask = f }
+                        trail = { ChIcon(Sym.Delete, "Delete folder ${f.name}", { ask = f }, tint = MaterialTheme.colorScheme.error) }) { ask = f }
                 }
                 item {
                     ChSection("New folder")
@@ -256,7 +256,7 @@ class ClFolderManager : PageScreen() {
         }
         ask?.let { f ->
             AlertDialog(onDismissRequest = { ask = null }, text = { Text("Delete the folder \"${f.name}\"? Your chats stay.", fontSize = 16.sp) },
-                confirmButton = { TextButton({ ask = null; scope.launch { runCatching { ClApi.deleteFolder(f.id) }.onSuccess { ClFolders.version++; load() }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = Color(0xFFD32F2F)) } },
+                confirmButton = { TextButton({ ask = null; scope.launch { runCatching { ClApi.deleteFolder(f.id) }.onSuccess { ClFolders.version++; load() }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = MaterialTheme.colorScheme.error) } },
                 dismissButton = { TextButton({ ask = null }) { Text("Cancel") } })
         }
     }
