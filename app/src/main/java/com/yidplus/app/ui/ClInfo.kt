@@ -121,9 +121,9 @@ internal fun ClInviteDialog(room: Room, code0: String?, canManage: Boolean, onCo
         }
     }, confirmButton = { TextButton(onDismiss) { Text("Close") } },
         // "Revoke link" sits with the dialog's buttons, so it is never scrolled out of sight on a 480x640 screen.
-        dismissButton = if (canManage && url != null) ({ TextButton({ revokeAsk = true }) { Text("Revoke link", color = Color(0xFFD32F2F)) } }) else null)
+        dismissButton = if (canManage && url != null) ({ TextButton({ revokeAsk = true }) { Text("Revoke link", color = MaterialTheme.colorScheme.error) } }) else null)
     if (revokeAsk) AlertDialog(onDismissRequest = { revokeAsk = false }, text = { Text("Revoke the current invite link and create a new one? The old link will stop working.", fontSize = 16.sp) },
-        confirmButton = { TextButton({ revokeAsk = false; scope.launch { runCatching { ClApi.revokeInvite(room.id) }.onSuccess { val n = it.ifBlank { code ?: "" }; code = n; onCode(n); toast(c, "🔗 New invite link created") }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Revoke", color = Color(0xFFD32F2F)) } },
+        confirmButton = { TextButton({ revokeAsk = false; scope.launch { runCatching { ClApi.revokeInvite(room.id) }.onSuccess { val n = it.ifBlank { code ?: "" }; code = n; onCode(n); toast(c, "🔗 New invite link created") }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Revoke", color = MaterialTheme.colorScheme.error) } },
         dismissButton = { TextButton({ revokeAsk = false }) { Text("Cancel") } })
 }
 
@@ -174,9 +174,9 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
                 ChDialogRow(if (mb.admin) "⬇ Dismiss as admin" else "⭐ Make admin", MaterialTheme.colorScheme.primary) {
                     scope.launch { runCatching { ChatApi.setAdmin(room.id, mb.id, !mb.admin) }.onSuccess { toast(c, if (mb.admin) "Admin removed" else "⭐ ${mb.nick} is now an admin"); onChanged(); onDismiss() }.onFailure { toast(c, Api.friendly(it)) } }
                 }
-                ChDialogRow("🚫 Remove from group", Color(0xFFD32F2F)) { removeAsk = true }
+                ChDialogRow("🚫 Remove from group", MaterialTheme.colorScheme.error) { removeAsk = true }
             }
-            ChDialogRow("🚩 Report ${mb.nick}", Color(0xFFD32F2F)) { report = true }
+            ChDialogRow("🚩 Report ${mb.nick}", MaterialTheme.colorScheme.error) { report = true }
         }
     }, confirmButton = { TextButton(onDismiss) { Text("Close") } })
     if (titleAsk) {
@@ -191,7 +191,7 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
             dismissButton = { TextButton({ titleAsk = false }) { Text("Cancel") } })
     }
     if (removeAsk) AlertDialog(onDismissRequest = { removeAsk = false }, text = { Text("Remove ${mb.nick} from \"${room.name}\"?", fontSize = 16.sp) },
-        confirmButton = { TextButton({ removeAsk = false; scope.launch { runCatching { ChatApi.removeMember(room.id, mb.id) }.onSuccess { toast(c, "Removed"); onChanged(); onDismiss() }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Remove", color = Color(0xFFD32F2F)) } },
+        confirmButton = { TextButton({ removeAsk = false; scope.launch { runCatching { ChatApi.removeMember(room.id, mb.id) }.onSuccess { toast(c, "Removed"); onChanged(); onDismiss() }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Remove", color = MaterialTheme.colorScheme.error) } },
         dismissButton = { TextButton({ removeAsk = false }) { Text("Cancel") } })
     if (report) ClReportDialog(mb.id, room.id) { report = false; onDismiss() }
 }
