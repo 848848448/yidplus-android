@@ -30,17 +30,19 @@ val ColorPresets = listOf(
     ColorPreset("Midnight", Color(0xFF2B8A73), Color(0xFF3EBFA1), Color(0xFF0A0A0F), Color(0xFF13131A), Color(0xFFF0EDE6), dark = true),
 )
 
-/** The site's chat wallpapers (js/theme.js CHAT_WALLPAPERS): id, name, gradient start/end (null = the default background). */
-data class Wallpaper(val id: String, val name: String, val from: Color?, val to: Color?)
+/** The site's chat wallpapers (js/theme.js CHAT_WALLPAPERS): id, name, light gradient start/end and dark gradient start/end (null = the default background). The dark gradient is a deep, desaturated version of the same hue, like WhatsApp's dark wallpapers; Dusk and Charcoal are already dark, so their dark gradient matches their light one. */
+data class Wallpaper(val id: String, val name: String, val from: Color?, val to: Color?, val darkFrom: Color? = null, val darkTo: Color? = null)
 val ChatWallpapers = listOf(
     Wallpaper("default", "Default", null, null),
-    Wallpaper("mint", "Mint", Color(0xFFE7F5EE), Color(0xFFD3EBDF)),
-    Wallpaper("sky", "Sky", Color(0xFFE3F0FB), Color(0xFFCFE3F5)),
-    Wallpaper("sand", "Sand", Color(0xFFF6EFE2), Color(0xFFEADFC8)),
-    Wallpaper("rose", "Rose", Color(0xFFFBE9EE), Color(0xFFF3D2DD)),
-    Wallpaper("dusk", "Dusk", Color(0xFF2A2F45), Color(0xFF1C2033)),
-    Wallpaper("charcoal", "Charcoal", Color(0xFF23262B), Color(0xFF15171A)),
+    Wallpaper("mint", "Mint", Color(0xFFE7F5EE), Color(0xFFD3EBDF), Color(0xFF1C2E26), Color(0xFF121F18)),
+    Wallpaper("sky", "Sky", Color(0xFFE3F0FB), Color(0xFFCFE3F5), Color(0xFF1B2A3A), Color(0xFF121E2B)),
+    Wallpaper("sand", "Sand", Color(0xFFF6EFE2), Color(0xFFEADFC8), Color(0xFF2B2620), Color(0xFF1D1913)),
+    Wallpaper("rose", "Rose", Color(0xFFFBE9EE), Color(0xFFF3D2DD), Color(0xFF2E1F26), Color(0xFF20141B)),
+    Wallpaper("dusk", "Dusk", Color(0xFF2A2F45), Color(0xFF1C2033), Color(0xFF2A2F45), Color(0xFF1C2033)),
+    Wallpaper("charcoal", "Charcoal", Color(0xFF23262B), Color(0xFF15171A), Color(0xFF23262B), Color(0xFF15171A)),
 )
+// The gradient for the current theme: the dark gradient in dark mode, the light one otherwise (falling back to the light gradient when no dark one is set).
+fun Wallpaper.gradient(dark: Boolean): Pair<Color?, Color?> = if (dark) Pair(darkFrom ?: from, darkTo ?: to) else Pair(from, to)
 
 object LookPrefs {
     private var ctx: Context? = null
@@ -89,13 +91,13 @@ object LookPrefs {
 
 /**
  * The chosen chat wallpaper (js/theme.js applyChatWallpaper: a 160° gradient behind the messages). Put it on the
- * message list's container in the chat screen: `Modifier.fillMaxSize().chatWallpaper()`. Default = no change.
+ * message list's container in the chat screen: `Modifier.fillMaxSize().chatWallpaper()`. Default = no change. In dark mode the preset's dark gradient is used.
  */
 fun Modifier.chatWallpaper(roomId: String? = null): Modifier = composed {
     val ver = LookPrefs.rwVersion // recompose when a per-chat wallpaper changes
     val id = (roomId?.let { LookPrefs.roomWallpaper(it) }) ?: LookPrefs.wallpaper
     val w = if (ver >= 0) ChatWallpapers.firstOrNull { it.id == id && it.from != null } else null
-    val from = w?.from; val to = w?.to
+    val (from, to) = w?.gradient(isDark()) ?: Pair(null, null)
     when {
         from != null && to != null -> this.background(Brush.linearGradient(listOf(from, to), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)))
         // Default background: a faint WhatsApp-style doodle so the chat isn't a flat, "dry" colour.
