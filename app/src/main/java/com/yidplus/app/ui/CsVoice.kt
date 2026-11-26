@@ -2,6 +2,12 @@ package com.yidplus.app.ui
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -149,8 +155,12 @@ internal fun CsMicButton(size: androidx.compose.ui.unit.Dp = 48.dp, canSend: Boo
             }
         }, contentAlignment = Alignment.Center) {
         if (busy && !canSend) CircularProgressIndicator(Modifier.size(22.dp), color = Color.White, strokeWidth = 2.dp)
-        else Icon(if (canSend) (if (editing) Sym.Check else Sym.Send) else Sym.Mic,
-            if (canSend) "Send" else "Record voice message (hold, or tap for hands-free)", tint = Color.White)
+        else AnimatedContent(targetState = canSend, transitionSpec = {
+            (scaleIn(tween(150)) + fadeIn(tween(150))) togetherWith (scaleOut(tween(150)) + fadeOut(tween(150)))
+        }, label = "micSend") { showSend ->
+            Icon(if (showSend) (if (editing) Sym.Check else Sym.Send) else Sym.Mic,
+                if (showSend) "Send" else "Record voice message (hold, or tap for hands-free)", tint = Color.White)
+        }
     }
 }
 
