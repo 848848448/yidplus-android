@@ -429,7 +429,24 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
             if (i >= 0) { state.animateScrollToItem(i); flash = id; delay(1600); if (flash == id) flash = null } else toast(c, "Message not found")
         }
     }
-    fun scrollTo(id: String) = jumpTo(id)
+    /** Jump to the first message on/after a picked date: pages back through older messages (same 10-page cap as jumpTo) until the date is reached, then flashes the hit. */
+fun jumpToDate(y: Int, mo: Int, d: Int) {
+  scope.launch {
+    val start = java.util.Calendar.getInstance().apply { set(y, mo, d, 0, 0, 0); set(java.util.Calendar.MILLISECOND, 0) }.timeInMillis
+    val newest = msgs.lastOrNull()?.let { parseTime(it.createdAt) ?: 0 } ?: 0
+    if (msgs.isEmpty() || newest < start) { toast(c, "No messages on or after this date"); return@launch }
+    var tries = 0
+    while (hasMore && tries++ < 10) {
+      val oldest = msgs.firstOrNull { !it.id.startsWith("tmp-") }?.let { parseTime(it.createdAt) ?: 0 } ?: 0
+      if (oldest < start) break
+      if (!loadOlder()) break
+    }
+    delay(60)
+    val target = msgs.firstOrNull { (parseTime(it.createdAt) ?: 0) >= start }
+    if (target == null) toast(c, if (hasMore) "Couldn't reach that date — try an earlier date" else "No messages on or after this date") else jumpTo(target.id)
+  }
+}
+fun scrollTo(id: String) = jumpTo(id)
     // Older history: when the top (the end of the reversed list) comes into view, the page before loads.
     val nearTop by remember { derivedStateOf { val li = state.layoutInfo; li.totalItemsCount > 0 && (li.visibleItemsInfo.lastOrNull()?.index ?: 0) >= li.totalItemsCount - 3 } }
     LaunchedEffect(nearTop, hasMore) { if (nearTop && hasMore && loaded) loadOlder() }
@@ -483,6 +500,10 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                     if (matches.isNotEmpty()) Text("${hit + 1}/${matches.size}", color = Color.White, fontSize = 13.sp) else if (sq.trim().length >= 2) Text("No results", color = Color.White, fontSize = 13.sp)
                     ChIcon(Sym.KeyboardArrowUp, "Older", { if (matches.isNotEmpty()) hit = (hit + 1) % matches.size })
                     ChIcon(Sym.KeyboardArrowDown, "Newer", { if (matches.isNotEmpty()) hit = (hit - 1 + matches.size) % matches.size })
+      ChIcon(Sym.CalendarMonth, "Jump to date", {
+        val cal = java.util.Calendar.getInstance()
+        android.app.DatePickerDialog(c, { _, y, mo, d -> jumpToDate(y, mo, d) }, cal.get(java.util.Calendar.YEAR), cal.get(java.util.Calendar.MONTH), cal.get(java.util.Calendar.DAY_OF_MONTH)).show()
+      })
                 }
             }
         } else if (!(compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0))) ChBar(room.name, sub = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) null else subtitle, onBack = if (inPane) null else fun() { Nav.back() },
