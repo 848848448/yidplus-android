@@ -192,7 +192,7 @@ internal fun CsPollBubble(id: String) {
             Text("$n voter" + (if (n != 1) "s" else "") + closes, Modifier.weight(1f), fontSize = 12.sp, color = ChatLook.sub())
             if (!closed && p.str("creator_id") == Session.me?.id && Session.me != null)
                 Text("Close Poll", Modifier.clip(RoundedCornerShape(8.dp)).tap(RoundedCornerShape(8.dp)) { scope.launch { runCatching { ChatApi.pollClose(id) }.onFailure { toast(c, Api.friendly(it)) }; load() } }.padding(horizontal = 8.dp, vertical = 4.dp),
-                    fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFD32F2F))
+                    fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error)
         }
     }
     if (suggest) {
