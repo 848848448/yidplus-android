@@ -210,10 +210,11 @@ class SettingsChat : PageScreen() {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             row.forEach { w ->
                                 val sel = LookPrefs.wallpaper == w.id
+                                val (from, to) = w.gradient(isDark())
                                 Column(Modifier.weight(1f).tap(RoundedCornerShape(12.dp)) { LookPrefs.putWallpaper(w.id) }.then(if (w.id == "default") Modifier.firstFocus() else Modifier),
                                     horizontalAlignment = Alignment.CenterHorizontally) {
                                     Box(Modifier.fillMaxWidth().height(70.dp).clip(RoundedCornerShape(12.dp))
-                                        .background(if (w.from != null && w.to != null) Brush.verticalGradient(listOf(w.from, w.to)) else Brush.verticalGradient(listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant)))
+                                        .background(if (from != null && to != null) Brush.verticalGradient(listOf(from, to)) else Brush.verticalGradient(listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant)))
                                         .border(if (sel) 3.dp else 1.dp, if (sel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
                                         contentAlignment = Alignment.Center) { if (sel) Icon(Sym.CheckCircle, "Selected", tint = MaterialTheme.colorScheme.primary) }
                                     Text(w.name, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 3.dp))
