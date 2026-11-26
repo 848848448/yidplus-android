@@ -108,7 +108,7 @@ data class ChInfo(val room: Room, val startTab: Int = 0) : PageScreen() {
                     val n = info?.members?.size?.takeIf { it > 0 } ?: room.members
                     Text(when { isPrivate -> if (info?.online == true && seeOnline) "online" else "Private chat"; room.type == "channel" -> "Channel · $n subscribers"
                         else -> "Group · $n members" } + (if (!isPrivate && info?.visibility == "public") " · Public" else ""), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (me != null) Row(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (me != null) Row(Modifier.padding(top = 14.dp, bottom = 8.dp).heightIn(min = 80.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         InfoAction(Sym.Chat, "Message") { Nav.back() }
                         if (isPrivate || room.type == "group") InfoAction(Sym.Call, "Call") { Nav.open(ChCall(room, "audio")) }
                         if (isPrivate || room.type == "group") InfoAction(Sym.Videocam, "Video") { Nav.open(ChCall(room, "video")) }
