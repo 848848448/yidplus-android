@@ -329,8 +329,8 @@ fun StatusStrip() {
                     onLong = { Nav.open(AddStatusPage()) }, onPlus = { Nav.open(AddStatusPage()) })
             }
             items(others, key = { it.userId }) { u ->
-                StatusCircle(u.nick, u.photo, u.nick, u.slides.map { Statuses.seen(it.id) }, mine = false, plus = false,
-                    onClick = { Nav.open(StatusViewerPage(u.userId)) }, onLong = null, onPlus = null)
+                Box(Modifier.animateItem()) { StatusCircle(u.nick, u.photo, u.nick, u.slides.map { Statuses.seen(it.id) }, mine = false, plus = false,
+                    onClick = { Nav.open(StatusViewerPage(u.userId)) }, onLong = null, onPlus = null) }
             }
         }
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .35f))
@@ -387,9 +387,9 @@ class StatusUpdatesPage : PageScreen() {
                 ChBar("Status", onBack = { Nav.back() })
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 90.dp)) {
                     item(key = "mine") { StatusMyRow(me, mine) }
-                    if (unseen.isNotEmpty()) { item(key = "h1") { StatusHeader("Recent updates") }; items(unseen, key = { it.userId }) { StatusUserRow(it) } }
-                    if (seenList.isNotEmpty()) { item(key = "h2") { StatusHeader("Viewed updates") }; items(seenList, key = { it.userId }) { StatusUserRow(it) } }
-                    if (muted.isNotEmpty()) { item(key = "h3") { StatusHeader("Muted updates") }; items(muted, key = { it.userId }) { StatusUserRow(it) } }
+                    if (unseen.isNotEmpty()) { item(key = "h1") { StatusHeader("Recent updates") }; items(unseen, key = { it.userId }) { Box(Modifier.animateItem()) { StatusUserRow(it) } } }
+                    if (seenList.isNotEmpty()) { item(key = "h2") { StatusHeader("Viewed updates") }; items(seenList, key = { it.userId }) { Box(Modifier.animateItem()) { StatusUserRow(it) } } }
+                    if (muted.isNotEmpty()) { item(key = "h3") { StatusHeader("Muted updates") }; items(muted, key = { it.userId }) { Box(Modifier.animateItem()) { StatusUserRow(it) } } }
                     if (res.data == null) item(key = "loading") { ChSkeleton(6) }
                     if (res.data != null && everyone.isEmpty()) item(key = "empty") { ChEmpty(Sym.History, "No recent updates to show.") }
                 }
