@@ -344,7 +344,7 @@ internal fun ChActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                     if (signedIn && !m.failed) ActRow(Sym.Star, "Save message") { onAct("save") }
                     ActRow(Sym.Share, "Share to apps") { onAct("share") }
                     if (signedIn && !mine) ActRow(Sym.Flag, "Report") { onAct("report") }
-                    if (canDelete && !m.failed) ActRow(Sym.Delete, "Delete", Color(0xFFD32F2F)) { onAct("delete") }
+                    if (canDelete && !m.failed) ActRow(Sym.Delete, "Delete", MaterialTheme.colorScheme.error) { onAct("delete") }
                 }
             }
         }
