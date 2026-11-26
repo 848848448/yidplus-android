@@ -281,7 +281,7 @@ class ChSaved : PageScreen() {
                     Text(b.chStr("text"), fontSize = 15.sp, maxLines = 8, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                     ChDialogRow("Open chat") { sel = null; val rid = b.chStr("room_id"); Nav.open(Screen.Chat(ChatApi.info(rid)?.room ?: ChatApi.roomOf(rid, "group", "Chat"))) }
                     ChDialogRow("Copy") { sel = null; chCopy(c, b.chStr("text")) }
-                    ChDialogRow("Remove from saved", Color(0xFFD32F2F)) { sel = null; scope.launch { runCatching { ChatApi.unsave(b.chStr("message_id")) }; load() } }
+                    ChDialogRow("Remove from saved", MaterialTheme.colorScheme.error) { sel = null; scope.launch { runCatching { ChatApi.unsave(b.chStr("message_id")) }; load() } }
                 }
             }, confirmButton = { TextButton({ sel = null }) { Text("Close") } })
         }
