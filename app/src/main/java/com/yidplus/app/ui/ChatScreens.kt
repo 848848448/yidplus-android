@@ -539,7 +539,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
                             }
                         }
                     }
-                    if (me != null && joinedOk && info != null) ChMenuItem(Sym.ExitToApp, if (room.type == "private") "Delete chat" else if (isGroup) "Leave group" else "Leave channel", Color(0xFFD32F2F)) {
+                    if (me != null && joinedOk && info != null) ChMenuItem(Sym.ExitToApp, if (room.type == "private") "Delete chat" else if (isGroup) "Leave group" else "Leave channel", MaterialTheme.colorScheme.error) {
                         menu = false
                         confirm = (if (room.type == "private") "Delete this chat from your list?" else "Leave \"${room.name}\"?") to suspend { ChatApi.leave(room.id); roomsRes.load(true); Nav.back(); Unit }
                     }
@@ -739,7 +739,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
         onClose = { pendingMedia = emptyList() })
     confirm?.let { (q, act) ->
         AlertDialog(onDismissRequest = { confirm = null }, text = { Text(q, fontSize = 16.sp) },
-            confirmButton = { TextButton({ confirm = null; scope.launch { runCatching { act() }.onFailure { toast(c, Api.friendly(it)) } } }, Modifier.firstFocus(always = true)) { Text("Yes", color = Color(0xFFD32F2F)) } },
+            confirmButton = { TextButton({ confirm = null; scope.launch { runCatching { act() }.onFailure { toast(c, Api.friendly(it)) } } }, Modifier.firstFocus(always = true)) { Text("Yes", color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton({ confirm = null }) { Text("Cancel") } })
     }
     }
