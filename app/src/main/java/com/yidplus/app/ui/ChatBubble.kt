@@ -170,7 +170,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
             m.isAudio -> m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) }
             m.isFile && (m.fileName.endsWith(".pdf", ignoreCase = true) || m.media?.substringBefore('?')?.endsWith(".pdf", ignoreCase = true) == true) -> (m.local ?: m.media)?.let { Nav.open(PdfView(it, m.fileName, m.media)) }
             m.media != null -> chOpenLink(c, m.media)
-            link != null -> chOpenLink(c, link)
+            link != null -> if (location != null) Nav.open(LocationView(location.first, location.second)) else chOpenLink(c, link)
             Keys.keypad -> onLong()
         }
     }
@@ -348,9 +348,9 @@ internal fun CsContactCard(name: String, number: String) {
 
 @Composable
 internal fun CsLocationCard(url: String, coords: String) {
-    val ctx = LocalContext.current
+    // The card opens LocationView in-app, so no context is needed here.
     Row(
-        Modifier.fillMaxWidth().padding(vertical = 2.dp).tap(RoundedCornerShape(8.dp)) { openUrl(ctx, url) },
+        Modifier.fillMaxWidth().padding(vertical = 2.dp).tap(RoundedCornerShape(8.dp)) { Nav.open(LocationView(url, coords)) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(Modifier.size(44.dp).clip(RoundedCornerShape(22.dp)).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
@@ -359,7 +359,7 @@ internal fun CsLocationCard(url: String, coords: String) {
         Column(Modifier.padding(start = 10.dp)) {
             Text("Location", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
             Text(coords, fontSize = 13.sp)
-            Text("Tap to open in Maps", fontSize = 11.sp)
+            Text("Tap to view", fontSize = 11.sp)
         }
     }
 }
