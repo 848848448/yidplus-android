@@ -277,7 +277,7 @@ class SettingsStorage : PageScreen() {
                     }
                     measure(); clearing = false; toast(c, "Media cache cleared")
                 }
-            }) { Text("Clear", color = Color(0xFFD32F2F)) } },
+            }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton({ confirm = false }) { Text("Cancel") } })
     }
 }
