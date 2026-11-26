@@ -685,7 +685,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 }
 
 @Composable
-private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, onClick: () -> Unit, iconScale: Float = 1f) {
+private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, iconScale: Float = 1f, onClick: () -> Unit) {
     // A fixed-width cell, so "Comment" / "1.2K" never runs off the rail and every icon sits on one line.
     Column(Modifier.widthIn(min = 58.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 28.dp else 30.dp).graphicsLayer(scaleX = iconScale, scaleY = iconScale))
