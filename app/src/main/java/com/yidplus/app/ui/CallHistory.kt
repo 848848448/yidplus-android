@@ -45,7 +45,7 @@ class ChCalls : PageScreen() {
                 l == null -> ChSkeleton(6)
                 l.isEmpty() -> ChEmpty(Sym.Call, "No calls yet. Call someone from their chat and it shows up here.")
                 else -> LazyColumn(Modifier.fillMaxSize()) {
-                    items(l, key = { it.id }) { r -> CallHistoryRow(r) }
+                    items(l, key = { it.id }) { r -> Box(Modifier.animateItem()) { CallHistoryRow(r) } }
                 }
             }
         }
