@@ -168,6 +168,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
             m.isVideo || m.isVideoNote || m.isImage -> (m.media ?: m.local)?.let(onMedia)
             m.isSticker -> m.stickerUrl?.let(onMedia)
             m.isAudio -> m.media?.let { ChatVoicePlayer.toggle(c, m.id, it) }
+            m.isFile && (m.fileName.endsWith(".pdf", ignoreCase = true) || m.media?.substringBefore('?')?.endsWith(".pdf", ignoreCase = true) == true) -> (m.local ?: m.media)?.let { Nav.open(PdfView(it, m.fileName, m.media)) }
             m.media != null -> chOpenLink(c, m.media)
             link != null -> chOpenLink(c, link)
             Keys.keypad -> onLong()
