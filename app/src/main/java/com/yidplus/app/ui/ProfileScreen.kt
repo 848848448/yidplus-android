@@ -267,7 +267,7 @@ private fun AppSettings() {
     val scope = rememberCoroutineScope()
     val askNotif = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (!ok) toast(c, "Notifications are off in Android settings") }
     var pick by remember { mutableStateOf<String?>(null) }
-    val themes = listOf("Same as phone", "Light", "Dark")
+    val themes = listOf("Same as phone", "Light", "Dark", "Scheduled")
     val sizes = listOf("Small", "Normal", "Large")
     SettingsCard("App") {
         SettingRow(Sym.Notifications, "Phone notifications", if (Prefs.notify) "New messages, likes, comments, channel posts" + (if (com.yidplus.app.Push.state == "on") " · instant" else "") else "Off", switch = Prefs.notify) {

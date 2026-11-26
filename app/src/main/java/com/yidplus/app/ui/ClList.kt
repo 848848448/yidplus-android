@@ -272,14 +272,20 @@ class ClChatSettings : PageScreen() {
         var font by remember { mutableStateOf(ClLocal.font(c)) }
         var receipts by remember { mutableStateOf(ClLocal.receipts(c)) }
         var enterSends by remember { mutableStateOf(ClLocal.enterSends(c)) }
-        val dark = com.yidplus.app.data.Prefs.theme == 2
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
             ChBar("Chat settings", onBack = { Nav.back() })
-            Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).firstFocus().tap(RoundedCornerShape(0.dp)) {
-                val on = !dark; com.yidplus.app.data.Prefs.setThemeMode(if (on) 2 else 1); toast(c, if (on) "🌙 Dark mode on" else "☀️ Light mode on")
-            }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(start = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Sym.DarkMode, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Dark mode", Modifier.weight(1f).padding(start = 18.dp), fontSize = 16.sp); Switch(dark, null)
+                Column(Modifier.padding(start = 18.dp)) {
+                    Text("Theme", fontSize = 16.sp)
+                    Text(when (com.yidplus.app.data.Prefs.theme) { 1 -> "Light"; 2 -> "Dark"; 3 -> "Dark %02d:00 → %02d:00".format(com.yidplus.app.data.Prefs.darkFrom, com.yidplus.app.data.Prefs.darkTo); else -> "Same as the phone" }, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            Row(Modifier.fillMaxWidth().firstFocus().padding(16.dp)) {
+                Segmented(listOf("Light", "Dark", "Auto", "Timed"), when (com.yidplus.app.data.Prefs.theme) { 1 -> 0; 2 -> 1; 3 -> 3; else -> 2 }) {
+                    com.yidplus.app.data.Prefs.setThemeMode(when (it) { 0 -> 1; 1 -> 2; 3 -> 3; else -> 0 })
+                    toast(c, when (it) { 0 -> "☀️ Light mode"; 1 -> "🌙 Dark mode"; 2 -> "📱 Same as the phone"; else -> "🕖 Scheduled dark mode" })
+                }
             }
             HorizontalDivider()
             Row(Modifier.padding(start = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
