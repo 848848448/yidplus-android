@@ -94,6 +94,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -595,13 +596,18 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                       onComments: () -> Unit, onSave: () -> Unit, speed: Float, onSpeed: (Float) -> Unit, onHide: () -> Unit,
                       onCreator: () -> Unit = {}, onNotInterested: () -> Unit = {}, onDelete: (() -> Unit)? = null, onLikers: () -> Unit = {}) {
     val c = ctx()
+    /* Like pop: a fresh like (heart tap or double-tap) shrinks the heart to 0.8, overshoots to 1.15, then settles at 1.0 over ~250 ms. */    
+    var likePops by remember { mutableIntStateOf(0) } 
+    val heartScale = remember { androidx.compose.animation.core.Animatable(1f) } 
+    LaunchedEffect(likePops) { if (likePops > 0) { heartScale.snapTo(0.8f); heartScale.animateTo(1.15f, androidx.compose.animation.core.tween(125)); heartScale.animateTo(1f, androidx.compose.animation.core.tween(125)) } } 
+    val like: () -> Unit = { if (!s.liked) { likePops++ }; onLike() } 
     BoxWithConstraints(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
-        // Letterbox on wide screens (tablets, landscape): the video keeps its upright 9:16 frame.
+    // Letterbox on wide screens (tablets, landscape): the video keeps its upright 9:16 frame.
         // Wide screens (tablets, landscape) letterbox the upright video in a 9:16 frame; small screens use the full
         // width so the buttons sit beside the video instead of on top of it.
         val w = if (maxWidth >= 600.dp && maxWidth > maxHeight) maxHeight * 9f / 16f else maxWidth
         val small = maxHeight < 560.dp
-        Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { onTap() }, onDoubleTap = { if (!s.liked) onLike() }) }) {
+        Box(Modifier.width(w).fillMaxHeight().pointerInput(s.key) { detectTapGestures(onTap = { onTap() }, onDoubleTap = { like() }) }) {
             if (s.poster != null) AsyncImage(s.poster, null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
             if (current) AndroidView(factory = { ctx ->
                 (LayoutInflater.from(ctx).inflate(R.layout.short_player, null) as PlayerView).also { it.player = player }
@@ -615,11 +621,11 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                 // On short screens the creator's picture moves down next to the name, so the rail never reaches the top tabs.
                 if (!small) Box {
                     Box(Modifier.tap(CircleShape, onClick = onCreator)) { Avatar(s.avatar, s.creator, 42.dp) }
-                    if (s.fromSrc) Box(Modifier.align(Alignment.BottomCenter).size(18.dp).clip(CircleShape).background(if (following) Green else Color(0xFFE53935))
+                    if (s.fromSrc) Box(Modifier.align(Alignment.BottomCenter).size(18.dp).clip(CircleShape).background(if (following) Green else ChatLook.ShortsFollow)
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
                 }
-                Action(if (s.liked) Sym.Favorite else Sym.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) Color(0xFFFF4D67) else Color.White, small, "Like", onLike)
+                Action(if (s.liked) Sym.Favorite else Sym.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) ChatLook.ShortsLike else Color.White, small, "Like", like, iconScale = heartScale.value)
                 Action(Sym.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, "Comment", onComments)
                 val isSaved = Feeds.saved.any { it.key == s.key }
                 if (!small) Action(if (isSaved) Sym.Bookmark else Sym.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onClick = onSave)
@@ -651,7 +657,7 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
             }
             // Soft dark gradient under the caption so white text is always readable.
             Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(150.dp)
-                .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .62f)))))
+                .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .75f)))))
             // Caption + creator
             Column(Modifier.align(Alignment.BottomStart).padding(start = 10.dp, end = 64.dp, bottom = 24.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -679,10 +685,10 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
 }
 
 @Composable
-private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, onClick: () -> Unit) {
+private fun Action(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color, small: Boolean = false, desc: String = label, onClick: () -> Unit, iconScale: Float = 1f) {
     // A fixed-width cell, so "Comment" / "1.2K" never runs off the rail and every icon sits on one line.
     Column(Modifier.widthIn(min = 58.dp).tap(RoundedCornerShape(12.dp), onClick = onClick).padding(if (small) 2.dp else 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 28.dp else 30.dp))
+        Icon(icon, desc, tint = tint, modifier = Modifier.size(if (small) 28.dp else 30.dp).graphicsLayer(scaleX = iconScale, scaleY = iconScale))
         Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall.copy(shadow = androidx.compose.ui.graphics.Shadow(Color.Black.copy(alpha = .6f), blurRadius = 4f)),
             maxLines = 1, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
