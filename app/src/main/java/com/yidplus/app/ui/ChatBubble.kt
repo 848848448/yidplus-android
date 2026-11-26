@@ -150,7 +150,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
     if (m.isCentred) { ChCentredLine(m, modifier); return }
     val bg = if (mine) ChatLook.mine() else ChatLook.theirs()
     val fg = ChatLook.ink()
-    val link = remember(m.text) { if (m.isCentred || m.deleted || m.isSticker || m.isVoice || m.isVoiceText) null else urlRegex.find(m.text)?.value?.trimEnd('.', ',', ')', '!', '?') }
+    val link = remember(m.text, m.type) { if (m.type != "text" || m.isCentred || m.deleted || m.isSticker || m.isVoice || m.isVoiceText) null else urlRegex.find(m.text)?.value?.trimEnd('.', ',', ')', '!', '?') }
     val contact = remember(m.text) { if (m.type == "text") chContactOf(m.text) else null }
     val location = remember(m.text) { if (m.type == "text") chLocationOf(m.text) else null }
     val compact = LocalConfiguration.current.screenHeightDp < 600
@@ -364,12 +364,12 @@ internal fun CsLocationCard(url: String, coords: String) {
     }
 }
 
-/** WhatsApp/Telegram link card: picture, site, title, description (the site's /api/link-preview); a YID PLUS invite shows the group's photo, name, members and Join. */
+/** WhatsApp/Telegram link card: picture, site, title, description (the site's /api/link-preview, falling back to a client-side OpenGraph fetch); a YID PLUS invite shows the group's photo, name, members and Join. */
 @Composable
 internal fun ChLinkCard(url: String, mine: Boolean, onJoin: (String) -> Unit) {
     val c = ctx()
     var lk by remember(url) { mutableStateOf(ChLinks.cached(url)) }
-    LaunchedEffect(url) { if (!ChLinks.known(url)) lk = ChLinks.load(url) }
+    LaunchedEffect(url) { if (!ChLinks.known(url)) lk = ChLinks.load(url); if (lk == null) lk = ChOgLinks.load(url) }
     val l = lk ?: return
     val cardBg = if (mine) Color.Black.copy(alpha = .06f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .7f)
     if (l.joinCode != null) {
