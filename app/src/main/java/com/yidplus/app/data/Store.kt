@@ -62,7 +62,7 @@ enum class NetKind { Wifi, Mobile, Roaming, Offline, Unknown }
 object Net {
     var online by mutableStateOf(true)
     /** The kind of network in use right now; read by Prefs.autoDownload. */
-    var kind by mutableStateOf(NetKind.Unknown) private set
+    var kind by mutableStateOf(NetKind.Unknown); private set
     fun init(ctx: Context) {
         val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         online = runCatching { cm.getNetworkCapabilities(cm.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true }.getOrDefault(true)
