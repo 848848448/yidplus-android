@@ -209,7 +209,7 @@ internal fun CsLockedBar(r: CsRec, onDelete: () -> Unit, onSend: () -> Unit) {
     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 6.dp, vertical = 6.dp)) {
         if (r.mode == 2 && r.paused) Text("Paused. Stop to listen before sending.", Modifier.padding(start = 12.dp, bottom = 2.dp), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ChIcon(Sym.Delete, "Delete recording", onDelete, tint = Color(0xFFD32F2F))
+            ChIcon(Sym.Delete, "Delete recording", onDelete, tint = MaterialTheme.colorScheme.error)
             if (r.mode == 3) {
                 val t = r.take
                 val playing = ChatVoicePlayer.playing == "cs-preview" && !ChatVoicePlayer.paused
