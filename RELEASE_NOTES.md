@@ -1,3 +1,14 @@
+## New in 2.24.0 (WhatsApp-style green design)
+- **WhatsApp-style green design:** green header by default, one green (#25D366) everywhere, chat bubbles 8dp, chat rows 72dp, drawer icons in one colour, settings as a flat list, segmented status rings, dark-mode fixes (date chip, highlight), and a page exit animation. Video notes pause/resume in place, loop, show a duration label, and stand alone without a bubble.
+- **View-once send:** tap the eye chip in the media preview to send a photo or video that can be viewed only once.
+- **Archived chats:** a new Archived chats screen in the drawer.
+- **Media auto-download rules:** choose what downloads automatically for Photos, Videos and Audio on Mobile, Wi-Fi and Roaming.
+- **Notification channels per type:** separate Messages, Group messages and Calls channels — sound and vibration are in Android channel settings.
+- **Share into YidPlus:** share photos, videos and links into YidPlus from other apps.
+- **Chat settings moved:** enter-to-send and text size are now in Settings → Chat.
+- **Fixes:** a video note without media shows "Media unavailable" instead of crashing; #553 compile fixes.
+- **Not in this release:** language picker (no translated strings exist yet), media-visibility toggle (chat media never reaches the gallery by design), video-note fullscreen (WhatsApp keeps it in the circle), composer animation and wallpaper dark variants — next small update.
+
 ## New in 2.23.0 (the green list: stickers, camera, cards and polish)
 - **Stickers:** the sticker picker now has Recent and Favorites sections — long-press a sticker to favorite it, and your last-used stickers sit right at the top.
 - **Status privacy:** a new "Who can see my status" setting (Settings → Privacy) picks the default audience for new statuses; you can still change it for each status as you post.
