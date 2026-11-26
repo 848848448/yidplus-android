@@ -153,7 +153,7 @@ internal fun CsActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                     if (mine && !m.failed && !m.deleted) CsActRow(Sym.Info, "Info") { onAct("info") }
                     if (!m.failed) CsActRow(Sym.CheckCircle, "Select") { onAct("select") }
                     if (signedIn && !mine) CsActRow(Sym.Flag, "Report") { onAct("report") }
-                    if (canDelete && !m.failed && !m.deleted) CsActRow(Sym.Delete, "Delete", Color(0xFFD32F2F)) { onAct("delete") }
+                    if (canDelete && !m.failed && !m.deleted) CsActRow(Sym.Delete, "Delete", MaterialTheme.colorScheme.error) { onAct("delete") }
                 }
             }
         }
@@ -293,7 +293,7 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
     }
     delFor?.let { s ->
         AlertDialog(onDismissRequest = { delFor = null }, text = { Column { Text("Delete this sticker?"); TextButton({ val u = s.str("url"); CsStickerFav.toggle(u); delFor = null}) { Text(if (CsStickerFav.contains(s.str("url"))) "⭐ Remove from favorites" else "⭐ Add to favorites") }}},
-            confirmButton = { TextButton({ delFor = null; scope.launch { runCatching { ChatApi.deleteSticker(s.str("id")) }.onSuccess { toast(c, "✅ Deleted"); custom = custom - s }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = Color(0xFFD32F2F)) } },
+            confirmButton = { TextButton({ delFor = null; scope.launch { runCatching { ChatApi.deleteSticker(s.str("id")) }.onSuccess { toast(c, "✅ Deleted"); custom = custom - s }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton({ delFor = null }) { Text("Cancel") } })
     }
         favFor?.let { u ->
