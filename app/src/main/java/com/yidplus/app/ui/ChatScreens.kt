@@ -380,7 +380,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     fun stopRec(send: Boolean) { sendTake(vr.finish(send)) }
     // The site's _autoPlayNextVoice: when a voice note ends, the next one below it plays.
     LaunchedEffect(room.id) {
-        ChatVoicePlayer.onDone = { id -> if (!Prefs.autoDownload(Prefs.DlMedia.Audio)) return@onDone
+        ChatVoicePlayer.onDone = onDone@{ id -> if (!Prefs.autoDownload(Prefs.DlMedia.Audio)) return@onDone
             val i = msgs.indexOfFirst { it.id == id }
             if (i >= 0) msgs.drop(i + 1).firstOrNull { it.isVoice && it.media != null }?.let { n -> ChatVoicePlayer.toggle(c, n.id, n.media!!) }
         }
