@@ -1,3 +1,17 @@
+## 2.25.0
+
+- קאָמפּאָוזער: שיק־/מיק־קנעפּל טוישט זיך מיט אַנימאַציע
+- סעטטינגס: טעמע־טשוזער רעספּעקטירט איצט סיסטעם און צייט־פּלאַן; ואָלפּייפערס האָבן טונקעלע וערסיעס
+- Shorts: וי־קנעפּל פּאָפּט, וי/פאָלג פֿאַרבן פֿון טעמע, שטאַרקער גראַדיענט
+- ליסטעס: רייען אַנימירן וען מען סאָרטירט
+- דעסטרוקטיווע אַקציעס (וװײַז, בלאַקיר, אאַז"וו) אין טעמע־רויט
+- PDF־טעקעס עפֿענען זיך אינעווייניק אין דער אַפּ
+- לינק־פֿאָרויסשוי: וען דער סערווער גיט גאָרנישט, לייענט דער קליענט אַליין די OpenGraph־טעגס
+- HD־שיקן איז באַשטעטיקט: 2560px / קוואַליטעט 92 אַנשטאָט 1280 / 82
+- מעסעדזש־רעמיינדערס: לאַנג־דריק → "Remind me" → נאָטיפֿיקאַציע (בעסט־עפֿאָרט צײַט, נישט אַ פּינקטלעךער אַלאַרם)
+- זוך לויט דאַטע: קאַלענדאַר־קנעפּל אין טשאַט־זוך שפּרינגט צום ערשטן מעסעדזש פֿון דעם טאָג
+- רופֿן: "Use less data for calls" — רופֿן אָנהייבן וי אַודיאָ נאָר
+
 ## New in 2.24.0 (WhatsApp-style green design)
 - **WhatsApp-style green design:** green header by default, one green (#25D366) everywhere, chat bubbles 8dp, chat rows 72dp, drawer icons in one colour, settings as a flat list, segmented status rings, dark-mode fixes (date chip, highlight), and a page exit animation. Video notes pause/resume in place, loop, show a duration label, and stand alone without a bubble.
 - **View-once send:** tap the eye chip in the media preview to send a photo or video that can be viewed only once.
