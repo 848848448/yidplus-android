@@ -150,6 +150,7 @@ internal fun CsActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                     if (canPin && !m.failed && !m.deleted) CsActRow(Sym.PushPin, if (isPinned) "Unpin" else "Pin") { onAct("pin") }
                     if (signedIn && canSave && !m.failed && !m.deleted) CsActRow(Sym.Star, "Save message") { onAct("save") }
                     if (canSave && !m.deleted) CsActRow(Sym.Share, "Share to apps") { onAct("share") }
+                    if (!m.deleted && !m.failed) CsActRow(Sym.Schedule, "Remind me") { onAct("remind") }
                     if (mine && !m.failed && !m.deleted) CsActRow(Sym.Info, "Info") { onAct("info") }
                     if (!m.failed) CsActRow(Sym.CheckCircle, "Select") { onAct("select") }
                     if (signedIn && !mine) CsActRow(Sym.Flag, "Report") { onAct("report") }
