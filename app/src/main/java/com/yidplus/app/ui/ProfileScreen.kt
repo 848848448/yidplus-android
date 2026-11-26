@@ -115,6 +115,7 @@ fun ProfileScreen() {
                     "Admin" -> AdminPage()
                     "About" -> SettingsAbout()
                     "ChatSettings" -> SettingsChat()
+                    "CallSettings" -> SettingsCalls()
                     "Notifs" -> SoNotifsPage()
                     "AdminUsers" -> AdminUsersPage()
                     "AdminUser" -> AdminUserPage("u-yanky", org.json.JSONObject().put("id", "u-yanky").put("nickname", "Yanky").toString())
@@ -166,6 +167,8 @@ fun ProfileScreen() {
                             SettingRow(Sym.Security, "Security", "Password, two-factor authentication") { Nav.open(SettingsSecurity()) }
                             RowDivider(64.dp)
                             SettingRow(Sym.Chat, "Chat", "Wallpaper, muted chats, silent calls") { Nav.open(SettingsChat()) }
+                    RowDivider(64.dp)
+                    SettingRow(Sym.Call, "Calls", "Use less data for calls") { Nav.open(SettingsCalls()) }
                             RowDivider(64.dp)
                             SettingRow(Sym.NotificationsActive, "Notifications", "New messages, likes, followers, channel updates") { Nav.open(SettingsNotifPrefs()) }
                             RowDivider(64.dp)
