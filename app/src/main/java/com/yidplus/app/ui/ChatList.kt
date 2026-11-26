@@ -316,15 +316,15 @@ fun ChatsScreen() {
                             }
                             items(shown, key = { it.room.id }) { r ->
                                 val ring = ringOf[r.room.otherUserId ?: ""]
-                                ChRoomRow(r, if (r === shown.first()) Modifier.firstFocus() else Modifier, compact = compact, pinned = r.room.id in pins, selected = r.room.id in sel, selecting = sel.isNotEmpty(),
+                                Box(Modifier.animateItem()) { ChRoomRow(r, if (r === shown.first()) Modifier.firstFocus() else Modifier, compact = compact, pinned = r.room.id in pins, selected = r.room.id in sel, selecting = sel.isNotEmpty(),
                                     ring = ring != null, ringSeen = ring != null && Statuses.allSeen(ring),
                                     onRing = { ring?.let { Nav.open(StatusViewerPage(it.userId)) } },
                                     onLong = { if (me != null) { if (r.room.id in sel) sel.remove(r.room.id) else sel.add(r.room.id) } },
-                                    onToggle = { if (r.room.id in sel) sel.remove(r.room.id) else sel.add(r.room.id) })
+                                    onToggle = { if (r.room.id in sel) sel.remove(r.room.id) else sel.add(r.room.id) }) }
                             }
-                            items(tg, key = { "tg:" + it.username }) { t -> ClTgRow(t, if (me == null) null else ({
+                            items(tg, key = { "tg:" + it.username }) { t -> Box(Modifier.animateItem()) { ClTgRow(t, if (me == null) null else ({
                                 scope.launch { runCatching { Api.post("/api/telegram-join", JSONObject().put("username", t.username)) }.onSuccess { toast(c, "✅ Joined"); tgRes.load(true) }.onFailure { toast(c, Api.friendly(it)) } } })) }
-                        }
+                        } }
                     }
                 }
             }
