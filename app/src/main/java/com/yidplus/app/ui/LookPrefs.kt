@@ -53,6 +53,8 @@ object LookPrefs {
     var reduceMotion by mutableStateOf(false); private set
     var wallpaper by mutableStateOf("default"); private set
     var silentCalls by mutableStateOf(false); private set
+    /** App-only (the site has no matching setting): calls start as audio only, so they use less data. */
+    var useLessDataForCalls by mutableStateOf(false); private set
     /** Top bar style: true = WhatsApp-2024 white bar with a green title, false = the solid green bar (default). */
     var lightBar by mutableStateOf(false); private set
 
@@ -65,6 +67,7 @@ object LookPrefs {
         reduceMotion = s.getBoolean("reduceMotion", false)
         wallpaper = s.getString("wallpaper", "default") ?: "default"
         silentCalls = s.getBoolean("silentCalls", false)
+        useLessDataForCalls = s.getBoolean("useLessDataForCalls", false)
         lightBar = s.getBoolean("lightBar", false)
     }
     fun putColor(i: Int) { colorTheme = i.coerceIn(0, ColorPresets.size - 1); p()?.edit()?.putInt("colorTheme", colorTheme)?.apply() }
@@ -73,6 +76,7 @@ object LookPrefs {
     fun putWallpaper(id: String) { wallpaper = id; p()?.edit()?.putString("wallpaper", id)?.apply() }
     fun putLightBar(v: Boolean) { lightBar = v; p()?.edit()?.putBoolean("lightBar", v)?.apply() }
     fun putSilentCalls(v: Boolean) { silentCalls = v; p()?.edit()?.putBoolean("silentCalls", v)?.apply() }
+    fun putUseLessDataForCalls(v: Boolean) { useLessDataForCalls = v; p()?.edit()?.putBoolean("useLessDataForCalls", v)?.apply() }
 
     // Per-chat wallpaper (WhatsApp): a single chat can override the app-wide wallpaper. Stored on-device.
     var rwVersion by mutableStateOf(0); private set
