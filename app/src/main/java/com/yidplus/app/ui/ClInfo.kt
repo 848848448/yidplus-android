@@ -75,14 +75,14 @@ internal fun ClMediaTabs(roomId: String, initialTab: Int = 0) {
         0 -> {
             // 3 a row, square tiles (WhatsApp's media grid); tap = the full-screen viewer with swipe between them.
             shown.chunked(3).forEach { row ->
-                Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     row.forEach { m ->
                         Box(Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(4.dp)).background(Color(0xFF263238))
                             .tap(RoundedCornerShape(4.dp)) { openGallery(media.map { GItem(it.media!!, it.isVideo, null, it.nick) }, m.media!!) }, contentAlignment = Alignment.Center) {
-                            if (m.isImage) AsyncImage(m.media, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) else Icon(Sym.PlayCircle, "Video", tint = Color.White, modifier = Modifier.size(32.dp))
+                            if (m.isImage) AsyncImage(m.media, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) else ClVideoTile(m.media!!)
                         }
                     }
-                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(3 - row.size) { Spacer(Modifier.weight(1f).aspectRatio(1f)) }
                 }
             }
         }
@@ -93,6 +93,19 @@ internal fun ClMediaTabs(roomId: String, initialTab: Int = 0) {
     }
     if (loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(16.dp))
     else if (more) TextButton({ scope.launch { page(false) } }, Modifier.fillMaxWidth()) { Text("Load more") }
+}
+
+@Composable
+private fun ClVideoTile(url: String) {
+      val c = ctx()
+        var bmp by remember(url) { mutableStateOf(ChatVideoThumbs.cached(url)) }
+          LaunchedEffect(url) { if (bmp == null) bmp = runCatching { ChatVideoThumbs.load(c, url, poster = true) }.getOrNull() }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    bmp?.let { AsyncImage(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
+                        Box(Modifier.size(40.dp).clip(CircleShape).background(Color.Black.copy(alpha = .5f)), contentAlignment = Alignment.Center) {
+                                  Icon(Sym.PlayArrow, "Play video", tint = Color.White, modifier = Modifier.size(24.dp))
+                        }
+            }
 }
 
 @Composable
