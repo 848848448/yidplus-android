@@ -102,17 +102,20 @@ object CallKit {
 
     // ── Public: place a call ──
     fun startCall(c: Context, calleeId: String, name: String, photo: String?, video: Boolean) {
-        if (phase != CallPhase.IDLE) return
+        // "Use less data for calls" (Settings → Calls): start as audio only even when the video-call
+    // button was tapped, so no video is captured or sent.
+    val startVideo = video && !LookPrefs.useLessDataForCalls
+    if (phase != CallPhase.IDLE) return
         appCtx = c.applicationContext
         runCatching { factory(c) }   // creates the EGL context now, so the call UI can render video right away
-        isCaller = true; kind = if (video) "video" else "audio"; peerName = name; peerPhoto = photo
-        cameraOn = video; muted = false; connected = false; startedAt = 0; since = 0; haveRemote = false
+        isCaller = true; kind = if (startVideo) "video" else "audio"; peerName = name; peerPhoto = photo
+        cameraOn = startVideo; muted = false; connected = false; startedAt = 0; since = 0; haveRemote = false
         pendingIce.clear(); outIce.clear(); remoteVideo = null; localVideo = null
         phase = CallPhase.OUTGOING; statusLine = "Calling…"
         scope.launch {
             loadIce()
             val p = createPc(c) ?: return@launch fail("Couldn't start the call")
-            addLocalMedia(c, video)
+            addLocalMedia(c, startVideo)
             val offer = createLocal(p, offer = true) ?: return@launch fail("Couldn't create the call")
             val res = runCatching {
                 Api.post("/api/call", JSONObject().put("action", "start").put("callee_id", calleeId).put("kind", kind).put("offer", sdpJson(offer)))
