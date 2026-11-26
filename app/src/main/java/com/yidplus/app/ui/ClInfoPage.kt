@@ -169,14 +169,14 @@ data class ChInfo(val room: Room, val startTab: Int = 0) : PageScreen() {
                 }
                 if (info != null && me != null && info.joined) {
                     Spacer(Modifier.height(8.dp))
-                    if (isPrivate && room.otherUserId != null) ChRow("Block ${room.name}", null, { Icon(Sym.Block, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
+                    if (isPrivate && room.otherUserId != null) ChRow("Block ${room.name}", null, { Icon(Sym.Block, null, Modifier.size(44.dp).padding(10.dp), tint = MaterialTheme.colorScheme.error) }, titleColor = MaterialTheme.colorScheme.error) {
                         confirm = "Block ${room.name}? They won't be able to message you." to suspend { ChatApi.block(room.otherUserId ?: ""); toast(c, "Blocked"); Unit }
                     }
-                    if (info.createdBy != me.id) ChRow("Report " + if (isPrivate) room.name else if (room.type == "group") "group" else "channel", null, { Icon(Sym.Flag, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) { report = true }
-                    ChRow(if (isPrivate) "Delete chat" else if (room.type == "group") "Leave group" else "Leave channel", null, { Icon(Sym.ExitToApp, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
+                    if (info.createdBy != me.id) ChRow("Report " + if (isPrivate) room.name else if (room.type == "group") "group" else "channel", null, { Icon(Sym.Flag, null, Modifier.size(44.dp).padding(10.dp), tint = MaterialTheme.colorScheme.error) }, titleColor = MaterialTheme.colorScheme.error) { report = true }
+                    ChRow(if (isPrivate) "Delete chat" else if (room.type == "group") "Leave group" else "Leave channel", null, { Icon(Sym.ExitToApp, null, Modifier.size(44.dp).padding(10.dp), tint = MaterialTheme.colorScheme.error) }, titleColor = MaterialTheme.colorScheme.error) {
                         confirm = (if (isPrivate) "Delete chat with \"${room.name}\"?" else "Leave \"${room.name}\"?") to suspend { ChatApi.leave(room.id); res.load(true); Nav.back(); Nav.back(); Unit }
                     }
-                    if (!isPrivate && (info.createdBy == me.id || chIsSiteAdmin())) ChRow("Delete for everyone", null, { Icon(Sym.DeleteForever, null, Modifier.size(44.dp).padding(10.dp), tint = Color(0xFFD32F2F)) }, titleColor = Color(0xFFD32F2F)) {
+                    if (!isPrivate && (info.createdBy == me.id || chIsSiteAdmin())) ChRow("Delete for everyone", null, { Icon(Sym.DeleteForever, null, Modifier.size(44.dp).padding(10.dp), tint = MaterialTheme.colorScheme.error) }, titleColor = MaterialTheme.colorScheme.error) {
                         confirm = "Delete \"${room.name}\" and all its messages for everyone?" to suspend { ChatApi.leave(room.id, all = true); res.load(true); Nav.back(); Nav.back(); Unit }
                     }
                 }
@@ -196,7 +196,7 @@ data class ChInfo(val room: Room, val startTab: Int = 0) : PageScreen() {
         }) { adAsk = false }
         confirm?.let { (q, act) ->
             AlertDialog(onDismissRequest = { confirm = null }, text = { Text(q, fontSize = 16.sp) },
-                confirmButton = { TextButton({ confirm = null; scope.launch { runCatching { act() }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Yes", color = Color(0xFFD32F2F)) } },
+                confirmButton = { TextButton({ confirm = null; scope.launch { runCatching { act() }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Yes", color = MaterialTheme.colorScheme.error) } },
                 dismissButton = { TextButton({ confirm = null }) { Text("Cancel") } })
         }
     }
