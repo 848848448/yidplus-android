@@ -350,7 +350,7 @@ object ChatVideoThumbs {
     private val cache = LruCache<String, Bitmap>(24)
     private val gate = Semaphore(2)
     fun cached(url: String): Bitmap? = cache.get(url)
-    suspend fun load(ctx: Context, url: String): Bitmap? = if (!url.startsWith("content:") && !url.startsWith("file:") && !Prefs.autoDownload(Prefs.DlMedia.Video)) null else cache.get(url) ?: gate.withPermit {
+    suspend fun load(ctx: Context, url: String, poster: Boolean = false): Bitmap? = if (!poster && !url.startsWith("content:") && !url.startsWith("file:") && !Prefs.autoDownload(Prefs.DlMedia.Video)) null else cache.get(url) ?: gate.withPermit {
         cache.get(url) ?: withContext(Dispatchers.IO) {
             val r = MediaMetadataRetriever()
             try {
