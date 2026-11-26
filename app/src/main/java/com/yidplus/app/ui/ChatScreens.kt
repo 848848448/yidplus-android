@@ -144,6 +144,7 @@ fun ChatScreen(room: Room, inPane: Boolean = false) {
     var confirm by remember { mutableStateOf<Pair<String, suspend () -> Unit>?>(null) }
     var reportFor by remember { mutableStateOf<ChatMsg?>(null) }
     var infoFor by remember { mutableStateOf<ChatMsg?>(null) }
+    var remindFor by remember { mutableStateOf<ChatMsg?>(null) }
     var reactPickFor by remember { mutableStateOf<ChatMsg?>(null) }
     var wallpaperOpen by remember { mutableStateOf(false) }
     var info by remember(room.id) { mutableStateOf(ChatApi.info(room.id)) }
@@ -447,6 +448,9 @@ fun jumpToDate(y: Int, mo: Int, d: Int) {
   }
 }
 fun scrollTo(id: String) = jumpTo(id)
+// Message reminders: a fired reminder leaves a one-shot jump target; opening this chat scrolls to that message.
+LaunchedEffect(room.id, msgs.size, loaded) {
+    if (loaded) com.yidplus.app.MsgReminder.takeJump(c, room.id)?.let { jumpTo(it) }}
     // Older history: when the top (the end of the reversed list) comes into view, the page before loads.
     val nearTop by remember { derivedStateOf { val li = state.layoutInfo; li.totalItemsCount > 0 && (li.visibleItemsInfo.lastOrNull()?.index ?: 0) >= li.totalItemsCount - 3 } }
     LaunchedEffect(nearTop, hasMore) { if (nearTop && hasMore && loaded) loadOlder() }
@@ -719,6 +723,7 @@ fun scrollTo(id: String) = jumpTo(id)
                 "save" -> scope.launch { runCatching { ChatApi.save(m.id, room.id) }.onSuccess { toast(c, "⭐ Saved") }.onFailure { toast(c, Api.friendly(it)) } }
                 "share" -> share(c, listOf(m.caption, m.media ?: "").filter { it.isNotBlank() }.joinToString("\n").ifBlank { m.text })
                 "report" -> reportFor = m
+                "remind" -> remindFor = m
                 "info" -> infoFor = m
                 "select" -> { selecting = true; selected.clear(); selected.add(m.id) }
                 "delete" -> confirm = "Delete this message for everyone?" to suspend { ChatApi.delete(m.id); msgs.removeAll { it.id == m.id }; Unit }
@@ -744,6 +749,17 @@ fun scrollTo(id: String) = jumpTo(id)
             }
         })
     }
+    remindFor?.let { m ->
+        val pick: (Long, String) -> Unit = { delayMs, label ->
+            com.yidplus.app.MsgReminder.schedule(c, m.id, m.roomId, room.json().toString(), room.name, m.nick, m.preview, System.currentTimeMillis() + delayMs)
+            remindFor = null
+            toast(c, "Reminder set $label")}; AlertDialog(onDismissRequest = { remindFor = null }, title = { Text("Remind me", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }, text = {
+            Column {
+                CsActRow(Sym.Schedule, "In 15 minutes") { pick(15 * 60_000L, "in about 15 minutes") }
+                CsActRow(Sym.Schedule, "In 1 hour") { pick(60 * 60_000L, "in about 1 hour") }
+                CsActRow(Sym.Schedule, "Tomorrow morning, around 9:00 AM") { val cal = java.util.Calendar.getInstance().apply { add(java.util.Calendar.DAY_OF_YEAR, 1); set(java.util.Calendar.HOUR_OF_DAY, 9); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }; pick(cal.timeInMillis - System.currentTimeMillis(), "tomorrow morning (around 9:00 AM)") }
+                Text("Reminders are approximate - the app wakes in the background, so one can arrive a little late.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+            }}, confirmButton = { TextButton({ remindFor = null}) { Text("Cancel")}})}
     if (optsOpen) CsMsgOptions(disappear, onSchedule = {
         optsOpen = false
         val cal = java.util.Calendar.getInstance()
