@@ -497,10 +497,10 @@ private fun ClPopupAction(icon: ImageVector, label: String, onClick: () -> Unit)
     }
 }
 
-/** Row text: weight(1f) keeps the time in place; the text itself starts at its own direction's start. */
+/** Row text: weight(1f) keeps the time in place; the text itself is always left-aligned, like WhatsApp. */
 @Composable
-// Start of the text's OWN direction (with TextDirection.Content): Yiddish/Hebrew lines sit on the right, English on the left — like the site's dir=auto.
-internal fun chLeadAlign(): TextAlign = TextAlign.Start
+// Left is absolute; Start follows the text's own direction and would put Hebrew names on the right.
+internal fun chLeadAlign(): TextAlign = TextAlign.Left
 
 
 /** The list's two confirm dialogs (kept out of ChatsScreen so that function stays small for ART on API 30). */
