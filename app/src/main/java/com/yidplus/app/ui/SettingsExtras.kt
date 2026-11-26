@@ -241,6 +241,20 @@ class SettingsChat : PageScreen() {
     }
 }
 
+/** Calls: "Use less data for calls" - calls start as audio only. App-only: the site has no matching setting, so this one stays on the phone. */
+class SettingsCalls : PageScreen() {
+    override val perfName = "CallSettings"
+    override fun equals(other: Any?) = other is SettingsCalls
+    override fun hashCode() = 323
+    @Composable override fun Content() {
+        SettingsPage("Calls") {
+            SettingsCard("Data usage") {
+                SettingRow(Sym.Call, "Use less data for calls", "Calls start as audio only", switch = LookPrefs.useLessDataForCalls) { LookPrefs.putUseLessDataForCalls(!LookPrefs.useLessDataForCalls) }
+            }
+        }
+    }
+}
+
 /** Storage and data (WhatsApp "Storage and data"): how much space the downloaded photos, videos and GIFs take on this phone, and a one-tap "Clear media cache" that frees it (media re-downloads when you open a chat again). Everything is on-device; nothing is deleted on the server. */
 class SettingsStorage : PageScreen() {
     override val perfName = "Storage"
