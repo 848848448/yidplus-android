@@ -433,7 +433,6 @@ private fun chVideoNoteDuration(durationMs: Long): String? {
     return "${totalSeconds / 60}:${"%02d".format(totalSeconds % 60)}"
 }
 
-
 private val VideoNoteSize = 200.dp // WhatsApp-size circle.
 /** Video message: a real frame from the video with a play button (never a black box). */
 /** WhatsApp round video message: a fixed 200.dp circle in the message flow; tap pauses/resumes, it loops. The video renders through a TextureView, so the circle clip and the message item actually bound it. */
@@ -453,7 +452,8 @@ private fun ChVideoNote(url: String) {
         (if (url.startsWith("http")) Media.player(c) else ExoPlayer.Builder(c).build()).apply {
             setMediaItem(MediaItem.fromUri(url)); repeatMode = Player.REPEAT_MODE_ONE; volume = 1f; playWhenReady = false
         }
-    DisposableEffect(url) { onDispose { player.release() } }
+    }
+        DisposableEffect(url) { onDispose { player.release() } }
     LaunchedEffect(player) {
         while (true) {
             val d = player.duration
