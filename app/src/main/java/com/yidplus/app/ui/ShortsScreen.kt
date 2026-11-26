@@ -625,8 +625,8 @@ private fun ShortPage(s: Clip, current: Boolean, player: androidx.media3.exoplay
                         .tap(CircleShape) { if (following) Feeds.follows.remove(s.creatorId) else Feeds.follows.add(s.creatorId); Feeds.persist(c); toast(c, if (following) "Unfollowed ${s.creator}" else "Following ${s.creator}") },
                         contentAlignment = Alignment.Center) { Text(if (following) "✓" else "+", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) }
                 }
-                Action(if (s.liked) Sym.Favorite else Sym.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) ChatLook.ShortsLike else Color.White, small, "Like", like, iconScale = heartScale.value)
-                Action(Sym.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, "Comment", onComments)
+                Action(if (s.liked) Sym.Favorite else Sym.FavoriteBorder, if (s.likes > 0) s.likes.toString() else "Like", if (s.liked) ChatLook.ShortsLike else Color.White, small, "Like", iconScale = heartScale.value, onClick = like)
+                Action(Sym.ChatBubble, if (s.comments > 0) s.comments.toString() else "Comment", Color.White, small, "Comment", onClick = onComments)
                 val isSaved = Feeds.saved.any { it.key == s.key }
                 if (!small) Action(if (isSaved) Sym.Bookmark else Sym.BookmarkBorder, "Save", if (isSaved) Gold else Color.White, onClick = onSave)
                 Action(Sym.Share, "Share", Color.White, small = small) { share(c, s.shareUrl) }
