@@ -433,8 +433,10 @@ private fun chVideoNoteDuration(durationMs: Long): String? {
     return "${totalSeconds / 60}:${"%02d".format(totalSeconds % 60)}"
 }
 
+
+private val VideoNoteSize = 200.dp // WhatsApp-size circle.
 /** Video message: a real frame from the video with a play button (never a black box). */
-/** WhatsApp round video message: plays inline in a circle, muted and looping; tap opens it full screen with sound. */
+/** WhatsApp round video message: a fixed 200.dp circle in the message flow; tap pauses/resumes, it loops. The video renders through a TextureView, so the circle clip and the message item actually bound it. */
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 private fun ChVideoNote(url: String) {
@@ -443,7 +445,7 @@ private fun ChVideoNote(url: String) {
     var progress by remember(url) { mutableStateOf(0f) }
     var durationMs by remember(url) { mutableStateOf(0L) }
     var bmp by remember(url) { mutableStateOf(ChatVideoThumbs.cached(url)) }
-    LaunchedEffect(url) { if (bmp == null) bmp = runCatching { ChatVideoThumbs.load(c, url) }.getOrNull() }
+    LaunchedEffect(url) { if (bmp == null) bmp = runCatching { ChatVideoThumbs.load(c, url, poster = true) }.getOrNull() }
     // One player per bubble, kept while the bubble is composed; weak phones have few video decoders, and auto-playing every
     // round message at once is exactly what made them fail to start. The local (content://) take needs a plain
     // player; the uploaded http take goes through the authenticated cache source.
@@ -451,7 +453,6 @@ private fun ChVideoNote(url: String) {
         (if (url.startsWith("http")) Media.player(c) else ExoPlayer.Builder(c).build()).apply {
             setMediaItem(MediaItem.fromUri(url)); repeatMode = Player.REPEAT_MODE_ONE; volume = 1f; playWhenReady = false
         }
-    }
     DisposableEffect(url) { onDispose { player.release() } }
     LaunchedEffect(player) {
         while (true) {
@@ -461,17 +462,17 @@ private fun ChVideoNote(url: String) {
             delay(80)
         }
     }
-    Box(Modifier.padding(2.dp).size(200.dp).clip(CircleShape).background(Color(0xFF263238))
+    Box(Modifier.padding(2.dp).size(VideoNoteSize).clip(CircleShape).background(Color(0xFF263238))
         .clickable { playing = !playing; if (playing) player.play() else player.pause() }, contentAlignment = Alignment.Center) {
+        bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
         if (playing) {
             AndroidView(factory = { ctx -> PlayerView(ctx).apply {
-                useController = false; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                useController = false; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM; surfaceType = PlayerView.SURFACE_TYPE_TEXTURE_VIEW
                 setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
             } }, update = { it.player = player }, modifier = Modifier.fillMaxSize())
             CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize().padding(1.dp),
                 color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, trackColor = Color.White.copy(alpha = .25f))
         } else {
-            bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
             chVideoNoteDuration(durationMs)?.let {
                 Text(it, Modifier.align(Alignment.BottomStart).padding(14.dp).clip(RoundedCornerShape(8.dp)).background(Color.Black.copy(alpha= .45f)).padding(horizontal = 6.dp, vertical = 2.dp), color = Color.White, fontSize = 12.sp)
             }
