@@ -69,7 +69,7 @@ internal fun PdfViewScreen(url: String, fileName: String, remoteUrl: String? = n
             if (opened.pageCount == 0) error("Empty PDF")
             renderer = opened
             pageCount = opened.pageCount
-        }.onFailure { failed = true }
+        }.onFailure { if (it !is kotlinx.coroutines.CancellationException) failed = true }
         loading = false
     }
     // Close the renderer and its descriptor when this page leaves.
@@ -93,14 +93,14 @@ internal fun PdfViewScreen(url: String, fileName: String, remoteUrl: String? = n
     LaunchedEffect(renderer, page) {
         val opened = renderer ?: return@LaunchedEffect
         val rendered = withContext(Dispatchers.IO) {
-            runCatching {
+            try {
                 val current = opened.openPage(page.coerceIn(0, (pageCount - 1).coerceAtLeast(0)))
                 val scale = if (current.width >= 1200 || current.height >= 1600) 1 else 2
                 val bmp = Bitmap.createBitmap(current.width * scale, current.height * scale, Bitmap.Config.ARGB_8888)
                 current.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 current.close()
                 bmp
-            }.getOrNull()
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { null }
         }
         if (rendered == null) failed = true else bitmap = rendered
     }
