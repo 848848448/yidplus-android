@@ -239,9 +239,9 @@ internal fun ChRow(title: String, sub: String?, lead: @Composable () -> Unit, mo
             lead()
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
                 Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = titleColor,
-                    style = TextStyle(textDirection = TextDirection.Content))
+                    style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                 if (!sub.isNullOrBlank()) Text(sub, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(textDirection = TextDirection.Content))
+                    style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
             }
             trail()
         }
