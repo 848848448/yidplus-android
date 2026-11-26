@@ -75,7 +75,7 @@ class NotifyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
                 val nm = ctx.getSystemService(NotificationManager::class.java)
                 nm.createNotificationChannel(NotificationChannel(CH_CHATS, "Messages", NotificationManager.IMPORTANCE_HIGH).apply { setShowBadge(true) })
                 nm.createNotificationChannel(NotificationChannel(CH_GROUPS, "Group messages", NotificationManager.IMPORTANCE_HIGH).apply { setShowBadge(true) })
-                nm.createNotificationChannel(NotificationChannel(CH_ACTIVITY, "Likes, comments, follows", NotificationManager.IMPORTANCE_DEFAULT).apply { setShowBadge(true
+                nm.createNotificationChannel(NotificationChannel(CH_ACTIVITY, "Likes, comments, follows", NotificationManager.IMPORTANCE_DEFAULT).apply { setShowBadge(true) })
                 nm.createNotificationChannel(NotificationChannel(CH_CHANNELS, "New channel posts", NotificationManager.IMPORTANCE_DEFAULT).apply { setShowBadge(true) })
             }
             watchApp(ctx)
