@@ -96,7 +96,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.AspectRatioFrameLayout
+import android.view.LayoutInflater
 import androidx.media3.ui.PlayerView
 import androidx.compose.material3.CircularProgressIndicator
 import com.yidplus.app.data.Api
@@ -466,8 +466,8 @@ private fun ChVideoNote(url: String) {
         .clickable { playing = !playing; if (playing) player.play() else player.pause() }, contentAlignment = Alignment.Center) {
         bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
         if (playing) {
-            AndroidView(factory = { ctx -> PlayerView(ctx).apply {
-                useController = false; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM; surfaceType = PlayerView.SURFACE_TYPE_TEXTURE_VIEW
+            AndroidView(factory = { ctx -> (LayoutInflater.from(ctx).inflate(com.yidplus.app.R.layout.video_note_player, null) as PlayerView).apply {
+                // surface_type="texture_view", use_controller="false" and resize_mode="zoom" are set in R.layout.video_note_player
                 setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
             } }, update = { it.player = player }, modifier = Modifier.fillMaxSize())
             CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize().padding(1.dp),
