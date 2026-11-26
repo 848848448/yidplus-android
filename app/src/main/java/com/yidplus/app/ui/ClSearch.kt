@@ -219,8 +219,8 @@ internal fun ClSearchScreen(rooms: List<ChatRoomInfo>, onClose: () -> Unit) {
 @Composable
 private fun ClSearchHint() {
     Column(Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(64.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = .12f)), contentAlignment = Alignment.Center) {
-            androidx.compose.material3.Icon(Sym.Search, null, Modifier.size(30.dp), tint = MaterialTheme.colorScheme.primary)
+        Box(Modifier.size(64.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+            androidx.compose.material3.Icon(Sym.Search, null, Modifier.size(30.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.height(12.dp))
         Text("Search chats, contacts and messages", fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
