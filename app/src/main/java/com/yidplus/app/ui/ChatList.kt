@@ -526,7 +526,7 @@ private fun ClListDialogs(muteAsk: List<ChatRoomInfo>?, delAsk: List<ChatRoomInf
                     if (ok > 0) toast(c, if (rs.size == 1 && !rs[0].isPrivate) "🚪 You left the group." else "🗑 Chat removed")
                     done()
                 }
-            }) { Text(if (rs.size == 1 && !rs[0].isPrivate) "Leave" else if (rs.size == 1) "Delete chat" else "Delete ${rs.size} chats", color = Color(0xFFD32F2F)) } },
+            }) { Text(if (rs.size == 1 && !rs[0].isPrivate) "Leave" else if (rs.size == 1) "Delete chat" else "Delete ${rs.size} chats", color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton({ clearDel() }) { Text("Cancel") } })
     }
 }
