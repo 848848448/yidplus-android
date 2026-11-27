@@ -33,6 +33,7 @@ import com.yidplus.app.data.Prefs
 import com.yidplus.app.data.Room
 import com.yidplus.app.data.TgChannel
 import com.yidplus.app.data.objects
+import com.yidplus.app.ui.ClLocal
 import java.util.concurrent.TimeUnit
 
 /**
@@ -188,6 +189,7 @@ class NotifyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
                         if (st.getString(k, null) == ch.lastAt) continue
                         e.putString(k, ch.lastAt)
                         if (first || !allowed) continue
+                if (ClLocal.isChMuted(ctx, k)) { Log.i(TAG, "channel ${ch.username}: muted, skipping notification"); continue }
                         val open = Intent(ctx, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN_CHANNEL).putExtra("username", ch.username).putExtra("title", ch.title)
                         nm.notify("tg", ch.username.hashCode(), NotificationCompat.Builder(ctx, CH_CHANNELS).setSmallIcon(R.drawable.ic_stat_logo).setColor(0xFF008069.toInt())
                             .setContentTitle(ch.title).setContentText(ch.lastText.ifBlank { "New post" }).setNumber(ch.unread).setAutoCancel(true)
