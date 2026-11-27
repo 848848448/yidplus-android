@@ -92,11 +92,15 @@ jobs:
       - name: version.json (what the in-app updater reads)
         run: |
           V=${{ steps.ver.outputs.version }}
+          # notes = only the newest section of RELEASE_NOTES.md (the top
+          # section, up to the next "## " heading), so the in-app updater
+          # shows just this update's changes, not every old update.
+          awk 'NR > 1 && /^## / { exit } { print }' RELEASE_NOTES.md > notes.md
           jq -n --arg v "$V" --argjson code ${{ steps.ver.outputs.code }} \
             --arg url "https://github.com/${{ github.repository }}/releases/download/v$V/YIDPLUS.apk" \
             --arg sha "$(sha256sum dist/YIDPLUS.apk | cut -d' ' -f1)" \
             --argjson size "$(stat -c%s dist/YIDPLUS.apk)" \
-            --rawfile notes RELEASE_NOTES.md \
+            --rawfile notes notes.md \
             '{versionCode:$code, versionName:$v, apkUrl:$url, sha256:$sha, size:$size, notes:$notes}' > dist/version.json
           cat dist/version.json
 
