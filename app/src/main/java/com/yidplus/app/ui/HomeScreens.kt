@@ -110,10 +110,12 @@ fun HomeScreen() {
                     list == null -> SoSkeleton()
                     else -> {
                         val t = q.trim()
-                        val base = if (view == 1) list.filter { it.joined } else list
+                        val c = ctx()
+        val pins = remember(ClLocal.chPinVersion, Session.me?.id) { ClLocal.chPins(c) }
+        val base = if (view == 1) list.filter { it.joined } else list
                         val shown = (if (!searching || t.isEmpty()) base else base.filter { it.title.contains(t, true) || it.username.contains(t, true) || it.lastText.contains(t, true) })
                             .distinctBy { it.username }
-                            .sortedWith(compareByDescending<TgChannel> { it.joined && it.unread > 0 }.thenByDescending { parseTime(it.lastAt) ?: 0L })
+                            .sortedWith(compareByDescending<TgChannel> { (!searching || t.isEmpty()) && ("tg:" + it.username in pins) }.thenByDescending { it.joined && it.unread > 0 }.thenByDescending { parseTime(it.lastAt) ?: 0L })
                         val state = rememberLazyListState()
                         // The video strip loads after the list. A lazy list keeps the row you are on, so a strip inserted above it would sit out of sight: show the top when it appears (only if still at the top).
                         val vres = remember(Session.me?.id) { Store.res("/api/src-shorts?creators", ::soVideoChannels) }
@@ -139,6 +141,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
     val c = ctx(); val scope = rememberCoroutineScope()
     val selected = Nav.homeDetail?.ch?.username == ch.username
     var joined by remember(ch.username, ch.joined) { mutableStateOf(ch.joined) }
+    val pinned = remember(ClLocal.chPinVersion, ch.username) { "tg:" + ch.username in ClLocal.chPins(c) }
     // Like the site's channel list / WhatsApp's Updates: photo, name and time on one line, the last post under it,
     // then the unread number (joined) or a small Join button. Members count when there is no post yet.
     Row(modifier.fillMaxWidth().heightIn(min = 68.dp).background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
@@ -152,6 +155,7 @@ private fun ChannelRow(ch: TgChannel, modifier: Modifier) {
                     color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (ch.lastAt != null) Text(ago(ch.lastAt), style = MaterialTheme.typography.bodySmall, maxLines = 1,
                     color = if (joined && ch.unread > 0) BadgeGreen else MaterialTheme.colorScheme.onSurfaceVariant)
+                if (pinned) Icon(Sym.PushPinFill, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Row(Modifier.padding(top = 3.dp), verticalAlignment = Alignment.CenterVertically) {
                 val media = when (ch.lastMedia) { "photo" -> "📷 Photo"; "video", "animation" -> "🎬 Video"; "audio" -> "🎵 Audio"; "voice" -> "🎤 Voice message"; "" -> ""; else -> "📎 File" }
@@ -189,6 +193,8 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
     var end by remember { mutableStateOf(false) }
     var joined by remember(ch.username) { mutableStateOf(ch.joined) }
     var members by remember(ch.username) { mutableIntStateOf(ch.members) }
+    val pinned = remember(ClLocal.chPinVersion, ch.username) { "tg:" + ch.username in ClLocal.chPins(c) }
+    val muted = remember(ClLocal.chMuteVersion, ch.username) { ClLocal.isChMuted(c, "tg:" + ch.username) }
     var joining by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
     val cacheKey = "tg-posts|" + ch.username
@@ -252,6 +258,8 @@ fun ChannelScreen(ch: TgChannel, inPane: Boolean = false) {
                     DropdownMenuItem(text = { Text("Channel info") }, leadingIcon = { Icon(Sym.Info, null) }, onClick = { menu = false; Nav.open(SoTgInfoPage(ch.copy(joined = joined, members = members))) })
                     DropdownMenuItem(text = { Text(if (joined) "Leave channel" else "Join channel") }, leadingIcon = { Icon(if (joined) Sym.Logout else Sym.Add, null) },
                         onClick = { menu = false; toggleJoin() })
+                    DropdownMenuItem(text = { Text(if (pinned) "Unpin" else "Pin") }, leadingIcon = { Icon(if (pinned) Sym.PushPinFill else Sym.PushPin, null) }, onClick = { menu = false; ClLocal.toggleChPin(c, "tg:" + ch.username) })
+                    DropdownMenuItem(text = { Text(if (muted) "Unmute notifications" else "Mute notifications") }, leadingIcon = { Icon(if (muted) Sym.Notifications else Sym.NotificationsOff, null) }, onClick = { menu = false; ClLocal.toggleChMute(c, "tg:" + ch.username) })
                     DropdownMenuItem(text = { Text("Copy link") }, leadingIcon = { Icon(Sym.Link, null) }, onClick = { menu = false; soCopy(c, soTgLink(ch.username)) })
                     DropdownMenuItem(text = { Text("Open in Telegram") }, leadingIcon = { Icon(Sym.Send, null) }, onClick = { menu = false; openUrl(c, "https://t.me/" + ch.username) })
                 }
