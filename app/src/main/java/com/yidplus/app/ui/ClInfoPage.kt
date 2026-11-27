@@ -162,7 +162,7 @@ data class ChInfo(val room: Room, val startTab: Int = 0) : PageScreen() {
                     info.members.sortedWith(compareByDescending<ChMember> { it.id == info.createdBy }.thenByDescending { it.admin }.thenByDescending { it.online && seeOnline }.thenBy { it.nick.lowercase() }).take(300).forEach { mb ->
                         val sub = listOfNotNull(mb.title.ifBlank { null }, if (mb.online && seeOnline) "online" else null).joinToString(" · ").ifBlank { null }
                         ChRow(mb.nick + if (mb.id == me?.id) " (You)" else "", sub, { ChAvatar(mb.photo, mb.nick, mb.id, 44.dp, mb.online && seeOnline) },
-                            trail = { if (mb.admin || mb.id == info.createdBy) Text(if (mb.id == info.createdBy) "Owner" else "Admin", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = .12f)).padding(horizontal = 6.dp, vertical = 2.dp)) }) {
+                            trail = { if (mb.admin || mb.id == info.createdBy) Text(if (mb.id == info.createdBy) "Owner" else "Admin", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary) }) {
                             if (mb.id != me?.id && me != null) memberMenu = mb
                         }
                     }
