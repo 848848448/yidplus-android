@@ -445,10 +445,10 @@ internal fun CsPinnedList(roomId: String, onJump: (String) -> Unit, onClose: () 
 @Composable
 internal fun CsSelectBar(n: Int, canDelete: Boolean, canSave: Boolean, onClose: () -> Unit, onCopy: () -> Unit, onForward: () -> Unit, onDelete: () -> Unit,
                          onReply: (() -> Unit)? = null, onStar: (() -> Unit)? = null, onMore: (() -> Unit)? = null) {
-    Surface(color = ChatLook.accent, contentColor = Color.White) {
+    Surface(color = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface) {
         Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             ChIcon(Sym.Close, "Cancel selection", onClose)
-            Text("$n", Modifier.weight(1f).padding(start = 8.dp), fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+            Text("$n", Modifier.weight(1f).padding(start = 8.dp), fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             if (n == 1 && onReply != null) ChIcon(Sym.Reply, "Reply", onReply)
             if (n == 1 && onStar != null && canSave) ChIcon(Sym.Star, "Star", onStar)
             if (canSave) ChIcon(Sym.ContentCopy, "Copy", onCopy)
