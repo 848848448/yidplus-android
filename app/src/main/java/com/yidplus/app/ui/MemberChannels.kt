@@ -333,7 +333,8 @@ fun SoSitePostCard(p: SoSitePost, name: String, photo: String?, onChange: (SoSit
                     .onFailure { onChange(p); toast(c, Api.friendly(it)) } }
             }
             SoAction(Sym.ChatBubbleOutline, if (p.comments > 0) soNum(p.comments) else "Comment", null, "Comment", onComments)
-            SoAction(Sym.Share, "Share", null) { share(c, (if (p.caption.isNotBlank()) p.caption.take(140) + "\n" else "") + Api.BASE + "/?channel=" + soEnc(p.userId)) }
+            SoAction(Sym.Forward, "Forward", null) { Nav.open(ChForward(ChatMsg(id = "ch:" + p.id, roomId = "", senderId = p.userId, nick = name, photo = photo, type = when { p.media == null -> "text"; p.isVideo -> "video"; else -> "image" }, text = p.caption, media = p.media, mediaKey = p.media?.substringAfterLast('/')?.substringBefore('?') ?: "", createdAt = p.at))) }
+        SoAction(Sym.Share, "Share", null) { share(c, (if (p.caption.isNotBlank()) p.caption.take(140) + "\n" else "") + Api.BASE + "/?channel=" + soEnc(p.userId)) }
         }
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))
     }
