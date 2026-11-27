@@ -112,12 +112,11 @@ internal suspend fun csOpenMention(c: Context, username: String) {
 
 /** Long-press sheet (the site's quick-react bar + context menu, WhatsApp layout): reactions row with "+" for any emoji, then every action the site has, plus Select and Info-free extras. */
 @Composable
-internal fun CsActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boolean, canDelete: Boolean, canWrite: Boolean, canSave: Boolean, signedIn: Boolean,
+@OptIn(ExperimentalMaterial3Api::class) internal fun CsActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boolean, canDelete: Boolean, canWrite: Boolean, canSave: Boolean, signedIn: Boolean,
                        myReact: String?, onClose: () -> Unit, onAct: (String) -> Unit) {
     var more by remember { mutableStateOf(false) }
-    Dialog(onDismissRequest = onClose) {
-        Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 6.dp) {
-            Column(Modifier.padding(vertical = 8.dp).widthIn(max = 360.dp)) {
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                 Text(m.preview.ifBlank { "Message" }, Modifier.padding(horizontal = 18.dp, vertical = 6.dp), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
                 if (signedIn && !m.failed && !m.deleted) {
@@ -155,7 +154,6 @@ internal fun CsActions(m: ChatMsg, mine: Boolean, canPin: Boolean, isPinned: Boo
                     if (!m.failed) CsActRow(Sym.CheckCircle, "Select") { onAct("select") }
                     if (signedIn && !mine) CsActRow(Sym.Flag, "Report") { onAct("report") }
                     if (canDelete && !m.failed && !m.deleted) CsActRow(Sym.Delete, "Delete", MaterialTheme.colorScheme.error) { onAct("delete") }
-                }
             }
         }
     }
@@ -266,11 +264,11 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         when (cat) {
             -2 -> LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.fillMaxSize()) {
                             if (CsStickerFav.list.isNotEmpty()) {
-                                                item(span = { GridItemSpan(maxLineSpan)}) { Text("⭐ Favorites", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
+                                                item(span = { GridItemSpan(maxLineSpan)}) { Text("Favorites", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
                                                                 gridItems(CsStickerFav.list) { u -> CsStickerCell(u, onClick = { onSticker(u)}, onLongClick = { favFor = u})}
                             }
                                         if (CsStickerRecent.list.isNotEmpty()) {
-                                                            item(span = { GridItemSpan(maxLineSpan)}) { Text("🕐 Recent", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
+                                                            item(span = { GridItemSpan(maxLineSpan)}) { Text("Recent", Modifier.padding(start = 6.dp, top = 8.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)}
                                                                             gridItems(CsStickerRecent.list) { u -> CsStickerCell(u, onClick = { onSticker(u)}, onLongClick = { favFor = u})}
                                         }
                 if (Session.me != null) item { Box(Modifier.size(76.dp).padding(6.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).tap(RoundedCornerShape(10.dp)) { onPickSticker() }, contentAlignment = Alignment.Center) {
@@ -293,13 +291,13 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
         }
     }
     delFor?.let { s ->
-        AlertDialog(onDismissRequest = { delFor = null }, text = { Column { Text("Delete this sticker?"); TextButton({ val u = s.str("url"); CsStickerFav.toggle(u); delFor = null}) { Text(if (CsStickerFav.contains(s.str("url"))) "⭐ Remove from favorites" else "⭐ Add to favorites") }}},
+        AlertDialog(onDismissRequest = { delFor = null }, text = { Column { Text("Delete this sticker?"); TextButton({ val u = s.str("url"); CsStickerFav.toggle(u); delFor = null}) { Text(if (CsStickerFav.contains(s.str("url"))) "Remove from favorites" else "Add to favorites") }}},
             confirmButton = { TextButton({ delFor = null; scope.launch { runCatching { ChatApi.deleteSticker(s.str("id")) }.onSuccess { toast(c, "✅ Deleted"); custom = custom - s }.onFailure { toast(c, Api.friendly(it)) } } }) { Text("Delete", color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton({ delFor = null }) { Text("Cancel") } })
     }
         favFor?.let { u ->
                     AlertDialog(onDismissRequest = { favFor = null}, text = { Text(if (CsStickerFav.contains(u)) "Remove this sticker from favorites?" else "Add this sticker to favorites?")},
-                                            confirmButton = { TextButton({ CsStickerFav.toggle(u); favFor = null}) { Text(if (CsStickerFav.contains(u)) "⭐ Remove from favorites" else "⭐ Add to favorites")}},
+                                            confirmButton = { TextButton({ CsStickerFav.toggle(u); favFor = null}) { Text(if (CsStickerFav.contains(u)) "Remove from favorites" else "Add to favorites")}},
                                             dismissButton = { TextButton({ favFor = null}) { Text("Cancel")}})
     }
     toneFor?.let { base ->
@@ -315,14 +313,14 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
 
 /** Attach menu: the site's Gallery, Camera, Video, Audio, Document, Poll, Schedule — plus WhatsApp's Video camera and Contact. */
 @Composable
-internal fun CsAttachSheet(onPick: (String) -> Unit, onRecent: ((Uri) -> Unit)? = null) {
+@OptIn(ExperimentalMaterial3Api::class) internal fun CsAttachSheet(onPick: (String) -> Unit, onRecent: ((Uri) -> Unit)? = null) {
     val opts = listOf(Triple("gallery", "Gallery", Sym.Image to Color(0xFF7E57C2)), Triple("camera", "Camera", Sym.PhotoCamera to Color(0xFFE91E63)),
         Triple("videocam", "Record video", Sym.Videocam to Color(0xFFD81B60)), Triple("video", "Video", Sym.Movie to Color(0xFFEF6C00)),
         Triple("audio", "Audio", Sym.Headphones to Color(0xFFFF7043)), Triple("file", "Document", Sym.Description to Color(0xFF5C6BC0)),
         Triple("contact", "Contact", Sym.ContactPhone to Color(0xFF1E88E5)), Triple("location", "Location", Sym.LocationOn to Color(0xFF43A047)),
         Triple("gif", "GIF", Sym.Gif to Color(0xFF8E24AA)), Triple("videonote", "Video note", Sym.Videocam to Color(0xFF00ACC1)),
         Triple("poll", "Poll", Sym.Poll to Color(0xFF00897B)), Triple("options", "Schedule", Sym.Schedule to Color(0xFF546E7A)))
-    Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
+    ModalBottomSheet(onDismissRequest = { onPick("close") }, containerColor = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxWidth().heightIn(max = 340.dp).verticalScroll(rememberScrollState()).padding(vertical = 6.dp)) {
             // WhatsApp shows a strip of your recent photos at the top of the attach panel — tap one to send it straight away.
             if (onRecent != null) {
@@ -368,13 +366,13 @@ internal fun CsAttachSheet(onPick: (String) -> Unit, onRecent: ((Uri) -> Unit)? 
     }
 }
 
-/** The site's Message options sheet: 🕓 Schedule for later + 💨 Disappear after Off / 1 min / 1 hour / 1 day / 1 week. */
+/** The site's Message options sheet: 🕓 Schedule for later + Disappear after Off / 1 min / 1 hour / 1 day / 1 week. */
 @Composable
 internal fun CsMsgOptions(disappear: Int, onSchedule: () -> Unit, onDisappear: (Int) -> Unit, onClose: () -> Unit) {
     AlertDialog(onDismissRequest = onClose, title = { Text("Message options") }, text = {
         Column {
             CsActRow(Sym.Schedule, "Schedule for later") { onSchedule() }
-            Text("💨 Disappear after", Modifier.padding(top = 10.dp, bottom = 6.dp), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text("Disappear after", Modifier.padding(top = 10.dp, bottom = 6.dp), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("Off" to 0, "1 min" to 60, "1 hour" to 3600, "1 day" to 86400, "1 week" to 604800).forEach { (l, s) ->
                     FilterChip(selected = disappear == s, onClick = { onDisappear(s) }, label = { Text(l) })
@@ -581,7 +579,7 @@ var viewOnce by remember { mutableStateOf(false) }
                     ChIcon(Sym.Close, "Cancel", onClose, tint = Color.White)
                     Text(if (list.size == 1) "1 item" else "${list.size} items", Modifier.weight(1f).padding(start = 8.dp), color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                     Box(Modifier.clip(RoundedCornerShape(8.dp)).then(if (viewOnce) Modifier.background(Color.White) else Modifier).tap(RoundedCornerShape(8.dp)) { viewOnce = !viewOnce }.padding(horizontal = 10.dp, vertical = 6.dp)) {
-            Text("👁 View once", color = if (viewOnce) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text("View once", color = if (viewOnce) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         }
         if (shown != null && isPhoto) Box(Modifier.clip(RoundedCornerShape(8.dp)).then(if (hd) Modifier.background(Color.White) else Modifier).tap(RoundedCornerShape(8.dp)) { hd = !hd }.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text("HD", color = if (hd) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
