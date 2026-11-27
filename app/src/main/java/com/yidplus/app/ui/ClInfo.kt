@@ -89,7 +89,7 @@ internal fun ClMediaTabs(roomId: String, initialTab: Int = 0) {
         1 -> shown.forEach { m -> ChRow(m.fileName, m.nick + " · " + chatTime(m.createdAt), { ClTileIcon(if (m.isMusic) Sym.MusicNote else Sym.Description) }) { m.media?.let { openUrl(c, it) } } }
         2 -> shown.forEach { m -> val u = URL_RX.find(m.text)?.value ?: ""
             ChRow(u.removePrefix("https://").removePrefix("http://").take(60), m.text.replace(u, "").trim().ifBlank { m.nick + " · " + chatTime(m.createdAt) }, { ClTileIcon(Sym.Link) }) { openUrl(c, u) } }
-        else -> shown.forEach { m -> ChRow("🎤 Voice message" + (m.voiceDur.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), m.nick + " · " + chatTime(m.createdAt), { ClTileIcon(Sym.Mic) }) { m.media?.let { openUrl(c, it) } } }
+        else -> shown.forEach { m -> ChRow("Voice message" + (m.voiceDur.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), m.nick + " · " + chatTime(m.createdAt), { ClTileIcon(Sym.Mic) }) { m.media?.let { openUrl(c, it) } } }
     }
     if (loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(16.dp))
     else if (more) TextButton({ scope.launch { page(false) } }, Modifier.fillMaxWidth()) { Text("Load more") }
@@ -148,7 +148,7 @@ internal fun ClReportDialog(reportedId: String, roomId: String?, onDismiss: () -
     var pick by remember { mutableStateOf(0) }
     var details by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("🚩 Report") }, text = {
+    AlertDialog(onDismissRequest = onDismiss, title = { Text("Report") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             reasons.forEachIndexed { i, (_, label) ->
                 Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).tap(RoundedCornerShape(8.dp)) { pick = i }, verticalAlignment = Alignment.CenterVertically) {
@@ -181,15 +181,15 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
         }
     }, text = {
         Column(Modifier.verticalScroll(rememberScrollState())) {
-            ChDialogRow("💬 Message ${mb.nick}") { onDismiss(); scope.launch { runCatching { ChatApi.openDm(mb.id) }.onSuccess { id -> Nav.open(Screen.Chat(ChatApi.roomOf(id, "private", mb.nick, mb.photo, mb.id))) }.onFailure { toast(c, Api.friendly(it)) } } }
+            ChDialogRow("Message ${mb.nick}") { onDismiss(); scope.launch { runCatching { ChatApi.openDm(mb.id) }.onSuccess { id -> Nav.open(Screen.Chat(ChatApi.roomOf(id, "private", mb.nick, mb.photo, mb.id))) }.onFailure { toast(c, Api.friendly(it)) } } }
             if (canManage && !isOwnerRow) {
-                ChDialogRow("🏷 Set title") { titleAsk = true }
-                ChDialogRow(if (mb.admin) "⬇ Dismiss as admin" else "⭐ Make admin", MaterialTheme.colorScheme.primary) {
+                ChDialogRow("Set title") { titleAsk = true }
+                ChDialogRow(if (mb.admin) "Dismiss as admin" else "Make admin", MaterialTheme.colorScheme.primary) {
                     scope.launch { runCatching { ChatApi.setAdmin(room.id, mb.id, !mb.admin) }.onSuccess { toast(c, if (mb.admin) "Admin removed" else "⭐ ${mb.nick} is now an admin"); onChanged(); onDismiss() }.onFailure { toast(c, Api.friendly(it)) } }
                 }
-                ChDialogRow("🚫 Remove from group", MaterialTheme.colorScheme.error) { removeAsk = true }
+                ChDialogRow("Remove from group", MaterialTheme.colorScheme.error) { removeAsk = true }
             }
-            ChDialogRow("🚩 Report ${mb.nick}", MaterialTheme.colorScheme.error) { report = true }
+            ChDialogRow("Report ${mb.nick}", MaterialTheme.colorScheme.error) { report = true }
         }
     }, confirmButton = { TextButton(onDismiss) { Text("Close") } })
     if (titleAsk) {
@@ -212,7 +212,7 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
 /** Disappearing messages (chat.js openDisappearingMessages → setAutoDelete). */
 @Composable
 internal fun ClAutoDeleteDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("⏱ Disappearing messages") }, text = {
+    AlertDialog(onDismissRequest = onDismiss, title = { Text("Disappearing messages") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             Text("New messages disappear after the time you pick.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(6.dp))
