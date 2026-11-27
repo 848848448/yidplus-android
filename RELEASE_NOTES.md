@@ -1,3 +1,19 @@
+## 2.26.0
+
+- Message reminders now work: long-press a message and tap "Remind me"
+- Chat list: chats with Hebrew or Yiddish names now stay left-aligned, like in every other app
+- Video notes: correct round size with the video visible — no more oversized black circle
+- Tapping a location now opens a location screen inside the app instead of the system app picker
+- Contact and group info: video tiles show a preview frame, and the layout overlap is fixed
+- The top bar is now white like WhatsApp today, and the search and selection bars use neutral colours
+- Chat filters are now All, Unread, Favorites and Groups
+- Contacts without a photo get the grey silhouette avatar
+- Calls list: green direction arrows and a cleaner list without dividers
+- The long-press menu and the attach menu are now bottom sheets, as are mute, disappearing messages, member actions and the theme and text-size pickers
+- Chat header: a video-call button now sits next to the voice-call button
+- Group "Owner" and "Admin" are shown as plain green text
+- Reactions now sit on the edge of the message bubble
+
 ## 2.25.0
 
 - קאָמפּאָוזער: שיק־/מיק־קנעפּל טוישט זיך מיט אַנימאַציע
