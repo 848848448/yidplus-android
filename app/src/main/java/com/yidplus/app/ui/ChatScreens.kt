@@ -513,6 +513,7 @@ LaunchedEffect(room.id, msgs.size, loaded) {
         } else if (!(compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0))) ChBar(room.name, sub = if (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)) null else subtitle, onBack = if (inPane) null else fun() { Nav.back() },
             lead = { ChAvatar(room.photo, room.name, room.otherUserId ?: room.id, 38.dp) },
             onTitle = { Nav.open(ChInfo(room)) }, slim = (compact && (WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0))) {
+            if (me != null && (room.type == "private" || isGroup)) ChIcon(Sym.Videocam, "Video call", { Nav.open(ChCall(room, "video")) })
             if (me != null && (room.type == "private" || isGroup)) ChIcon(Sym.Call, "Call", { Nav.open(ChCall(room, "audio")) })
             Box {
                 ChIcon(Sym.MoreVert, "More", { menu = true })
