@@ -15,7 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -122,8 +122,8 @@ import androidx.compose.material3.Checkbox
 
 /* ═════════════════════════ Chat list ═════════════════════════ */
 
-// The site's tabs (All / Private Chats / Groups / Channels) plus WhatsApp's Unread chip; custom folders follow, then "+".
-private val CHAT_TABS = listOf("all" to "All", "unread" to "Unread", "favorites" to "Favorites", "private" to "Private", "groups" to "Groups", "channels" to "Channels")
+// The site's tabs (All / Unread / Favorites / Groups); custom folders follow, then "+".
+private val CHAT_TABS = listOf("all" to "All", "unread" to "Unread", "favorites" to "Favorites", "groups" to "Groups")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -425,13 +425,13 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
     val sel = Nav.chatDetail?.room?.id == r.id
     Column(Modifier.background(when { selected -> ChatLook.unread.copy(alpha = .16f); sel -> MaterialTheme.colorScheme.primaryContainer; else -> Color.Transparent })) {
         Row(modifier.fillMaxWidth().height(if (compact) 70.dp else 72.dp).restoreFocus("room:" + r.id)
-            .then(if (focused && Keys.keypad) Modifier.background(Gold.copy(alpha = 0.18f)).border(2.dp, Gold) else Modifier)
+            .then(if (focused && Keys.keypad) Modifier.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)) else Modifier)
             .onPreviewKeyEvent { e -> if (e.type == KeyEventType.KeyUp && e.key == Key.Menu && onLong != null) { onLong(); true } else false }
             .combinedClickable(interactionSource = src, indication = androidx.compose.material3.ripple(), onLongClick = onLong, onClick = open)
             .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box {
-                // The site shows "online" only to site admins (chat.js renderChatList: c.online && isAnyAdmin()).
-                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 50.dp else 49.dp, online = ri.isPrivate && ri.online && chIsSiteAdmin(), ring = ring, seen = ringSeen) }
+                // WhatsApp chat rows show no online dot on the avatar.
+                val av = @Composable { ClRingAvatar(r.photo, r.name, r.otherUserId ?: r.id, if (compact) 50.dp else 49.dp, online = false, ring = ring, seen = ringSeen) }
                 if (ring && !selecting) Box(Modifier.clip(CircleShape).tap(CircleShape, onClick = onRing)) { av() }
                 else if (!selecting) Box(Modifier.clip(CircleShape).pointerInput(r.id) { detectTapGestures { popup = true } }) { av() }
                 else av()
@@ -453,7 +453,7 @@ internal fun ChRoomRow(ri: ChatRoomInfo, modifier: Modifier, compact: Boolean = 
                     val lockV = ChatLock.version
                     val locked = lockV >= 0 && ChatLock.isLocked(r.id)
                     val pv = remember(ri, v) { chatPreview(ri) }
-                    Text(if (locked) "🔒 Locked chat" else if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    Text(if (locked) "Locked chat" else if (draft.isNotBlank()) "Draft: $draft" else pv.ifBlank { if (ri.isChannel) "Channel" else if (ri.isGroup) "Group" else " " }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
                         fontSize = if (compact) 14.sp else 15.sp, color = if (draft.isNotBlank()) ChatLook.unread else MaterialTheme.colorScheme.onSurfaceVariant, style = TextStyle(textDirection = TextDirection.Content, textAlign = chLeadAlign()))
                     if (ri.muted) Icon(Sym.NotificationsOff, "Muted", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (pinned) Icon(Sym.PushPinFill, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
