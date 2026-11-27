@@ -73,6 +73,8 @@ data class SoSiteChannel(val ownerId: String, val name: String, val photo: Strin
 /** One member channel in a list: photo, name + verified, last post time, followers (like the site's Channels list). */
 @Composable
 fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
+    val c = ctx()
+    val pinned = remember(ClLocal.chPinVersion, ch.ownerId) { "ch:" + ch.ownerId in ClLocal.chPins(c) }
                 Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("sc:" + ch.ownerId)
         .then(if (first) Modifier.firstFocus() else Modifier)
         .tap(RoundedCornerShape(0.dp)) { Nav.lastOpened = "sc:" + ch.ownerId; Nav.open(SoUserChannelPage(ch.ownerId, ch.name)) }
@@ -87,6 +89,7 @@ fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
                     if (ch.verified) Icon(Sym.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(17.dp))
                 }
                 if (ch.lastPostAt != null) Text(ago(ch.lastPostAt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
+                if (pinned) Icon(Sym.PushPinFill, "Pinned", Modifier.padding(start = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Text(if (ch.followers == 1) "1 follower" else "${soNum(ch.followers)} followers",
                 Modifier.padding(top = 3.dp), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
@@ -107,9 +110,11 @@ fun SoSiteChannelsList(query: String, sort: Int, header: (@Composable () -> Unit
         delay(300); runCatching { val l = SoSiteChannel.list(Api.get("/api/channels?limit=50&search=" + soEnc(q))); found.clear(); found.addAll(l) }
     }
     val all = res.data
+    val c = ctx()
+    val pins = remember(ClLocal.chPinVersion, Session.me?.id) { ClLocal.chPins(c) }
     val q = query.trim()
     val shown = if (q.length >= 2) (found + all.orEmpty().filter { it.name.contains(q, true) || it.bio.contains(q, true) }).distinctBy { it.ownerId }
-        else when (sort) { 1 -> all.orEmpty().sortedByDescending { parseTime(it.lastPostAt) ?: 0L }; 2 -> all.orEmpty().filter { it.verified }; else -> all.orEmpty() }
+        else when (sort) { 1 -> all.orEmpty().sortedByDescending { parseTime(it.lastPostAt) ?: 0L }; 2 -> all.orEmpty().filter { it.verified }; else -> all.orEmpty() }.sortedWith(compareByDescending<SoSiteChannel> { "ch:" + it.ownerId in pins })
     when {
         all == null && res.error != null -> Problem(res.error!!, res.offline, { scope.launch { res.load(true) } })
         all == null -> SoSkeleton()
@@ -159,6 +164,7 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
         var commentsFor by remember { mutableStateOf<SoSitePost?>(null) }
         var retry by remember { mutableIntStateOf(0) }
         val mine = Session.me?.id == ownerId
+    val pinned = remember(ClLocal.chPinVersion, ownerId) { "ch:" + ownerId in ClLocal.chPins(c) }
         // The saved copy shows at once (no skeleton when you've been here before); the site's answer replaces it quietly.
         val cacheKey = Store.key("sc|" + ownerId)
         fun applyData(r: JSONObject, p: List<JSONObject>?) {
@@ -227,6 +233,7 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                                 if (!mine) SoPill(when { following -> "Following ✓"; reqStatus == "pending" -> "Requested"; else -> "Follow" }, !following && reqStatus != "pending", { follow() },
                                     Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Sym.PersonAdd else null, enabled = !busy)
                                 else SoPill("New post", true, { Nav.open(SoNewPostPage()) }, Modifier.firstFocus(), icon = Sym.Edit)
+                                IconBtn(if (pinned) Sym.PushPinFill else Sym.PushPin, if (pinned) "Unpin" else "Pin", { ClLocal.toggleChPin(c, "ch:" + ownerId) })
                             }
                             Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                                 Stat(soNum(j.optInt("followers")), "Followers"); Stat(soNum(j.optInt("following")), "Following")
