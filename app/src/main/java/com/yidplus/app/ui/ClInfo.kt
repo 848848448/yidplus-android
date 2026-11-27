@@ -166,20 +166,21 @@ internal fun ClReportDialog(reportedId: String, roomId: String?, onDismiss: () -
 
 /** chat.js openMemberActions: Message, Set title, Make / Dismiss admin, Remove (asks first). */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwnerRow: Boolean, onChanged: () -> Unit, onDismiss: () -> Unit) {
     val c = ctx(); val scope = rememberCoroutineScope()
     var titleAsk by remember { mutableStateOf(false) }
     var removeAsk by remember { mutableStateOf(false) }
     var report by remember { mutableStateOf(false) }
-    AlertDialog(onDismissRequest = onDismiss, title = {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ChAvatar(mb.photo, mb.nick, mb.id, 40.dp)
-            Column(Modifier.padding(start = 12.dp)) {
-                Text(mb.nick, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
-                if (mb.title.isNotBlank()) Text(mb.title, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+            Row(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                ChAvatar(mb.photo, mb.nick, mb.id, 40.dp)
+                Column(Modifier.padding(start = 12.dp)) {
+                    Text(mb.nick, maxLines = 1, overflow = TextOverflow.Ellipsis, style = TextStyle(textDirection = TextDirection.Content))
+                    if (mb.title.isNotBlank()) Text(mb.title, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
-        }
-    }, text = {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             ChDialogRow("Message ${mb.nick}") { onDismiss(); scope.launch { runCatching { ChatApi.openDm(mb.id) }.onSuccess { id -> Nav.open(Screen.Chat(ChatApi.roomOf(id, "private", mb.nick, mb.photo, mb.id))) }.onFailure { toast(c, Api.friendly(it)) } } }
             if (canManage && !isOwnerRow) {
@@ -191,7 +192,8 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
             }
             ChDialogRow("Report ${mb.nick}", MaterialTheme.colorScheme.error) { report = true }
         }
-    }, confirmButton = { TextButton(onDismiss) { Text("Close") } })
+        }
+    }
     if (titleAsk) {
         var t by remember { mutableStateOf(mb.title) }
         AlertDialog(onDismissRequest = { titleAsk = false }, title = { Text("Title for ${mb.nick}") }, text = {
@@ -211,18 +213,20 @@ internal fun ClMemberSheet(room: Room, mb: ChMember, canManage: Boolean, isOwner
 
 /** Disappearing messages (chat.js openDisappearingMessages → setAutoDelete). */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun ClAutoDeleteDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("Disappearing messages") }, text = {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            Text("New messages disappear after the time you pick.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp).verticalScroll(rememberScrollState())) {
+            Text("Disappearing messages", Modifier.padding(horizontal = 20.dp, vertical = 12.dp), style = MaterialTheme.typography.titleLarge)
+            Text("New messages disappear after the time you pick.", Modifier.padding(horizontal = 20.dp), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(6.dp))
             CL_AUTO_DELETE.forEach { (m, label) ->
-                Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).tap(RoundedCornerShape(8.dp)) { onPick(m) }, verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).tap(RoundedCornerShape(8.dp)) { onPick(m) }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(current == m, null); Text(label, Modifier.padding(start = 10.dp), fontSize = 16.sp)
                 }
             }
         }
-    }, confirmButton = { TextButton(onDismiss) { Text("Cancel") } })
+    }
 }
 
 /** Group photo picker → PUT /api/chat/rooms multipart {room_id, photo} (yidplus-chat.html handleGroupPhoto). */
