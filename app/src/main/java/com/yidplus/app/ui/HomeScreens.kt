@@ -364,7 +364,12 @@ private fun PostCard(p: TgPost, ch: TgChannel, reacts: SoTgReacts, modifier: Mod
                 Text((if (p.views > 0) "  ·  " else "") + ago(p.postedAt), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.weight(1f))
                 if (SoUser.isSuper) IconBtn(Sym.DeleteOutline, "Delete post", { ask = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
-                IconBtn(Sym.Share, "Share post", {
+                IconBtn(Sym.Forward, "Forward", {
+                Nav.open(ChForward(ChatMsg(id = "tg:" + p.id, roomId = "", senderId = ch.username, nick = ch.title, photo = ch.photo,
+                    type = when { p.isPhoto -> "image"; p.isVideo -> "video"; p.mediaType == "voice" -> "voice"; p.isAudio -> "audio"; p.media != null -> "file"; else -> "text" },
+                    text = p.text, media = p.media, mediaKey = p.fileName, createdAt = p.postedAt)))
+            }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
+            IconBtn(Sym.Share, "Share post", {
                     share(c, listOf(ch.title, p.text.take(200), soTgLink(ch.username)).filter { it.isNotBlank() }.joinToString("\n"))
                 }, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 40.dp, modifier = Modifier.soTouchOnly())
             }
