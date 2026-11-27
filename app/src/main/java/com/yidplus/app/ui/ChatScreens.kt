@@ -498,10 +498,10 @@ LaunchedEffect(room.id, msgs.size, loaded) {
             if (one != null && me != null && !one.deleted) CsReactStrip(reacts[one.id]?.mine, onReact = { e -> reactTo(one, e); selecting = false; selected.clear() },
                 onMore = { reactPickFor = one; selecting = false; selected.clear() })
         } else if (searchOn) {
-            Surface(color = ChatLook.accent, contentColor = Color.White) {
+            Surface(color = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f)) { ChSearchField(sq, { sq = it; hit = 0 }, "Search in this chat", { searchOn = false; sq = "" }) }
-                    if (matches.isNotEmpty()) Text("${hit + 1}/${matches.size}", color = Color.White, fontSize = 13.sp) else if (sq.trim().length >= 2) Text("No results", color = Color.White, fontSize = 13.sp)
+                    if (matches.isNotEmpty()) Text("${hit + 1}/${matches.size}", color = MaterialTheme.colorScheme.onSurface, fontSize = 13.sp) else if (sq.trim().length >= 2) Text("No results", color = MaterialTheme.colorScheme.onSurface, fontSize = 13.sp)
                     ChIcon(Sym.KeyboardArrowUp, "Older", { if (matches.isNotEmpty()) hit = (hit + 1) % matches.size })
                     ChIcon(Sym.KeyboardArrowDown, "Newer", { if (matches.isNotEmpty()) hit = (hit - 1 + matches.size) % matches.size })
       ChIcon(Sym.CalendarMonth, "Jump to date", {
