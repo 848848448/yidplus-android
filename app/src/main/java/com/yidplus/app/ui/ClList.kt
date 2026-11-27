@@ -151,20 +151,26 @@ internal fun ClSelectBar(n: Int, allPinned: Boolean, allMuted: Boolean, allArchi
 
 /** WhatsApp's mute choices. The server keeps only on/off; 8 hours and 1 week are unmuted by the app when the time is up. */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun ClMuteDialog(title: String, onPick: (Long) -> Unit, onDismiss: () -> Unit) {
     var pick by remember { mutableStateOf(0) }
     val opts = listOf("8 hours" to 8L * 3600_000L, "1 week" to 7L * 24 * 3600_000L, "Always" to -1L)
-    AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            Text("Other members won't see that you muted this chat.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp).verticalScroll(rememberScrollState())) {
+            Text(title, Modifier.padding(horizontal = 20.dp, vertical = 12.dp), style = MaterialTheme.typography.titleLarge)
+            Text("Other members won't see that you muted this chat.", Modifier.padding(horizontal = 20.dp), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(8.dp))
             opts.forEachIndexed { i, (label, _) ->
-                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(8.dp)) { pick = i }.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(8.dp)) { pick = i }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = pick == i, onClick = null); Text(label, Modifier.padding(start = 12.dp), fontSize = 16.sp)
                 }
             }
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.End) {
+                TextButton(onDismiss) { Text("Cancel") }
+                TextButton({ onPick(opts[pick].second) }) { Text("OK") }
+            }
         }
-    }, confirmButton = { TextButton({ onPick(opts[pick].second) }) { Text("OK") } }, dismissButton = { TextButton(onDismiss) { Text("Cancel") } })
+    }
 }
 
 /** Status ring around an avatar (chat.js has-status-ring): green = something new, grey = all seen. */
