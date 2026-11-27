@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -71,7 +70,7 @@ data class SoSiteChannel(val ownerId: String, val name: String, val photo: Strin
     }
 }
 
-/** One member channel in a list: photo, name + verified, last post time, followers · bio (like the site's Channels list). */
+/** One member channel in a list: photo, name + verified, last post time, followers (like the site's Channels list). */
 @Composable
 fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
                 Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).restoreFocus("sc:" + ch.ownerId)
@@ -85,12 +84,11 @@ fun SoSiteChannelRow(ch: SoSiteChannel, first: Boolean = false) {
                 Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Text(ch.name, Modifier.weight(1f, fill = false), style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
                         color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    if (ch.verified) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(17.dp))
+                    if (ch.verified) Icon(Sym.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(17.dp))
                 }
                 if (ch.lastPostAt != null) Text(ago(ch.lastPostAt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
             }
-            val bio = ch.bio.replace('\n', ' ').trim()
-            Text((if (ch.followers == 1) "1 follower" else "${soNum(ch.followers)} followers") + if (bio.isNotEmpty()) " · $bio" else "",
+            Text(if (ch.followers == 1) "1 follower" else "${soNum(ch.followers)} followers",
                 Modifier.padding(top = 3.dp), style = MaterialTheme.typography.bodyMedium.copy(textDirection = TextDirection.Content, textAlign = TextAlign.Left),
                 color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
@@ -215,24 +213,21 @@ data class SoUserChannelPage(val ownerId: String, val name: String) : PageScreen
                 item(key = "head") {
                     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
                         val banner = Api.abs(j.strOrNull("banner_url"))
-                        Box(Modifier.fillMaxWidth().height(96.dp).background(Brush.linearGradient(listOf(Green, Color(0xFF2E7D9A))))) {
-                            if (banner != null) AsyncImage(banner, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-                        }
-                        Row(Modifier.padding(horizontal = 16.dp).offset(y = (-30).dp), verticalAlignment = Alignment.Bottom) {
-                            Box(Modifier.size(80.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(3.dp)) { SoThumb(photo, title, 74.dp) }
-                            Spacer(Modifier.weight(1f))
-                            if (!mine) SoPill(when { following -> "Following ✓"; reqStatus == "pending" -> "Requested"; else -> "Follow" }, !following && reqStatus != "pending", { follow() },
-                                Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Sym.PersonAdd else null, enabled = !busy)
-                            else SoPill("New post", true, { Nav.open(SoNewPostPage()) }, Modifier.firstFocus(), icon = Sym.Edit)
-                        }
-                        Column(Modifier.padding(start = 16.dp, end = 16.dp).offset(y = (-22).dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (banner != null) AsyncImage(banner, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().height(96.dp))
+                        Column(Modifier.fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            SoThumb(photo, title, 88.dp)
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                                 Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                                     style = TextStyle(textDirection = TextDirection.Content))
-                                if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = Color(0xFF1D9BF0), modifier = Modifier.padding(start = 4.dp).size(18.dp))
+                                if (j.optInt("verified") == 1 || j.optBoolean("verified")) Icon(Sym.Verified, "Verified", tint = BadgeGreen, modifier = Modifier.padding(start = 4.dp).size(18.dp))
                                 if (j.str("privacy") == "followers_only") Icon(Sym.Lock, "Followers only", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(16.dp))
                             }
-                            if (j.str("bio").isNotBlank()) Text(j.str("bio"), fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp), style = TextStyle(textDirection = TextDirection.Content))
+                            if (j.str("bio").isNotBlank()) Text(j.str("bio"), fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp), style = TextStyle(textDirection = TextDirection.Content), textAlign = TextAlign.Center)
+                            Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (!mine) SoPill(when { following -> "Following ✓"; reqStatus == "pending" -> "Requested"; else -> "Follow" }, !following && reqStatus != "pending", { follow() },
+                                    Modifier.firstFocus(), icon = if (!following && reqStatus != "pending") Sym.PersonAdd else null, enabled = !busy)
+                                else SoPill("New post", true, { Nav.open(SoNewPostPage()) }, Modifier.firstFocus(), icon = Sym.Edit)
+                            }
                             Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                                 Stat(soNum(j.optInt("followers")), "Followers"); Stat(soNum(j.optInt("following")), "Following")
                                 Stat(soNum(j.optInt("total_views")), "Views"); Stat(soNum(j.optInt("shorts_count")), "Shorts")
