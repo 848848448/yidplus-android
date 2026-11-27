@@ -56,7 +56,7 @@ class ChCalls : PageScreen() {
 private fun CallHistoryRow(r: CallRow) {
     val c = ctx()
     val arrow = when { r.missed -> Sym.CallReceived; r.outgoing -> Sym.CallMade; else -> Sym.CallReceived }
-    val arrowTint = if (r.missed) Color(0xFFE53935) else Color(0xFF53BDEB)
+    val arrowTint = if (r.missed) Color(0xFFE53935) else Color(0xFF25D366)
     Row(Modifier.fillMaxWidth().heightIn(min = 72.dp)
         .tap(androidx.compose.foundation.shape.RoundedCornerShape(0.dp)) {
             // Tap the row → open the chat with that person.
@@ -78,5 +78,4 @@ private fun CallHistoryRow(r: CallRow) {
             CallKit.startCall(c, r.otherId, r.nick, r.photo, video = r.kind != "audio")
         })
     }
-    HorizontalDivider(Modifier.padding(start = 82.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = .3f))
 }
