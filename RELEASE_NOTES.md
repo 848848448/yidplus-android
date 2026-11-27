@@ -1,3 +1,12 @@
+## 2.27.0
+
+- Channels: the verified badge is now green like WhatsApp
+- Channel pages: a clean, plain header with a large photo — no more gradient banner
+- Channel directory rows now show only the follower count
+- Pin your favourite channels to the top of the list
+- Mute notifications for individual Telegram channels
+- Forward a channel post into any chat, with its media
+
 ## 2.26.0
 
 - Message reminders now work: long-press a message and tap "Remind me"
