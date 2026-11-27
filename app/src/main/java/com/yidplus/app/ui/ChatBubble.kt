@@ -274,7 +274,8 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                                         Icon(if (seen) Sym.DoneAll else Sym.Done, if (seen) "Read" else "Sent", Modifier.padding(start = 3.dp).size(16.dp), tint = if (seen) ChatLook.tick else ChatLook.sub())
                     }
                 }
-            
+            }
+        }
         val rc = reacts?.counts?.filterValues { it > 0 }
         if (!rc.isNullOrEmpty()) Row(Modifier.padding(start = if (!mine && group) 40.dp else 4.dp, top = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             rc.entries.sortedByDescending { it.value }.take(5).forEach { (e, n) ->
