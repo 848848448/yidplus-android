@@ -107,6 +107,25 @@ object ClLocal {
         p(c).edit().putString("pins:" + me(), l.joinToString(",")).apply(); pinVersion++; return on
     }
     var pinVersion by androidx.compose.runtime.mutableIntStateOf(0)
+    // Channel pins: WhatsApp-style, on this phone only. A channel is keyed "tg:<username>" (Telegram)
+    // or "ch:<ownerId>" (member channel), so the two kinds can never collide. Up to 5 pinned, newest first.
+    fun chPins(c: Context): List<String> = (p(c).getString("chpins:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }
+    fun toggleChPin(c: Context, key: String): Boolean {
+        val l = chPins(c).toMutableList(); val on = key !in l
+        if (on) { l.add(0, key); while (l.size > 5) l.removeAt(l.lastIndex) } else l.remove(key)
+        p(c).edit().putString("chpins:" + me(), l.joinToString(",")).apply(); chPinVersion++; return on
+    }
+    var chPinVersion by androidx.compose.runtime.mutableIntStateOf(0)
+    // Channel mutes: which channels never post a "new post" notification. Read by NotifyWorker (Telegram only:
+    // member channels have no new-post notification to gate, so no mute toggle is offered for them).
+    fun chMuted(c: Context): Set<String> = (p(c).getString("chmuted:" + me(), "") ?: "").split(',').filter { it.isNotBlank() }.toSet()
+    fun isChMuted(c: Context, key: String): Boolean = key in chMuted(c)
+    fun toggleChMute(c: Context, key: String): Boolean {
+        val s = chMuted(c).toMutableSet(); val on = key !in s
+        if (on) s.add(key) else s.remove(key)
+        p(c).edit().putString("chmuted:" + me(), s.joinToString(",")).apply(); chMuteVersion++; return on
+    }
+    var chMuteVersion by androidx.compose.runtime.mutableIntStateOf(0)
 
     // Mute until: the server keeps only on/off (PUT {room_id, muted}); "8 hours" / "1 week" are unmuted by the app when the time is up.
     fun muteUntil(c: Context, id: String): Long = p(c).getLong("mu:" + id, 0L)
