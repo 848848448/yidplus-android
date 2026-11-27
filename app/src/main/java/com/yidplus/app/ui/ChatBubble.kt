@@ -277,7 +277,7 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
             }
         }
         val rc = reacts?.counts?.filterValues { it > 0 }
-        if (!rc.isNullOrEmpty()) Row(Modifier.padding(start = if (!mine && group) 40.dp else 4.dp, top = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (!rc.isNullOrEmpty()) Row(Modifier.padding(start = if (!mine && group) 40.dp else 4.dp, top = 2.dp).offset(y = -8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) { // Reaction pill overlaps the bubble's bottom edge like WhatsApp; offset moves only its drawing, so its slot below keeps the next message clear
             rc.entries.sortedByDescending { it.value }.take(5).forEach { (e, n) ->
                 val my = reacts?.mine == e
                 Text("$e $n", fontSize = 13.sp, color = fg, modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(if (my) ChatLook.accent.copy(alpha = .22f) else ChatLook.theirs())
