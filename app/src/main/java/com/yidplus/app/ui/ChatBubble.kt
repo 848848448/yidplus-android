@@ -269,14 +269,12 @@ internal fun ChBubble(m: ChatMsg, mine: Boolean, group: Boolean, first: Boolean,
                     if (m.edited && !m.deleted) Text("edited  ", fontSize = 12.sp, color = ChatLook.sub())
                     Text(if (m.pending) "Sending…" else if (m.failed) "Not sent · tap" else clock(m.createdAt), fontSize = 12.sp, color = if (m.failed) Color(0xFFD32F2F) else ChatLook.sub())
                     if (mine && !m.pending && !m.failed && !m.deleted) {
-                        // The site: ✓ sent, ✓✓ blue read in a DM; in a group "👁 n" once n members have seen it.
+                        // ✓ sent, ✓✓ read; the seen-by list is in Message info.
                         val seen = if (privateChat) m.read else m.seen > 0
-                        if (!privateChat && m.seen > 0) Text(" 👁 ${m.seen}", fontSize = 11.sp, color = ChatLook.sub())
-                        else Icon(if (seen) Sym.DoneAll else Sym.Done, if (seen) "Read" else "Sent", Modifier.padding(start = 3.dp).size(16.dp), tint = if (seen) ChatLook.tick else ChatLook.sub())
+                                        Icon(if (seen) Sym.DoneAll else Sym.Done, if (seen) "Read" else "Sent", Modifier.padding(start = 3.dp).size(16.dp), tint = if (seen) ChatLook.tick else ChatLook.sub())
                     }
                 }
-            }
-        }
+            
         val rc = reacts?.counts?.filterValues { it > 0 }
         if (!rc.isNullOrEmpty()) Row(Modifier.padding(start = if (!mine && group) 40.dp else 4.dp, top = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             rc.entries.sortedByDescending { it.value }.take(5).forEach { (e, n) ->
