@@ -368,18 +368,23 @@ internal fun CsEmojiPanel(onSticker: (String) -> Unit, onPickSticker: () -> Unit
 
 /** The site's Message options sheet: 🕓 Schedule for later + Disappear after Off / 1 min / 1 hour / 1 day / 1 week. */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun CsMsgOptions(disappear: Int, onSchedule: () -> Unit, onDisappear: (Int) -> Unit, onClose: () -> Unit) {
-    AlertDialog(onDismissRequest = onClose, title = { Text("Message options") }, text = {
-        Column {
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+            Text("Message options", Modifier.padding(horizontal = 20.dp, vertical = 12.dp), style = MaterialTheme.typography.titleLarge)
             CsActRow(Sym.Schedule, "Schedule for later") { onSchedule() }
-            Text("Disappear after", Modifier.padding(top = 10.dp, bottom = 6.dp), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("Disappear after", Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 6.dp), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("Off" to 0, "1 min" to 60, "1 hour" to 3600, "1 day" to 86400, "1 week" to 604800).forEach { (l, s) ->
                     FilterChip(selected = disappear == s, onClick = { onDisappear(s) }, label = { Text(l) })
                 }
             }
         }
-    }, confirmButton = { TextButton(onClose) { Text("Done") } })
+                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.End) {
+                TextButton(onClose) { Text("Done") }
+            }
+    }
 }
 
 /** "🕓 Mar 3, 4:15 PM · 💨 1h  ✕" above the composer (the site's msg-opts-badge); tap clears. */
@@ -477,9 +482,12 @@ private val REACT_EMOJIS = listOf("👍","❤️","😂","😮","😢","🙏","�
 
 /** Pick a wallpaper for this one chat (WhatsApp's per-chat wallpaper). */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun CsWallpaperPicker(current: String, onPick: (String) -> Unit, onClose: () -> Unit) {
-    AlertDialog(onDismissRequest = onClose, confirmButton = { TextButton(onClose) { Text("Close") } }, title = { Text("Chat wallpaper", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }, text = {
-        LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.heightIn(max = 340.dp)) {
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+            Text("Chat wallpaper", Modifier.padding(horizontal = 20.dp, vertical = 12.dp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.heightIn(max = 340.dp).padding(horizontal = 8.dp)) {
             gridItems(ChatWallpapers) { w ->
                 Column(Modifier.padding(6.dp).tap(RoundedCornerShape(10.dp)) { onPick(w.id) }, horizontalAlignment = Alignment.CenterHorizontally) {
                     val mod = Modifier.fillMaxWidth().height(70.dp).clip(RoundedCornerShape(10.dp))
@@ -490,7 +498,8 @@ internal fun CsWallpaperPicker(current: String, onPick: (String) -> Unit, onClos
                 }
             }
         }
-    })
+        }
+    }
 }
 
 /** Pick any emoji to react with (WhatsApp's "+" on the reaction bar). */
