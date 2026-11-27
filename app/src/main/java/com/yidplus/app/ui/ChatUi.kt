@@ -161,13 +161,13 @@ internal fun ChIcon(icon: ImageVector, label: String, onClick: () -> Unit, tint:
     }
 }
 
-/** Coloured circle with initials when there's no photo; a green dot when online. */
+/** Grey circle with a person silhouette when there's no photo; a green dot when online. */
 @Composable
 internal fun ChAvatar(url: String?, name: String, id: String, size: Dp = 52.dp, online: Boolean = false) {
     Box(Modifier.size(size)) {
-        Box(Modifier.fillMaxSize().clip(CircleShape).background(ChatLook.nameColor(id.ifBlank { name })), contentAlignment = Alignment.Center) {
-            val ini = remember(name) { chInitials(name) }
-            Text(ini, color = Color.White, fontWeight = FontWeight.Bold, fontSize = (size.value * 0.36f).sp, maxLines = 1)
+        Box(Modifier.fillMaxSize().clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+            Icon(Sym.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), modifier = Modifier.size(size * 0.6f))
+            
             if (!url.isNullOrBlank()) AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         }
         if (online) Box(Modifier.align(Alignment.BottomEnd).size(size * 0.26f).clip(CircleShape).background(MaterialTheme.colorScheme.surface).padding(2.dp).clip(CircleShape).background(ChatLook.unread))
