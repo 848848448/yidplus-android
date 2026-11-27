@@ -55,9 +55,11 @@ import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -213,20 +215,20 @@ fun SettingsHint(text: String) {
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun SettingsChoiceDialog(title: String, options: List<String>, selected: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(onDismissRequest = onDismiss, confirmButton = { TextButton(onDismiss) { Text("Cancel") } },
-        title = { Text(title, style = MaterialTheme.typography.titleLarge) },
-        text = {
-            Column {
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+            Text(title, Modifier.padding(horizontal = 20.dp, vertical = 12.dp), style = MaterialTheme.typography.titleLarge)
                 options.forEachIndexed { i, o ->
                     Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).tap(RoundedCornerShape(8.dp), role = Role.RadioButton) { onPick(i); onDismiss() }
-                        .then(if (i == selected) Modifier.firstFocus() else Modifier).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        .then(if (i == selected) Modifier.firstFocus() else Modifier).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(i == selected, null)
                         Text(o, Modifier.padding(start = 12.dp), style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
-        })
+        }
 }
 
 @Composable
